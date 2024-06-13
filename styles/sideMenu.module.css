@@ -1,0 +1,49 @@
+.welcomeContainer {
+  font-family: "regular";
+  color: black;
+}
+
+.welcomeText {
+  font-family: "semibold";
+  font-weight: 900;
+  margin-left: 20px;
+}
+.userName {
+  font-family: "semibold";
+  font-weight: 900;
+  margin-left: 10px;
+  color: var(--appGreen);
+  text-transform: uppercase;
+}
+
+.sideMenuNames {
+  font-family: "regular";
+  color: rgb(255, 255, 255);
+  margin-left: 10px;
+}
+.menuItem {
+  font-family: "regular";
+  display: flex;
+  height: 50px;
+  align-items: center;
+  margin-left: 10px;
+  margin-right: 10px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  padding-left: 20px;
+  cursor: pointer;
+}
+
+.menuItemSelected {
+  font-family: "regular";
+  display: flex;
+  background-color: var(--appGreen);
+  height: 50px;
+  align-items: center;
+  margin-left: 10px;
+  margin-right: 10px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  padding-left: 20px;
+  cursor: pointer;
+}

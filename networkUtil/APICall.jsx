@@ -1,5 +1,5 @@
 import axios from "axios";
-// import User from "./user";
+import User from "./user";
 
 class APICall {
   async postData(url, data) {
@@ -108,8 +108,7 @@ class APICall {
   }
 
   async getDataWithToken(url) {
-    const token = User.getApiToken();
-    console.log(token);
+    const token = User.getAccessToken();
     try {
       const response = await axios.get(url, {
         headers: {

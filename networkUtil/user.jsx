@@ -22,6 +22,16 @@ class User {
     const data = User.getFromLocalStorage();
     return data ? data.access_token : null;
   }
+
+  static getUserName() {
+    const data = User.getFromLocalStorage();
+    return data ? data.user.name : null;
+  }
+
+  static getUserPersmissions() {
+    const data = User.getFromLocalStorage();
+    return data ? data.permission.permission : null;
+  }
 }
 
 export default User;

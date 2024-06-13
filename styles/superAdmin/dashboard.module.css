@@ -1,0 +1,27 @@
+.topTabConainer {
+  height: 50px;
+}
+
+.tabContainer {
+  height: 50px;
+  border: 1px solid #bbbbbb;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: "semibold";
+}
+
+.tabContainerSelected {
+  height: 50px;
+  border: 1px solid #bbbbbb;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--appGreen);
+  border-radius: 10px;
+  cursor: pointer;
+  color: white;
+  font-family: "semibold";
+}

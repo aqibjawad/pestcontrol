@@ -1,0 +1,30 @@
+.itemContainer {
+  height: 130px;
+  padding: 20px;
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+  font-family: "regular";
+}
+
+.teamMembers {
+  background-color: var(--appGreen);
+  color: white;
+}
+.itemTitle {
+  font-size: 20px;
+  font-family: "semibold";
+}
+.itemCount {
+  font-size: 26px;
+  margin-top: 30px;
+}
+.addClient {
+  margin-top: 20px;
+  background-color: var(--appGreen);
+  padding: 10px 20px;
+  color: white;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
