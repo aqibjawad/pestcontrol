@@ -1,0 +1,25 @@
+.parent {
+  height: 50px;
+  border: 1px solid #d0d5dd;
+  font-family: "regular";
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  width: 250px;
+}
+
+.inputBox {
+  outline: none;
+}
+
+.buttonContainer {
+  background-color: var(--appGreen);
+  margin-left: 20px;
+  color: white;
+  border-radius: 8px;
+  min-width: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "regular";
+}

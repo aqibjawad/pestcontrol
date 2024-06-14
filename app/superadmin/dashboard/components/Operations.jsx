@@ -46,11 +46,32 @@ const Operations = () => {
     );
   };
 
+  const numberOfJobs = () => {
+    return (
+      <div className="flex gap-4 mt-5">
+        <div className={` flex flex-grow ${styles.itemContainer} `}>
+          <div className="flex-grow">
+            <div className={styles.itemTitle}>{"Number of Jobs"}</div>
+            <div className={styles.itemCount}>{"423"}</div>
+          </div>
+          <div>
+            <DateFilters
+              onOptionChange={onSelectionChange}
+              onDateChange={onDateChange}
+            />
+            <div className={styles.addClient}> View All Jobs</div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div>
       <div className="pageTitle">Operations</div>
       {teamAndVehicales()}
       {numberOfClients()}
+      {numberOfJobs()}
     </div>
   );
 };

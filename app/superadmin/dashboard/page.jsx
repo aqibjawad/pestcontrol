@@ -2,6 +2,11 @@
 import React, { useState } from "react";
 import styles from "../../../styles/superAdmin/dashboard.module.css";
 import Operations from "../dashboard/components/Operations";
+import UpcomingJobs from "../../../components/UpcomingJobs";
+import Vendors from "../../../components/Vendors";
+import Quotes from "../../../components/Quotes";
+import Contracts from "../../../components/Contracts";
+import Finance from "../dashboard/components/Finance";
 const Index = () => {
   const [tabNames, setTabNames] = useState([
     "Work management",
@@ -42,7 +47,17 @@ const Index = () => {
 
       <div className="grid grid-cols-12 gap-4 mt-10">
         <div className="col-span-12 md:col-span-9">
-          <Operations />
+          <div className={selectedIndex === 0 ? `block` : "hidden"}>
+            <Operations />
+            <UpcomingJobs />
+            <Vendors />
+            <Quotes />
+            <Contracts />
+          </div>
+
+          <div className={selectedIndex === 1 ? `block` : "hidden"}>
+            <Finance />
+          </div>
         </div>
         <div className="col-span-12 md:col-span-3"></div>
       </div>

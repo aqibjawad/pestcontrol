@@ -4,8 +4,6 @@ import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemText from "@mui/material/ListItemText";
 import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
@@ -15,6 +13,7 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import styles from "../styles/sideMenu.module.css";
 import User from "@/networkUtil/user";
+
 const drawerWidth = 240;
 
 const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(
@@ -44,9 +43,27 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   justifyContent: "flex-end",
 }));
 
+const MyAppBar = styled(AppBar, {
+  shouldForwardProp: (prop) => prop !== "open",
+})(({ theme, open }) => ({
+  zIndex: theme.zIndex.drawer + 1,
+  transition: theme.transitions.create(["margin", "width"], {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  ...(open && {
+    marginLeft: drawerWidth,
+    width: `calc(100% - ${drawerWidth}px)`,
+    transition: theme.transitions.create(["margin", "width"], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  }),
+}));
+
 export default function SideMenu({ children }) {
   const [open, setOpen] = React.useState(true);
-  const [permissions, setPermissions] = useState();
+  const [permissions, setPermissions] = useState([]);
   const [userName, setUserName] = useState("");
 
   const toggleDrawer = () => {
@@ -62,13 +79,10 @@ export default function SideMenu({ children }) {
 
   return (
     <Box sx={{ display: "flex" }}>
-      <AppBar
+      <MyAppBar
         position="fixed"
-        sx={{
-          zIndex: (theme) => theme.zIndex.drawer + 1,
-          backgroundColor: "white",
-          boxShadow: "none",
-        }}
+        open={open}
+        sx={{ backgroundColor: "white", boxShadow: "none" }}
       >
         <Toolbar>
           <IconButton
@@ -82,7 +96,7 @@ export default function SideMenu({ children }) {
           </IconButton>
           <div className={styles.welcomeContainer}>
             <div className="flex">
-              <img src="/welcomeHand.svg" />
+              <img src="/welcomeHand.svg" alt="Welcome hand" />
               <div className="flex">
                 <div className={styles.welcomeText}>WELCOME</div>
                 <div className={styles.userName}>{userName}</div>
@@ -90,11 +104,10 @@ export default function SideMenu({ children }) {
             </div>
           </div>
         </Toolbar>
-      </AppBar>
+      </MyAppBar>
       <Drawer
         sx={{
           width: drawerWidth,
-
           flexShrink: 0,
           "& .MuiDrawer-paper": {
             width: drawerWidth,
@@ -111,22 +124,27 @@ export default function SideMenu({ children }) {
             <ChevronLeftIcon />
           </IconButton>
         </DrawerHeader>
+
+        <div className="flex justify-center mb-10">
+          <img src="/whiteLogo.png" height={130} width={130} />
+        </div>
+        <div className={styles.separator}>&nbsp;</div>
+
         <List>
-          {permissions &&
-            permissions.map((text, index) => (
-              <div
-                onClick={() => setSelectedIndex(index)}
-                key={index}
-                className={
-                  index === selectedIndex
-                    ? styles.menuItemSelected
-                    : styles.menuItem
-                }
-              >
-                <img src={text.icon} height={20} width={20} />
-                <div className={styles.sideMenuNames}>{text.name}</div>
-              </div>
-            ))}
+          {permissions.map((text, index) => (
+            <div
+              onClick={() => setSelectedIndex(index)}
+              key={index}
+              className={
+                index === selectedIndex
+                  ? styles.menuItemSelected
+                  : styles.menuItem
+              }
+            >
+              <img src={text.icon} alt={text.name} height={20} width={20} />
+              <div className={styles.sideMenuNames}>{text.name}</div>
+            </div>
+          ))}
         </List>
       </Drawer>
       <Main open={open}>

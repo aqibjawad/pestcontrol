@@ -1,0 +1,39 @@
+.parentContainer {
+  border: 1px solid var(--borderGreenColor);
+  margin-top: 20px;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.tableContainer {
+  font-family: "regular";
+}
+
+.clientName {
+  font-family: "regular";
+  font-size: 14px;
+  font-weight: 400;
+}
+.clientEmail {
+  font-family: "regular";
+  font-size: 14px;
+  font-weight: 400;
+  color: #667085;
+}
+
+.statusContainer {
+  color: white;
+  background-color: var(--appGreen);
+  padding: 5px;
+  font-size: 12px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 80px;
+}
+
+.teamCaptainName {
+  font-size: 16px;
+  font-family: "semibold";
+}
