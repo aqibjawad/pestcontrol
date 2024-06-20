@@ -9,7 +9,7 @@ const DateFilters = ({ onOptionChange, onDateChange }) => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
-  const [title, setTitle] = useState("Date Filter");
+  const [title, setTitle] = useState("Select Date");
 
   const handleOptionClick = (option) => {
     setSelectedOption(option);
@@ -62,8 +62,9 @@ const DateFilters = ({ onOptionChange, onDateChange }) => {
         variant="outlined"
         onClick={handleClick}
         style={{
-          color: "#000",
+          color: "#fff",
           borderColor: "#f3f3f3",
+          backgroundColor: "#32a92e",
         }}
       >
         {title}

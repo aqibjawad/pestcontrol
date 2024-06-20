@@ -1,0 +1,24 @@
+.itemContainer {
+  padding: 30px;
+  font-family: "regular";
+  border: 1px solid var(--borderGreenColor);
+  border-radius: 10px;
+  height: 165px;
+}
+
+.itemTitle {
+  font-family: "regular";
+  font-size: 14px;
+  color: #979797;
+  margin-bottom: 5px;
+}
+
+.counter {
+  font-family: "semibold";
+  font-size: 18px;
+}
+
+.boxTitle {
+  font-family: "semibold";
+  font-size: 20px;
+}
