@@ -5,6 +5,7 @@ import DateFilters from "@/components/generic/DateFilters";
 import SearchInput from "@/components/generic/SearchInput";
 import GreenButton from "@/components/generic/GreenButton";
 const Finance = () => {
+  
   const totalExpenses = () => {
     return (
       <div className={styles.itemContainer}>
