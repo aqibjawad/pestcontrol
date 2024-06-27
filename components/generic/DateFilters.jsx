@@ -8,7 +8,6 @@ const DateFilters = ({ onOptionChange, onDateChange }) => {
   const [selectedOption, setSelectedOption] = useState(null);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-
   const [title, setTitle] = useState("Select Date");
 
   const handleOptionClick = (option) => {

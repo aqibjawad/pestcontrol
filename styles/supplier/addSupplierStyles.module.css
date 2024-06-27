@@ -1,0 +1,7 @@
+.viewAll {
+  font-family: "regular";
+  font-size: 15px;
+  color: var(--appGreen);
+  margin-top: 16px;
+  cursor: pointer;
+}

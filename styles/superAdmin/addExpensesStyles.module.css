@@ -1,0 +1,14 @@
+.expenseTitle {
+  font-family: "semibold";
+  font-size: 15px;
+  margin-bottom: 20px;
+}
+
+.imageContainer {
+  border: 1px dotted #ccc;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 600px;
+}

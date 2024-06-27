@@ -76,8 +76,7 @@ class APICall {
   }
 
   async postFormDataWithToken(url, data) {
-    const token = User.getApiToken();
-    console.log(token);
+    const token = User.getAccessToken();
     try {
       const formData = new FormData();
       Object.keys(data).forEach((key) => {
@@ -134,7 +133,7 @@ class APICall {
   }
 
   async deleteDataWithToken(url) {
-    const token = User.getApiToken();
+    const token = User.getAccessToken();
     console.log(token);
     try {
       const response = await axios.delete(url, {
@@ -161,7 +160,7 @@ class APICall {
   }
 
   async getUserById(url) {
-    const token = User.getApiToken();
+    const token = User.getAccessToken();
     try {
       const response = await axios.get(url, {
         headers: {
@@ -187,8 +186,40 @@ class APICall {
   }
 
   async updateFormDataWithToken(url, data) {
-    const token = User.getApiToken();
+    const token = User.getAccessToken();
     console.log(token);
+    try {
+      const formData = new FormData();
+      Object.keys(data).forEach((key) => {
+        formData.append(key, data[key]);
+      });
+      const response = await axios.post(url, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      if (response.status === 200) {
+        return response.data;
+      } else {
+        throw new Error(response.statusText);
+      }
+    } catch (error) {
+      if (error.response) {
+        return {
+          error: error.response.data || "Failed to post form data",
+          status: error.response.status,
+        };
+      } else {
+        console.error(error);
+        return { error: "Failed to post form data", status: 500 };
+      }
+    }
+  }
+
+  async postDataWithTokn(url, data) {
+    const token = User.getAccessToken();
+
     try {
       const formData = new FormData();
       Object.keys(data).forEach((key) => {

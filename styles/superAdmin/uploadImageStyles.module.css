@@ -1,0 +1,26 @@
+.titleText {
+  font-family: "regular";
+  font-size: 14px;
+  font-weight: 200;
+  color: #191d23;
+  margin: 20px;
+}
+
+.mainContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.addBtn {
+  height: 40px;
+  width: 40px;
+  background-color: var(--appGreen);
+  display: flex;
+  color: white;
+  border-radius: 10px;
+  font-size: 20px;
+  justify-content: center;
+  align-items: center;
+}
