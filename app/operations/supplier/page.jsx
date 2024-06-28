@@ -81,6 +81,7 @@ const Page = () => {
         country: selectedCountryID,
         state: selectedStateID,
         zip: zipCode,
+        hsn: hsn,
         city: selectedStateID,
       };
       var response = await apiCall.postDataWithTokn(addSupplier, obj);

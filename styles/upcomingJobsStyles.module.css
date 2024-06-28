@@ -6,6 +6,10 @@
 }
 
 .tableContainer {
+  font-family: "semibold";
+}
+
+.rowContainer {
   font-family: "regular";
 }
 

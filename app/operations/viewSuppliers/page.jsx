@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
 import SearchInput from "@/components/generic/SearchInput";
 import {
@@ -10,194 +10,203 @@ import {
   Button,
 } from "@mui/material";
 
+import { getAllSuppliers } from "@/networkUtil/Constants";
+
 import styles from "../../../styles/loginStyles.module.css";
-
-const rows = Array.from({ length: 10 }, (_, index) => ({
-  clientName: "Olivia Rhye",
-  clientContact: "10",
-  quoteSend: "10",
-  quoteApproved: "50",
-  cashAdvance: "$50,000",
-}));
-
-const listServiceTable = () => {
-  return (
-    <div className={tableStyles.tableContainer}>
-      <table className="min-w-full bg-white">
-        <thead>
-          <tr>
-            <th className="py-5 px-4 border-b border-gray-200 text-left">
-              {" "}
-              Porduct{" "}
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              {" "}
-              Supplier{" "}
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              {" "}
-              City{" "}
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              {" "}
-              Zip Code{" "}
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              {" "}
-              Order Date{" "}
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              {" "}
-              De;ivery Date{" "}
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              {" "}
-              Unit{" "}
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              {" "}
-              Amount{" "}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, index) => (
-            <tr key={index} className="border-b border-gray-200">
-              <td className="py-5 px-4">{row.clientName}</td>
-              <td className="py-2 px-4">
-                <div className={tableStyles.clientContact}>
-                  {row.clientContact}
-                </div>
-              </td>
-              <td className="py-2 px-4">
-                <div className={tableStyles.clientContact}>
-                  {row.clientContact}
-                </div>
-              </td>
-              <td className="py-2 px-4">
-                <div className={tableStyles.clientContact}>
-                  {row.clientContact}
-                </div>
-              </td>
-              <td className="py-2 px-4">
-                <div className={tableStyles.clientContact}>
-                  {row.clientContact}
-                </div>
-              </td>
-              <td className="py-2 px-4">
-                <div className={tableStyles.clientContact}>
-                  {row.clientContact}
-                </div>
-              </td>
-              <td className="py-2 px-4">
-                <div className={tableStyles.clientContact}>
-                  {row.clientContact}
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-};
+import Loading from "../../../components/generic/Loading";
+import APICall from "@/networkUtil/APICall";
+import { Delete, Edit, ViewAgenda } from "@mui/icons-material";
+import Link from "next/link";
 
 const Page = () => {
+  const apiCall = new APICall();
+  const [fetchingData, setFetchingData] = useState(true);
+  const [suppliersList, setSupplierList] = useState();
+
+  const listServiceTable = () => {
+    return (
+      <div className={tableStyles.tableContainer}>
+        <table className="min-w-full bg-white">
+          <thead>
+            <tr>
+              <th className="py-5 px-4 border-b border-gray-200 text-left">
+                Sr
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                {" "}
+                Supplier{" "}
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Company
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Email
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Supplier Type
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                TRN
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                VAT
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                HSN
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Amount
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Action
+              </th>
+            </tr>
+          </thead>
+          <tbody className={tableStyles.rowContainer}>
+            {suppliersList &&
+              suppliersList.map((row, index) => (
+                <tr key={index} className="border-b border-gray-200">
+                  <td className="py-5 px-4">{index + 1}</td>
+                  <td className="py-2 px-4">
+                    <div className={tableStyles.clientContact}>
+                      {row.supplier_name}
+                    </div>
+                  </td>
+                  <td className="py-2 px-4">
+                    <div className={tableStyles.clientContact}>
+                      {row.company_name}
+                    </div>
+                  </td>
+                  <td className="py-2 px-4">
+                    <div className={tableStyles.clientContact}>{row.email}</div>
+                  </td>
+                  <td className="py-2 px-4">
+                    <div className={tableStyles.clientContact}>
+                      {row.supplier_type}
+                    </div>
+                  </td>
+                  <td className="py-2 px-4">
+                    <div className={tableStyles.clientContact}>
+                      {row.tin_no}
+                    </div>
+                  </td>
+                  <td className="py-2 px-4">
+                    <div className={tableStyles.clientContact}>{row.vat}</div>
+                  </td>
+                  <td className="py-2 px-4">
+                    <div className={tableStyles.clientContact}>{row.hsn}</div>
+                  </td>
+                  <td className="py-2 px-4">
+                    <div className={tableStyles.clientContact}>
+                      {"AED -9000"}
+                    </div>
+                  </td>
+                  <td className="py-2 px-4">
+                    <div className={tableStyles.clientContact}>
+                      <Edit color="primary" /> <Delete sx={{ color: "red" }} />
+                      <Link
+                        href={"#"}
+                        sx={{
+                          marginLeft: "10px",
+                          color: "green",
+                        }}
+                      >
+                        View Details
+                      </Link>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
+  useEffect(() => {
+    getSuppliers();
+  }, []);
+
+  const getSuppliers = async () => {
+    setFetchingData(true);
+    const response = await apiCall.getDataWithToken(getAllSuppliers);
+    setSupplierList(response.data);
+    setFetchingData(false);
+  };
+
   return (
     <div>
-      <div style={{ padding: "30px", borderRadius: "10px" }}>
-        <div
-          style={{
-            fontSize: "20px",
-            fontFamily: "semibold",
-            marginBottom: "-4rem",
-          }}
-        >
-          {" "}
-          Suppliers{" "}
-        </div>
-        <div className="flex">
-          <div className="flex-grow"></div>
-          <div
-            className="flex"
-            style={{ display: "flex", alignItems: "center" }}
-          >
-            <div style={{ marginTop: "2rem", marginRight: "2rem" }}>
-              <SearchInput />
+      <>
+        <div>
+          <div className="flex">
+            <div className="flex-grow">
+              <div className="pageTitle">Supplier</div>
             </div>
+            <div>
+              <div className="flex">
+                <div>
+                  <SearchInput />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginTop: "2rem",
+            }}
+          >
             <div
               style={{
-                marginTop: "2rem",
-                border: "1px solid #38A73B",
-                borderRadius: "8px",
-                height: "40px",
-                width: "100px",
-                alignItems: "center",
+                backgroundColor: "#32A92E",
+                marginBottom: "2rem",
+                color: "white",
+                fontWeight: "600",
+                fontSize: "16px",
+                marginLeft: "auto",
+                marginRight: "auto",
+                borderRadius: "5px",
+                height: "48px",
+                width: "150px",
                 display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                marginLeft: "1rem",
+                cursor: "pointer",
               }}
             >
-              <img
-                src="/Filters lines.svg"
-                height={20}
-                width={20}
-                className="ml-2 mr-2"
-              />
-              Filters
+              Add
+            </div>
+
+            <div
+              style={{
+                backgroundColor: "#32A92E",
+                color: "white",
+                fontWeight: "600",
+                fontSize: "16px",
+                height: "44px",
+                width: "202px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                marginLeft: "1rem",
+                padding: "12px, 16px, 12px, 16px",
+                borderRadius: "10px",
+              }}
+            >
+              Download all
             </div>
           </div>
         </div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            marginTop: "2rem",
-          }}
-        >
-          <div
-            style={{
-              marginTop: "2rem",
-              backgroundColor: "#32A92E",
-              color: "white",
-              fontWeight: "600",
-              fontSize: "16px",
-              marginLeft: "auto",
-              marginRight: "auto",
-              height: "48px",
-              width: "150px",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              marginLeft: "1rem",
-              cursor: "pointer",
-            }}
-          >
-            Add
+        {fetchingData ? (
+          <Loading />
+        ) : (
+          <div className="grid grid-cols-12 gap-4">
+            <div className="col-span-12">{listServiceTable()}</div>
           </div>
-
-          <div
-            style={{
-              backgroundColor: "#32A92E",
-              color: "white",
-              fontWeight: "600",
-              fontSize: "16px",
-              height: "44px",
-              width: "202px",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              marginLeft: "1rem",
-              padding: "12px, 16px, 12px, 16px",
-              borderRadius: "10px",
-            }}
-          >
-            Download all
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-12 gap-4">
-        <div className="col-span-12">{listServiceTable()}</div>
-      </div>
+        )}
+      </>
     </div>
   );
 };

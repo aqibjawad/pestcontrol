@@ -1,0 +1,62 @@
+.listContainer {
+  justify-content: center;
+  align-items: center;
+}
+.tableHeaderContainer {
+  height: 50px;
+  background: #ebeaea;
+  font-family: "regular";
+  border-radius: 5px;
+  display: flex;
+}
+.srContainer {
+  height: 50px;
+  width: 50px;
+  font-family: "semibold";
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.brandContainer {
+  height: 50px;
+  display: flex;
+  font-family: "semibold";
+  align-items: center;
+  margin-left: 10px;
+}
+
+.actionContainer {
+  height: 50px;
+  min-width: 100px;
+  display: flex;
+  font-family: "semibold";
+  align-items: center;
+  margin-left: 10px;
+}
+
+.srNumberContainer {
+  height: 50px;
+  width: 50px;
+  border: 0cqi;
+  font-family: "regular";
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tableHeaderContainer2 {
+  height: 50px;
+  margin-top: 10px;
+  font-family: "regular";
+  border-radius: 5px;
+  display: flex;
+}
+
+.brandContainerName {
+  height: 50px;
+  display: flex;
+  font-family: "regular";
+  align-items: center;
+  margin-left: 10px;
+}
