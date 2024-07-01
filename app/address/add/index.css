@@ -1,0 +1,21 @@
+/* Center container using Flexbox */
+.centerContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Update the .plusborder class */
+.plusborder {
+    width: 56px;
+    height: 52px;
+    padding: 10px;
+    border-radius: 34px;
+    border: 1px solid #263238;
+    font-family: "Montserrat", "Helvetica Neue";
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 56.32px;
+    text-align: center;
+    color: #38A73B;
+}

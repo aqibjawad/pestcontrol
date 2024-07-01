@@ -22,3 +22,20 @@
     justify-content: center;
     align-items: center;
 }
+
+.client-save-button {
+    width: 325px;
+    height: 48px;
+    background: #32A92E;
+    border: 1px;
+    border: 1px solid #32A92E;
+    font-family: Montserrat;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 28.16px;
+    text-align: center;
+    justify-content: center;
+    margin-top: 2rem;
+    padding-top: 0.5rem;
+    color:white
+}
