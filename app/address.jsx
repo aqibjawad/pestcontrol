@@ -11,9 +11,10 @@ const Address = () => {
     const [longitude, setLongitude] = useState('');
     const autocompleteRef = useRef(null);
     const inputRef = useRef(null);
-
+    
     useEffect(() => {
         if (window.google) {
+            
             const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
                 types: ['geocode'],
                 componentRestrictions: { country: "us" },
