@@ -9,6 +9,7 @@ import Link from "next/link";
 import styles from "../../../styles/account/addItemStyles.module.css";
 
 const Page = () => {
+  
   const api = new APICall();
   const [itemName, setItemName] = useState();
   const [batchNumber, setBatchNumber] = useState();
@@ -16,9 +17,6 @@ const Page = () => {
   const [fetchingData, setFetchingData] = useState();
   const [allBrandsList, setAllBrandsList] = useState([]);
   const [selectedBrandId, setSelectedBrandId] = useState();
-  const [manufectureDate, setManufectureDate] = useState();
-  const [expiryDate, setExpiryDate] = useState();
-  const [activeIndgredients, setActiveIndgredients] = useState();
 
   useEffect(() => {
     getAllBrands();
@@ -83,38 +81,6 @@ const Page = () => {
               </div>
             </>
           )}
-        </div>
-        <div className="mt-5">
-          <InputWithTitle
-            onChange={setManufectureDate}
-            title={"Manufecture Date"}
-            type={"date"}
-          />
-        </div>
-        <div className="mt-5">
-          <InputWithTitle
-            onChange={setExpiryDate}
-            title={"Expiry Date"}
-            type={"date"}
-          />
-        </div>
-
-        <div className="mt-5">
-          <InputWithTitle
-            placeholder={"Active Ingredient"}
-            onChange={setActiveIndgredients}
-            title={"Active Ingredient"}
-            type={"text"}
-          />
-        </div>
-
-        <div className="mt-5">
-          <InputWithTitle
-            placeholder={"Active Ingredient"}
-            onChange={setActiveIndgredients}
-            title={"Active Ingredient"}
-            type={"text"}
-          />
         </div>
       </div>
     );

@@ -1,9 +1,12 @@
+"use client";
+
 import React, { useState } from "react";
-import tableStyles from "../../../../styles/upcomingJobsStyles.module.css";
+import tableStyles from "../../styles/upcomingJobsStyles.module.css";
 import SearchInput from "@/components/generic/SearchInput";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 
-import styles from "../../../../styles/loginStyles.module.css";
+import styles from "../../styles/loginStyles.module.css";
+
 
 const rows = Array.from({ length: 10 }, (_, index) => ({
     clientName: "Olivia Rhye",
@@ -46,7 +49,7 @@ const listServiceTable = () => {
     );
 };
 
-const Vendor = () => {
+const Page = () => {
     const [open, setOpen] = useState(false);
 
     const handleClickOpen = () => {
@@ -271,4 +274,4 @@ const Vendor = () => {
     );
 };
 
-export default Vendor;
+export default Page;

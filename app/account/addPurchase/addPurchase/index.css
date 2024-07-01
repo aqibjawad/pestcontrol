@@ -1,0 +1,100 @@
+.third-section {
+    width: 100%;
+    height: Hug (395px)px;
+    top: 821px;
+    left: 308px;
+    padding: 17px 11px 17px 11px;
+    gap: 24px;
+    border-radius: 8px;
+    border: 1px;
+    border: 1px solid #D0D5DD;
+    margin-top: 2rem;
+}
+
+.add-newline {
+    width: 122px;
+    height: Hug (45px)px;
+    padding: 10px 11px 10px 11px;
+    gap: 10px;
+    border-radius: 8px;
+    background: #38A73B;
+    font-family: Montserrat;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 24.71px;
+    text-align: center;
+    color: #FFFFFF;
+    margin-top: 3rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.sub-total {
+    font-family: Montserrat;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 24.38px;
+    text-align: left;
+
+}
+
+.discount {
+    font-family: Montserrat;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 24.38px;
+    text-align: left;
+    color: #1C1C1E;
+    margin-top: 1rem;
+}
+
+.vat {
+    font-family: Montserrat;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 28.16px;
+    text-align: left;
+    margin-top: 1rem;
+}
+
+.total {
+    font-family: Montserrat;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 28.16px;
+    text-align: left;
+    margin-top: 1rem;
+}
+
+.discount-button {
+    width: Hug (140px)px;
+    height: Hug (44px)px;
+    padding: 10px 63px 10px 63px;
+    gap: 10px;
+    border: 1px;
+    border: 1px solid #EAECF0;
+    font-family: Montserrat;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 24.38px;
+    text-align: center;
+
+}
+
+.discount-perc {
+    width: Hug (67px)px;
+    height: Hug (44px)px;
+    padding: 10px 5px 10px 5px;
+    gap: 31px;
+    border: 1px;
+    border: 1px solid #EAECF0;
+    font-family: Montserrat;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 24.38px;
+    text-align: left;
+
+}
