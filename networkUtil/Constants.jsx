@@ -7,9 +7,13 @@ export const addSupplier = apiPrefix + "/add-supplier";
 export const getAllSuppliers = apiPrefix + "/get_suppliers";
 export const getAllBrandNames = apiPrefix + "/get_brands";
 export const addBrand = apiPrefix + "/add-brand";
+<<<<<<< Updated upstream
 
 
 // Add Client
 export const addClient = apiPrefix + "/add-client";
 
 export const addAddress = apiPrefix + "/add_client_addressess";
+=======
+export const getServiceAgreements = apiPrefix + "/get_services";
+>>>>>>> Stashed changes

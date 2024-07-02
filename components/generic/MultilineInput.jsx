@@ -8,7 +8,7 @@ const MultilineInput = ({ type, title, placeholder, value, onChange }) => {
         <textarea
           value={value}
           type={type}
-          className={`w-full ${styles.inputField}`}
+          className={`w-full resize-none ${styles.inputField}`}
           placeholder={placeholder}
           onChange={(e) => onChange(e.target.value)}
         />
