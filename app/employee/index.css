@@ -1,0 +1,90 @@
+.employ-head {
+    font-family: Montserrat;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 24.38px;
+    text-align: left;
+    margin-top: 2rem;
+}
+
+.passport-head {
+    font-family: Montserrat;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 24.38px;
+    text-align: left;
+    margin-top: 2rem;
+}
+
+.health-head {
+    font-family: Montserrat;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 24.38px;
+    text-align: left;
+    margin-top: 2rem;
+}
+
+.previous-button {
+    width: Hug (114px)px;
+    height: Hug (36px)px;
+    padding: 8px 14px 8px 14px;
+    gap: 8px;
+    border-radius: 8px;
+    border: 1px;
+    border: 1px solid #D0D5DD;
+    font-family: Inter;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    text-align: center;
+    color: #344054;
+    display: inline-flex;
+    align-items: center;
+}
+
+.next-button {
+    width: 115px;
+    height: Hug (36px)px;
+    padding: 8px 14px 8px 14px;
+    gap: 8px;
+    border-radius: 8px;
+    border: 1px;
+    border: 1px solid #D0D5DD;
+    font-family: Inter;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    text-align: center;
+    color: #344054;
+    display: inline-flex;
+    align-items: center;
+}
+
+
+.next-button img {
+    margin-left: 5px;
+    height: 20px;
+    width: 40px;
+}
+
+.previous-button img {
+    margin-left: 5px;
+    height: 20px;
+    width: 20px;
+}
+
+.info-button {
+    width: 325px; /* Adjust width as needed */
+    height: 48px;
+    border: 1px solid #32A92E;
+    background: #32A92E;
+    color: white; /* Text color */
+    font-family: Montserrat;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 48px; /* Vertically center text */
+    text-align: center;
+    margin: 0 auto; /* Center horizontally */
+    margin-top: 5rem;
+}

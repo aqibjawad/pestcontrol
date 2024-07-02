@@ -7,7 +7,7 @@ import APICall from "@/networkUtil/APICall";
 import { addClient } from "../../networkUtil/Constants";
 import "./index.css";
 
-const Page = () => {
+const Page = () => { 
     const api = new APICall(); 
 
     const [name, setFullName] = useState("");
