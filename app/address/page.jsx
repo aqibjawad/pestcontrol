@@ -5,11 +5,12 @@ import styles from "../../styles/loginStyles.module.css";
 
 import FirsSection from "./add/firstSection"
 import SecondSection from "./add/secondSection"
+import Head from 'next/head';
+
 
 
 const Page = () => {
 
-    // Example state to handle input value
     const [city, setCity] = useState("");
     const [zipCode, setZipCode] = useState("");
 
@@ -24,16 +25,7 @@ const Page = () => {
 
     return (
         <div className="centerContainer">
-            <div className="grid grid-cols-12 gap-4" style={{ width: '100%', maxWidth: '1200px' }}>
-                <div className="col-span-6">
-                    <FirsSection />
-                </div>
-
-                <div className="col-span-6">
-                    <SecondSection />
-                </div>
-
-            </div>
+            <FirsSection />
         </div>
     )
 }

@@ -8,7 +8,7 @@ import { addClient } from "../../networkUtil/Constants";
 import "./index.css";
 
 const Page = () => {
-    const api = new APICall();
+    const api = new APICall(); 
 
     const [name, setFullName] = useState("");
     const [firm_name, setFirmName] = useState("");
@@ -18,7 +18,7 @@ const Page = () => {
     const [industry_name, setIndustryName] = useState("");
     const [reference, setReference] = useState("");
 
-    const [isLoading, setLoading] = useState(false); // State for loading indicator
+    const [isLoading, setLoading] = useState(false);
 
     const handleFormSubmit = async () => {
         setLoading(true); // Start loading
@@ -53,7 +53,7 @@ const Page = () => {
             console.error("Error adding client:", error);
             alert("An error occurred. Please try again.");
         } finally {
-            setLoading(false); // Stop loading
+            setLoading(false);
         }
     };
 

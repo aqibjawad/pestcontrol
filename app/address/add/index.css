@@ -1,21 +1,21 @@
-/* Center container using Flexbox */
-.centerContainer {
+.plusborder-container {
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 100%;
+    /* Adjust this as necessary */
 }
 
-/* Update the .plusborder class */
 .plusborder {
-    width: 56px;
-    height: 52px;
-    padding: 10px;
-    border-radius: 34px;
+    font-size: 3rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     border: 1px solid #263238;
-    font-family: "Montserrat", "Helvetica Neue";
-    font-size: 32px;
-    font-weight: 600;
-    line-height: 56.32px;
-    text-align: center;
+    width: Fixed (56px)px;
+    height: Fixed (52px)px;
+    padding: 10px 10px;
+    border-radius: 34px;
+    border: 1px;
     color: #38A73B;
 }
