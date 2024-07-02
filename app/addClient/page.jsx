@@ -21,7 +21,7 @@ const Page = () => {
     const [isLoading, setLoading] = useState(false);
 
     const handleFormSubmit = async () => {
-        setLoading(true); // Start loading
+        setLoading(true);
 
         const formData = {
             role: "5",
