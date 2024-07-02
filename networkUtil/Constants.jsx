@@ -17,3 +17,5 @@ export const addAddress = apiPrefix + "/add_client_addressess";
 
 // add employee
 export const addEmployee = apiPrefix + "/add-employee";
+
+export const getServiceAgreements = apiPrefix + "/get_services";

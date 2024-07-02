@@ -20,9 +20,14 @@
     "@mui/material-nextjs": "^5.15.11",
     "axios": "^1.7.2",
     "next": "14.2.3",
+<<<<<<< Updated upstream
     "react": "^18",
     "react-dom": "^18",
     "react-google-autocomplete": "^2.7.3"
+=======
+    "slate": "^0.103.0",
+    "slate-react": "^0.106.0"
+>>>>>>> Stashed changes
   },
   "devDependencies": {
     "@types/node": "^20",
