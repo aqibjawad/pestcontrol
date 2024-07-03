@@ -20,6 +20,7 @@
     "@mui/material-nextjs": "^5.15.11",
     "axios": "^1.7.2",
     "next": "14.2.3",
+    "react-calendar": "^5.0.0",
     "slate": "^0.103.0",
     "slate-react": "^0.106.0",
     "sweetalert2": "^11.12.1"

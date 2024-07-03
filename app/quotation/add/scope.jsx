@@ -1,18 +1,23 @@
 import React from "react";
+import styles from "../../../styles/quotes.module.css"
 
 const Scope = () => {
   return (
-    <div className="flex justify-between">
-      <div className="flex flex-col">Scope of Work</div>
+    <div className="flex justify-between" style={{marginTop:"2rem"}}>  
+      <div className="flex flex-col">
+        <div className={styles.scopeHead}>
+          Scope of Work
+        </div>
+      </div>
 
       <div className="flex flex-col">
         <div className="flex justify-between">
-            <div>
-                Enable
+            <div className={styles.disableButton}>
+                Disable
             </div>
 
-            <div style={{color:"#38A73B"}}>
-                Disable
+            <div className={styles.enableButton}>
+                Enable
             </div>
         </div>
       </div>

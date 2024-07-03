@@ -7,6 +7,8 @@ import TreatmentMethod from "./add/treatmentMethod";
 import FourthSection from './add/fourthSection';
 import Invoice from "./add/invoice";
 import ContractSummery from "./add/contract";
+import Scope from "./add/scope";
+import TermConditions from "./add/terms"
 
 
 import "./index.css"
@@ -29,6 +31,8 @@ const Page =()=>{
             <FourthSection />
             <Invoice />
             <ContractSummery />
+            <Scope />
+            <TermConditions />
 
         </div>
     )
