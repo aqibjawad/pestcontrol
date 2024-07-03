@@ -95,7 +95,7 @@ const ThirdSection = () => {
                 <div className="flex flex-col">
                     <div className="sub-total">Subtotal</div>
                     <div>
-                        <div className="flex mt-4">
+                        <div className="flex mt-4"> 
                             <div className="discount-button flex flex-col">
                                 0
                             </div>

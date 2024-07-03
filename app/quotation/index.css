@@ -1,0 +1,54 @@
+.quote-main-head {
+  font-family: "Montserrat";
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 20px;
+  text-align: left;
+  color: #1c1c1e;
+}
+
+.quote-main-decrp {
+  font-family: "Montserrat";
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 28.16px;
+  text-align: left;
+  color: #667085;
+}
+
+.sub-total {
+  font-family: Montserrat;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 24.38px;
+  text-align: left;
+
+}
+
+.discount {
+  font-family: Montserrat;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 24.38px;
+  text-align: left;
+  color: #1C1C1E;
+  margin-top: 1rem;
+}
+
+.vat {
+  font-family: Montserrat;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 28.16px;
+  text-align: left;
+  margin-top: 1rem;
+}
+
+.total {
+  font-family: Montserrat;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 28.16px;
+  text-align: left;
+  margin-top: 1rem;
+}
