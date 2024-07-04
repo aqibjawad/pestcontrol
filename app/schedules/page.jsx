@@ -9,6 +9,8 @@ import InputWithTitle from "@/components/generic/InputWithTitle";
 
 import GreenButton from "@/components/generic/GreenButton";
 
+import Dropdown from "@/components/generic/Dropdown";
+
 const Schedules = () => {
   const [name, setFullName] = useState("");
   const [brands, setBrands] = useState(["Brand A", "Brand B", "Brand C"]);
