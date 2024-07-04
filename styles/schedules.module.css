@@ -1,0 +1,37 @@
+.scheduleTitle {
+  font-family: "regular";
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 24.38px;
+  text-align: center;
+  color: #2a292d;
+}
+
+.scheduleDescrp {
+  font-family: "regular";
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 20px;
+  text-align: center;
+  color: #667085;
+}
+
+.fontName {
+  font-size: "regular";
+}
+
+.dayBtn {
+  width: Fixed (166px) px;
+  height: Hug (52px) px;
+  padding: 12px 24px 12px 24px;
+  border-radius: 10px 10px;
+  border: 1px;
+  background: #1c1c1ef2;
+  font-family: "regular";
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 28.16px;
+  text-align: center;
+  color:white;
+  margin-top: 2rem;
+}
