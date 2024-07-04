@@ -28,6 +28,7 @@ const FourthSection = () => {
   const [open, setOpen] = useState(false); // State to control dialog visibility
   const [dateArray, setDateArray] = useState([]); // Array to hold numbers 1 to 31
   const [daySelection, setDaySelection] = useState(false); // State for day-wise selection
+  const [customInput, setCustomInput] = useState(""); // State for custom input
 
   const handleNoOfMonth = (e) => {
     setNoOfMonth(e);
@@ -39,7 +40,8 @@ const FourthSection = () => {
       name === "One Time" ||
       name === "Yearly" ||
       name === "Monthly" ||
-      name === "Daily"
+      name === "Daily" ||
+      name === "Custom"
     ) {
       if (name === "Monthly" || name === "Daily") {
         setDateArray([...Array(31).keys()].map((n) => n + 1)); // Create array of numbers 1 to 31
@@ -74,22 +76,26 @@ const FourthSection = () => {
     setOpen(false);
   };
 
-  const HandleDateSave = () => {
-    setSavedDates(selectedDates.slice()); // Copy selectedDates to savedDates
-    setSelectedDates([]); // Clear selectedDates after saving
-    setOpen(false); // Close the dialog after saving dates
+  const handleDateSave = () => {
+    if (selectedJobType === "Custom") {
+      const customDates = selectedDates.map(
+        (date) => `${formatDate(date)} (${customInput})`
+      );
+      setSavedDates(customDates.slice());
+    } else {
+      const formattedDates = selectedDates.map((date) => formatDate(date));
+      setSavedDates(formattedDates.slice());
+    }
+    setSelectedDates([]);
+    setOpen(false);
+  };
+
+  const formatDate = (date) => {
+    return new Date(date).toDateString();
   };
 
   // Format saved dates
-  const formattedDates = savedDates
-    .map((date) =>
-      new Date(date).toLocaleDateString("en-US", {
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-      })
-    )
-    .join(", ");
+  const formattedDates = savedDates.join(", ");
 
   const daysOfWeek = [
     "Monday",
@@ -146,18 +152,16 @@ const FourthSection = () => {
                       justifyContent: "center",
                       marginBottom: "10px",
                       gap: "10px",
-                      fontSize:"10px"
+                      fontSize: "10px",
                     }}
                   >
                     <Button
-                    
                       variant={daySelection ? "outlined" : "contained"}
                       onClick={() => setDaySelection(false)}
                     >
                       Date-wise
                     </Button>
                     <Button
-                     
                       variant={daySelection ? "contained" : "outlined"}
                       onClick={() => setDaySelection(true)}
                     >
@@ -179,7 +183,7 @@ const FourthSection = () => {
                             >
                               {daysOfWeek.map((day, i) => (
                                 <Button
-                                  style={{ fontSize:"12px"}}
+                                  style={{ fontSize: "12px" }}
                                   key={i}
                                   variant={
                                     selectedDates.includes(`${week}-${day}`)
@@ -223,12 +227,24 @@ const FourthSection = () => {
                   )}
                 </>
               ) : (
-                <CalendarComponent onDateChange={handleDateChange} />
+                <>
+                  <CalendarComponent onDateChange={handleDateChange} />
+                  {selectedJobType === "Custom" && (
+                    <InputWithTitle
+                      title={"Custom Input"}
+                      type={"text"}
+                      name="customInput"
+                      placeholder={"Enter custom data"}
+                      value={customInput}
+                      onChange={setCustomInput}
+                    />
+                  )}
+                </>
               )}
             </DialogContent>
             <DialogActions>
               <Button onClick={handleClose}>Cancel</Button>
-              <Button onClick={HandleDateSave}>Save Dates</Button>
+              <Button onClick={handleDateSave}>Save Dates</Button>
             </DialogActions>
           </Dialog>
         </div>
