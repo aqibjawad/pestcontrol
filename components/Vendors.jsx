@@ -2,6 +2,7 @@ import React from "react";
 import styles from "../styles/vendorStyles.module.css";
 import SearchInput from "./generic/SearchInput";
 import GreenButton from "./generic/GreenButton";
+import Link from "next/link";
 const Vendors = () => {
   const rows = Array.from({ length: 5 }, (_, index) => ({
     clientName: "Olivia Rhye",
@@ -63,7 +64,11 @@ const Vendors = () => {
         </div>
         <div className="flex">
           <SearchInput />
-          <GreenButton title={"Add "} />
+          <div className="ml-10">
+            <Link href="/addVendor">
+              <GreenButton title={"Add Here"} />
+            </Link>
+          </div>
         </div>
       </div>
 

@@ -6,14 +6,14 @@ import React from "react";
 
 // import Inventory from "./inventroy"
 
-import AddInventory from "./addInventory"
+import AddInventory from "./addInventory";
 
-const Index =()=>{
-    return(
-        <div>
-            <AddInventory />
-        </div>
-    )
-}
+const Index = () => {
+  return (
+    <div>
+      <AddInventory />
+    </div>
+  );
+};
 
-export default Index
+export default Index;

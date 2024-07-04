@@ -8,7 +8,6 @@ export const getAllSuppliers = apiPrefix + "/get_suppliers";
 export const getAllBrandNames = apiPrefix + "/get_brands";
 export const addBrand = apiPrefix + "/add-brand";
 
-
 // Add Client
 export const addClient = apiPrefix + "/add-client";
 
@@ -21,3 +20,5 @@ export const addEmployee = apiPrefix + "/add-employee";
 export const getServiceAgreements = apiPrefix + "/get_services";
 
 export const addServiceAgreements = apiPrefix + "/add-agreement";
+
+export const addVendor = apiPrefix + "/add-vendor";
