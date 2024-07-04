@@ -1,0 +1,76 @@
+.quoteHead {
+  width: 100%;
+  height: Fixed (44px) px;
+  padding: 10px 16px 10px 16px;
+  border: 1px;
+  font-family: "regular";
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 24.38px;
+  text-align: left;
+  color: #2a292d;
+}
+
+.quoteMain {
+  width: 100%;
+  height: Fixed (451px) px;
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px;
+}
+
+.quoteheadMain {
+  font-family: "regular";
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 20px;
+  text-align: left;
+  color: #263238;
+}
+
+.quoteName {
+  font-family: "regular";
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 20px;
+  text-align: left;
+  color: #263238;
+  margin-left: 1rem;
+}
+
+.serviceHead {
+  font-family: "regular";
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 35.3px;
+  text-align: left;
+  color: #263238;
+}
+
+.service {
+  font-family: "regular";
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 35.3px;
+  text-align: left;
+  color: #263238;
+}
+
+.contractHead {
+  font-family: "regular";
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 19.5px;
+  text-align: left;
+  margin-top: 1rem;
+}
+
+.contractValue {
+  font-family: "regular";
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 28.24px;
+  text-align: center;
+  color: #8e8e93;
+  margin-top: 1rem;
+}
