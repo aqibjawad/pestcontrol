@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import tableStyles from "../../../../styles/upcomingJobsStyles.module.css";
 import SearchInput from "@/components/generic/SearchInput";
+import APICall from "../networkUtil/APICall";
 import {
   Dialog,
   DialogTitle,
@@ -8,89 +10,94 @@ import {
   DialogActions,
   Button,
 } from "@mui/material";
-
+import Loading from "../components/generic/Loading";
+import { getVendorsUrl } from "../networkUtil/Constants";
 import styles from "../../../../styles/loginStyles.module.css";
 
-const rows = Array.from({ length: 10 }, (_, index) => ({
-  clientName: "Olivia Rhye",
-  clientContact: "10",
-  quoteSend: "10",
-  quoteApproved: "50",
-  cashAdvance: "$50,000",
-}));
-
-const listServiceTable = () => {
-  return (
-    <div className={tableStyles.tableContainer}>
-      <table className="min-w-full bg-white">
-        <thead>
-          <tr>
-            <th className="py-5 px-4 border-b border-gray-200 text-left">
-              Firm Name
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Manager Name
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Contact Number
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Accountant Name
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Accountant Number
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Accountant Email
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Percentage
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, index) => (
-            <tr key={index} className="border-b border-gray-200">
-              <td className="py-5 px-4">{row.clientName}</td>
-              <td className="py-2 px-4">
-                <div className={tableStyles.clientContact}>
-                  {row.clientContact}
-                </div>
-              </td>
-              <td className="py-2 px-4">
-                <div className={tableStyles.clientContact}>
-                  {row.clientContact}
-                </div>
-              </td>
-              <td className="py-2 px-4">
-                <div className={tableStyles.clientContact}>
-                  {row.clientContact}
-                </div>
-              </td>
-              <td className="py-2 px-4">
-                <div className={tableStyles.clientContact}>
-                  {row.clientContact}
-                </div>
-              </td>
-              <td className="py-2 px-4">
-                <div className={tableStyles.clientContact}>
-                  {row.clientContact}
-                </div>
-              </td>
-              <td className="py-2 px-4">
-                <div className={tableStyles.clientContact}>
-                  {row.clientContact}
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-};
-
 const Vendor = () => {
+  const [fetchingData, setFethingData] = useState(false);
+
+  const api = new APICall();
+
+  const rows = Array.from({ length: 10 }, (_, index) => ({
+    clientName: "Olivia Rhye",
+    clientContact: "10",
+    quoteSend: "10",
+    quoteApproved: "50",
+    cashAdvance: "$50,000",
+  }));
+
+  const listServiceTable = () => {
+    return (
+      <div className={tableStyles.tableContainer}>
+        <table className="min-w-full bg-white">
+          <thead>
+            <tr>
+              <th className="py-5 px-4 border-b border-gray-200 text-left">
+                Firm Name
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Manager Name
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Contact Number
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Accountant Name
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Accountant Number
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Accountant Email
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Percentage
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, index) => (
+              <tr key={index} className="border-b border-gray-200">
+                <td className="py-5 px-4">{row.clientName}</td>
+                <td className="py-2 px-4">
+                  <div className={tableStyles.clientContact}>
+                    {row.clientContact}
+                  </div>
+                </td>
+                <td className="py-2 px-4">
+                  <div className={tableStyles.clientContact}>
+                    {row.clientContact}
+                  </div>
+                </td>
+                <td className="py-2 px-4">
+                  <div className={tableStyles.clientContact}>
+                    {row.clientContact}
+                  </div>
+                </td>
+                <td className="py-2 px-4">
+                  <div className={tableStyles.clientContact}>
+                    {row.clientContact}
+                  </div>
+                </td>
+                <td className="py-2 px-4">
+                  <div className={tableStyles.clientContact}>
+                    {row.clientContact}
+                  </div>
+                </td>
+                <td className="py-2 px-4">
+                  <div className={tableStyles.clientContact}>
+                    {row.clientContact}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
   const [open, setOpen] = useState(false);
 
   const handleClickOpen = () => {
@@ -99,6 +106,15 @@ const Vendor = () => {
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  useEffect(() => {
+    fetchVendors();
+  }, []);
+  const fetchVendors = () => {
+    setFethingData(true);
+    const response = api.getDataWithToken(getVendorsUrl);
+    console.log(response);
   };
 
   return (
@@ -193,7 +209,9 @@ const Vendor = () => {
       </div>
 
       <div className="grid grid-cols-12 gap-4">
-        <div className="col-span-12">{listServiceTable()}</div>
+        <div className="col-span-12">
+          {fetchingData ? <Loading /> : listServiceTable()}
+        </div>
       </div>
 
       <Dialog open={open} onClose={handleClose}>

@@ -4,12 +4,12 @@ import InputWithTitle from "../../components/generic/InputWithTitle";
 import styles from ".././../styles/superAdmin/addVendor.module.css";
 import GreenButton from "@/components/generic/GreenButton";
 import Swal from "sweetalert2";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import APICall from "@/networkUtil/APICall";
 import { addVendor } from "@/networkUtil/Constants";
 const Page = () => {
   const api = new APICall();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [vendorName, setVendorName] = useState("");
   const [firmName, setFirmName] = useState("");
   const [vendorEmail, setVendorEmail] = useState("");
@@ -63,7 +63,7 @@ const Page = () => {
         }).then((result) => {
           if (result.isConfirmed) {
             resetAllStates();
-            navigate("/your-desired-path"); // Replace with your desired path
+            router.push("/allVendors");
           }
         });
       } else {
