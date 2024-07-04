@@ -8,9 +8,8 @@ import Quotes from "../../../components/Quotes";
 import Contracts from "../../../components/Contracts";
 
 import Finance from "../dashboard/components/Finance";
-import Reports from "./components/Reports"
-import Scheduler from "./components/Scheduler"
-
+import Reports from "./components/Reports";
+import Scheduler from "./components/Scheduler";
 
 const Index = () => {
   const [tabNames, setTabNames] = useState([
@@ -71,7 +70,6 @@ const Index = () => {
           <div className={selectedIndex === 3 ? `block` : "hidden"}>
             <Reports />
           </div>
-
         </div>
         <div className="col-span-12 md:col-span-3"></div>
       </div>
