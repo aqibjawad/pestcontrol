@@ -22,3 +22,5 @@ export const getServiceAgreements = apiPrefix + "/get_services";
 export const addServiceAgreements = apiPrefix + "/add-agreement";
 
 export const addVendor = apiPrefix + "/add-vendor";
+
+export const getVendorsUrl = apiPrefix + "/get_vendors";

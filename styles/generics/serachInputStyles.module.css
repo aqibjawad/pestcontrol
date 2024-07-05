@@ -16,6 +16,8 @@
   background-color: var(--appGreen);
   color: white;
   border-radius: 8px;
+  padding-left: 10px;
+  padding-right: 10px;
   min-width: 100px;
   display: flex;
   justify-content: center;
