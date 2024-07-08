@@ -1,11 +1,11 @@
 import React from "react";
-import styles from "../../styles/serviceReport.module.css";
+import styles from "../../styles/invoicePdf.module.css";
 
 const Terms = () => {
 
   return (
     <div>
-      <div className={styles.terms}>
+      <div className={styles.termsPdf}>
         Terms and Conditions
       </div>
 

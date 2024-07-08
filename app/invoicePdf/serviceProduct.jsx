@@ -4,7 +4,7 @@ import styles from "../../styles/invoicePdf.module.css";
 const ServiceProduct = () => {
   return (
     <div className={styles.tableContainerPdf}>
-      <div className={styles.invoicePdf}> Service product </div>
+      <div className={styles.invoicePdfHead}> Service product </div>
       <table className={styles.table}>
         <thead>
           <tr>
@@ -16,7 +16,7 @@ const ServiceProduct = () => {
           </tr>
         </thead>
         <tbody>
-          <tr>
+          <tr> 
             <td> 01 </td>
             <td> Internal areas of restaurant </td>
             <td>High</td>
