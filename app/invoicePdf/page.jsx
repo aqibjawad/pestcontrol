@@ -16,7 +16,7 @@ const Page = () => {
       <div className="flex justify-between" style={{ padding: "34px" }}>
         <img src="/LOGO BLACK 2.png" style={{width:"228px", height:"121px"}} />
         <div style={{
-            fontWeight:"500",
+fontWeight:"500",
             fontSize:"24px",
         }}>
             Pest control Invoice
