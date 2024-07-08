@@ -4,7 +4,7 @@ import styles from "../../styles/serviceReport.module.css"
 const TypeVisit = () => {
     return (
         <div>
-            <div style={{textAlign:"center"}} className={styles.visitHead}>
+            <div className={styles.visitHead}>
                 Type Of Visit
             </div>
             <div className={styles.checkboxesContainer}>

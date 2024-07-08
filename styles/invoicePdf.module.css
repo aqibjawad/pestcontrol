@@ -1,0 +1,45 @@
+.invoicePdf {
+  font-family: "regular";
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 35.3px;
+  text-align: center;
+  color:"#263238";
+  background-color: #EAECF0;
+}
+
+.tableContainer {
+    padding: 0 34px;
+  }
+  
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .table th,
+  .table td {
+    border: none;
+    padding: 8px;
+  }
+  
+  .table th {
+    background-color: #38A73B;
+    font-weight: bold;
+  }
+  
+  .table td {
+    text-align: left;
+  }
+
+  .terms {
+    font-family: "regular";
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 27px;
+    letter-spacing: 0.02em;
+    text-align: left;
+    color: #242424;
+  }
+  
