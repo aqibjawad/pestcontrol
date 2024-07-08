@@ -1,0 +1,59 @@
+.imageContainer {
+    display: flex;
+    justify-content: center; /* Centers child (image) horizontally */
+    margin-bottom: 10px; /* Adjust margin as needed */
+  }
+  
+
+.peronalImage {
+  width: 194px;
+  height: 194px;
+}
+
+.personalName {
+  font-family: "regular";
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 24.38px;
+  text-align: center;
+}
+
+.personalContainer {
+  width: 100%;
+  height: Fixed (249px) px;
+  top: 450.25px;
+  left: 312px;
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px;
+  border: 1px solid #68cc5838;
+  margin-top: 2rem;
+}
+
+.personalHead {
+  font-family: "regular";
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 24.38px;
+  text-align: left;
+  color:"#2A292D";
+  padding: 20px;
+}
+
+.tableContainer {
+    width: 100%;
+    margin-top: 20px;
+  }
+  
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    border: none;
+  }
+  
+  .table th,
+  .table td {
+    border: none;
+    padding: 8px;
+    text-align: left;
+  }
