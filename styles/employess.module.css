@@ -1,0 +1,80 @@
+.tabHeaderStyle {
+  display: flex;
+  flex-direction: row;
+  cursor: pointer;
+  gap: 20px;
+}
+
+.tabStyle {
+  width: 30%;
+  height: 56px;
+  padding: 14px 13px;
+  border-radius: 5px;
+  border: 1px solid #68cc5838;
+  background: #ffffff;
+  text-align: center;
+}
+
+.activeTabStyle {
+  width: 30%;
+  height: 56px;
+  padding: 14px 13px;
+  border-radius: 5px;
+  border: 1px solid #d0d5dd;
+  background: #32a92e;
+  color: white;
+  font-family: "regular";
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 28.16px;
+  text-align: center;
+}
+
+.tabContentStyle {
+  padding: 20px;
+  border-radius: 4px;
+  margin-top: 10px;
+}
+
+.mainHead {
+  font-family: "regular";
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 24.38px;
+  text-align: left;
+}
+
+.previous {
+  width: 114px;
+  height: 36px;
+  padding: 8px 14px 8px 14px;
+  gap: 8px;
+  border-radius: 8px;
+  border: 1px;
+  border: 1px solid #d0d5dd;
+  box-shadow: 0px 1px 2px 0px #1018280d;
+  font-family: "regular";
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  text-align: center;
+  color: #344054
+}
+
+
+.next {
+  width: 114px;
+  height: 36px;
+  padding: 8px 14px 8px 14px;
+  gap: 8px;
+  border-radius: 8px;
+  border: 1px;
+  border: 1px solid #d0d5dd;
+  box-shadow: 0px 1px 2px 0px #1018280d;
+  font-family: "regular";
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  text-align: center;
+  color: #344054
+}

@@ -1,0 +1,15 @@
+.addProd {
+  width: 202px;
+  height: 44px;
+  padding: 12px 16px 12px 16px;
+  gap: 8px;
+  border-radius: 10px;
+  border: 1px;
+  background: #32a92e;
+  font-family: "regular";
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  text-align: center;
+  color: white
+}

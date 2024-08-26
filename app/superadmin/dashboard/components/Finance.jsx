@@ -7,7 +7,7 @@ import GreenButton from "@/components/generic/GreenButton";
 const Finance = () => {
   
   const totalExpenses = () => {
-    return (
+    return ( 
       <div className={styles.itemContainer}>
         <div className="flex">
           <div className="flex-grow">
