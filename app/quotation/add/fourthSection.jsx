@@ -12,6 +12,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Button from "@mui/material/Button";
 
 const Section = ({
+  index,
   noOfMonth,
   handleNoOfMonth,
   contractedList,
@@ -32,6 +33,8 @@ const Section = ({
   handleDateSave,
   savedDates,
   formatDate,
+  onDelete,
+  handleEdit,
 }) => {
   const daysOfWeek = [
     "Monday",
@@ -71,7 +74,7 @@ const Section = ({
               {daySelection ? "Select Day" : "Select Dates"}
             </DialogTitle>
             <DialogContent>
-              {["Daily", "Monthly", "Weekly"].includes(selectedJobType) ? (
+              {["Daily", "Weekly", "Custom"].includes(selectedJobType) ? (
                 <>
                   <div
                     style={{
@@ -145,7 +148,7 @@ const Section = ({
                               ? "contained"
                               : "outlined"
                           }
-                          onClick={() => handleDateChange(date)}
+                          onClick={() => handleDateChange([date, date])}
                         >
                           {date}
                         </Button>
@@ -154,19 +157,19 @@ const Section = ({
                   )}
                 </>
               ) : (
-                <>
-                  <CalendarComponent onDateChange={handleDateChange} />
-                  {selectedJobType === "Custom" && (
-                    <InputWithTitle
-                      title={"Custom Input"}
-                      type={"text"}
-                      name="customInput"
-                      placeholder={"Enter custom data"}
-                      value={customInput}
-                      onChange={setCustomInput}
-                    />
-                  )}
-                </>
+                <CalendarComponent
+                  onDateChange={(date) => handleDateChange([date, date])}
+                />
+              )}
+              {selectedJobType === "Custom" && (
+                <InputWithTitle
+                  title={"Custom Input"}
+                  type={"text"}
+                  name="customInput"
+                  placeholder={"Enter custom data"}
+                  value={customInput}
+                  onChange={(e) => setCustomInput(e.target.value)}
+                />
               )}
             </DialogContent>
             <DialogActions>
@@ -180,7 +183,7 @@ const Section = ({
           <InputWithTitle
             title={"Rate"}
             type={"text"}
-            name="name"
+            name="rate"
             placeholder={"Rate"}
           />
         </div>
@@ -189,9 +192,19 @@ const Section = ({
           <InputWithTitle
             title={"Sub Total"}
             type={"text"}
-            name="firmName"
+            name="subTotal"
             placeholder={"Sub Total"}
           />
+        </div>
+
+        <div className="mt-10" style={{ width: "5%" }}>
+          <Button
+            variant="outlined"
+            color="error"
+            onClick={() => onDelete(index)}
+          >
+            Delete
+          </Button>
         </div>
       </div>
 
@@ -200,7 +213,21 @@ const Section = ({
           <div
             style={{ color: "#667085", fontWeight: "500", fontSize: "14px" }}
           >
-            {savedDates.join(", ")}
+            {savedDates.length > 0 ? (
+              <>
+                {savedDates.join(", ")}
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={() => handleEdit(index)}
+                  style={{ marginLeft: "10px" }}
+                >
+                  Edit
+                </Button>
+              </>
+            ) : (
+              "No dates selected"
+            )}
           </div>
         </div>
       </div>
@@ -224,17 +251,18 @@ const Section = ({
     </div>
   );
 };
-
 const FourthSection = () => {
-  const [sections, setSections] = useState([{
-    noOfMonth: "",
-    selectedJobType: null,
-    selectedDates: [],
-    savedDates: [],
-    open: false,
-    daySelection: false,
-    customInput: "",
-  }]); // Initial section
+  const [sections, setSections] = useState([
+    {
+      noOfMonth: "",
+      selectedJobType: null,
+      selectedDates: [],
+      savedDates: [],
+      open: false,
+      daySelection: false,
+      customInput: "",
+    },
+  ]);
 
   const addSection = () => {
     setSections((prevSections) => [
@@ -247,8 +275,12 @@ const FourthSection = () => {
         open: false,
         daySelection: false,
         customInput: "",
-      }
+      },
     ]);
+  };
+
+  const handleDelete = (index) => {
+    setSections((prevSections) => prevSections.filter((_, i) => i !== index));
   };
 
   const handleNoOfMonth = (index, e) => {
@@ -260,30 +292,22 @@ const FourthSection = () => {
   const handleJobTypeChange = (index, jobType) => {
     const newSections = [...sections];
     newSections[index].selectedJobType = jobType;
-    if (
-      ["Monthly", "Daily", "Weekly"].includes(jobType)
-    ) {
-      newSections[index].open = true;
-    } else {
-      newSections[index].open = false;
-    }
+    newSections[index].open = true; // Always open the dialog when job type changes
     setSections(newSections);
   };
 
-  const handleDateChange = (index, date) => {
+  const handleDateChange = (index, [startDate, endDate]) => {
     const newSections = [...sections];
-    if (newSections[index].selectedDates.includes(date)) {
-      newSections[index].selectedDates = newSections[index].selectedDates.filter(d => d !== date);
-    } else {
-      newSections[index].selectedDates.push(date);
-    }
+    newSections[index].selectedDates = [startDate, endDate];
     setSections(newSections);
   };
 
   const handleDaySelectionChange = (index, day) => {
     const newSections = [...sections];
     if (newSections[index].selectedDates.includes(day)) {
-      newSections[index].selectedDates = newSections[index].selectedDates.filter(d => d !== day);
+      newSections[index].selectedDates = newSections[
+        index
+      ].selectedDates.filter((d) => d !== day);
     } else {
       newSections[index].selectedDates.push(day);
     }
@@ -302,22 +326,44 @@ const FourthSection = () => {
       const customDates = newSections[index].selectedDates.map(
         (date) => `${formatDate(date)} (${newSections[index].customInput})`
       );
-      newSections[index].savedDates = customDates.slice();
+      newSections[index].savedDates = customDates;
     } else {
-      const formattedDates = newSections[index].selectedDates.map((date) => formatDate(date));
-      newSections[index].savedDates = formattedDates.slice();
+      newSections[index].savedDates =
+        newSections[index].selectedDates.map(formatDate);
     }
-    newSections[index].selectedDates = [];
     newSections[index].open = false;
     setSections(newSections);
   };
 
-  const formatDate = (date) => {
-    return new Date(date).toDateString();
+  const handleEdit = (index) => {
+    const newSections = [...sections];
+    newSections[index].selectedDates = newSections[index].savedDates.map(
+      (date) => new Date(date)
+    );
+    newSections[index].open = true;
+    setSections(newSections);
   };
 
-  const jobTypeList = ["One Time", "Yearly", "Monthly", "Daily", "Weekly", "Custom"];
-  const dateArray = [...Array(31).keys()].map((n) => n + 1); // Create array of numbers 1 to 31
+  const formatDate = (date) => {
+    if (date instanceof Date && !isNaN(date)) {
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    }
+    return "Invalid Date";
+  };
+
+  const jobTypeList = [
+    "One Time",
+    "Yearly",
+    "Monthly",
+    "Daily",
+    "Weekly",
+    "Custom",
+  ];
+  const dateArray = [...Array(31).keys()].map((n) => n + 1);
 
   return (
     <div
@@ -333,9 +379,10 @@ const FourthSection = () => {
       {sections.map((section, index) => (
         <Section
           key={index}
+          index={index}
           noOfMonth={section.noOfMonth}
           handleNoOfMonth={(e) => handleNoOfMonth(index, e)}
-          contractedList={[]}
+          contractedList={[]} // Add your contracted list here
           jobTypeList={jobTypeList}
           selectedJobType={section.selectedJobType}
           setSelectedJobType={(jobType) => handleJobTypeChange(index, jobType)}
@@ -347,14 +394,16 @@ const FourthSection = () => {
           }}
           dateArray={dateArray}
           selectedDates={section.selectedDates}
-          handleDateChange={(date) => handleDateChange(index, date)}
+          handleDateChange={(dates) => handleDateChange(index, dates)}
           daySelection={section.daySelection}
           setDaySelection={(daySelection) => {
             const newSections = [...sections];
             newSections[index].daySelection = daySelection;
             setSections(newSections);
           }}
-          handleDaySelectionChange={(day) => handleDaySelectionChange(index, day)}
+          handleDaySelectionChange={(day) =>
+            handleDaySelectionChange(index, day)
+          }
           customInput={section.customInput}
           setCustomInput={(value) => {
             const newSections = [...sections];
@@ -365,14 +414,13 @@ const FourthSection = () => {
           handleDateSave={() => handleDateSave(index)}
           savedDates={section.savedDates}
           formatDate={formatDate}
+          onDelete={handleDelete}
+          handleEdit={() => handleEdit(index)}
         />
       ))}
 
       <div className={styles.divBtn}>
-        <div
-          className={styles.addServices}
-          onClick={addSection}
-        >
+        <div className={styles.addServices} onClick={addSection}>
           Add Services
         </div>
       </div>
