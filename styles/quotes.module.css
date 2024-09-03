@@ -1,0 +1,80 @@
+.subTotal {
+  font-family: "regular";
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 24.38px;
+  text-align: left;
+}
+
+.discount {
+  font-family: Montserrat;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 24.38px;
+  text-align: left;
+  color: #1c1c1e;
+  margin-top: 1rem;
+}
+
+.termHead {
+  font-family: "regular";
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 28.16px;
+  text-align: left;
+  color: "#1C1C1E";
+}
+
+.disableButton {
+  width: Hug (69.24px) px;
+  height: Hug (30.47px) px;
+  padding: 10px 11px 10px 11px;
+  gap: 10px;
+  border-radius: 8px;
+  border: 1px;
+  border: 1px solid #8e8e93;
+  margin-right: 3rem;
+}
+
+.enableButton {
+  width: Hug (72.82px) px;
+  height: Hug (30.68px) px;
+  padding: 10px 11px 10px 11px;
+  gap: 10px;
+  border-radius: 8px;
+  background: #38a73b;
+  color: #ffffff;
+}
+
+.scopeHead {
+  font-family: "regular";
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 20px;
+  text-align: left;
+}
+
+.divBtn{
+  display: flex;
+  justify-content: right;
+}
+
+.addServices {
+  width: 112px;
+  height: Hug (33px) px;
+  top: 2733px;
+  left: 1091px;
+  padding: 4px 10px 4px 10px;
+  gap: 8px;
+  border-radius: 8px;
+  background: #32A92E;
+  font-family: "regular";
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 24.71px;
+  text-align: left;
+  color: white;
+  margin-top: 2rem;
+}
+
+/*------------------------- Contract Summary CSS here------------------- */

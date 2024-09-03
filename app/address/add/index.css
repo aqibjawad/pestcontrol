@@ -1,0 +1,21 @@
+.plusborder-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    /* Adjust this as necessary */
+}
+
+.plusborder {
+    font-size: 3rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #263238;
+    width: Fixed (56px)px;
+    height: Fixed (52px)px;
+    padding: 10px 10px;
+    border-radius: 34px;
+    border: 1px;
+    color: #38A73B;
+}

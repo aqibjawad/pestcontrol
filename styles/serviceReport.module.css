@@ -1,0 +1,115 @@
+.mainHead {
+  font-family: "regular";
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 28.16px;
+  text-align: center;
+  margin-right: 1rem;
+}
+
+.mainData {
+  font-family: "regular";
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 24.71px;
+  text-align: center;
+  color: #8e8e93;
+}
+
+.visitHead {
+  font-family: "regular";
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 28.24px;
+  text-align: center;
+}
+
+.checkboxLabel {
+  font-family: "regular";
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  text-align: left;
+  color: "#8E8E93";
+  margin-left: 2rem;
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.checkboxLabel input[type="checkbox"] {
+  margin-right: 8px; /* Adjust the value to control the spacing */
+}
+
+.checkboxesContainer {
+  display: flex;
+  flex-direction: row;
+}
+
+.areaHead {
+  font-family: "regular";
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 28.16px;
+  text-align: center;
+}
+
+.areaButton {
+  width: 150px;
+  height: 48px;
+  border: 1px;
+  background: #32a92e;
+  border: 1px solid #ffffff;
+  font-family: "regular";
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 28.16px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.tableContainer {
+  padding: 0 34px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.table th,
+.table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+.table td {
+  text-align: left;
+}
+
+.chemHead {
+  font-family: "regular";
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 35.3px;
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.remarks {
+  font-family: "regular";
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 20px;
+  text-align: left;
+  color: #1C1C1EF2;
+}

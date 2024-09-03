@@ -14,6 +14,7 @@ import APICall from "../networkUtil/APICall";
 import { login } from "../networkUtil/Constants";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { log } from "console";
 
 export default function Home() {
   const apiCall = new APICall();
@@ -131,7 +132,8 @@ export default function Home() {
         setShowAlert(true);
       } else {
         const user = new User(response);
-        if (response.user.role === "1") { 
+        
+        if (response.data.role === "1") { 
           router.replace("/superadmin/dashboard");
         }
       }

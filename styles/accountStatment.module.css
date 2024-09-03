@@ -1,0 +1,74 @@
+.accountHead {
+  font-family: "regular";
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 35.3px;
+  text-align: center;
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  color: #32a92e;
+  height: 47px;
+}
+
+.tableContainer {
+  padding: 0 34px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  border: none;
+  padding: 8px;
+}
+
+.table th {
+  background-color: #38a73b;
+  font-weight: bold;
+  color: white;
+}
+
+.table td {
+  text-align: left;
+}
+
+.mainHeadAccount {
+  font-family: "regular";
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 28.16px;
+  text-align: left;
+  color: #1c1c1ef2;
+}
+.mainDataFirst {
+  font-family: "regular";
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 28.16px;
+  text-align: left;
+  color: #8e8e93;
+  margin-left: 2rem;
+}
+
+.mainDataAccount {
+  margin-top: 1rem;
+  font-family: "regular";
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 28.16px;
+  text-align: left;
+  color: #8e8e93;
+}
+
+.mainName {
+  font-family: "Regular";
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 28.16px;
+  text-align: left;
+  color: green;
+}

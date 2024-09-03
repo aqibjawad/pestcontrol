@@ -1,0 +1,58 @@
+.clientName {
+  font-family: "regular";
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 24.38px;
+  text-align: center;
+  color: #32a92e;
+}
+
+.tableContainerPdf {
+  height: 30px;
+}
+
+.tablePdf {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tablePdf th,
+.tablePdf td {
+  border: 1px solid #eaecf0;
+  padding: 8px;
+}
+
+.tablePdf th {
+  background-color: #32a92e;
+  color: white;
+  font-weight: bold;
+}
+
+.tablePdf td {
+  text-align: left;
+}
+
+.recordMain {
+  margin-top: 8rem;
+}
+
+.termsMain {
+  margin-top: 7rem;
+  font-family: "regular";
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 27px;
+  letter-spacing: 0.02em;
+  text-align: left;
+}
+
+.descrp {
+  font-family: "regular";
+  font-size: 13.26px;
+  font-weight: 400;
+  line-height: 19.89px;
+  letter-spacing: 0.02em;
+  text-align: left;
+  color:"#7B7B7B";
+  margin-top: 1rem;
+}

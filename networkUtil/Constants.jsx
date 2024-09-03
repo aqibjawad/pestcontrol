@@ -12,3 +12,5 @@ export const addBrand = apiPrefix + "/add-brand";
 
 
 export const addClients = apiPrefix + "/add-client";
+
+export const addVendors = apiPrefix + "/add_vendor";

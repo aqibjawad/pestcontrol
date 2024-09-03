@@ -25,7 +25,7 @@ class User {
 
   static getUserName() {
     const data = User.getFromLocalStorage();
-    return data ? data.user.name : null;
+    return data ? data.name : null;
   }
 
   static getUserPersmissions() {

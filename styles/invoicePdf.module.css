@@ -1,0 +1,68 @@
+.invoiceHeads {
+  font-family: "regular";
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 24.38px;
+  text-align: left;
+  color:"#32A92E";
+}
+
+.invoicePdfHead {
+  font-family: "regular";
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 35.3px;
+  text-align: center;
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  color: #263238;
+  background-color: #eaecf0;
+  height: 47px;
+}
+
+.tableContainer {
+  padding: 0 34px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  border: none;
+  padding: 8px;
+}
+
+.table th {
+  background-color: #38a73b;
+  font-weight: bold;
+}
+
+.table td {
+  text-align: left;
+}
+
+.termsPdf {
+  font-family: "regular";
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 27px;
+  letter-spacing: 0.02em;
+  text-align: left;
+  color: #242424;
+  margin-top: 2rem;
+}
+
+.termsData {
+  font-family: "regular";
+  font-size: 13.26px;
+  font-weight: 400;
+  line-height: 19.89px;
+  letter-spacing: 0.02em;
+  text-align: left;
+  color: "#7B7B7B";
+  margin-top: 1rem;
+}
