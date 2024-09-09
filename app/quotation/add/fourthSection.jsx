@@ -69,6 +69,7 @@ const Section = ({
               onChange={setSelectedJobType}
             />
           </div>
+
           <Dialog open={open} onClose={handleClose}>
             <DialogTitle>
               {daySelection ? "Select Day" : "Select Dates"}
@@ -148,7 +149,7 @@ const Section = ({
                               ? "contained"
                               : "outlined"
                           }
-                          onClick={() => handleDateChange([date, date])}
+                          onClick={() => handleDateChange(date)}
                         >
                           {date}
                         </Button>
@@ -157,9 +158,7 @@ const Section = ({
                   )}
                 </>
               ) : (
-                <CalendarComponent
-                  onDateChange={(date) => handleDateChange([date, date])}
-                />
+                <CalendarComponent onDateChange={handleDateChange} />
               )}
               {selectedJobType === "Custom" && (
                 <InputWithTitle
@@ -183,7 +182,7 @@ const Section = ({
           <InputWithTitle
             title={"Rate"}
             type={"text"}
-            name="rate"
+            name="name"
             placeholder={"Rate"}
           />
         </div>
@@ -192,7 +191,7 @@ const Section = ({
           <InputWithTitle
             title={"Sub Total"}
             type={"text"}
-            name="subTotal"
+            name="firmName"
             placeholder={"Sub Total"}
           />
         </div>
@@ -296,9 +295,9 @@ const FourthSection = () => {
     setSections(newSections);
   };
 
-  const handleDateChange = (index, [startDate, endDate]) => {
+  const handleDateChange = (index, dates) => {
     const newSections = [...sections];
-    newSections[index].selectedDates = [startDate, endDate];
+    newSections[index].selectedDates = dates;
     setSections(newSections);
   };
 
@@ -382,7 +381,7 @@ const FourthSection = () => {
           index={index}
           noOfMonth={section.noOfMonth}
           handleNoOfMonth={(e) => handleNoOfMonth(index, e)}
-          contractedList={[]} // Add your contracted list here
+          contractedList={[]}
           jobTypeList={jobTypeList}
           selectedJobType={section.selectedJobType}
           setSelectedJobType={(jobType) => handleJobTypeChange(index, jobType)}
