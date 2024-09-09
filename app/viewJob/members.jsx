@@ -40,7 +40,9 @@ const Members = () => {
     <div className={styles.mainDiv}>
       <Grid container spacing={2}>
         <Grid item lg={8} sm={12} xs={12} md={4}>
-          <div className={styles.leftSection}> Core Members </div>
+          <div className={styles.leftSection}>
+            <div className={styles.treatHead}>Crew Members </div>
+          </div>
         </Grid>
 
         <Grid item lg={4} sm={12} xs={12} md={8}>
@@ -50,18 +52,15 @@ const Members = () => {
                 <SearchInput />
               </div>
             </Grid>
-
-            <Grid item lg={4} sm={12} xs={12} md={8}>
-              <div className={styles.addBtn}>
-                <div className={styles.addText}>+ Add</div>
-              </div>
-            </Grid>
           </Grid>
         </Grid>
       </Grid>
 
       <div className={styles.tableSec}>
-        <TableContainer component={Paper} style={{ marginTop: "20px", marginBottom:"20px" }}>
+        <TableContainer
+          component={Paper}
+          style={{ marginTop: "20px", marginBottom: "20px" }}
+        >
           <Table>
             <TableHead>
               <TableRow>
