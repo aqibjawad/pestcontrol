@@ -1,0 +1,99 @@
+.mainDiv {
+  width: 100%;
+  height: 336px;
+  top: 606px;
+  left: 106px;
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px;
+  border: 1px solid #68cc5838;
+}
+
+.leftSection {
+  padding: 20px;
+}
+
+.addBtn {
+  width: 150px;
+  height: 48px;
+  background: #32a92e;
+  border: 1px solid #ffffff;
+  font-family: "regular";
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 28.16px;
+  color: white;
+  border-radius: 10px;
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.addText {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tableSec {
+  margin-bottom: 2rem;
+}
+
+.mainText {
+  font-family: "regular";
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 42.24px;
+  text-align: left;
+  color: #1c1c1e;
+  margin-top: 2rem;
+}
+
+.treatHead {
+  font-family: "regular";
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 29.26px;
+  text-align: left;
+  color: #101828;
+}
+.formReschedule {
+  padding: 20px;
+}
+
+.mainDivTreat {
+  width: 100%;
+  height: auto;
+  top: 606px;
+  left: 106px;
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px;
+  border: 1px solid #68cc5838;
+}
+
+.reschBtn {
+  width: 100%;
+  height: 48px;
+  border: 1px 0px 0px 0px;
+  background: #32a92e;
+  border: 1px solid #32a92e;
+  font-family: "regular";
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 28.16px;
+  text-align: center;
+  color: #ffffff;
+  border-radius: 10px;
+  margin-top: 2rem;
+  display: flex;
+  text-align: center;
+  justify-content: center;
+}
+
+.addText {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
