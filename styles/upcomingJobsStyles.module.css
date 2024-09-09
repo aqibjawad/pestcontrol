@@ -7,6 +7,12 @@
 
 .tableContainer {
   font-family: "semibold";
+  font-size: 14px;
+}
+
+.tableData {
+  font-family: "regular";
+  font-size: 14px;
 }
 
 .rowContainer {
