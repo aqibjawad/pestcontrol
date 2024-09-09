@@ -74,3 +74,15 @@
   color: #8e8e93;
   margin-top: 1rem;
 }
+
+.itemTitle {
+  font-size: 16px;
+  font-family: "semibold";
+  color: #263238;
+}
+
+.itemName {
+  font-size: 16px;
+  font-family: "regular";
+  color: #8e8e93;
+}

@@ -1,19 +1,15 @@
-import React from 'react';
+import React from "react";
 
-import JobDetails from './jobDetails';
-import SchedulePlan from './schedulePlan';
+import JobDetails from "./jobDetails";
+import SchedulePlan from "./schedulePlan";
 
-const Page =()=>{
-    return(
-        <div>
-
-            <h1>Hello</h1>
-
-            <JobDetails />
-            <SchedulePlan />
-
-        </div>
-    )
-}
+const Page = () => {
+  return (
+    <div>
+      <JobDetails />
+      <SchedulePlan />
+    </div>
+  );
+};
 
 export default Page;

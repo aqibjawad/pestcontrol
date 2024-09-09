@@ -13,6 +13,7 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import styles from "../styles/sideMenu.module.css";
 import User from "@/networkUtil/user";
+import { useRouter } from "next/navigation";
 
 const drawerWidth = 240;
 
@@ -62,6 +63,7 @@ const MyAppBar = styled(AppBar, {
 }));
 
 export default function SideMenu({ children }) {
+  const router = new useRouter();
   const [open, setOpen] = React.useState(true);
   const [permissions, setPermissions] = useState([]);
   const [userName, setUserName] = useState("");
@@ -76,6 +78,11 @@ export default function SideMenu({ children }) {
   }, []);
 
   const [selectedIndex, setSelectedIndex] = useState(0);
+
+  const handleNext = (item, index) => {
+    setSelectedIndex(index);
+    router.push(`/${item.url}`);
+  };
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -133,7 +140,7 @@ export default function SideMenu({ children }) {
         <List>
           {permissions.map((text, index) => (
             <div
-              onClick={() => setSelectedIndex(index)}
+              onClick={() => handleNext(text, index)}
               key={index}
               className={
                 index === selectedIndex

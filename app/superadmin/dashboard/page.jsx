@@ -6,7 +6,6 @@ import UpcomingJobs from "../../../components/UpcomingJobs";
 import Vendors from "../../../components/Vendors";
 import Quotes from "../../../components/Quotes";
 import Contracts from "../../../components/Contracts";
-
 import Finance from "../dashboard/components/Finance";
 import Reports from "./components/Reports";
 import Scheduler from "./components/Scheduler";

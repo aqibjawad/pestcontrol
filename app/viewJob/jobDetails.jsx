@@ -4,78 +4,44 @@ import styles from "../../styles/viewQuote.module.css";
 const JobDetails = () => {
   return (
     <div>
-      <div className="pageTitle">Quotes</div>
-
-      <div className={styles.quoteMain}>
-        <div className={styles.quoteHead}> Job Details </div>
-
-          <div className="flex justify-between" style={{ padding: "34px" }}>
-            <div className="flex flex-col">
-              <div className="flex flex-row">
-                <div className={styles.quoteheadMain}> Job Title: </div>
-                <div className={styles.quoteName}> Umair Khan </div>
-              </div>
-
-              <div className="flex flex-row mt-5">
-                <div className={styles.quoteheadMain}>Contact Person: </div>
-                <div className={styles.quoteName}> Umair Khan </div>
-              </div>
-
-              <div className="flex flex-row mt-5">
-                <div className={styles.quoteheadMain}> Reference: </div>
-                <div className={styles.quoteName}> Umair Khan </div>
-              </div>
-
-              <div className="flex flex-row mt-5">
-                <div className={styles.quoteheadMain}> Priority: </div>
-                <div className={styles.quoteName}> Umair Khan </div>
-              </div>
-
-              <div className="flex flex-row mt-5">
-                <div className={styles.quoteheadMain}>Priority: </div>
-                <div className={styles.quoteName}> Umair Khan </div>
-              </div>
-
-              <div className="flex flex-row mt-5">
-                <div className={styles.quoteheadMain}> Start On: </div>
-                <div className={styles.quoteName}> Umair Khan </div>
-              </div>
-
-              <div className="flex flex-row mt-5">
-                <div className={styles.quoteheadMain}> Duration: </div>
-                <div className={styles.quoteName}> Umair Khan </div>
-              </div>
-
+      <div className="pageTitle">Job Details</div>
+      <div className="mb-10 mt-10">
+        <div className={styles.quoteMain}>
+          <div className="flex mt-10">
+            <div className="flex-grow">
+              <div className={styles.itemTitle}>Job Title</div>
             </div>
-
-            <div className="flex flex-col">
-              <div className="flex flex-row">
-                <div className={styles.quoteheadMain}> Reference: </div>
-                <div className={styles.quoteName}> Umair Khan </div>
-              </div>
-
-              <div className="flex flex-row mt-5">
-                <div className={styles.quoteheadMain}>Contact Person: </div>
-                <div className={styles.quoteName}> Umair Khan </div>
-              </div>
-
-              <div className="flex flex-row mt-5">
-                <div className={styles.quoteheadMain}> Date: </div>
-                <div className={styles.quoteName}> Umair Khan </div>
-              </div>
-
-              <div className="flex flex-row mt-5">
-                <div className={styles.quoteheadMain}> Day Part: </div>
-                <div className={styles.quoteName}> Umair Khan </div>
-              </div>
-
-              <div className="flex flex-row mt-5">
-                <div className={styles.quoteheadMain}> End On: </div>
-                <div className={styles.quoteName}> Umair Khan </div>
-              </div>
-
-            </div>
+            <div className={styles.itemName}>Pest Control </div>
           </div>
+
+          <div className="flex mt-10">
+            <div className="flex-grow">
+              <div className={styles.itemTitle}>Job Title</div>
+            </div>
+            <div className={styles.itemName}>Pest Control </div>
+          </div>
+
+          <div className="flex mt-10">
+            <div className="flex-grow">
+              <div className={styles.itemTitle}>Region</div>
+            </div>
+            <div className={styles.itemName}>Dubai </div>
+          </div>
+
+          <div className="flex mt-10">
+            <div className="flex-grow">
+              <div className={styles.itemTitle}>Address</div>
+            </div>
+            <div className={styles.itemName}>Detailed Address</div>
+          </div>
+
+          <div className="flex mt-10">
+            <div className="flex-grow">
+              <div className={styles.itemTitle}>Address</div>
+            </div>
+            <div className={styles.itemName}>Detailed Address</div>
+          </div>
+        </div>
       </div>
     </div>
   );

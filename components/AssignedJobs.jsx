@@ -1,11 +1,8 @@
-"use client";
 import React from "react";
 import styles from "../styles/upcomingJobsStyles.module.css";
 import SearchInput from "../components/generic/SearchInput";
 import GreenButton from "../components/generic/GreenButton";
-import { useRouter } from "next/navigation";
-const UpcomingJobs = () => {
-  const router = new useRouter();
+const AssignedJobs = () => {
   const rows = Array.from({ length: 5 }, (_, index) => ({
     clientName: "Olivia Rhye",
     clientEmail: "ali@gmail.com",
@@ -16,10 +13,6 @@ const UpcomingJobs = () => {
     status: "Completed",
     teamCaptain: "Babar Azam",
   }));
-
-  const assignedJob = () => {
-    router.push("/operations/assignJob");
-  };
 
   const jobTable = () => {
     return (
@@ -40,7 +33,13 @@ const UpcomingJobs = () => {
               <th class="py-2 px-4 border-b border-gray-200 text-left">
                 Status
               </th>
-              <th class="py-2 px-4 border-b border-gray-200 text-left"></th>
+              <th class="py-2 px-4 border-b border-gray-200 text-left">
+                Captain
+              </th>
+
+              <th class="py-2 px-4 border-b border-gray-200 text-left">
+                Assigned By
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -57,16 +56,14 @@ const UpcomingJobs = () => {
                 <td className="py-2 px-4">
                   <div className={styles.statusContainer}>{row.status}</div>
                 </td>
-
                 <td className="py-2 px-4">
                   <div className={styles.teamCaptainName}>
-                    <GreenButton
-                      onClick={() => {
-                        assignedJob();
-                      }}
-                      title={"Assign Job"}
-                    />
+                    {row.teamCaptain}
                   </div>
+                </td>
+
+                <td className="py-2 px-4">
+                  <div className={styles.teamCaptainName}>{"Umair"}</div>
                 </td>
               </tr>
             ))}
@@ -81,7 +78,7 @@ const UpcomingJobs = () => {
       <div className={styles.parentContainer}>
         <div className="flex">
           <div className="flex-grow">
-            <div className="pageTitle">Upcoming Jobs</div>
+            <div className="pageTitle">Assigned Jobs</div>
           </div>
           <div className="flex">
             <div className="mr-5">
@@ -95,4 +92,4 @@ const UpcomingJobs = () => {
   );
 };
 
-export default UpcomingJobs;
+export default AssignedJobs;
