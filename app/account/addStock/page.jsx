@@ -13,16 +13,14 @@ import GreenButton from "@/components/generic/GreenButton";
 const Page = () => {
   return (
     <div>
-        <div className={styles.stockHead}>
-            Stock Items 
-        </div>
-        
-        <div className={styles.stockDescrp}>
-            Thank you for choosing us to meet your needs. We look forward to serving you with excellenc
-        </div>
+      <div className={styles.stockHead}>Stock Items</div>
 
+      <div className={styles.stockDescrp}>
+        Thank you for choosing us to meet your needs. We look forward to serving
+        you with excellenc
+      </div>
 
-        {/* Form section */}
+      {/* Form section */}
       <Grid className={styles.fromGrid} container spacing={3}>
         <Grid item lg={6} xs={12} sm={6} md={4}>
           <InputWithTitle title={"Product Name"} />
@@ -52,14 +50,13 @@ const Page = () => {
               <Grid item>
                 <FormControlLabel control={<Radio />} label="Out of Stock" />
               </Grid>
-
             </Grid>
           </div>
         </Grid>
       </Grid>
 
       <div className={styles.btnSubmitt}>
-            <GreenButton title={"Submit"} />
+        <GreenButton title={"Submit"} />
       </div>
     </div>
   );
