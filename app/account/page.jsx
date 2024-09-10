@@ -1,6 +1,9 @@
 import React from "react";
 import Customers from "../../components/Customer";
 import Transactions from "../../components/Transactions";
+import Invoices from "../../components/invoices";
+import Vehicles from "../../components/vehicles";
+
 const Page = () => {
   return (
     <div>
@@ -11,6 +14,14 @@ const Page = () => {
           <Customers />
           <div className="mt-10">
             <Transactions />
+          </div>
+
+          <div className="mt-10">
+            <Invoices />
+          </div>
+
+          <div className="mt-10">
+            <Vehicles />
           </div>
         </div>
         <div className="col-span-3">Alert here</div>

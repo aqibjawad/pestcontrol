@@ -1,0 +1,48 @@
+.fromGrid {
+  margin-top: 2rem;
+}
+
+.status {
+  width: 100%;
+  height: Fill (52px) px;
+  padding: 12px 16px 12px 16px;
+  gap: 8px;
+  border-radius: 8px;
+  border: 1px;
+  background: #ffffff;
+  border: 1px solid #d0d5dd;
+}
+
+.statusHead {
+  font-family: "regular";
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 28.16px;
+  text-align: left;
+  color: #2a292d;
+}
+
+.stockHead {
+  font-family: "regular";
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 28.16px;
+  text-align: left;
+  color: #2a292d;
+}
+
+.stockDescrp {
+  font-family: "regular";
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 24.71px;
+  text-align: left;
+  color: #667085;
+}
+
+.btnSubmitt{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 2rem;
+}
