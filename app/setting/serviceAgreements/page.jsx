@@ -13,106 +13,44 @@ import MultilineInput from "../../../components/generic/MultilineInput";
 import GreenButton from "../../../components/generic/GreenButton";
 import Loading from "../../../components/generic/Loading";
 import Swal from "sweetalert2";
-
+import useServices from "./useServices";
+import { AppAlerts } from "../../../Helper/AppAlerts";
+import { CircularProgress } from "@mui/material";
 const Page = () => {
-  const api = new APICall();
-
+  const alert = new AppAlerts();
+  const { isLoading, services, addService, addingService } = useServices();
   const [agreementsList, setAgreementsList] = useState([]);
   const [fetchingData, setFetchingData] = useState(false);
-  const [isLoading, setLoading] = useState(false);
   const [name, setServiceName] = useState("");
+  const [pestName, setPestName] = useState("");
   const [work_scope, setScope] = useState("");
-
-  useEffect(() => {
-    getServices();
-  }, []);
-
-  const getServices = async () => {
-    setFetchingData(true);
-    try {
-      const response = await api.getDataWithToken(getServiceAgreements);
-      if (response.data && response.data.data) {
-        setAgreementsList(response.data.data);
-      }
-    } catch (error) {
-      console.error("Error fetching service agreements:", error);
-    } finally {
-      setFetchingData(false);
-    }
-  };
+  const [isUpdate, setIsUpdate] = useState(false);
 
   const handleFormSubmit = async () => {
-    setLoading(true);
-
-    const formData = {
-      name: name,
-      work_scope: work_scope,
-    };
-
-    try {
-      const response = await api.postDataWithTokn(
-        addServiceAgreements,
-        formData
-      );
-
-      if (response.error) {
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: response.error.error || "Unknown error occurred.",
-        });
-        console.log(response.error.error);
-      } else {
-        Swal.fire({
-          icon: "success",
-          title: "Success",
-          text: "Service agreement added successfully!",
-        });
-        getServices(); // Refresh the list after adding a new agreement
-      }
-    } catch (error) {
-      console.error("Error adding service agreement:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "An error occurred. Please try again.",
-      });
-    } finally {
-      setLoading(false);
+    if (pestName === "") {
+      alert.errorAlert("Pest Name is required");
+    } else if (name === "") {
+      alert.errorAlert("Name is required");
+    } else if (work_scope === "") {
+      alert.errorAlert("Please enter scope of work");
+    } else {
+      addService(pestName, name, work_scope);
     }
   };
 
-  const handleDelete = async (id) => {
-    setLoading(true);
-
-    try {
-      const response = await api.deleteDataWithToken(deleteServiceAgreement(id));
-
-      if (response.error) {
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: response.error.error || "Failed to delete service agreement.",
-        });
-        console.log(response.error.error);
-      } else {
-        Swal.fire({
-          icon: "success",
-          title: "Success",
-          text: "Service agreement deleted successfully!",
-        });
-        getServices(); // Refresh the list after deleting an agreement
-      }
-    } catch (error) {
-      console.error("Error deleting service agreement:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "An error occurred. Please try again.",
-      });
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (isLoading) {
+      setServiceName("");
+      setPestName("");
+      setScope("");
     }
+  }, [isLoading]);
+
+  const handleDelete = async (item) => {
+    setIsUpdate(true);
+    setServiceName(item.service_name);
+    setPestName("");
+    setScope("");
   };
 
   return (
@@ -120,7 +58,7 @@ const Page = () => {
       <div className="pageTitle">Service Agreements</div>
       <div className="grid grid-cols-2 gap-10">
         <div>
-          {fetchingData ? (
+          {isLoading ? (
             <Loading />
           ) : (
             <table className="min-w-full divide-y divide-gray-200">
@@ -138,7 +76,7 @@ const Page = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {agreementsList.map((item, index) => (
+                {services.map((item, index) => (
                   <tr key={index}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
@@ -153,9 +91,9 @@ const Page = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <button
                         className="text-indigo-600 hover:text-indigo-900"
-                        onClick={() => handleDelete(item.id)}
+                        onClick={() => handleDelete(item)}
                       >
-                        Delete
+                        Update
                       </button>
                     </td>
                   </tr>
@@ -167,11 +105,20 @@ const Page = () => {
 
         <div>
           <InputWithTitle
-            title="Name"
-            placeholder="Name"
-            value={name}
-            onChange={setServiceName}
+            title="Pest Name"
+            placeholder="Fly, Rat etc"
+            value={pestName}
+            onChange={setPestName}
           />
+
+          <div className="mt-5">
+            <InputWithTitle
+              title="Service Name"
+              placeholder="Rat Control"
+              value={name}
+              onChange={setServiceName}
+            />
+          </div>
 
           <div className="mt-5"></div>
           <MultilineInput
@@ -181,7 +128,18 @@ const Page = () => {
             title="Scope of Work"
           />
           <div className="mt-5"></div>
-          <GreenButton onClick={handleFormSubmit} title="Add" />
+          <GreenButton
+            onClick={() => handleFormSubmit()}
+            title={
+              addingService ? (
+                <CircularProgress color="inherit" size={20} />
+              ) : isUpdate ? (
+                "Update"
+              ) : (
+                "Add"
+              )
+            }
+          />
         </div>
       </div>
     </div>

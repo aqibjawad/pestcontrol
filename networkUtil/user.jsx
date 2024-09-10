@@ -1,12 +1,15 @@
 class User {
   constructor(userData) {
-    this.userData = userData;
+    this.userData = userData.userData;
+    this.token = userData.token;
+    this.name = userData.data.name;
+    this.permissions = userData.permission.permission;
     this.saveToLocalStorage();
   }
 
   saveToLocalStorage() {
     if (typeof window !== "undefined") {
-      localStorage.setItem("user", JSON.stringify(this.userData));
+      localStorage.setItem("user", JSON.stringify(this));
     }
   }
 
@@ -20,7 +23,7 @@ class User {
 
   static getAccessToken() {
     const data = User.getFromLocalStorage();
-    return data ? data.access_token : null;
+    return data ? data.token : null;
   }
 
   static getUserName() {
@@ -30,7 +33,7 @@ class User {
 
   static getUserPersmissions() {
     const data = User.getFromLocalStorage();
-    return data ? data.permission.permission : null;
+    return data ? data.permissions : null;
   }
 }
 

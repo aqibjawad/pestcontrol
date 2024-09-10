@@ -132,8 +132,7 @@ export default function Home() {
         setShowAlert(true);
       } else {
         const user = new User(response);
-        
-        if (response.data.role === "1") { 
+        if (response.data.role === "1") {
           router.replace("/superadmin/dashboard");
         }
       }
