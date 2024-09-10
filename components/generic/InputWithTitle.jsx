@@ -1,6 +1,13 @@
 import React from "react";
 import styles from "../../styles/generics/inputStyles.module.css";
-const InputWithTitle = ({ type, title, placeholder, value, onChange }) => {
+const InputWithTitle = ({
+  type,
+  title,
+  placeholder,
+  value,
+  onChange,
+  rest,
+}) => {
   return (
     <div className="w-full ">
       <div className={styles.title}>{title}</div>
@@ -11,6 +18,7 @@ const InputWithTitle = ({ type, title, placeholder, value, onChange }) => {
           className={`w-full ${styles.inputField}`}
           placeholder={placeholder}
           onChange={(e) => onChange(e.target.value)}
+          {...rest}
         />
       </div>
     </div>

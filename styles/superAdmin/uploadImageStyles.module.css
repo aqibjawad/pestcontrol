@@ -1,4 +1,10 @@
 .titleText {
+  margin-top: 20px;
+  font-family: "semibold";
+  font-size: 15px;
+}
+
+.paragraphText {
   font-family: "regular";
   font-size: 14px;
   font-weight: 200;
@@ -7,10 +13,14 @@
 }
 
 .mainContainer {
+  margin-top: 20px;
+  padding: 40px;
   display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
+  border-radius: 10px;
+  border: 1px dashed #d0d5dd;
 }
 
 .addBtn {

@@ -2,14 +2,15 @@
 import Dropdown from "@/components/generic/Dropdown";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import { Skeleton } from "@mui/material";
-import {
-  getAllBrandNames,
-} from "@/networkUtil/Constants";
+import { getAllBrandNames } from "@/networkUtil/Constants";
 import React, { useEffect, useState } from "react";
 import APICall from "@/networkUtil/APICall";
 import Link from "next/link";
 import styles from "../../../styles/account/addItemStyles.module.css";
 import Swal from "sweetalert2";
+import UploadImagePlaceholder from "../../../components/generic/uploadImage";
+import MultilineInput from "@/components/generic/MultilineInput";
+import GreenButton from "@/components/generic/GreenButton";
 
 const Page = () => {
   const api = new APICall();
@@ -22,8 +23,22 @@ const Page = () => {
   const [manufactureDate, setManufactureDate] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
   const [activeIngredients, setActiveIngredients] = useState("");
-
+  const [productFor, setProductFor] = useState("");
   const [loadingSubmit, setLoadingSubmit] = useState(false);
+  const [productImage, setProductForImage] = useState();
+  const [attachmentImage, setAttachmentImage] = useState();
+  const [productType, setProductType] = useState();
+  const [totalQuantity, setTotalQunantity] = useState();
+  const [perItemQuantity, setPerItemQuantity] = useState();
+  const [unit, setUnit] = useState();
+  const [perUnitPrice, setPerUnitPrice] = useState();
+  const [ingredient, setIngredients] = useState();
+  const [moccae, setMoccaeApproved] = useState();
+  const [mocaStartDate, setMocaStartDate] = useState();
+  const [mocaExpiryDate, setMocaExpiryDate] = useState();
+  const [vat, setVat] = useState();
+  const [supplierName, setSupplierName] = useState();
+  const [desc, setDescription] = useState();
 
   useEffect(() => {
     getAllBrands();
@@ -124,6 +139,14 @@ const Page = () => {
     setSelectedBrandId(idAtIndex);
   };
 
+  const handleProductForChange = (value, index) => {
+    setProductFor(value);
+  };
+
+  const handleFileSelect = (file) => {
+    setProductForImage(file);
+  };
+
   const firstSection = () => {
     return (
       <div className="mt-10">
@@ -195,13 +218,160 @@ const Page = () => {
           />
         </div>
         <div className="mt-5">
-          <button
-            onClick={handleSubmit}
-            disabled={loadingSubmit}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          >
-            {loadingSubmit ? "Submitting..." : "Submit"}
-          </button>
+          <Dropdown
+            options={["Option 1", "Option 2", "Option 3"]}
+            title={"Product For"}
+            onChange={handleProductForChange}
+          />
+
+          <UploadImagePlaceholder
+            onFileSelect={handleFileSelect}
+            title={"Product Image"}
+          />
+
+          <UploadImagePlaceholder
+            onFileSelect={setAttachmentImage}
+            title={"Attachment"}
+          />
+        </div>
+      </div>
+    );
+  };
+
+  const handleProductTypeChange = (value, index) => {
+    setProductType(value);
+  };
+
+  const handleUnitChanged = (value, index) => {
+    setUnit(value);
+  };
+
+  const mocaChanged = (value, index) => {
+    setMoccaeApproved(value);
+  };
+
+  const secondSection = () => {
+    return (
+      <div className="mt-10">
+        <Dropdown
+          options={["Powder", "Chemical"]}
+          title={"Product Type"}
+          onChange={handleProductTypeChange}
+        />
+        <div className="mt-10">
+          <div className="flex gap-4">
+            <div className="flex-grow">
+              <InputWithTitle
+                title={"Total Quantity"}
+                type={"text"}
+                placeholder={"Total Quantity"}
+                onChange={setTotalQunantity}
+              />
+            </div>
+            <div className="flex-grow">
+              <InputWithTitle
+                title={"Per Item Quantity"}
+                type={"text"}
+                placeholder={"Per Item Quantity"}
+                onChange={setPerItemQuantity}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-10">
+          <div className="flex gap-4">
+            <div className="flex-grow">
+              <Dropdown
+                title={"Unit"}
+                options={["ML", "GRAM"]}
+                onChange={handleUnitChanged}
+              />
+            </div>
+            <div className="flex-grow">
+              <InputWithTitle
+                title={"Per Unit Price"}
+                type={"text"}
+                placeholder={"Per Item Price"}
+                onChange={setPerUnitPrice}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-10">
+          <div className="flex-grow">
+            <InputWithTitle
+              title={"Other Ingredients"}
+              type={"text"}
+              placeholder={"Other Ingredients"}
+              onChange={setIngredients}
+            />
+          </div>
+        </div>
+
+        <div className="mt-10">
+          <div className="flex-grow">
+            <Dropdown
+              options={["Approved", "Not Approved"]}
+              title={"MOCCAE Approval"}
+              onChange={mocaChanged}
+            />
+          </div>
+        </div>
+
+        <div className="mt-10">
+          <div className="flex gap-4">
+            <div className="flex-grow">
+              <InputWithTitle
+                title={"MOCCAE Start Date"}
+                type={"date"}
+                placeholder={"Per Item Price"}
+                onChange={setMocaStartDate}
+              />
+            </div>
+            <div className="flex-grow">
+              <InputWithTitle
+                title={"MOCCAE Expiry Date"}
+                type={"date"}
+                placeholder={"Per Item Price"}
+                onChange={setMocaExpiryDate}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-10">
+          <div className="flex gap-4">
+            <div className="flex-grow">
+              <InputWithTitle
+                title={"VAT"}
+                type={"text"}
+                placeholder={"VAT"}
+                onChange={setVat}
+              />
+            </div>
+            <div className="flex-grow">
+              <InputWithTitle
+                title={"Supplier Name"}
+                type={"text"}
+                placeholder={"Supplier Name"}
+                onChange={setSupplierName}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-10">
+          <InputWithTitle title={"Price"} type={"text"} placeholder={"Price"} />
+        </div>
+
+        <div className="mt-10">
+          <MultilineInput
+            title={"Description"}
+            placeholder={"Description"}
+            onChange={setDescription}
+          />
         </div>
       </div>
     );
@@ -212,7 +382,10 @@ const Page = () => {
       <div className="pageTitle">Add Inventory Item</div>
       <div className="grid grid-cols-2 gap-10">
         <div>{firstSection()}</div>
-        <div>adfs</div>
+        <div>{secondSection()}</div>
+      </div>
+      <div className="mt-20">
+        <GreenButton title={"Save"} />
       </div>
     </div>
   );
