@@ -1,5 +1,5 @@
 .employ-head {
-    font-family: Montserrat;
+    font-family: "regular";
     font-size: 20px;
     font-weight: 600;
     line-height: 24.38px;
@@ -8,7 +8,7 @@
 }
 
 .passport-head {
-    font-family: Montserrat;
+    font-family: "regular";
     font-size: 20px;
     font-weight: 600;
     line-height: 24.38px;
@@ -17,7 +17,7 @@
 }
 
 .health-head {
-    font-family: Montserrat;
+    font-family: "regular";
     font-size: 20px;
     font-weight: 600;
     line-height: 24.38px;
@@ -80,7 +80,7 @@
     border: 1px solid #32A92E;
     background: #32A92E;
     color: white; /* Text color */
-    font-family: Montserrat;
+    font-family: "regular";
     font-size: 16px;
     font-weight: 600;
     line-height: 48px; /* Vertically center text */

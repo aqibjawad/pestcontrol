@@ -1,8 +1,10 @@
 .topTabConainer {
   height: 50px;
+  margin-right: 50px;
 }
 
 .tabContainer {
+  gap: 10px;
   height: 50px;
   border: 1px solid #bbbbbb;
   display: flex;

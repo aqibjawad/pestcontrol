@@ -1,13 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import styles from "../../styles/superAdmin/dashboard.module.css";
+import styles from "../../../styles/superAdmin/dashboard.module.css";
 import "./index.css";
 import PersonalInformation from "./personalInformation";
 import Insurance from "./insurance";
 import OtherInfo from "./otherInformation.jsx";
-
-import { addEmployee } from "../../networkUtil/Constants";
 
 import APICall from "@/networkUtil/APICall";
 
@@ -159,11 +157,6 @@ const Page = () => {
 
           <button className="next-button" onClick={handleNext}>
             Next <img src="/arrow-right.png" alt="Next" />
-          </button>
-        </div>
-        <div className="flex justify-end mt-4">
-          <button className="submit-button" onClick={handleSubmit}>
-            Submit
           </button>
         </div>
       </div>
