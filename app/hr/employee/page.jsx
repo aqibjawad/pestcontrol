@@ -49,7 +49,7 @@ const Page = () => {
       relative_name: "",
       emergency_contact: "",
       relation: "",
-      basic_salary: "",
+      basic_Salary: "",
       allowance: "",
       other: "",
       total_salary: "",
@@ -62,16 +62,66 @@ const Page = () => {
     otherInfo: {},
   });
 
+  const validateForm = (section) => {
+    const newErrors = {};
+    if (formData[section] && typeof formData[section] === "object") {
+      Object.keys(formData[section]).forEach((field) => {
+        if (!formData[section][field]) {
+          newErrors[field] = "This field is required";
+        }
+      });
+    } else {
+      console.error(`Invalid section: ${section}`);
+    }
+    return newErrors;
+  };
+
   const handlePrevious = () => {
     setSelectedIndex(
       selectedIndex === 0 ? tabNames.length - 1 : selectedIndex - 1
     );
   };
 
+  const getSectionName = (index) => {
+    switch (index) {
+      case 0:
+        return "personalInfo";
+      case 1:
+        return "insurance";
+      case 2:
+        return "otherInfo";
+      default:
+        return "";
+    }
+  };
+
   const handleNext = () => {
-    setSelectedIndex(
-      selectedIndex === tabNames.length - 1 ? 0 : selectedIndex + 1
-    );
+    const currentSection = getSectionName(selectedIndex);
+    if (!currentSection) {
+      console.error(`Invalid section index: ${selectedIndex}`);
+      return;
+    }
+
+    const currentErrors = validateForm(currentSection);
+
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [currentSection]: currentErrors,
+    }));
+
+    if (Object.keys(currentErrors).length === 0) {
+      setSelectedIndex((prevIndex) =>
+        prevIndex === tabNames.length - 1 ? 0 : prevIndex + 1
+      );
+    } else {
+      // Create an error message string
+      const errorMessages = Object.entries(currentErrors)
+        .map(([field, error]) => `${field}: ${error}`)
+        .join("\n");
+
+      // Show the errors in an alert
+      alert(`Please correct the following errors:\n\n${errorMessages}`);
+    }
   };
 
   const handleInputChange = (section, field, value) => {
@@ -82,56 +132,45 @@ const Page = () => {
         [field]: value,
       },
     }));
-  };
 
-  const validateFormData = () => {
-    const newErrors = { personalInfo: {}, insurance: {}, otherInfo: {} };
-
-    // Validate Personal Information
-    Object.keys(formData.personalInfo).forEach((key) => {
-      if (!formData.personalInfo[key] && key !== "role") {
-        newErrors.personalInfo[key] = "This field is required";
-      }
-    });
-
-    // Validate Insurance
-    Object.keys(formData.insurance).forEach((key) => {
-      if (!formData.insurance[key]) {
-        newErrors.insurance[key] = "This field is required";
-      }
-    });
-
-    // Validate Other Information
-    Object.keys(formData.otherInfo).forEach((key) => {
-      if (!formData.otherInfo[key]) {
-        newErrors.otherInfo[key] = "This field is required";
-      }
-    });
-
-    setErrors(newErrors);
-
-    return !Object.values(newErrors).flat().length; // If no errors, return true
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [section]: {
+        ...prevErrors[section],
+        [field]: undefined,
+      },
+    }));
   };
 
   const handleSubmit = async () => {
-    if (!validateFormData()) {
-      alert("Please fill out all required fields.");
-      return;
-    }
+    const allErrors = {
+      personalInfo: validateForm("personalInfo"),
+      insurance: validateForm("insurance"),
+      otherInfo: validateForm("otherInfo"),
+    };
 
-    console.log("Form Data:", JSON.stringify(formData, null, 2));
-    try {
-      const response = await api.postDataWithTokn("addClient", formData); // Replace "addClient" with the actual endpoint
-      if (response.error) {
-        alert(response.error.error);
-        console.log(response.error.error);
-      } else {
-        alert("Employee added successfully!");
-        // Optionally, clear form fields or reset state
+    setErrors(allErrors);
+
+    if (
+      Object.values(allErrors).every(
+        (section) => Object.keys(section).length === 0
+      )
+    ) {
+      try {
+        const response = await api.postDataWithTokn("addClient", formData);
+        if (response.error) {
+          alert(response.error.error);
+          console.log(response.error.error);
+        } else {
+          alert("Employee added successfully!");
+          // Optionally, clear form fields or reset state
+        }
+      } catch (error) {
+        console.error("Error adding Employee:", error);
+        alert("An error occurred while adding the Employee.");
       }
-    } catch (error) {
-      console.error("Error adding Employee:", error);
-      alert("An error occurred while adding the Employee.");
+    } else {
+      alert("Please fill in all required fields before submitting.");
     }
   };
 
@@ -159,35 +198,35 @@ const Page = () => {
 
       <div className="grid grid-cols-12 gap-4 mt-10">
         <div className="col-span-12 md:col-span-9">
-          {selectedIndex === 0 && (
+          <div className={selectedIndex === 0 ? `block` : "hidden"}>
             <PersonalInformation
               data={formData.personalInfo}
+              errors={errors.personalInfo}
               onChange={(field, value) =>
                 handleInputChange("personalInfo", field, value)
               }
-              errors={errors.personalInfo}
             />
-          )}
+          </div>
 
-          {selectedIndex === 1 && (
+          <div className={selectedIndex === 1 ? `block` : "hidden"}>
             <Insurance
               data={formData.insurance}
+              errors={errors.insurance}
               onChange={(field, value) =>
                 handleInputChange("insurance", field, value)
               }
-              errors={errors.insurance}
             />
-          )}
+          </div>
 
-          {selectedIndex === 2 && (
+          <div className={selectedIndex === 2 ? `block` : "hidden"}>
             <OtherInfo
               data={formData.otherInfo}
+              errors={errors.otherInfo}
               onChange={(field, value) =>
                 handleInputChange("otherInfo", field, value)
               }
-              errors={errors.otherInfo}
             />
-          )}
+          </div>
         </div>
       </div>
 
@@ -201,8 +240,12 @@ const Page = () => {
             Next <img src="/arrow-right.png" alt="Next" />
           </button>
         </div>
+        <div className="flex justify-end mt-4">
+          <button className="submit-button" onClick={handleSubmit}>
+            Submit
+          </button>
+        </div>
       </div>
-
     </div>
   );
 };
