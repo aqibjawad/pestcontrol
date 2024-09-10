@@ -69,6 +69,7 @@
   align-items: center;
   justify-content: center;
   color: white;
+  cursor: pointer;
 }
 
 .tableContainer {
@@ -111,5 +112,23 @@
   font-weight: 600;
   line-height: 20px;
   text-align: left;
-  color: #1C1C1EF2;
+  color: #1c1c1ef2;
+}
+
+.serviceHead {
+  font-family: "regular";
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 29.26px;
+  text-align: center;
+}
+
+.serviceDescrp {
+  font-family: "regular";
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 20px;
+  text-align: center;
+  color: #667085;
+  margin-top: 1rem;
 }

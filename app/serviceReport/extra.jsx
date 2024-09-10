@@ -1,17 +1,29 @@
-import React from "react";
-import styles from "../../styles/serviceReport.module.css"
+"use client";
+
+import React, { useState } from "react";
+import styles from "../../styles/serviceReport.module.css";
+
+import AddChemicals from "../../components/addChemicals";
 
 const Extra = () => {
+  
+  const [openChemicals, setOpenChemicals] = useState(false);
+
+  const handleOpenChemicals = () => setOpenChemicals(true);
+  const handleCloseChemicals = () => setOpenChemicals(false);
+
   return (
     <div>
-
       <div className="flex justify-between" style={{ padding: "34px" }}>
         <div className="flex flex-col">
-          <div className={styles.areaHead}> Extra </div>
+          <div className={styles.areaHead}> Chemical and material </div>
         </div>
 
         <div className="flex flex-col">
-          <div className={styles.areaButton}> + Area </div>
+          <div onClick={handleOpenChemicals} className={styles.areaButton}>
+            {" "}
+            + Add Chemicals{" "}
+          </div>
         </div>
       </div>
 
@@ -37,6 +49,11 @@ const Extra = () => {
           </tbody>
         </table>
       </div>
+
+      <AddChemicals
+        openChemicals={openChemicals}
+        handleCloseChemicals={handleCloseChemicals}
+      />
     </div>
   );
 };

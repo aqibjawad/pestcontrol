@@ -1,7 +1,15 @@
-import React from "react";
+"use client";
+
+import React, {useState, useEffect} from "react";
 import styles from "../../styles/serviceReport.module.css";
 
+import AddService from "../../components/addService";
+
 const Area = () => {
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
   return (
     <div>
       <div className="flex justify-between" style={{ padding: "34px" }}>
@@ -10,7 +18,7 @@ const Area = () => {
         </div>
 
         <div className="flex flex-col">
-          <div className={styles.areaButton}> + Area </div>
+          <div onClick={handleOpen} className={styles.areaButton}> + Area </div>
         </div>
       </div>
 
@@ -50,27 +58,15 @@ const Area = () => {
               <td>
                 <div className={styles.checkboxesContainer}>
                   <label className={styles.checkboxLabel}>
-                    <input
-                      type="checkbox"
-                      name="pestFound"
-                      value="Rodents"
-                    />
+                    <input type="checkbox" name="pestFound" value="Rodents" />
                     Rodents
                   </label>
                   <label className={styles.checkboxLabel}>
-                    <input
-                      type="checkbox"
-                      name="pestFound"
-                      value="Insects"
-                    />
+                    <input type="checkbox" name="pestFound" value="Insects" />
                     Insects
                   </label>
                   <label className={styles.checkboxLabel}>
-                    <input
-                      type="checkbox"
-                      name="pestFound"
-                      value="Termites"
-                    />
+                    <input type="checkbox" name="pestFound" value="Termites" />
                     Termites
                   </label>
                 </div>
@@ -108,27 +104,15 @@ const Area = () => {
               <td>
                 <div className={styles.checkboxesContainer}>
                   <label className={styles.checkboxLabel}>
-                    <input
-                      type="checkbox"
-                      name="pestFound"
-                      value="Rodents"
-                    />
+                    <input type="checkbox" name="pestFound" value="Rodents" />
                     Rodents
                   </label>
                   <label className={styles.checkboxLabel}>
-                    <input
-                      type="checkbox"
-                      name="pestFound"
-                      value="Insects"
-                    />
+                    <input type="checkbox" name="pestFound" value="Insects" />
                     Insects
                   </label>
                   <label className={styles.checkboxLabel}>
-                    <input
-                      type="checkbox"
-                      name="pestFound"
-                      value="Termites"
-                    />
+                    <input type="checkbox" name="pestFound" value="Termites" />
                     Termites
                   </label>
                 </div>
@@ -165,6 +149,8 @@ const Area = () => {
           </tbody>
         </table>
       </div>
+
+      <AddService open={open} handleClose={handleClose} />
     </div>
   );
 };
