@@ -31,7 +31,7 @@
   line-height: 20px;
   text-align: left;
   color: "#8E8E93";
-  margin-left: 2rem;
+  margin-left: 2rem; 
   margin-top: 1rem;
   display: flex;
   align-items: center;
@@ -55,7 +55,7 @@
 }
 
 .areaButton {
-  width: 150px;
+  width: 170px;
   height: 48px;
   border: 1px;
   background: #32a92e;
@@ -70,6 +70,7 @@
   justify-content: center;
   color: white;
   cursor: pointer;
+  border-radius: 10px;
 }
 
 .tableContainer {

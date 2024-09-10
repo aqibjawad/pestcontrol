@@ -3,11 +3,14 @@
 import React, { useState } from "react";
 import styles from "../../styles/serviceReport.module.css";
 
-import AddChemicals from "../../components/addChemicals";
+import AddChemicals from "../../components/addChemicals"
 
 const Extra = () => {
   
   const [openChemicals, setOpenChemicals] = useState(false);
+
+  console.log("modal",openChemicals);
+  
 
   const handleOpenChemicals = () => setOpenChemicals(true);
   const handleCloseChemicals = () => setOpenChemicals(false);
