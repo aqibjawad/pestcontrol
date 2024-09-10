@@ -13,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const router = useRouter();
-  const noLayoutPages = ["/"];
+  const noLayoutPages = ["/", "/serviceRpoertPdf"];
   const pathname = usePathname();
   const isNoLayoutPage = noLayoutPages.includes(pathname);
 
@@ -29,3 +29,4 @@ export default function RootLayout({
     </html>
   );
 }
+ 

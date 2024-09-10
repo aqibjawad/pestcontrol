@@ -15,7 +15,7 @@ const VisitRecords = () => {
     <div className={styles.clientRecord}>
       <div className={styles.clientHead}> Visit Records </div>
 
-      <TableContainer sx={{ mt: 7 }}>
+      <TableContainer sx={{ mt: 1 }}>
         <Table>
           <TableHead className={styles.tableHead}>
             <TableRow>
