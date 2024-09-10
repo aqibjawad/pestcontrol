@@ -26,6 +26,20 @@
   line-height: 20px;
   text-align: left;
   color: #263238;
+  margin-bottom: 1rem;
+}
+
+.customerDetails {
+  font-family: "regular";
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 24.38px;
+  text-align: left;
+  color: #32a92e;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #32a92e;
+  width: 200px;
 }
 
 .quoteName {
@@ -38,51 +52,64 @@
   margin-left: 1rem;
 }
 
-.serviceHead {
+.clientRecord {
+  width: 100%;
+  height: auto;
+  top: -1123px;
+  left: 7482px;
+  padding: 14px 12px 14px 12px;
+  border-radius: 8px;
+  border: 1px;
+  border: 1px solid #68cc5838;
+  margin-top: 2rem;
+}
+
+.clientHead {
   font-family: "regular";
   font-size: 20px;
   font-weight: 600;
-  line-height: 35.3px;
-  text-align: left;
-  color: #263238;
-}
-
-.service {
-  font-family: "regular";
-  font-size: 20px;
-  font-weight: 600;
-  line-height: 35.3px;
-  text-align: left;
-  color: #263238;
-}
-
-.contractHead {
-  font-family: "regular";
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 19.5px;
-  text-align: left;
+  line-height: 24.38px;
+  color: #32a92e;
   margin-top: 1rem;
-}
-
-.contractValue {
-  font-family: "regular";
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 28.24px;
+  margin-bottom: 1rem;
+  display: flex;
   text-align: center;
-  color: #8e8e93;
-  margin-top: 1rem;
+  justify-content: center;
 }
 
-.itemTitle {
-  font-size: 16px;
-  font-family: "semibold";
-  color: #263238;
+.tableHead {
+  background-color: #32a92e;
+  color: white;
+  text-align: center;
 }
 
-.itemName {
-  font-size: 16px;
+.termsHead {
   font-family: "regular";
-  color: #8e8e93;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 27px;
+  letter-spacing: 0.02em;
+  text-align: left;
+  color: #242424;
+  padding-left: 10px;
+  padding: 20px;
+}
+
+.termDescrp {
+  font-family: "regular";
+  font-size: 13.26px;
+  font-weight: 400;
+  line-height: 19.89px;
+  letter-spacing: 0.02em;
+  text-align: left;
+  color: #7b7b7b;
+}
+
+.heading {
+  font-family: "regular";
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 38.73px;
+  text-align: left;
+  margin-top: 2rem;
 }

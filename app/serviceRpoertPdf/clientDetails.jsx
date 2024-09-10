@@ -2,61 +2,78 @@ import React from "react";
 
 import styles from "../../styles/viewQuote.module.css";
 
+import {
+  Grid,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableRow,
+} from "@mui/material";
+
 const ClientDetails = () => {
   return (
     <div className={styles.quoteMain}>
+      <Grid container spacing={3}>
+        <Grid item lg={6} xs={12} sm={6} md={4}>
+          <div className={styles.customerDetails}>Customer details</div>
+          <TableContainer sx={{ mt: 2 }}>
+            <Table sx={{ borderCollapse: "collapse" }}>
+              <TableBody>
+                <TableRow sx={{ border: "none" }}>
+                  <TableCell>
+                    <strong> Customer id:</strong>
+                  </TableCell>
+                  <TableCell> 45d46 </TableCell>
+                </TableRow>
 
-        <div className="flex justify-between" style={{ padding: "34px" }}>
+                <TableRow sx={{ border: "none" }}>
+                  <TableCell>
+                    <strong> Contract #:</strong>
+                  </TableCell>
+                  <TableCell> 45d46 </TableCell>
+                </TableRow>
 
-          <div className="flex flex-col">
-            <div className="flex flex-row">
-              <div className={styles.quoteheadMain}> Name: </div>
-              <div className={styles.quoteName}> Umair Khan </div>
-            </div>
+                <TableRow sx={{ border: "none" }}>
+                  <TableCell>
+                    <strong> Total # of Visits Up To Date:</strong>
+                  </TableCell>
+                  <TableCell> 45d46 </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Grid>
 
-            <div className="flex flex-row mt-5">
-              <div className={styles.quoteheadMain}> Facility covered: : </div>
-              <div className={styles.quoteName}> Umair Khan </div>
-            </div>
+        <Grid item lg={6} xs={12} sm={6} md={4}>
+          <TableContainer sx={{ mt: 7 }}>
+            <Table sx={{ borderCollapse: "collapse" }}>
+              <TableBody>
+                <TableRow sx={{ border: "none" }}>
+                  <TableCell>
+                    <strong> Customer id:</strong>
+                  </TableCell>
+                  <TableCell> 45d46 </TableCell>
+                </TableRow>
 
-            <div className="flex flex-row mt-5">
-              <div className={styles.quoteheadMain}> Address:: </div>
-              <div className={styles.quoteName}> Umair Khan </div>
-            </div>
+                <TableRow sx={{ border: "none" }}>
+                  <TableCell>
+                    <strong> Contract #:</strong>
+                  </TableCell>
+                  <TableCell> 45d46 </TableCell>
+                </TableRow>
 
-            <div className="flex flex-row mt-5">
-              <div className={styles.quoteheadMain}> Serial no: </div>
-              <div className={styles.quoteName} >Umair Khan </div>
-            </div>
-
-            <div className="flex flex-row mt-5">
-              <div className={styles.quoteheadMain}> Service no. </div>
-              <div className={styles.quoteName}> Umair Khan </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col">
-            <div className="flex flex-row">
-              <img src="/email.png" />
-              <div className={styles.quoteName}> Umair Khan</div>
-            </div>
-
-            <div className="flex flex-row mt-5">
-              <img src="/phone.png" />
-              <div className={styles.quoteName}> Umair Khan</div>
-            </div>
-
-            <div className="flex flex-row mt-5">
-              <img src="/website.png" />
-              <div className={styles.quoteName}> Umair Khan</div>
-            </div>
-
-            <div className="flex flex-row mt-5">
-              <img src="/location.png" />
-              <div className={styles.quoteName}> Umair Khan</div>
-            </div>
-          </div>
-        </div>
+                <TableRow sx={{ border: "none" }}>
+                  <TableCell>
+                    <strong> Total # of Visits Up To Date:</strong>
+                  </TableCell>
+                  <TableCell> 45d46 </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Grid>
+      </Grid>
     </div>
   );
 };
