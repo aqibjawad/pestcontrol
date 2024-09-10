@@ -6,12 +6,10 @@ import "./index.css";
 import PersonalInformation from "./personalInformation";
 import Insurance from "./insurance";
 import OtherInfo from "./otherInformation.jsx";
-
 import APICall from "@/networkUtil/APICall";
 
 const Page = () => {
-
-  const api = new APICall(); 
+  const api = new APICall();
 
   const [tabNames] = useState([
     "Personal Information",
@@ -51,11 +49,17 @@ const Page = () => {
       relative_name: "",
       emergency_contact: "",
       relation: "",
-      basic_Salary: "",
+      basic_salary: "",
       allowance: "",
       other: "",
       total_salary: "",
     },
+  });
+
+  const [errors, setErrors] = useState({
+    personalInfo: {},
+    insurance: {},
+    otherInfo: {},
   });
 
   const handlePrevious = () => {
@@ -80,7 +84,41 @@ const Page = () => {
     }));
   };
 
+  const validateFormData = () => {
+    const newErrors = { personalInfo: {}, insurance: {}, otherInfo: {} };
+
+    // Validate Personal Information
+    Object.keys(formData.personalInfo).forEach((key) => {
+      if (!formData.personalInfo[key] && key !== "role") {
+        newErrors.personalInfo[key] = "This field is required";
+      }
+    });
+
+    // Validate Insurance
+    Object.keys(formData.insurance).forEach((key) => {
+      if (!formData.insurance[key]) {
+        newErrors.insurance[key] = "This field is required";
+      }
+    });
+
+    // Validate Other Information
+    Object.keys(formData.otherInfo).forEach((key) => {
+      if (!formData.otherInfo[key]) {
+        newErrors.otherInfo[key] = "This field is required";
+      }
+    });
+
+    setErrors(newErrors);
+
+    return !Object.values(newErrors).flat().length; // If no errors, return true
+  };
+
   const handleSubmit = async () => {
+    if (!validateFormData()) {
+      alert("Please fill out all required fields.");
+      return;
+    }
+
     console.log("Form Data:", JSON.stringify(formData, null, 2));
     try {
       const response = await api.postDataWithTokn("addClient", formData); // Replace "addClient" with the actual endpoint
@@ -96,6 +134,7 @@ const Page = () => {
       alert("An error occurred while adding the Employee.");
     }
   };
+
   return (
     <div>
       <div className={styles.topTabConainer}>
@@ -120,32 +159,35 @@ const Page = () => {
 
       <div className="grid grid-cols-12 gap-4 mt-10">
         <div className="col-span-12 md:col-span-9">
-          <div className={selectedIndex === 0 ? `block` : "hidden"}>
+          {selectedIndex === 0 && (
             <PersonalInformation
               data={formData.personalInfo}
               onChange={(field, value) =>
                 handleInputChange("personalInfo", field, value)
               }
+              errors={errors.personalInfo}
             />
-          </div>
+          )}
 
-          <div className={selectedIndex === 1 ? `block` : "hidden"}>
+          {selectedIndex === 1 && (
             <Insurance
               data={formData.insurance}
               onChange={(field, value) =>
                 handleInputChange("insurance", field, value)
               }
+              errors={errors.insurance}
             />
-          </div>
+          )}
 
-          <div className={selectedIndex === 2 ? `block` : "hidden"}>
+          {selectedIndex === 2 && (
             <OtherInfo
               data={formData.otherInfo}
               onChange={(field, value) =>
                 handleInputChange("otherInfo", field, value)
               }
+              errors={errors.otherInfo}
             />
-          </div>
+          )}
         </div>
       </div>
 
@@ -160,6 +202,7 @@ const Page = () => {
           </button>
         </div>
       </div>
+
     </div>
   );
 };

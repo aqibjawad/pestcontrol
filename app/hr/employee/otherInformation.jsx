@@ -3,7 +3,7 @@ import { Grid, Typography, Button } from "@mui/material";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import "./index.css";
 
-const OtherInfo = ({ data, onChange }) => {
+const OtherInfo = ({ data, onChange, handleSubmit }) => {
   return (
     <div>
       {/* Emergency Contact Section */}
@@ -98,7 +98,7 @@ const OtherInfo = ({ data, onChange }) => {
       </Grid>
 
       {/* Save Button */}
-      <div className="info-button" style={{ marginTop: "2rem" }}>
+      <div onClick={handleSubmit} className="info-button" style={{ marginTop: "2rem" }}>
         Save Information
       </div>
     </div>
