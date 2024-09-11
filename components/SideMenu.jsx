@@ -12,7 +12,6 @@ import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import styles from "../styles/sideMenu.module.css";
-import User from "@/networkUtil/user";
 import { useRouter } from "next/navigation";
 
 const drawerWidth = 240;
@@ -63,19 +62,78 @@ const MyAppBar = styled(AppBar, {
 }));
 
 export default function SideMenu({ children }) {
-  const router = new useRouter();
-  const [open, setOpen] = React.useState(true);
-  const [permissions, setPermissions] = useState([]);
-  const [userName, setUserName] = useState("");
+  const router = useRouter();
+  const [open, setOpen] = useState(true);
+
+  // Hardcoded permissions
+  const [permissions, setPermissions] = useState([
+    {
+      name: "Home",
+      url: "superadmin-home",
+      icon: "http://localhost/upload/icons/icons_16.png",
+    },
+    {
+      name: "Jobs",
+      url: "jobs",
+      icon: "http://localhost/upload/icons/icons_421.png",
+    },
+    {
+      name: "Contracts",
+      url: "contracts",
+      icon: "http://localhost/upload/icons/icons_399.png",
+    },
+    {
+      name: "Quotes",
+      url: "quotes",
+      icon: "http://localhost/upload/icons/icons_733.png",
+    },
+    {
+      name: "Calendar",
+      url: "calendar",
+      icon: "http://localhost/upload/icons/icons_930.png",
+    },
+    {
+      name: "Clients",
+      url: "clients",
+      icon: "http://localhost/upload/icons/icons_913.png",
+    },
+    {
+      name: "Operations",
+      url: "operations",
+      icon: "http://localhost/upload/icons/icons_345.png",
+    },
+    {
+      name: "Sales",
+      url: "sales",
+      icon: "http://localhost/upload/icons/icons_34.png",
+    },
+    {
+      name: "HR",
+      url: "hr",
+      icon: "http://localhost/upload/icons/icons_95.png",
+    },
+    {
+      name: "Team Head",
+      url: "teams",
+      icon: "http://localhost/upload/icons/icons_231.png",
+    },
+    {
+      name: "Company setup",
+      url: "company_setup",
+      icon: "http://localhost/upload/icons/icons_30.png",
+    },
+    {
+      name: "Settings",
+      url: "setting",
+      icon: "http://localhost/upload/icons/icons_170.png",
+    },
+  ]);
+
+  const [userName, setUserName] = useState("John Doe"); // Default user name
 
   const toggleDrawer = () => {
     setOpen(!open);
   };
-
-  useEffect(() => {
-    setPermissions(User.getUserPersmissions());
-    setUserName(User.getUserName());
-  }, []);
 
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -97,7 +155,7 @@ export default function SideMenu({ children }) {
             aria-label="open drawer"
             edge="start"
             onClick={toggleDrawer}
-            sx={{ color: "black", marginRight: 2 }} // Set color explicitly to black or any other color you want
+            sx={{ color: "black", marginRight: 2 }}
           >
             <MenuIcon />
           </IconButton>
@@ -138,20 +196,24 @@ export default function SideMenu({ children }) {
         <div className={styles.separator}>&nbsp;</div>
 
         <List>
-          {permissions.map((text, index) => (
-            <div
-              onClick={() => handleNext(text, index)}
-              key={index}
-              className={
-                index === selectedIndex
-                  ? styles.menuItemSelected
-                  : styles.menuItem
-              }
-            >
-              <img src={text.icon} alt={text.name} height={20} width={20} />
-              <div className={styles.sideMenuNames}>{text.name}</div>
-            </div>
-          ))}
+          {Array.isArray(permissions) && permissions.length > 0 ? (
+            permissions.map((text, index) => (
+              <div
+                onClick={() => handleNext(text, index)}
+                key={index}
+                className={
+                  index === selectedIndex
+                    ? styles.menuItemSelected
+                    : styles.menuItem
+                }
+              >
+                <img src={text.icon} alt={text.name} height={20} width={20} />
+                <div className={styles.sideMenuNames}>{text.name}</div>
+              </div>
+            ))
+          ) : (
+            <div>No permissions available</div>
+          )}
         </List>
       </Drawer>
       <Main open={open}>

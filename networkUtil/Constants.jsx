@@ -1,4 +1,4 @@
-const baseURL = "http://backend-pestcontrol.worldcitizenconsultants.com";
+const baseURL = "http://backend-pestcontrol.worldcitizenconsultants.com/new/public";
 const apiPrefix = baseURL + "/api";
 
 export const login = apiPrefix + "/login";

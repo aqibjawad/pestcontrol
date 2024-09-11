@@ -1,54 +1,76 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { brand } from "@/networkUtil/Constants";
-import APICall from "@/networkUtil/APICall";
+import React from "react";
+import { useBrands } from "./useBrandHook"; // Adjust the import path as needed
 import Loading from "../../../components/generic/Loading";
 import styles from "../../../styles/account/addBrandStyles.module.css";
-import { Delete, Edit } from "@mui/icons-material";
+import { Delete, Edit, Check, Close } from "@mui/icons-material";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import GreenButton from "@/components/generic/GreenButton";
+
 const Page = () => {
-  const api = new APICall();
-  const [fetchindData, setFetchingData] = useState(false);
-  const [suppliersList, setSupplierList] = useState();
-  const [brandName, setBrandName] = useState("");
-  const [sendingData, setSendingData] = useState(false);
-  useEffect(() => {
-    getAllBrads();
-  }, []);
+  const {
+    fetchingData,
+    brandsList,
+    brandName,
+    setBrandName,
+    sendingData,
+    addBrand,
+    updateBrand,
+    editingBrandId,
+    startEditing,
+    cancelEditing,
+  } = useBrands();
 
-  const getAllBrads = async () => {
-    setFetchingData(true);
-    const response = await api.getDataWithToken(`${brand}`);
-    setSupplierList(response.data);
-    setFetchingData(false);
-  };
-
-  const viewList = () => {
-    return (
-      <>
-        <div className={styles.listContainer}>
-          <div className={styles.tableHeaderContainer}>
-            <div className={styles.srContainer}>Sr #</div>
+  const viewList = () => (
+    <div className={styles.listContainer}>
+      <div className={styles.tableHeaderContainer}>
+        <div className={styles.srContainer}>Sr #</div>
+        <div className="flex w-full">
+          <div className="flex-grow">
+            <div className={styles.brandContainer}>Brand Name</div>
+          </div>
+          <div className={styles.actionContainer}>Actions</div>
+        </div>
+      </div>
+      {brandsList?.map((item, index) => (
+        <div key={index} className={styles.tableItemContainer}>
+          <div className={styles.tableHeaderContainer2}>
+            <div className={styles.srNumberContainer}>{index + 1}</div>
             <div className="flex w-full">
               <div className="flex-grow">
-                <div className={styles.brandContainer}>Brand Name</div>
+                {editingBrandId === item.id ? (
+                  <input
+                    type="text"
+                    value={brandName}
+                    onChange={(e) => setBrandName(e.target.value)}
+                    className={styles.editInput}
+                  />
+                ) : (
+                  <div className={styles.brandContainerName}>{item.name}</div>
+                )}
               </div>
-              <div className={styles.actionContainer}>Actions</div>
-            </div>
-          </div>
-        </div>
-        {suppliersList?.map((item, index) => {
-          return (
-            <div key={index} className={styles.tableItemContainer}>
-              <div className={styles.tableHeaderContainer2}>
-                <div className={styles.srNumberContainer}>{index + 1}</div>
-                <div className="flex w-full">
-                  <div className="flex-grow">
-                    <div className={styles.brandContainerName}>{item.name}</div>
-                  </div>
-                  <div className={styles.actionContainer}>
-                    <Edit sx={{ color: "#3deb49", cursor: "pointer" }} />
+              <div className={styles.actionContainer}>
+                {editingBrandId === item.id ? (
+                  <>
+                    <Check
+                      sx={{ color: "#3deb49", cursor: "pointer" }}
+                      onClick={() => updateBrand(item.id, brandName)}
+                    />
+                    <Close
+                      sx={{
+                        color: "red",
+                        marginLeft: "10px",
+                        cursor: "pointer",
+                      }}
+                      onClick={cancelEditing}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <Edit
+                      sx={{ color: "#3deb49", cursor: "pointer" }}
+                      onClick={() => startEditing(item.id, item.name)}
+                    />
                     <Delete
                       sx={{
                         color: "red",
@@ -56,42 +78,22 @@ const Page = () => {
                         cursor: "pointer",
                       }}
                     />
-                  </div>
-                </div>
+                  </>
+                )}
               </div>
-              <hr />
             </div>
-          );
-        })}
-      </>
-    );
-  };
-
-  const addBrandRequest = async () => {
-    if (!sendingData) {
-      if (brandName === "") {
-        alert("Please select a brand name");
-      } else {
-        setSendingData(true);
-        const obj = { name: brandName };
-        const response = await api.postFormDataWithToken(`${brand}/create`, obj);
-        setSendingData(false);
-        if (response.message === "Brand has been added") {
-          alert("Brand has been added");
-          setBrandName("");
-          getAllBrads();
-        } else {
-          alert("Could not add the brand, please try again");
-        }
-      }
-    }
-  };
+          </div>
+          <hr />
+        </div>
+      ))}
+    </div>
+  );
 
   return (
     <div>
       <div className="pageTitle">Brands</div>
       <div className="mt-10"></div>
-      {fetchindData ? (
+      {fetchingData ? (
         <Loading />
       ) : (
         <div className="grid grid-cols-2 gap-4">
@@ -101,12 +103,13 @@ const Page = () => {
             <InputWithTitle
               title={"Enter Brand Name"}
               placeholder={"Enter Brand name"}
-              onChange={setBrandName}
+              value={brandName}
+              onChange={(value) => setBrandName(value)}
             />
             <div className="mt-10"></div>
             <GreenButton
               sendingData={sendingData}
-              onClick={() => addBrandRequest()}
+              onClick={addBrand}
               title={"Add Brand"}
             />
           </div>
