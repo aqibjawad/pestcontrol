@@ -17,7 +17,7 @@ const InputWithTitle = ({
           type={type}
           className={`w-full ${styles.inputField}`}
           placeholder={placeholder}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={onChange}
           {...rest}
         />
       </div>

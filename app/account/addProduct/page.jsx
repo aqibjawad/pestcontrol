@@ -14,31 +14,34 @@ import GreenButton from "@/components/generic/GreenButton";
 
 const Page = () => {
   const api = new APICall();
-  const [itemName, setItemName] = useState("");
-  const [batchNumber, setBatchNumber] = useState("");
-  const [brandsList, setBrandList] = useState([]);
+
+  const [product_name, setItemName] = useState("");
+  const [batch_number, setBatchNumber] = useState("");
+  const [brand_id, setBrandList] = useState([]);
+  const [mfg_date, setManufactureDate] = useState("");
+  const [exp_date, setExpiryDate] = useState("");
+  const [product_type, setProductType] = useState();
+  const [unit, setUnit] = useState();
+  const [active_ingredients, setIngredients] = useState();
+  const [others_ingredients, setOtherIngredients] = useState();
+  const [moccae_approval, setMoccaeApproved] = useState();
+  const [moccae_strat_date, setMocaStartDate] = useState();
+  const [moccae_exp_date, setMocaExpiryDate] = useState();
+  const [vat, setVat] = useState();
+  const [description, setDescription] = useState();
+  const [product_picture, setProductForImage] = useState();
+  const [attachments, setAttachmentImage] = useState();
+  const [per_item_qty, setPerItemQuantity] = useState();
+  
   const [fetchingData, setFetchingData] = useState(false);
   const [allBrandsList, setAllBrandsList] = useState([]);
   const [selectedBrandId, setSelectedBrandId] = useState("");
-  const [manufactureDate, setManufactureDate] = useState("");
-  const [expiryDate, setExpiryDate] = useState("");
+
   const [activeIngredients, setActiveIngredients] = useState("");
-  const [productFor, setProductFor] = useState("");
   const [loadingSubmit, setLoadingSubmit] = useState(false);
-  const [productImage, setProductForImage] = useState();
-  const [attachmentImage, setAttachmentImage] = useState();
-  const [productType, setProductType] = useState();
   const [totalQuantity, setTotalQunantity] = useState();
-  const [perItemQuantity, setPerItemQuantity] = useState();
-  const [unit, setUnit] = useState();
   const [perUnitPrice, setPerUnitPrice] = useState();
-  const [ingredient, setIngredients] = useState();
-  const [moccae, setMoccaeApproved] = useState();
-  const [mocaStartDate, setMocaStartDate] = useState();
-  const [mocaExpiryDate, setMocaExpiryDate] = useState();
-  const [vat, setVat] = useState();
   const [supplierName, setSupplierName] = useState();
-  const [desc, setDescription] = useState();
 
   useEffect(() => {
     getAllBrands();
@@ -73,11 +76,11 @@ const Page = () => {
     setLoadingSubmit(true);
 
     const formData = {
-      itemName,
-      batchNumber,
+      product_name,
+      batch_number,
       brandId: selectedBrandId,
-      manufactureDate,
-      expiryDate,
+      mfg_date,
+      exp_date,
       activeIngredients,
     };
 
@@ -107,11 +110,11 @@ const Page = () => {
 
   const validateForm = () => {
     if (
-      !itemName ||
-      !batchNumber ||
+      !product_name ||
+      !batch_number ||
       !selectedBrandId ||
-      !manufactureDate ||
-      !expiryDate ||
+      !mfg_date ||
+      !exp_date ||
       !activeIngredients
     ) {
       Swal.fire({
@@ -121,7 +124,6 @@ const Page = () => {
       });
       return false;
     }
-    // Add more specific validation if needed
     return true;
   };
 
@@ -156,7 +158,7 @@ const Page = () => {
               title={"Item Name"}
               type={"text"}
               placeholder={"Item Name"}
-              value={itemName}
+              value={product_name}
               onChange={setItemName}
             />
           </div>
@@ -165,7 +167,7 @@ const Page = () => {
               title={"Batch Number"}
               type={"text"}
               placeholder={"Please enter a batch number"}
-              value={batchNumber}
+              value={batch_number}
               onChange={setBatchNumber}
             />
           </div>
@@ -178,7 +180,7 @@ const Page = () => {
               <Dropdown
                 onChange={handleBrandChange}
                 title={"Brand"}
-                options={brandsList}
+                options={brand_id}
               />
               <div className="flex">
                 <div className="flex-grow"></div>
@@ -197,7 +199,7 @@ const Page = () => {
             onChange={setManufactureDate}
             title={"Manufacture Date"}
             type={"date"}
-            value={manufactureDate}
+            value={mfg_date}
           />
         </div>
         <div className="mt-5">
@@ -205,7 +207,7 @@ const Page = () => {
             onChange={setExpiryDate}
             title={"Expiry Date"}
             type={"date"}
-            value={expiryDate}
+            value={exp_date}
           />
         </div>
         <div className="mt-5">
