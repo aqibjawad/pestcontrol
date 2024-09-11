@@ -6,7 +6,7 @@ import GreenButton from "@/components/generic/GreenButton";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import APICall from "@/networkUtil/APICall";
-import { addVendor } from "@/networkUtil/Constants";
+import { vendor } from "@/networkUtil/Constants";
 const Page = () => {
   const api = new APICall();
   const router = useRouter();
@@ -53,7 +53,7 @@ const Page = () => {
         mng_contact: managerContact,
       };
       setSendingData(true);
-      const response = await api.postFormDataWithToken(addVendor, obj);
+      const response = await api.postFormDataWithToken(`${vendor}/create`, obj);
       setSendingData(false);
       if (response.message === "Vendor Added") {
         Swal.fire({

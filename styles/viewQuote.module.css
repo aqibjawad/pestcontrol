@@ -113,3 +113,54 @@
   text-align: left;
   margin-top: 2rem;
 }
+
+.approveDiv {
+  width: 325px;
+  height: 68px;
+  border: 1px;
+  background: #32a92e;
+  border: 1px solid #32a92e;
+  margin-top: 2rem;
+  border-radius: 10px;
+  font-family: "regular";
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 28.16px;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.billingRecord {
+  width: 100%;
+  height: auto;
+  top: -1123px;
+  left: 7482px;
+  padding: 14px 12px 14px 12px;
+  border-radius: 8px;
+  border: 1px;
+  border: 1px solid #68cc5838;
+  margin-top: 2rem;
+  padding: 30px;
+}
+
+.billingHead {
+  font-family: "regular";
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 28.16px;
+  text-align: left;
+  color: #1c1c1e;
+}
+
+.biilingData {
+  width: 100%;
+  height: 49px;
+  padding: 12px 16px 12px 16px;
+  gap: 8px;
+  border-radius: 8px;
+  border: 1px;
+  border: 1px solid #D0D5DD;
+  margin-top: 2rem;
+}

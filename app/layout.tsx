@@ -13,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const router = useRouter();
-  const noLayoutPages = ["/", "/serviceRpoertPdf"];
+  const noLayoutPages = ["/", "/serviceRpoertPdf", "/quotePdf"];
   const pathname = usePathname();
   const isNoLayoutPage = noLayoutPages.includes(pathname);
 

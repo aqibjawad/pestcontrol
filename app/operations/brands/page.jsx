@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { getAllBrandNames, addBrand } from "@/networkUtil/Constants";
+import { brand } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
 import Loading from "../../../components/generic/Loading";
 import styles from "../../../styles/account/addBrandStyles.module.css";
@@ -19,8 +19,8 @@ const Page = () => {
 
   const getAllBrads = async () => {
     setFetchingData(true);
-    const response = await api.getDataWithToken(getAllBrandNames);
-    setSupplierList(response.data.data);
+    const response = await api.getDataWithToken(`${brand}`);
+    setSupplierList(response.data);
     setFetchingData(false);
   };
 
@@ -74,7 +74,7 @@ const Page = () => {
       } else {
         setSendingData(true);
         const obj = { name: brandName };
-        const response = await api.postFormDataWithToken(addBrand, obj);
+        const response = await api.postFormDataWithToken(`${brand}/create`, obj);
         setSendingData(false);
         if (response.message === "Brand has been added") {
           alert("Brand has been added");
