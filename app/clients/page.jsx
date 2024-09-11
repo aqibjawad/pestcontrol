@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import tableStyles from "../../styles/upcomingJobsStyles.module.css";
 import SearchInput from "@/components/generic/SearchInput";
 import {
@@ -10,8 +10,12 @@ import {
   DialogActions,
   Button,
 } from "@mui/material";
-
 import styles from "../../styles/loginStyles.module.css";
+import APICall from "@/networkUtil/APICall";
+import { clients } from "@/networkUtil/Constants";
+import Dropdown from "../../components/generic/Dropdown";
+
+import AppHelpers from "../../Helper/AppHelpers";
 
 const rows = Array.from({ length: 10 }, (_, index) => ({
   clientName: "Olivia Rhye",
@@ -21,86 +25,36 @@ const rows = Array.from({ length: 10 }, (_, index) => ({
   cashAdvance: "$50,000",
 }));
 
-const listServiceTable = () => {
-  return (
-    <div className={tableStyles.tableContainer}>
-      <table className="min-w-full bg-white">
-        <thead>
-          <tr>
-            <th className="py-5 px-4 border-b border-gray-200 text-left">
-              {" "}
-              Customer{" "}
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              {" "}
-              Reference{" "}
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              {" "}
-              Phone Number{" "}
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              {" "}
-              Firm{" "}
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              {" "}
-              Address{" "}
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              {" "}
-              Date{" "}
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              {" "}
-              Longitude{" "}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, index) => (
-            <tr key={index} className="border-b border-gray-200">
-              <td className="py-5 px-4">{row.clientName}</td>
-              <td className="py-2 px-4">
-                <div className={tableStyles.clientContact}>
-                  {row.clientContact}
-                </div>
-              </td>
-              <td className="py-2 px-4">
-                <div className={tableStyles.clientContact}>
-                  {row.clientContact}
-                </div>
-              </td>
-              <td className="py-2 px-4">
-                <div className={tableStyles.clientContact}>
-                  {row.clientContact}
-                </div>
-              </td>
-              <td className="py-2 px-4">
-                <div className={tableStyles.clientContact}>
-                  {row.clientContact}
-                </div>
-              </td>
-              <td className="py-2 px-4">
-                <div className={tableStyles.clientContact}>
-                  {row.clientContact}
-                </div>
-              </td>
-              <td className="py-2 px-4">
-                <div className={tableStyles.clientContact}>
-                  {row.clientContact}
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-};
-
 const Page = () => {
+  const appHelpers = new AppHelpers();
+
+  const api = new APICall();
+  const [fetchingData, setFetchingData] = useState(false);
+  const [brandsList, setBrandsList] = useState([]);
+
+  const [clientsList, setClientsList] = useState([]);
+
+  const [brandName, setBrandName] = useState("");
+  const [sendingData, setSendingData] = useState(false);
+  const [editingBrandId, setEditingBrandId] = useState(null);
   const [open, setOpen] = useState(false);
+
+  // For dropdown
+  const [dropdownOptions, setDropdownOptions] = useState([]);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [myClients, setMyClients] = useState();
+
+  // State for form inputs
+  const [formData, setFormData] = useState({
+    name: "",
+    firm_name: "",
+    email: "",
+    phone_number: "",
+    mobile_number: "",
+    industry_name: "",
+    referencable_id: "",
+    referencable_type: "",
+  });
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -108,6 +62,124 @@ const Page = () => {
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  useEffect(() => {
+    getAllRef();
+    getAllClients();
+  }, []);
+
+  const listServiceTable = () => {
+    return (
+      <div className={tableStyles.tableContainer}>
+        <table className="min-w-full bg-white">
+          <thead>
+            <tr>
+              <th className="py-5 px-4 border-b border-gray-200 text-left">
+                Customer
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Phone Number
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Firm
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Date
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {clientsList.map((row, index) => (
+              <tr key={index} className="border-b border-gray-200">
+                <td className="py-5 px-4">{row.name}</td>
+                <td className="py-2 px-4">{row.phone}</td>
+                <td className="py-2 px-4">{row.firm_name}</td>
+                <td className="py-2 px-4">
+                  {appHelpers.convertDate(row.date)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
+  const getAllRef = async () => {
+    setFetchingData(true);
+    try {
+      const response = await api.getDataWithToken(`${clients}/references/get`);
+      setBrandsList(response);
+
+      // Ensure response.data contains the type field
+      const options = response.map((item) => ({
+        id: item.id,
+        name: item.name,
+        type: item.type, // Ensure this field is included
+      }));
+      setDropdownOptions(options);
+    } catch (error) {
+      console.error("Error fetching brands:", error);
+    } finally {
+      setFetchingData(false);
+    }
+  };
+
+  const getAllClients = async () => {
+    try {
+      const response = await api.getDataWithToken(clients);
+      var clientsList = [];
+      response.data.map((item) => {
+        let client = {
+          name: item.name,
+          email: item.email,
+          phone: item.client[0].phone_number,
+          firm_name: item.client[0].firm_name,
+          date: item.created_at,
+        };
+        clientsList.push(client);
+      });
+      console.log(clientsList);
+
+      setClientsList(clientsList);
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+
+  const handleDropdownChange = (value) => {
+    const selected = dropdownOptions.find((option) => option.name === value);
+    console.log(selected);
+
+    setSelectedOption(selected);
+    setFormData({
+      ...formData,
+      referencable_id: selected?.id || "",
+      referencable_type: selected?.type || "", // Ensure the type is available in your options
+    });
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleSubmit = async () => {
+    setSendingData(true);
+    try {
+      await api.postFormDataWithToken(`${clients}/create`, formData);
+      // Handle success (e.g., show a success message, close the dialog, etc.)
+      handleClose();
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      // Handle error
+    } finally {
+      setSendingData(false);
+    }
   };
 
   return (
@@ -228,7 +300,7 @@ const Page = () => {
               }}
             >
               Thank you for choosing us to meet your needs. We look forward to
-              serving you with excellenc
+              serving you with excellence
             </div>
 
             <div
@@ -245,11 +317,13 @@ const Page = () => {
               >
                 <div style={{ display: "flex", flexDirection: "column" }}>
                   <label style={{ marginBottom: "0.5rem", color: "#344054" }}>
-                    {" "}
-                    Full name{" "}
+                    Full name
                   </label>
                   <input
                     type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
                     style={{
                       border: "1px solid #38A73B",
                       borderRadius: "8px",
@@ -258,16 +332,18 @@ const Page = () => {
                       height: "49px",
                       boxSizing: "border-box",
                     }}
-                    placeholder=" Manager name "
+                    placeholder="Manager name"
                   />
                 </div>
                 <div style={{ display: "flex", flexDirection: "column" }}>
                   <label style={{ marginBottom: "0.5rem", color: "#344054" }}>
-                    {" "}
-                    Firm Name{" "}
+                    Firm Name
                   </label>
                   <input
                     type="text"
+                    name="firm_name"
+                    value={formData.firm_name}
+                    onChange={handleInputChange}
                     style={{
                       border: "1px solid #38A73B",
                       borderRadius: "8px",
@@ -276,7 +352,7 @@ const Page = () => {
                       height: "49px",
                       boxSizing: "border-box",
                     }}
-                    placeholder="Contact number"
+                    placeholder="Firm Name"
                   />
                 </div>
               </div>
@@ -296,6 +372,9 @@ const Page = () => {
                 <div style={{ position: "relative", width: "489px" }}>
                   <input
                     type="text"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
                     style={{
                       border: "1px solid #38A73B",
                       borderRadius: "8px",
@@ -324,6 +403,9 @@ const Page = () => {
                 <div style={{ position: "relative", width: "489px" }}>
                   <input
                     type="text"
+                    name="phone_number"
+                    value={formData.phone_number}
+                    onChange={handleInputChange}
                     style={{
                       border: "1px solid #38A73B",
                       borderRadius: "8px",
@@ -352,6 +434,9 @@ const Page = () => {
                 <div style={{ position: "relative", width: "489px" }}>
                   <input
                     type="text"
+                    name="mobile_number"
+                    value={formData.mobile_number}
+                    onChange={handleInputChange}
                     style={{
                       border: "1px solid #38A73B",
                       borderRadius: "8px",
@@ -380,11 +465,13 @@ const Page = () => {
               >
                 <div style={{ display: "flex", flexDirection: "column" }}>
                   <label style={{ marginBottom: "0.5rem", color: "#344054" }}>
-                    {" "}
-                    Industry Name{" "}
+                    Industry Name
                   </label>
                   <input
                     type="text"
+                    name="industry_name"
+                    value={formData.industry_name}
+                    onChange={handleInputChange}
                     style={{
                       border: "1px solid #38A73B",
                       borderRadius: "8px",
@@ -393,25 +480,14 @@ const Page = () => {
                       height: "49px",
                       boxSizing: "border-box",
                     }}
-                    placeholder=" SAP "
+                    placeholder="Industry Name"
                   />
                 </div>
                 <div style={{ display: "flex", flexDirection: "column" }}>
-                  <label style={{ marginBottom: "0.5rem", color: "#344054" }}>
-                    {" "}
-                    References{" "}
-                  </label>
-                  <input
-                    type="text"
-                    style={{
-                      border: "1px solid #38A73B",
-                      borderRadius: "8px",
-                      padding: "12px 16px",
-                      width: "100%",
-                      height: "49px",
-                      boxSizing: "border-box",
-                    }}
-                    placeholder=" Umair Khan "
+                  <Dropdown
+                    title="Select Option"
+                    options={dropdownOptions.map((option) => option.name)}
+                    onChange={handleDropdownChange}
                   />
                 </div>
               </div>
@@ -420,6 +496,7 @@ const Page = () => {
         </DialogContent>
         <DialogActions style={{ justifyContent: "center" }}>
           <div
+            onClick={handleSubmit}
             style={{
               backgroundColor: "#32A92E",
               color: "white",
@@ -432,9 +509,10 @@ const Page = () => {
               alignItems: "center",
               padding: "12px 16px",
               borderRadius: "10px",
+              cursor: "pointer",
             }}
           >
-            Add Client
+            {sendingData ? "Adding..." : "Add Client"}
           </div>
         </DialogActions>
       </Dialog>
