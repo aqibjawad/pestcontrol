@@ -25,5 +25,14 @@ export class AppAlerts {
     });
   }
 
+  successAlert(text) {
+    Swal.fire({
+      title: "Alert",
+      text: text,
+      icon: "success",
+      confirmButtonText: "OK",
+    });
+  }
+
   // You can add more alert functions here...
 }

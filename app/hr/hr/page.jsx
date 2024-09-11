@@ -6,35 +6,28 @@ import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
 import DateFilters from "@/components/generic/DateFilters";
 import SearchInput from "@/components/generic/SearchInput";
 import GreenButton from "@/components/generic/GreenButton";
+import { useRouter } from "next/navigation";
+import { AppAlerts } from "@/Helper/AppAlerts";
 
 const Page = () => {
+  const router = useRouter();
+  const alert = new AppAlerts();
   const accountStatement = () => {
     return (
       <div>
         <div className="flex items-center justify-between">
-          <div className="pageTitle"> Employees data entry </div>
+          <div className="pageTitle"> Employees </div>
 
           <div className="flex items-center">
             <div className="mr-5">
               <SearchInput />
             </div>
-
-            <div
-              style={{
-                border: "1px solid #D0D5DD",
-                borderRadius: "8px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                height: "50px",
-                width: "63px",
-                marginRight: "2rem",
+            <GreenButton
+              onClick={() => {
+                router.push("/hr/employee");
               }}
-            >
-              Filter
-            </div>
-
-            <GreenButton title={"Details"} />
+              title={"Add"}
+            />
           </div>
         </div>
         {listTable()}
