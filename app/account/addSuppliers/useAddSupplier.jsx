@@ -4,10 +4,11 @@ import APICall from "@/networkUtil/APICall";
 import { suppliers } from "@/networkUtil/Constants";
 import Swal from "sweetalert2";
 
-
 export const useSupplier = () => {
 
   const api = new APICall();
+
+  const router = useRouter();
 
   const [sendingData, setSendingData] = useState(false);
 
@@ -107,6 +108,7 @@ export const useSupplier = () => {
         );
         if (response.status === "success") {
           Swal.fire("Success", `Supplier added`, "success");
+          router.push("/account/viewSuppliers")
         } else {
           Swal.fire("Error", `${response?.error?.message}`, "error");
         }
