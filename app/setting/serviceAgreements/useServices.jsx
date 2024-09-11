@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { getServices, addServicesURL } from "../../../networkUtil/Constants";
+import { services } from "../../../networkUtil/Constants";
 import APICall from "../../../networkUtil/APICall";
 import { AppAlerts } from "@/Helper/AppAlerts";
 const UseServices = () => {
@@ -13,8 +13,8 @@ const UseServices = () => {
 
   const getAllServices = async () => {
     setIsLoading(true);
-    const response = await api.getDataWithToken(getServices);
-    setServices(response.data.data);
+    const response = await api.getDataWithToken(services);
+    setServices(response.data);
     setIsLoading(false);
   };
   useEffect(() => {
@@ -29,7 +29,7 @@ const UseServices = () => {
         service_title: name,
         term_and_conditions: work_scope,
       };
-      const response = await api.postDataWithTokn(addServicesURL, obj);
+      const response = await api.postDataWithTokn(services, obj);
       setAddingService(false);
       if (response.error) {
         alerts.errorAlert(
