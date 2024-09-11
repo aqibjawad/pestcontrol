@@ -12,15 +12,12 @@ export const useVendor = () => {
     firm_name: "",
     email: "",
     contact: "",
-
     mng_name: "",
     mng_contact: "",
     mng_email: "",
-
     acc_name: "",
     acc_contact: "",
     acc_email: "",
-
     percentage: "",
   });
   const [sendingData, setSendingData] = useState(false);
@@ -74,26 +71,24 @@ export const useVendor = () => {
       };
       setSendingData(true);
       try {
-        const response = await api.postFormDataWithToken(`${vendors}/create`, obj);
-        setSendingData(false);
-        if (response.message === "Vendor Added") {
-          await Swal.fire({
-            icon: "success",
-            title: "Success",
-            text: "Vendor Added",
-          });
-          resetAllStates();
-          router.push("/allVendors");
+        const response = await api.postFormDataWithToken(
+          `${vendors}/create`,
+          obj
+        );
+        if (response.status === "success") {
+          Swal.fire("Success", `Vendor added`, "success");
         } else {
-          throw new Error("Could not add vendor");
+          Swal.fire("Error", `${response?.error?.message}`, "error");
         }
       } catch (error) {
-        setSendingData(false);
-        await Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "Could not add vendor, please try later",
-        });
+        console.error("Error:", error);
+        Swal.fire(
+          "Error",
+          "An error occurred while submitting the payment",
+          "error"
+        );
+      } finally {
+        setSendingData(false); // Ensure this is called whether successful or not
       }
     }
 
