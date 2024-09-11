@@ -16,15 +16,17 @@ import Swal from "sweetalert2";
 import useServices from "./useServices";
 import { AppAlerts } from "../../../Helper/AppAlerts";
 import { CircularProgress } from "@mui/material";
+
 const Page = () => {
   const alert = new AppAlerts();
-  const { isLoading, services, addService, addingService } = useServices();
-  const [agreementsList, setAgreementsList] = useState([]);
-  const [fetchingData, setFetchingData] = useState(false);
+  const { isLoading, service, addService, updateService, addingService } =
+    useServices();
+
   const [name, setServiceName] = useState("");
   const [pestName, setPestName] = useState("");
   const [work_scope, setScope] = useState("");
   const [isUpdate, setIsUpdate] = useState(false);
+  const [updateId, setUpdateId] = useState(null);
 
   const handleFormSubmit = async () => {
     if (pestName === "") {
@@ -34,7 +36,11 @@ const Page = () => {
     } else if (work_scope === "") {
       alert.errorAlert("Please enter scope of work");
     } else {
-      addService(pestName, name, work_scope);
+      if (isUpdate) {
+        updateService(updateId, pestName, name, work_scope);
+      } else {
+        addService(pestName, name, work_scope);
+      }
     }
   };
 
@@ -43,14 +49,17 @@ const Page = () => {
       setServiceName("");
       setPestName("");
       setScope("");
+      setIsUpdate(false);
+      setUpdateId(null);
     }
   }, [isLoading]);
 
-  const handleDelete = async (item) => {
+  const handleDelete = (item) => {
     setIsUpdate(true);
-    setServiceName(item.service_name);
-    setPestName("");
-    setScope("");
+    setUpdateId(item.id); // Assuming each item has a unique id
+    setServiceName(item.service_title);
+    setPestName(item.pest_name);
+    setScope(item.term_and_conditions);
   };
 
   return (
@@ -71,21 +80,29 @@ const Page = () => {
                     Scope of Work
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Terms and Conditions
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {services.map((item, index) => (
+                {service.map((item, index) => (
                   <tr key={index}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        {item.service_name}
+                        {item?.pest_name}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        {item.scope_of_work}
+                        {item?.service_title}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">
+                        {item?.term_and_conditions}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
