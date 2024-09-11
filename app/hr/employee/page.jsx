@@ -9,10 +9,12 @@ import OtherInfo from "./otherInformation.jsx";
 import APICall from "@/networkUtil/APICall";
 import { addEmployee } from "@/networkUtil/Constants";
 import { AppAlerts } from "@/Helper/AppAlerts";
+import { useRouter } from "next/navigation";
 
 const Page = () => {
   const api = new APICall();
   const alert = new AppAlerts();
+  const router = useRouter();
   const [sendingData, setSendingData] = useState(false);
   const [tabNames] = useState([
     "Personal Information",
@@ -26,7 +28,7 @@ const Page = () => {
     profile_image: "",
     name: "",
     email: "",
-    role_id: "6",
+    role_id: "1",
     phone_number: "",
     eid_no: "",
     target: "",
@@ -158,6 +160,7 @@ const Page = () => {
         console.log(response);
         if (response.status === "success") {
           alert.successAlert(response.message);
+          router.replace("/hr/hr");
         } else {
           alert.errorAlert(response.error.message);
         }

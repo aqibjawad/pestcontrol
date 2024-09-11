@@ -6,8 +6,10 @@ import Dropdown from "@/components/generic/Dropdown";
 import MultilineInput from "@/components/generic/MultilineInput";
 import GreenButton from "@/components/generic/GreenButton";
 import { useSupplier } from "./useAddSupplier";
+import { useRouter } from "next/navigation";
 
 const Page = () => {
+  const router = new useRouter();
   const {
     supplierData,
     handleInputChange,
@@ -167,18 +169,28 @@ const Page = () => {
 
       <div className="mt-10">
         <MultilineInput
-          title={"Item Notes"}
-          placeholder={"Item Notes"}
+          title={"Extra Notes"}
+          placeholder={"Notes"}
           onChange={(value) => handleInputChange("item_notes", value)}
           value={supplierData.item_notes}
         />
       </div>
     </div>
   );
-
+  //
   return (
     <div>
-      <div className="pageTitle mb-10">Add Suppliers</div>
+      <div className="flex">
+        <div className="flex-grow">
+          <div className="pageTitle mb-10">Add Suppliers</div>
+        </div>
+        <GreenButton
+          onClick={() => {
+            router.push("/operations/viewSuppliers");
+          }}
+          title={"View All "}
+        />
+      </div>
       <Grid container spacing={2}>
         <Grid item xs={6}>
           {loading ? renderSkeleton() : firstSection()}

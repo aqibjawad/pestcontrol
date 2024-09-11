@@ -3,21 +3,60 @@ import InputWithTitle2 from "@/components/generic/InputWithTitle2";
 
 import "./index.css";
 import UploadImagePlaceholder from "../../../components/generic/uploadImage";
-import { Grid, Typography } from "@mui/material";
+import { Box, FormControl, Grid, Typography } from "@mui/material";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
 
 const PersonalInformation = ({ data, onChange }) => {
   const [productImage, setProductForImage] = useState();
+  const roles = [
+    { label: "Admin", value: 1 },
+    { label: "HR-Manager", value: 2 },
+    { label: "Operation-Manager", value: 3 },
+    { label: "Sales-Manger", value: 4 },
+    { label: "Sales-Man", value: 6 },
+  ];
   const handleFileSelect = (file) => {
     setProductForImage(file);
     onChange("profile_image", file);
+  };
+
+  const setSelectedRole = (value) => {
+    onChange("role_id", value);
   };
 
   return (
     <div>
       <UploadImagePlaceholder
         onFileSelect={handleFileSelect}
-        title={"Product Image"}
+        title={"Profile Image"}
       />
+      <div className="mb-10"></div>
+
+      <div>
+        <FormControl>
+          <div className="roleText">Select Role</div>
+          <RadioGroup
+            aria-label="roles"
+            name="roles"
+            value={data.role_id}
+            onChange={(e) => setSelectedRole(e.target.value)}
+          >
+            <Box sx={{ display: "flex", flexDirection: "row" }}>
+              {roles.map((role) => (
+                <FormControlLabel
+                  key={role.value}
+                  value={role.value}
+                  control={<Radio />}
+                  label={role.label}
+                  sx={{ mr: 2 }}
+                />
+              ))}
+            </Box>
+          </RadioGroup>
+        </FormControl>
+      </div>
 
       <Grid container spacing={3}>
         <Grid item lg={6} xs={12} md={6}>

@@ -17,9 +17,11 @@ import Loading from "../../../components/generic/Loading";
 import APICall from "@/networkUtil/APICall";
 import { Delete, Edit, ViewAgenda } from "@mui/icons-material";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const Page = () => {
   const apiCall = new APICall();
+  const router = new useRouter();
   const [fetchingData, setFetchingData] = useState(true);
   const [suppliersList, setSupplierList] = useState();
 
@@ -41,9 +43,6 @@ const Page = () => {
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Email
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Supplier Type
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 TRN
@@ -80,14 +79,10 @@ const Page = () => {
                   <td className="py-2 px-4">
                     <div className={tableStyles.clientContact}>{row.email}</div>
                   </td>
+
                   <td className="py-2 px-4">
                     <div className={tableStyles.clientContact}>
-                      {row.supplier_type}
-                    </div>
-                  </td>
-                  <td className="py-2 px-4">
-                    <div className={tableStyles.clientContact}>
-                      {row.tin_no}
+                      {row.trn_no}
                     </div>
                   </td>
                   <td className="py-2 px-4">
@@ -130,6 +125,7 @@ const Page = () => {
   const getSuppliers = async () => {
     setFetchingData(true);
     const response = await apiCall.getDataWithToken(getAllSuppliers);
+    console.log(response);
     setSupplierList(response.data);
     setFetchingData(false);
   };
@@ -144,9 +140,9 @@ const Page = () => {
             </div>
             <div>
               <div className="flex">
-                <div>
+                {/* <div>
                   <SearchInput />
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
@@ -158,6 +154,9 @@ const Page = () => {
             }}
           >
             <div
+              onClick={() => {
+                router.push("/account/addSuppliers");
+              }}
               style={{
                 backgroundColor: "#32A92E",
                 marginBottom: "2rem",

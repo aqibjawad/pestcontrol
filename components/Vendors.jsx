@@ -1,18 +1,18 @@
-import React from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import styles from "../styles/vendorStyles.module.css";
 import SearchInput from "./generic/SearchInput";
 import GreenButton from "./generic/GreenButton";
+import { vendors } from "../networkUtil/Constants";
+import APICall from "@/networkUtil/APICall";
+import Loading from "./generic/Loading";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 const Vendors = () => {
-  const rows = Array.from({ length: 5 }, (_, index) => ({
-    clientName: "Olivia Rhye",
-    clientEmail: "ali@gmail.com",
-    clientPhone: "0900 78601",
-    service: "Pest Control",
-    date: "5 May 2024",
-    priority: "High",
-    status: "Completed",
-    teamCaptain: "Babar Azam",
-  }));
+  const api = new APICall();
+  const router = new useRouter();
+  const [fetchingData, setFetchingData] = useState();
+  const [vendorsData, setVendorsData] = useState([]);
 
   const jobTable = () => {
     return (
@@ -24,28 +24,28 @@ const Vendors = () => {
               <th class="py-2 px-4 border-b border-gray-200 text-left">
                 Firm Name
               </th>
-              <th class="py-2 px-4 border-b border-gray-200 text-left">Date</th>
-              <th class="py-2 px-4 border-b border-gray-200 text-left">
-                Amount
-              </th>
               <th class="py-2 px-4 border-b border-gray-200 text-left">
                 Percentage
+              </th>
+              <th class="py-2 px-4 border-b border-gray-200 text-left">
+                Action
               </th>
             </tr>
           </thead>
           <tbody>
-            {rows.map((row, index) => (
+            {vendorsData?.map((row, index) => (
               <tr key={index} className="border-b border-gray-200">
                 <td className="py-5 px-4">
-                  <div className={styles.clientName}>{row.clientName}</div>
-                  <div className={styles.clientEmail}>{row.clientEmail}</div>
+                  <div className={styles.clientName}>{row.name}</div>
+                  <div className={styles.clientEmail}>{row.email}</div>
                   <div className={styles.clientPhone}>{row.clientPhone}</div>
                 </td>
-                <td className="py-2 px-4">{"Entarata"}</td>
-                <td className="py-2 px-4">{"5 May 2024"}</td>
-                <td className="py-2 px-4">{"AED 20,000"}</td>
+                <td className="py-2 px-4">{row.firm_name}</td>
                 <td className="py-2 px-4">
-                  <div className={styles.statusContainer}>{"35%"}</div>
+                  <div className={styles.statusContainer}>{row.percentage}</div>
+                </td>
+                <td className="py-2 px-4">
+                  <Link href={"/"}>View Details</Link>
                 </td>
               </tr>
             ))}
@@ -53,6 +53,15 @@ const Vendors = () => {
         </table>
       </div>
     );
+  };
+  useEffect(() => {
+    fetchVendors();
+  }, []);
+  const fetchVendors = async () => {
+    setFetchingData(true);
+    const response = await api.getDataWithToken(vendors);
+    setVendorsData(response.data);
+    setFetchingData(false);
   };
 
   return (
@@ -62,12 +71,15 @@ const Vendors = () => {
           <div className="pageTitle">{"Vendors"}</div>
         </div>
         <div className="flex">
-          <SearchInput />
-          <GreenButton title={"Add "} />
+          <GreenButton
+            onClick={() => {
+              router.push("/addVendor");
+            }}
+            title={"Add "}
+          />
         </div>
       </div>
-
-      {jobTable()}
+      {fetchingData ? <Loading /> : jobTable()}
     </div>
   );
 };

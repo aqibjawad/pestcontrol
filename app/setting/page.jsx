@@ -12,6 +12,10 @@ const Page = () => {
       <div className={styles.addProd}>
         <Link href="/setting/serviceAgreements">Add Services</Link>
       </div>
+
+      <div className={styles.addProd}>
+        <Link href="/account/addSuppliers">Add Supplier</Link>
+      </div>
     </div>
   );
 };

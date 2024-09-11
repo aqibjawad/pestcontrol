@@ -8,6 +8,7 @@ import SearchInput from "@/components/generic/SearchInput";
 import GreenButton from "@/components/generic/GreenButton";
 import { useRouter } from "next/navigation";
 import { AppAlerts } from "@/Helper/AppAlerts";
+import ViewEmployees from "../../../components/ViewEmployees";
 
 const Page = () => {
   const router = useRouter();
@@ -187,7 +188,9 @@ const Page = () => {
     <div>
       <div className="pageTitle mb-10">Accounts</div>
 
-      <div className="mt-10 mb-10">{accountStatement()}</div>
+      <div className="mt-10 mb-10">
+        <ViewEmployees />
+      </div>
       <div className="mt-10 mb-10">{salaryCal()}</div>
     </div>
   );

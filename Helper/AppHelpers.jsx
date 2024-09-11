@@ -1,11 +1,19 @@
-export default class AppHelpers {
-  constructor() {}
-
-  convertDate(dateString) {
+export class AppHelpers {
+  static convertDate(dateString) {
     const date = new Date(dateString);
     const months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
     ];
 
     const month = months[date.getMonth()];
@@ -13,5 +21,13 @@ export default class AppHelpers {
     const year = date.getFullYear();
 
     return `${month} ${day}, ${year}`;
+  }
+
+  static shortDateConverter(dateString) {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const month = date.toLocaleString("default", { month: "short" });
+    const year = date.getFullYear();
+    return `${day} ${month} ${year}`;
   }
 }

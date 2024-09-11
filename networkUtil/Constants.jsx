@@ -19,3 +19,7 @@ export const services = apiPrefix + "/service";
 
 // Employee Api
 export const addEmployee = apiPrefix + "/employee/create";
+
+export const getAllEmpoyesUrl = apiPrefix + "/employee";
+
+export const getAllSuppliers = apiPrefix + "/supplier";

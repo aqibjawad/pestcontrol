@@ -4,7 +4,7 @@ import React from "react";
 const Loading = () => {
   return (
     <div>
-      {[...Array(10)].map((_, index) => (
+      {[...Array(5)].map((_, index) => (
         <Skeleton key={index} height={70} />
       ))}
     </div>
