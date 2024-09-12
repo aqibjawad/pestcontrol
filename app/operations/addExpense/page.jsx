@@ -7,7 +7,7 @@ import MultilineInput from "@/components/generic/MultilineInput";
 import Dropdown from "@/components/generic/Dropdown";
 import GreenButton from "@/components/generic/GreenButton";
 
-import { Skeleton } from "@mui/material";
+import { CircularProgress } from "@mui/material";
 import Tabs from "./tabs";
 
 import { expense_category, bank, expense } from "@/networkUtil/Constants";
@@ -139,6 +139,7 @@ const Page = () => {
   };
 
   const handleSubmit = async () => {
+    setLoading(true); // Start loading
     const expenseData = createExpenseObject();
     try {
       const response = await api.postFormDataWithToken(
@@ -150,6 +151,8 @@ const Page = () => {
     } catch (error) {
       // Handle error
       console.error("Error creating expense:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -329,13 +332,14 @@ const Page = () => {
         <div className="p-4">{imageContainer()}</div>
         <div className="p-4">{expenseForm()}</div>
       </div>
-      <div>
+      {/* <div>
         {loading ? (
-          <Skeleton variant="rectangular" width={100} height={40} />
+          <CircularProgress color="inherit" size={24} />
         ) : (
           <GreenButton onClick={handleSubmit} title={"Save"} />
         )}
-      </div>
+      </div> */}
+      <GreenButton onClick={handleSubmit} title={"Save"} />
     </div>
   );
 };
