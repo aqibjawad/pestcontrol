@@ -6,11 +6,10 @@ import styles from "../../../styles/loginStyles.module.css";
 const libraries = ["places"];
 
 const FirstSection = () => {
-    
   console.log("FirstSection component rendering");
 
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: "AIzaSyD1nQhK29CQk2DAdE96qT9ta3XOtkqg6uI",
+    googleMapsApiKey: "AIzaSyD8KF0FdpbmVXT1JJyG5THdvx-Y9IhmPvM",
     libraries,
   });
 
@@ -133,7 +132,9 @@ const FirstSection = () => {
                               el &&
                               !autocompleteRefs.current[index].pacInstance
                             ) {
-                              console.log(`Initializing Autocomplete for index ${index}`);
+                              console.log(
+                                `Initializing Autocomplete for index ${index}`
+                              );
                               try {
                                 const autocomplete =
                                   new window.google.maps.places.Autocomplete(
@@ -147,16 +148,27 @@ const FirstSection = () => {
                                       ],
                                     }
                                   );
-                                autocomplete.addListener("place_changed", () => {
-                                  console.log(`Place changed for index ${index}`);
-                                  const place = autocomplete.getPlace();
-                                  handlePlaceSelected(index, place);
-                                });
+                                autocomplete.addListener(
+                                  "place_changed",
+                                  () => {
+                                    console.log(
+                                      `Place changed for index ${index}`
+                                    );
+                                    const place = autocomplete.getPlace();
+                                    handlePlaceSelected(index, place);
+                                  }
+                                );
                                 autocompleteRefs.current[index].pacInstance =
                                   autocomplete;
-                                console.log(`Autocomplete initialized for index ${index}:`, autocomplete);
+                                console.log(
+                                  `Autocomplete initialized for index ${index}:`,
+                                  autocomplete
+                                );
                               } catch (error) {
-                                console.error(`Error initializing Autocomplete for index ${index}:`, error);
+                                console.error(
+                                  `Error initializing Autocomplete for index ${index}:`,
+                                  error
+                                );
                               }
                             }
                           }}

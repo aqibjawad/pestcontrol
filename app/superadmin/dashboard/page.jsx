@@ -9,7 +9,7 @@ import Contracts from "../../../components/Contracts";
 import Finance from "../dashboard/components/Finance";
 import Reports from "./components/Reports";
 import Scheduler from "./components/Scheduler";
-
+import AddressPicker from "../../../components/AddressPicker";
 const Index = () => {
   const [tabNames, setTabNames] = useState([
     "Work management",
@@ -56,6 +56,8 @@ const Index = () => {
             <Vendors />
             <Quotes />
             <Contracts />
+
+            <AddressPicker />
           </div>
 
           <div className={selectedIndex === 1 ? `block` : "hidden"}>

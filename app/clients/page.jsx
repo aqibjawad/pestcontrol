@@ -15,7 +15,7 @@ import APICall from "@/networkUtil/APICall";
 import { clients } from "@/networkUtil/Constants";
 import Dropdown from "../../components/generic/Dropdown";
 
-import AppHelpers from "../../Helper/AppHelpers";
+import { AppHelpers } from "../../Helper/AppHelpers";
 
 const rows = Array.from({ length: 10 }, (_, index) => ({
   clientName: "Olivia Rhye",
@@ -26,8 +26,6 @@ const rows = Array.from({ length: 10 }, (_, index) => ({
 }));
 
 const Page = () => {
-  const appHelpers = new AppHelpers();
-
   const api = new APICall();
   const [fetchingData, setFetchingData] = useState(false);
   const [brandsList, setBrandsList] = useState([]);
@@ -96,7 +94,7 @@ const Page = () => {
                 <td className="py-2 px-4">{row.phone}</td>
                 <td className="py-2 px-4">{row.firm_name}</td>
                 <td className="py-2 px-4">
-                  {appHelpers.convertDate(row.date)}
+                  {AppHelpers.convertDate(row.date)}
                 </td>
               </tr>
             ))}
