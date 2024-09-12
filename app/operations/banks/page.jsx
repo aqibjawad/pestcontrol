@@ -21,7 +21,9 @@ const Page = () => {
     fetchingData,
     vehiclesList,
     bank_name,
+    balance,
     setBankNumber,
+    setBalance,
     sendingData,
     addBank,
     updateBank,
@@ -35,7 +37,7 @@ const Page = () => {
   };
 
   const handleUpdateClick = () => {
-    updateBank(editingBanksId, bank_name);
+    updateBank(editingBanksId, bank_name, balance);
   };
 
   const handleCancelClick = () => {
@@ -49,6 +51,7 @@ const Page = () => {
           <TableRow>
             <TableCell>Sr #</TableCell>
             <TableCell>Bank Name</TableCell>
+            <TableCell>Balance</TableCell>
             <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>
@@ -66,6 +69,18 @@ const Page = () => {
                   />
                 ) : (
                   item.bank_name
+                )}
+              </TableCell>
+              <TableCell>
+                {editingBanksId === item.id ? (
+                  <input
+                    type="text"
+                    value={balance}
+                    onChange={(e) => setBalance(e.target.value)}
+                    className={styles.editInput}
+                  />
+                ) : (
+                  item.balance
                 )}
               </TableCell>
               <TableCell>
@@ -88,9 +103,7 @@ const Page = () => {
                   <>
                     <Edit
                       sx={{ color: "#3deb49", cursor: "pointer" }}
-                      onClick={() =>
-                        handleEditClick(item.id, item.bank_name)
-                      }
+                      onClick={() => handleEditClick(item.id, item.bank_name)}
                     />
                     <Delete
                       sx={{
@@ -120,11 +133,21 @@ const Page = () => {
           <div>{viewList()}</div>
           <div>
             <div className="pageTitle">Add Bank</div>
+            <div className="mt-10"></div>
+
             <InputWithTitle
               title={"Enter Bank Name"}
               placeholder={"Enter Bank Number"}
               value={bank_name}
               onChange={(value) => setBankNumber(value)}
+            />
+            <div className="mt-10"></div>
+
+            <InputWithTitle
+              title={"Enter Bank Name"}
+              placeholder={"Enter Bank Number"}
+              value={balance}
+              onChange={(value) => setBalance(value)}
             />
             <div className="mt-10"></div>
             <GreenButton

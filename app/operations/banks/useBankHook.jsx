@@ -7,6 +7,7 @@ export const useBanks = () => {
   const [fetchingData, setFetchingData] = useState(false);
   const [vehiclesList, setBanksList] = useState([]);
   const [bank_name, setBankNumber] = useState("");
+  const [balance, setBalance] = useState("");
   const [sendingData, setSendingData] = useState(false);
   const [editingBanksId, setEditingBanksId] = useState(null);
 
@@ -27,11 +28,11 @@ export const useBanks = () => {
   };
 
   const addBank = async () => {
-    if (sendingData || bank_name === "") return;
+    if (sendingData || bank_name === "", balance === "") return;
 
     setSendingData(true);
     try {
-      const obj = { bank_name };
+      const obj = { bank_name, balance };
       const response = await api.postFormDataWithToken(
         `${bank}/create`,
         obj
@@ -39,6 +40,7 @@ export const useBanks = () => {
       if (response.status === "success") {
         alert("Bank has been added");
         setBankNumber("");
+        setBalance("",)
         await getAllBanks();
       } else {
         alert("Could not add the vehicle, please try again");
@@ -92,6 +94,7 @@ export const useBanks = () => {
     vehiclesList,
     bank_name,
     setBankNumber,
+    setBalance,
     sendingData,
     addBank,
     updateBank,
