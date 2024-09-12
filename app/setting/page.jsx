@@ -46,6 +46,12 @@ const Page = () => {
           <Link href="/operations/addExpense">Add Expense</Link>
         </div>
       </Grid>
+
+      <Grid item xs={12} sm={6} md={4} lg={3}>
+        <div className={styles.addProd}>
+          <Link href="/operations/addExpense">Add Vehicle Expense</Link>
+        </div>
+      </Grid>
     </Grid>
   );
 };
