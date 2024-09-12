@@ -91,8 +91,6 @@ const Page = () => {
       attachments: [],
     };
 
-    console.log(obj);
-
     const response = await api.postFormDataWithToken(`${product}/create`, obj);
 
     // Swal.fire({

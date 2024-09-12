@@ -23,6 +23,11 @@ export const bank = apiPrefix + "/bank";
 // vehicles Apis here
 export const expense_category = apiPrefix + "/expense_category";
 
+
+// vehicles Apis here
+export const expense = apiPrefix + "/expense";
+
+
 // Venndor Apis
 export const vendors = apiPrefix + "/vendor";
 

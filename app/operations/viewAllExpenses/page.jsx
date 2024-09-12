@@ -1,18 +1,36 @@
 "use client";
-import React from "react";
+import { useState, useEffect } from "react";
+
 import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
 import Link from "next/link";
 import SearchInput from "@/components/generic/SearchInput";
 import DateFilters from "../../../components/generic/DateFilters";
 
+import APICall from "@/networkUtil/APICall";
+import { expense } from "@/networkUtil/Constants";
+
 const Page = () => {
-  const rows = Array.from({ length: 10 }, (_, index) => ({
-    clientName: "Olivia Rhye",
-    clientContact: "10",
-    quoteSend: "10",
-    quoteApproved: "50",
-    cashAdvance: "$50,000",
-  }));
+  const api = new APICall();
+  const [fetchingData, setFetchingData] = useState(false);
+  const [expenseList, setExpenseList] = useState([]);
+
+  console.log(expenseList);
+
+  useEffect(() => {
+    getAllExpenses();
+  }, []);
+
+  const getAllExpenses = async () => {
+    setFetchingData(true);
+    try {
+      const response = await api.getDataWithToken(`${expense}`);
+      setExpenseList(response.data);
+    } catch (error) {
+      console.error("Error fetching vehicles:", error);
+    } finally {
+      setFetchingData(false);
+    }
+  };
 
   const listServiceTable = () => {
     return (
@@ -27,16 +45,19 @@ const Page = () => {
                 Expense Name
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
-                VAT
+                Expense Category
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Category
+                Expevse Name
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                VAT
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Amount
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Total Amount
+                Payment Type
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Action
@@ -44,23 +65,47 @@ const Page = () => {
             </tr>
           </thead>
           <tbody>
-            {rows.map((row, index) => (
+            {expenseList.map((row, index) => (
               <tr key={index} className="border-b border-gray-200">
                 <td className="py-5 px-4">{index + 1}</td>
                 <td className="py-2 px-4">
-                  <div className={tableStyles.clientContact}>Chemical</div>
+                  <div className={tableStyles.clientContact}>
+                    <img
+                      src={row.expense_file}
+                      alt={row.expense_name}
+                      style={{ width: "100px", height: "auto" }} // Adjust size as needed
+                    />
+                  </div>
                 </td>
                 <td className="py-2 px-4">
-                  <div className={tableStyles.clientContact}>45 : AED</div>
+                  <div className={tableStyles.clientContact}>
+                    {" "}
+                    {row?.expense_category?.expense_category}{" "}
+                  </div>
                 </td>
                 <td className="py-2 px-4">
-                  <div className={tableStyles.clientContact}>Maintainace</div>
+                  <div className={tableStyles.clientContact}>
+                    {" "}
+                    {row.expense_name}{" "}
+                  </div>
                 </td>
                 <td className="py-2 px-4">
-                  <div className={tableStyles.clientContact}>100</div>
+                  <div className={tableStyles.clientContact}>
+                    {" "}
+                    {row.vat_amount}{" "}
+                  </div>
                 </td>
                 <td className="py-2 px-4">
-                  <div className={tableStyles.clientContact}>145</div>
+                  <div className={tableStyles.clientContact}>
+                    {" "}
+                    {row.amount}{" "}
+                  </div>
+                </td>
+                <td className="py-2 px-4">
+                  <div className={tableStyles.clientContact}>
+                    {" "}
+                    {row.payment_type}{" "}
+                  </div>
                 </td>
                 <td className="py-2 px-4">
                   <div className={tableStyles.clientContact}>
