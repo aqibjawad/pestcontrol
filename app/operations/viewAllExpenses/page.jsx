@@ -14,8 +14,6 @@ const Page = () => {
   const [fetchingData, setFetchingData] = useState(false);
   const [expenseList, setExpenseList] = useState([]);
 
-  console.log(expenseList);
-
   useEffect(() => {
     getAllExpenses();
   }, []);

@@ -14,13 +14,15 @@ import Tabs from "./tabs";
 
 import Dropdown from "@/components/generic/Dropdown";
 
-import Router from "next/router";
+import { useRouter } from "next/navigation";
 
 import { vehciles, bank, vehicleExpense } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
 
 const Page = () => {
   const api = new APICall();
+
+  const router = useRouter();
 
   const [activeTab, setActiveTab] = useState("cash");
 
@@ -145,6 +147,7 @@ const Page = () => {
       );
       if (response.status === 200) {
         alert("Vehicle Expense Added Successfully");
+        router.push("/account/viewVehicles")
       }
       // Handle successful response
       console.log("Expense created successfully:", response);
