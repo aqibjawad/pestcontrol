@@ -11,6 +11,12 @@ export const addServicesURL = apiPrefix + "/add_agreement";
 // Brand Apis here
 export const brand = apiPrefix + "/brand";
 
+// Products Apis here
+export const product = apiPrefix + "/product";
+
+// vehicles Apis here
+export const vehciles = apiPrefix + "/vehicle";
+
 // Venndor Apis
 export const vendors = apiPrefix + "/vendor";
 

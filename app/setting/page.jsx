@@ -20,6 +20,10 @@ const Page = () => {
       <div className={styles.addProd}>
         <Link href="/addVendor">Add Vendors</Link>
       </div>
+
+      <div className={styles.addProd}>
+        <Link href="/operations/vehciles">Add Vehciles</Link>
+      </div>
     </div>
   );
 };

@@ -2,7 +2,7 @@
 import Dropdown from "@/components/generic/Dropdown";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import { Skeleton } from "@mui/material";
-import { getAllBrandNames } from "@/networkUtil/Constants";
+import { brand, product } from "@/networkUtil/Constants";
 import React, { useEffect, useState } from "react";
 import APICall from "@/networkUtil/APICall";
 import Link from "next/link";
@@ -15,33 +15,31 @@ import GreenButton from "@/components/generic/GreenButton";
 const Page = () => {
   const api = new APICall();
 
-  const [product_name, setItemName] = useState("");
-  const [batch_number, setBatchNumber] = useState("");
-  const [brand_id, setBrandList] = useState([]);
-  const [mfg_date, setManufactureDate] = useState("");
-  const [exp_date, setExpiryDate] = useState("");
-  const [product_type, setProductType] = useState();
-  const [unit, setUnit] = useState();
-  const [active_ingredients, setIngredients] = useState();
-  const [others_ingredients, setOtherIngredients] = useState();
-  const [moccae_approval, setMoccaeApproved] = useState();
-  const [moccae_strat_date, setMocaStartDate] = useState();
-  const [moccae_exp_date, setMocaExpiryDate] = useState();
-  const [vat, setVat] = useState();
-  const [description, setDescription] = useState();
-  const [product_picture, setProductForImage] = useState();
-  const [attachments, setAttachmentImage] = useState();
-  const [per_item_qty, setPerItemQuantity] = useState();
-  
   const [fetchingData, setFetchingData] = useState(false);
   const [allBrandsList, setAllBrandsList] = useState([]);
   const [selectedBrandId, setSelectedBrandId] = useState("");
-
-  const [activeIngredients, setActiveIngredients] = useState("");
   const [loadingSubmit, setLoadingSubmit] = useState(false);
-  const [totalQuantity, setTotalQunantity] = useState();
-  const [perUnitPrice, setPerUnitPrice] = useState();
-  const [supplierName, setSupplierName] = useState();
+  const [brands, setBrandList] = useState([]);
+
+  // Form States
+  const [product_name, setItemName] = useState("");
+  const [batch_number, setBatchNumber] = useState("");
+  const [mfg_date, setManufactureDate] = useState("");
+  const [exp_date, setExpiryDate] = useState("");
+  const [product_type, setProductType] = useState("");
+  const [unit, setUnit] = useState("");
+  const [active_ingredients, setActiveIngredients] = useState("");
+  const [others_ingredients, setOtherIngredients] = useState("");
+  const [moccae_approval, setMoccaeApproved] = useState("");
+  const [moccae_start_date, setMocaStartDate] = useState("");
+  const [moccae_exp_date, setMocaExpiryDate] = useState("");
+  const [vat, setVat] = useState("");
+  const [description, setDescription] = useState("");
+  const [per_item_qty, setPerItemQuantity] = useState("");
+  const [price, setPrice] = useState("");
+
+  const [product_picture, setProductPicture] = useState(null);
+  const [attachments, setAttachments] = useState(null);
 
   useEffect(() => {
     getAllBrands();
@@ -50,12 +48,9 @@ const Page = () => {
   const getAllBrands = async () => {
     setFetchingData(true);
     try {
-      const response = await api.getDataWithToken(getAllBrandNames);
-      const brandNames = [];
-      setAllBrandsList(response.data.data);
-      response.data.data.map((item) => {
-        brandNames.push(item.name);
-      });
+      const response = await api.getDataWithToken(`${brand}`);
+      setAllBrandsList(response.data);
+      const brandNames = response.data.map((item) => item.name);
       setBrandList(brandNames);
     } catch (error) {
       console.error("Error fetching brands:", error);
@@ -75,78 +70,105 @@ const Page = () => {
 
     setLoadingSubmit(true);
 
-    const formData = {
-      product_name,
-      batch_number,
-      brandId: selectedBrandId,
-      mfg_date,
-      exp_date,
-      activeIngredients,
-    };
+    const formData = new FormData();
+    formData.append("product_name", product_name);
+    formData.append("batch_number", batch_number);
+    formData.append("brandId", selectedBrandId);
+    formData.append("mfg_date", mfg_date);
+    formData.append("exp_date", exp_date);
+    formData.append("active_ingredients", active_ingredients);
+    formData.append("product_type", product_type);
+    formData.append("unit", unit);
+    formData.append("others_ingredients", others_ingredients);
+    formData.append("moccae_approval", moccae_approval);
+    formData.append("moccae_start_date", moccae_start_date);
+    formData.append("moccae_exp_date", moccae_exp_date);
+    formData.append("vat", vat);
+    formData.append("description", description);
+    formData.append("per_item_qty", per_item_qty);
+    formData.append("price", price);
+
+    if (product_picture) {
+      formData.append("product_picture", product_picture);
+    }
+    if (attachments) {
+      formData.append("attachments", attachments);
+    }
 
     try {
       const response = await api.postFormDataWithToken(
-        postFormDataWithToken,
+        `${product}/create`,
         formData
       );
+
       Swal.fire({
         icon: "success",
         title: "Success",
         text: "Data has been added successfully!",
       });
-      // Reset form fields after successful submission
-      resetForm();
-    } catch (error) {
-      console.error("Error:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to add data. Please try again.",
-      });
-    } finally {
+      // resetForm();
+    }  finally {
       setLoadingSubmit(false);
     }
   };
 
   const validateForm = () => {
-    if (
-      !product_name ||
-      !batch_number ||
-      !selectedBrandId ||
-      !mfg_date ||
-      !exp_date ||
-      !activeIngredients
-    ) {
+    const requiredFields = [
+      product_name,
+      batch_number,
+      selectedBrandId,
+      mfg_date,
+      exp_date,
+      active_ingredients,
+      product_type,
+      unit,
+      per_item_qty,
+      price,
+    ];
+
+    if (requiredFields.some((field) => !field)) {
       Swal.fire({
         icon: "error",
         title: "Validation Error",
-        text: "Please fill in all fields.",
+        text: "Please fill in all required fields.",
       });
       return false;
     }
     return true;
   };
 
-  const resetForm = () => {
-    setItemName("");
-    setBatchNumber("");
-    setSelectedBrandId("");
-    setManufactureDate("");
-    setExpiryDate("");
-    setActiveIngredients("");
-  };
+  // const resetForm = () => {
+  //   setItemName("");
+  //   setBatchNumber("");
+  //   setSelectedBrandId("");
+  //   setManufactureDate("");
+  //   setExpiryDate("");
+  //   setActiveIngredients("");
+  //   setProductType("");
+  //   setUnit("");
+  //   setOtherIngredients("");
+  //   setMoccaeApproved("");
+  //   setMocaStartDate("");
+  //   setMocaExpiryDate("");
+  //   setVat("");
+  //   setDescription("");
+  //   setPerItemQuantity("");
+  //   setPrice("");
+  //   setProductPicture(null);
+  //   setAttachments(null);
+  // };
 
   const handleBrandChange = (name, index) => {
     const idAtIndex = allBrandsList[index].id;
     setSelectedBrandId(idAtIndex);
   };
 
-  const handleProductForChange = (value, index) => {
-    setProductFor(value);
+  const handleProductPictureSelect = (file) => {
+    setProductPicture(file);
   };
 
-  const handleFileSelect = (file) => {
-    setProductForImage(file);
+  const handleAttachmentSelect = (file) => {
+    setAttachments(file);
   };
 
   const firstSection = () => {
@@ -180,7 +202,7 @@ const Page = () => {
               <Dropdown
                 onChange={handleBrandChange}
                 title={"Brand"}
-                options={brand_id}
+                options={brands}
               />
               <div className="flex">
                 <div className="flex-grow"></div>
@@ -216,40 +238,22 @@ const Page = () => {
             onChange={setActiveIngredients}
             title={"Active Ingredient"}
             type={"text"}
-            value={activeIngredients}
+            value={active_ingredients}
           />
         </div>
         <div className="mt-5">
-          <Dropdown
-            options={["Option 1", "Option 2", "Option 3"]}
-            title={"Product For"}
-            onChange={handleProductForChange}
-          />
-
           <UploadImagePlaceholder
-            onFileSelect={handleFileSelect}
+            onFileSelect={handleProductPictureSelect}
             title={"Product Image"}
           />
 
           <UploadImagePlaceholder
-            onFileSelect={setAttachmentImage}
+            onFileSelect={handleAttachmentSelect}
             title={"Attachment"}
           />
         </div>
       </div>
     );
-  };
-
-  const handleProductTypeChange = (value, index) => {
-    setProductType(value);
-  };
-
-  const handleUnitChanged = (value, index) => {
-    setUnit(value);
-  };
-
-  const mocaChanged = (value, index) => {
-    setMoccaeApproved(value);
   };
 
   const secondSection = () => {
@@ -258,24 +262,17 @@ const Page = () => {
         <Dropdown
           options={["Powder", "Chemical"]}
           title={"Product Type"}
-          onChange={handleProductTypeChange}
+          onChange={(value) => setProductType(value)}
         />
         <div className="mt-10">
           <div className="flex gap-4">
-            <div className="flex-grow">
-              <InputWithTitle
-                title={"Total Quantity"}
-                type={"text"}
-                placeholder={"Total Quantity"}
-                onChange={setTotalQunantity}
-              />
-            </div>
             <div className="flex-grow">
               <InputWithTitle
                 title={"Per Item Quantity"}
                 type={"text"}
                 placeholder={"Per Item Quantity"}
                 onChange={setPerItemQuantity}
+                value={per_item_qty}
               />
             </div>
           </div>
@@ -287,15 +284,7 @@ const Page = () => {
               <Dropdown
                 title={"Unit"}
                 options={["ML", "GRAM"]}
-                onChange={handleUnitChanged}
-              />
-            </div>
-            <div className="flex-grow">
-              <InputWithTitle
-                title={"Per Unit Price"}
-                type={"text"}
-                placeholder={"Per Item Price"}
-                onChange={setPerUnitPrice}
+                onChange={(value) => setUnit(value)}
               />
             </div>
           </div>
@@ -307,7 +296,8 @@ const Page = () => {
               title={"Other Ingredients"}
               type={"text"}
               placeholder={"Other Ingredients"}
-              onChange={setIngredients}
+              onChange={setOtherIngredients}
+              value={others_ingredients}
             />
           </div>
         </div>
@@ -317,7 +307,7 @@ const Page = () => {
             <Dropdown
               options={["Approved", "Not Approved"]}
               title={"MOCCAE Approval"}
-              onChange={mocaChanged}
+              onChange={(value) => setMoccaeApproved(value)}
             />
           </div>
         </div>
@@ -328,16 +318,16 @@ const Page = () => {
               <InputWithTitle
                 title={"MOCCAE Start Date"}
                 type={"date"}
-                placeholder={"Per Item Price"}
                 onChange={setMocaStartDate}
+                value={moccae_start_date}
               />
             </div>
             <div className="flex-grow">
               <InputWithTitle
                 title={"MOCCAE Expiry Date"}
                 type={"date"}
-                placeholder={"Per Item Price"}
                 onChange={setMocaExpiryDate}
+                value={moccae_exp_date}
               />
             </div>
           </div>
@@ -351,21 +341,20 @@ const Page = () => {
                 type={"text"}
                 placeholder={"VAT"}
                 onChange={setVat}
-              />
-            </div>
-            <div className="flex-grow">
-              <InputWithTitle
-                title={"Supplier Name"}
-                type={"text"}
-                placeholder={"Supplier Name"}
-                onChange={setSupplierName}
+                value={vat}
               />
             </div>
           </div>
         </div>
 
         <div className="mt-10">
-          <InputWithTitle title={"Price"} type={"text"} placeholder={"Price"} />
+          <InputWithTitle
+            title={"Price"}
+            type={"text"}
+            placeholder={"Price"}
+            onChange={setPrice}
+            value={price}
+          />
         </div>
 
         <div className="mt-10">
@@ -373,6 +362,7 @@ const Page = () => {
             title={"Description"}
             placeholder={"Description"}
             onChange={setDescription}
+            value={description}
           />
         </div>
       </div>
@@ -387,7 +377,11 @@ const Page = () => {
         <div>{secondSection()}</div>
       </div>
       <div className="mt-20">
-        <GreenButton title={"Save"} />
+        <GreenButton
+          onClick={handleSubmit}
+          title={"Save"}
+          disabled={loadingSubmit}
+        />
       </div>
     </div>
   );
