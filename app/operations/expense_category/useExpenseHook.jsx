@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
 import APICall from "@/networkUtil/APICall";
-import { bank } from "@/networkUtil/Constants";
+import { expense_category } from "@/networkUtil/Constants";
 
 export const useExpenseCategory = () => {
   const api = new APICall();
   const [fetchingData, setFetchingData] = useState(false);
   const [expenseList, setVehiclesList] = useState([]);
-  const [expense_category, setExpenseCategory] = useState("");
   const [sendingData, setSendingData] = useState(false);
   const [editingExpenseId, setEditingVehiclesId] = useState(null);
+
+  const [expenseCategory, setExpenseCategory] = useState("");
 
   useEffect(() => {
     getAllVehicles();
@@ -17,7 +18,7 @@ export const useExpenseCategory = () => {
   const getAllVehicles = async () => {
     setFetchingData(true);
     try {
-      const response = await api.getDataWithToken(`${bank}`);
+      const response = await api.getDataWithToken(`${expense_category}`);
       setVehiclesList(response.data);
     } catch (error) {
       console.error("Error fetching vehicles:", error);
@@ -27,13 +28,13 @@ export const useExpenseCategory = () => {
   };
 
   const addExpense = async () => {
-    if (sendingData || expense_category === "") return;
+    if (sendingData || expenseCategory === "") return;
 
     setSendingData(true);
     try {
-      const obj = { expense_category };
+      const obj = { expense_category: expenseCategory };
       const response = await api.postFormDataWithToken(
-        `${bank}/create`,
+        `${expense_category}/create`,
         obj
       );
       if (response.status === "success") {
@@ -51,14 +52,15 @@ export const useExpenseCategory = () => {
     }
   };
 
-  const updateExpense = async (id, expense_category) => {
-    if (sendingData || expense_category === "") return;
+  const updateExpense = async (id, expenseCategory) => {
+    if (sendingData || expenseCategory === "") return;
 
     setSendingData(true);
     try {
-      const obj = { expense_category };
+      const obj = { expense_category: expenseCategory };
+
       const response = await api.updateFormDataWithToken(
-        `${bank}/update/${id}`,
+        `${expense_category}/update/${id}`,
         obj
       );
       if (response.status === "success") {
@@ -90,7 +92,7 @@ export const useExpenseCategory = () => {
   return {
     fetchingData,
     expenseList,
-    expense_category,
+    expenseCategory,
     setExpenseCategory,
     sendingData,
     addExpense,
