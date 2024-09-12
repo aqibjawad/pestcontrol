@@ -24,6 +24,14 @@ const Page = () => {
       <div className={styles.addProd}>
         <Link href="/operations/vehciles">Add Vehciles</Link>
       </div>
+
+      <div className={styles.addProd}>
+        <Link href="/operations/banks">Add Banks</Link>
+      </div>
+
+      <div className={styles.addProd}>
+        <Link href="/operations/expense_category">Add Expense Category</Link>
+      </div>
     </div>
   );
 };

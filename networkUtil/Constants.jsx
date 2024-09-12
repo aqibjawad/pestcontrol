@@ -17,6 +17,12 @@ export const product = apiPrefix + "/product";
 // vehicles Apis here
 export const vehciles = apiPrefix + "/vehicle";
 
+// vehicles Apis here
+export const bank = apiPrefix + "/bank";
+
+// vehicles Apis here
+export const expense_category = apiPrefix + "/expense_category";
+
 // Venndor Apis
 export const vendors = apiPrefix + "/vendor";
 

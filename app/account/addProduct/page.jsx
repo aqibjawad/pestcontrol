@@ -70,46 +70,50 @@ const Page = () => {
 
     setLoadingSubmit(true);
 
-    const formData = new FormData();
-    formData.append("product_name", product_name);
-    formData.append("batch_number", batch_number);
-    formData.append("brandId", selectedBrandId);
-    formData.append("mfg_date", mfg_date);
-    formData.append("exp_date", exp_date);
-    formData.append("active_ingredients", active_ingredients);
-    formData.append("product_type", product_type);
-    formData.append("unit", unit);
-    formData.append("others_ingredients", others_ingredients);
-    formData.append("moccae_approval", moccae_approval);
-    formData.append("moccae_start_date", moccae_start_date);
-    formData.append("moccae_exp_date", moccae_exp_date);
-    formData.append("vat", vat);
-    formData.append("description", description);
-    formData.append("per_item_qty", per_item_qty);
-    formData.append("price", price);
+    const obj = {
+      product_name,
+      batch_number,
+      brand_id: selectedBrandId,
+      mfg_date,
+      exp_date,
+      active_ingredients,
+      product_type,
+      unit,
+      others_ingredients,
+      moccae_approval,
+      moccae_start_date,
+      moccae_exp_date,
+      vat,
+      description,
+      per_item_qty,
+      price,
+      product_picture,
+      attachments: [],
+    };
 
-    if (product_picture) {
-      formData.append("product_picture", product_picture);
-    }
-    if (attachments) {
-      formData.append("attachments", attachments);
-    }
+    console.log(obj);
 
-    try {
-      const response = await api.postFormDataWithToken(
-        `${product}/create`,
-        formData
-      );
+    const response = await api.postFormDataWithToken(`${product}/create`, obj);
 
-      Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: "Data has been added successfully!",
-      });
-      // resetForm();
-    }  finally {
-      setLoadingSubmit(false);
-    }
+    // Swal.fire({
+    //   icon: "success",
+    //   title: "Success",
+    //   text: "Data has been added successfully!",
+    // });
+
+    // try {
+
+    //   // resetForm();
+    // } catch (error) {
+    //   console.error("Error submitting data:", error);
+    //   Swal.fire({
+    //     icon: "error",
+    //     title: "Error",
+    //     text: "Failed to submit data. Please try again.",
+    //   });
+    // } finally {
+    //   setLoadingSubmit(false);
+    // }
   };
 
   const validateForm = () => {
@@ -137,37 +141,18 @@ const Page = () => {
     return true;
   };
 
-  // const resetForm = () => {
-  //   setItemName("");
-  //   setBatchNumber("");
-  //   setSelectedBrandId("");
-  //   setManufactureDate("");
-  //   setExpiryDate("");
-  //   setActiveIngredients("");
-  //   setProductType("");
-  //   setUnit("");
-  //   setOtherIngredients("");
-  //   setMoccaeApproved("");
-  //   setMocaStartDate("");
-  //   setMocaExpiryDate("");
-  //   setVat("");
-  //   setDescription("");
-  //   setPerItemQuantity("");
-  //   setPrice("");
-  //   setProductPicture(null);
-  //   setAttachments(null);
-  // };
-
   const handleBrandChange = (name, index) => {
     const idAtIndex = allBrandsList[index].id;
     setSelectedBrandId(idAtIndex);
   };
 
   const handleProductPictureSelect = (file) => {
+    console.log("Selected Product Picture:", file);
     setProductPicture(file);
   };
 
   const handleAttachmentSelect = (file) => {
+    console.log("Selected Attachment:", file);
     setAttachments(file);
   };
 
