@@ -5,12 +5,25 @@ import styles from ".././../styles/superAdmin/addVendor.module.css";
 import GreenButton from "@/components/generic/GreenButton";
 import { useVendor } from "./useAddVendor"; // Adjust the import path as needed
 
+import Link from "next/link";
+
 const Page = () => {
-  const { vendorData, handleInputChange, sendingData, addRequest } = useVendor();
+  const { vendorData, handleInputChange, sendingData, addRequest } =
+    useVendor();
 
   return (
     <div>
-      <div className="pageTitle">Add Vendor</div>
+      <div className="flex">
+        <div className="flex-grow">
+          <div className="pageTitle">Add Vendor</div>
+        </div>
+        <div>
+          <div className={styles.addProd}>
+            <Link href="/allVendors">View Vendors</Link>
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-4 gap-5">
         <div className="mt-5">
           <InputWithTitle

@@ -38,7 +38,7 @@ const Vendors = () => {
                 <td className="py-5 px-4">
                   <div className={styles.clientName}>{row.name}</div>
                   <div className={styles.clientEmail}>{row.email}</div>
-                  <div className={styles.clientPhone}>{row.clientPhone}</div>
+                  <div className={styles.clientPhone}>{row.contact}</div>
                 </td>
                 <td className="py-2 px-4">{row.firm_name}</td>
                 <td className="py-2 px-4">

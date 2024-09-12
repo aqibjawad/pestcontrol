@@ -58,7 +58,7 @@ export const useVendor = () => {
       msg = "";
       let obj = {
         name: vendorData.name,
-        phone_number: vendorData.contact,
+        contact: vendorData.contact,
         email: vendorData.email,
         firm_name: vendorData.firm_name,
         acc_name: vendorData.acc_name,
