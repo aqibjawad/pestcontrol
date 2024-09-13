@@ -16,8 +16,8 @@ const Page = () => {
     <Grid container spacing={3}>
       <Grid lg={6} item xs={12} sm={6} md={4}>
         {sections.map((sectionId) => (
-          <div className="mt-5">
-            <FirstSection key={sectionId} />
+          <div  key={sectionId} className="mt-5">
+            <FirstSection />
           </div>
         ))}
       </Grid>
