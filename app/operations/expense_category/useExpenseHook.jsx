@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import APICall from "@/networkUtil/APICall";
 import { expense_category } from "@/networkUtil/Constants";
+import { AppAlerts } from "../../../Helper/AppAlerts";
 
 export const useExpenseCategory = () => {
   const api = new APICall();
+  const alerts = new AppAlerts();
+
   const [fetchingData, setFetchingData] = useState(false);
   const [expenseList, setVehiclesList] = useState([]);
   const [sendingData, setSendingData] = useState(false);
@@ -38,15 +41,17 @@ export const useExpenseCategory = () => {
         obj
       );
       if (response.status === "success") {
-        alert("Expense Category has been added");
+        alerts.successAlert("Expense Category has been updated");
         setExpenseCategory("");
         await getAllVehicles();
       } else {
-        alert("Could not add the vehicle, please try again");
+        alerts.errorAlert("The Expense Category has already been taken.");
       }
     } catch (error) {
       console.error("Error adding vehicle:", error);
-      alert("An error occurred while adding the vehicle");
+      alerts.errorAlert(
+        "An error occurred while updating the Expense Category."
+      );
     } finally {
       setSendingData(false);
     }
@@ -64,16 +69,18 @@ export const useExpenseCategory = () => {
         obj
       );
       if (response.status === "success") {
-        alert("Vehicle has been updated");
+        alerts.errorAlert("The Expense Category has updated!");
         setEditingVehiclesId(null);
         setExpenseCategory("");
         await getAllVehicles();
       } else {
-        alert("Could not update the vehicle, please try again");
+        alerts.errorAlert("The Expense Category has already been taken.");
       }
     } catch (error) {
-      console.error("Error updating vehicle:", error);
-      alert("An error occurred while updating the vehicle");
+      console.error("Error updating Expense Category:", error);
+      alerts.errorAlert(
+        "An error occurred while updating the Expense Category."
+      );
     } finally {
       setSendingData(false);
     }

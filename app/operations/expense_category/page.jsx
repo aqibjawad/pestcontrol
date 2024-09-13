@@ -120,9 +120,10 @@ const Page = () => {
           <div>{viewList()}</div>
           <div>
             <div className="pageTitle">Add Expense Category</div>
+            <div className="mt-10"></div>
             <InputWithTitle
-              title={"Enter Vehicle Name"}
-              placeholder={"Enter Vehicle Number"}
+              title={"Enter Expense Category"}
+              placeholder={"Enter Expense Category"}
               value={expense_category}
               onChange={(value) => setExpenseCategory(value)}
             />
@@ -134,7 +135,7 @@ const Page = () => {
                   ? () => updateExpense(editingExpenseId, expense_category)
                   : addExpense
               }
-              title={editingExpenseId ? "Update Vehicle" : "Add Vehicle"}
+              title={editingExpenseId ? "Update Expense Category" : "Add Expense Category"}
             />
           </div>
         </div>
