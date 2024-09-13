@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import APICall from "@/networkUtil/APICall";
 import { vehciles } from "@/networkUtil/Constants";
+import { AppAlerts } from "../../../Helper/AppAlerts";
 
 export const useVehicles = () => {
   const api = new APICall();
+  const alerts = new AppAlerts();
   const [fetchingData, setFetchingData] = useState(false);
   const [vehiclesList, setVehiclesList] = useState([]);
   const [vehicle_number, setVehicleNumber] = useState("");
@@ -21,6 +23,7 @@ export const useVehicles = () => {
       setVehiclesList(response.data);
     } catch (error) {
       console.error("Error fetching vehicles:", error);
+      alerts.errorAlert("Failed to fetch vehicles. Please try again.");
     } finally {
       setFetchingData(false);
     }
@@ -37,15 +40,15 @@ export const useVehicles = () => {
         obj
       );
       if (response.status === "success") {
-        alert("Vehicle has been added");
+        alerts.successAlert("Vehicle has been added");
         setVehicleNumber("");
         await getAllVehicles();
       } else {
-        alert("Could not add the vehicle, please try again");
+        alerts.errorAlert("The vehicle number has already been taken");
       }
     } catch (error) {
       console.error("Error adding vehicle:", error);
-      alert("An error occurred while adding the vehicle");
+      alerts.errorAlert("An error occurred while adding the vehicle");
     } finally {
       setSendingData(false);
     }
@@ -62,16 +65,16 @@ export const useVehicles = () => {
         obj
       );
       if (response.status === "success") {
-        alert("Vehicle has been updated");
+        alerts.successAlert("Vehicle has been updated");
         setEditingVehiclesId(null);
         setVehicleNumber("");
         await getAllVehicles();
       } else {
-        alert("Could not update the vehicle, please try again");
+        alerts.errorAlert("The vehicle number has already been taken.");
       }
     } catch (error) {
       console.error("Error updating vehicle:", error);
-      alert("An error occurred while updating the vehicle");
+      alerts.errorAlert("The vehicle number has already been taken.");
     } finally {
       setSendingData(false);
     }
