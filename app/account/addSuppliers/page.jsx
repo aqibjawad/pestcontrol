@@ -112,6 +112,15 @@ const Page = () => {
           value={supplierData.trn_no}
         />
       </div>
+
+      <div className="mt-10">
+        <InputWithTitle
+          onChange={(value) => handleInputChange("opening_balance", value)}
+          title="Opening Balance"
+          placeholder={"Opening Balance"}
+          value={supplierData.opening_balance}
+        />
+      </div>
     </div>
   );
 

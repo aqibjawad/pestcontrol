@@ -18,7 +18,7 @@ export default function Dropdown({ title, options, onChange }) {
   };
 
   return (
-    <Box sx={{ minWidth: 120 }}>
+    <Box sx={{ minWidth: 250 }}>
       <div className={styles.title}>{title}</div>
       <div className="mb-2"></div>
       <FormControl fullWidth>

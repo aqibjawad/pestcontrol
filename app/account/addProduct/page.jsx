@@ -243,7 +243,7 @@ const Page = () => {
     return (
       <div className="mt-10">
         <Dropdown
-          options={["Powder", "Chemical"]}
+          options={["Powder", "Chemical", "Gel"]}
           title={"Product Type"}
           onChange={(value) => setProductType(value)}
         />

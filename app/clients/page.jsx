@@ -9,11 +9,16 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  Grid,
+  TextField,
+  Typography,
 } from "@mui/material";
 import styles from "../../styles/loginStyles.module.css";
 import APICall from "@/networkUtil/APICall";
 import { clients } from "@/networkUtil/Constants";
 import Dropdown from "../../components/generic/Dropdown";
+
+import InputWithTitle from "../../components/generic/InputWithTitle";
 
 import { AppHelpers } from "../../Helper/AppHelpers";
 
@@ -277,220 +282,102 @@ const Page = () => {
 
       <Dialog open={open} onClose={handleClose}>
         <DialogContent style={{ backgroundColor: "white" }}>
-          <div>
-            <div
-              style={{
-                textAlign: "center",
-                fontSize: "24px",
-                fontWeight: "600",
-                marginTop: "2.6rem",
-              }}
-            >
-              Add Clients
-            </div>
+          <Grid container direction="column" spacing={2}>
+            <Grid item>
+              <Typography variant="h5" align="center" fontWeight="600">
+                Add Clients
+              </Typography>
+            </Grid>
 
-            <div
-              style={{
-                color: "#667085",
-                fontSize: "16px",
-                textAlign: "center",
-                marginTop: "1rem",
-              }}
-            >
-              Thank you for choosing us to meet your needs. We look forward to
-              serving you with excellence
-            </div>
+            <Grid item>
+              <Typography variant="body1" color="textSecondary" align="center">
+                Thank you for choosing us to meet your needs. We look forward to
+                serving you with excellence
+              </Typography>
+            </Grid>
 
-            <div
-              className={styles.userFormContainer}
-              style={{ fontSize: "16px" }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  gap: "1rem",
-                  marginTop: "1rem",
-                }}
-              >
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                  <label style={{ marginBottom: "0.5rem", color: "#344054" }}>
-                    Full name
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    style={{
-                      border: "1px solid #38A73B",
-                      borderRadius: "8px",
-                      padding: "12px 16px",
-                      width: "100%",
-                      height: "49px",
-                      boxSizing: "border-box",
-                    }}
-                    placeholder="Manager name"
-                  />
-                </div>
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                  <label style={{ marginBottom: "0.5rem", color: "#344054" }}>
-                    Firm Name
-                  </label>
-                  <input
-                    type="text"
-                    name="firm_name"
-                    value={formData.firm_name}
-                    onChange={handleInputChange}
-                    style={{
-                      border: "1px solid #38A73B",
-                      borderRadius: "8px",
-                      padding: "12px 16px",
-                      width: "100%",
-                      height: "49px",
-                      boxSizing: "border-box",
-                    }}
-                    placeholder="Firm Name"
-                  />
-                </div>
-              </div>
-            </div>
+            <Grid item container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <InputWithTitle
+                  label="Full name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  variant="outlined"
+                  fullWidth
+                  placeholder="Manager name"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <InputWithTitle
+                  label="Firm Name"
+                  name="firm_name"
+                  value={formData.firm_name}
+                  onChange={handleInputChange}
+                  variant="outlined"
+                  fullWidth
+                  placeholder="Firm Name"
+                />
+              </Grid>
+            </Grid>
 
-            <div>
-              <div className={styles.userFormContainer}>
-                <div
-                  style={{
-                    color: "#344054",
-                    fontSize: "16px",
-                    marginBottom: "0.5rem",
-                  }}
-                >
-                  Email
-                </div>
-                <div style={{ position: "relative", width: "489px" }}>
-                  <input
-                    type="text"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    style={{
-                      border: "1px solid #38A73B",
-                      borderRadius: "8px",
-                      padding: "12px 16px 12px 40px",
-                      width: "100%",
-                      height: "49px",
-                      boxSizing: "border-box",
-                    }}
-                    placeholder="Please enter Email"
-                  />
-                </div>
-              </div>
-            </div>
+            <Grid item>
+              <InputWithTitle
+                label="Email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                variant="outlined"
+                fullWidth
+                placeholder="Please enter Email"
+              />
+            </Grid>
 
-            <div>
-              <div className={styles.userFormContainer}>
-                <div
-                  style={{
-                    color: "#344054",
-                    fontSize: "16px",
-                    marginBottom: "0.5rem",
-                  }}
-                >
-                  Phone Number
-                </div>
-                <div style={{ position: "relative", width: "489px" }}>
-                  <input
-                    type="text"
-                    name="phone_number"
-                    value={formData.phone_number}
-                    onChange={handleInputChange}
-                    style={{
-                      border: "1px solid #38A73B",
-                      borderRadius: "8px",
-                      padding: "12px 16px 12px 40px",
-                      width: "100%",
-                      height: "49px",
-                      boxSizing: "border-box",
-                    }}
-                    placeholder="Please enter Phone Number"
-                  />
-                </div>
-              </div>
-            </div>
+            <Grid item>
+              <InputWithTitle
+                label="Phone Number"
+                name="phone_number"
+                value={formData.phone_number}
+                onChange={handleInputChange}
+                variant="outlined"
+                fullWidth
+                placeholder="Please enter Phone Number"
+              />
+            </Grid>
 
-            <div>
-              <div className={styles.userFormContainer}>
-                <div
-                  style={{
-                    color: "#344054",
-                    fontSize: "16px",
-                    marginBottom: "0.5rem",
-                  }}
-                >
-                  Mobile Number
-                </div>
-                <div style={{ position: "relative", width: "489px" }}>
-                  <input
-                    type="text"
-                    name="mobile_number"
-                    value={formData.mobile_number}
-                    onChange={handleInputChange}
-                    style={{
-                      border: "1px solid #38A73B",
-                      borderRadius: "8px",
-                      padding: "12px 16px 12px 40px",
-                      width: "100%",
-                      height: "49px",
-                      boxSizing: "border-box",
-                    }}
-                    placeholder="Please enter Mobile Number"
-                  />
-                </div>
-              </div>
-            </div>
+            <Grid item>
+              <InputWithTitle
+                label="Mobile Number"
+                name="mobile_number"
+                value={formData.mobile_number}
+                onChange={handleInputChange}
+                variant="outlined"
+                fullWidth
+                placeholder="Please enter Mobile Number"
+              />
+            </Grid>
 
-            <div
-              className={styles.userFormContainer}
-              style={{ fontSize: "16px" }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  gap: "1rem",
-                  marginTop: "1rem",
-                }}
-              >
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                  <label style={{ marginBottom: "0.5rem", color: "#344054" }}>
-                    Industry Name
-                  </label>
-                  <input
-                    type="text"
-                    name="industry_name"
-                    value={formData.industry_name}
-                    onChange={handleInputChange}
-                    style={{
-                      border: "1px solid #38A73B",
-                      borderRadius: "8px",
-                      padding: "12px 16px",
-                      width: "100%",
-                      height: "49px",
-                      boxSizing: "border-box",
-                    }}
-                    placeholder="Industry Name"
-                  />
-                </div>
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                  <Dropdown
-                    title="Select Option"
-                    options={dropdownOptions.map((option) => option.name)}
-                    onChange={handleDropdownChange}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+            <Grid item container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <InputWithTitle
+                  label="Industry Name"
+                  name="industry_name"
+                  value={formData.industry_name}
+                  onChange={handleInputChange}
+                  variant="outlined"
+                  fullWidth
+                  placeholder="Industry Name"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Dropdown
+                  title="Select Option"
+                  options={dropdownOptions.map((option) => option.name)}
+                  onChange={handleDropdownChange}
+                />
+              </Grid>
+            </Grid>
+          </Grid>
         </DialogContent>
         <DialogActions style={{ justifyContent: "center" }}>
           <div

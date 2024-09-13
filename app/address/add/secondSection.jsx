@@ -1,16 +1,12 @@
 import React from "react";
-import styles from "../../../styles/loginStyles.module.css";
+import styles from "../../../styles/addresses.module.css";
 
-const SecondSection = () => {
-    return (
-        <div className="centerContainer">
-            <div className="userFormContainer" style={{ fontSize: "16px", margin: "auto" }}>
-                <div className="plusborder">
-                    +
-                </div>
-            </div>
-        </div>
-    )
-}
+const SecondSection = ({ onClick }) => {
+  return (
+    <div className={styles.userFormContainer} onClick={onClick}>
+      <div className={styles.plusborder}>+</div>
+    </div>
+  );
+};
 
 export default SecondSection;
