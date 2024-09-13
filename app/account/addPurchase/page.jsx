@@ -1,64 +1,316 @@
-import React from "react";
+"use client";
 
-import FirstSection from "./addPurchase/firstSection"
-import SecondSection from "./addPurchase/secondSection"
+import React, { useState, useEffect } from "react";
+import UploadImagePlaceholder from "../../../components/generic/uploadImage";
+import InputWithTitle from "@/components/generic/InputWithTitle";
+import Dropdown from "@/components/generic/Dropdown";
 
-import ThirdSection from "./addPurchase/thirdSection"
+import {
+  getAllSuppliers,
+  product,
+  purchaseOrder,
+} from "@/networkUtil/Constants";
 
-import styles from "../../../styles/loginStyles.module.css";
+import { Grid } from "@mui/material";
+import Swal from "sweetalert2";
 
-const AddPurchase = () => {
-    return (
+import APICall from "@/networkUtil/APICall";
 
-        <div>
-            <div className={styles.userFormContainer} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
+import styles from "../../../styles/addPurchase.module.css";
 
-                <div style={{ marginTop: "1rem", width: "272px", height: "202px", border: '1px dotted #D0D5DD ', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                    <img src="/upload.png" alt="Upload" />
-                    <div style={{ fontWeight: "300", fontSize: "14px", textAlign: "center", marginTop: "1rem" }}>
-                        Browse and choose the files you want to upload from your computer
-                    </div>
-                    <img src="/add.png" style={{ marginTop: "1rem" }} alt="Add" />
-                </div>
+const Page = () => {
+  const api = new APICall();
 
-            </div>
-            <div className="grid grid-cols-12 gap-4" style={{ width: '100%', maxWidth: '1200px' }}>
-                <div className="col-span-6">
-                    <FirstSection />
-                </div>
+  const [fetchingData, setFetchingData] = useState(false);
 
-                <div className="col-span-6">
-                    <SecondSection />
-                </div>
+  const [allBrandsList, setAllBrandsList] = useState([]);
+  const [suppliers, setBrandList] = useState([]);
+  const [selectedBrandId, setSelectedSupplierId] = useState("");
 
-            </div>
-
-            <div style={{ display: "flex", flexDirection: "column" }}>
-                <label style={{ marginBottom: "0.5rem", marginTop: "2rem", color: "#344054" }}> Private notes </label>
-                <input
-                    type="text"
-                    style={{
-                        border: "1px solid #38A73B",
-                        borderRadius: "8px",
-                        padding: "12px 16px",
-                        width: "100%",
-                        height: "49px",
-                        boxSizing: "border-box"
-                    }}
-                    placeholder=" SAP "
-                />
-            </div>
-
-            <div className="grid grid-cols-12 gap-4" style={{ width: '100%', maxWidth: '1200px' }}>
-                <div className="col-span-12">
-                    <ThirdSection />
-                </div>
+  const [allProductsList, setAllProductsList] = useState([]);
+  const [productsLists, setProductsList] = useState([]);
+  const [selectedProductId, setSelectedProductId] = useState("");
 
 
-            </div>
+  // State to manage rows
+  const [rows, setRows] = useState([
+    { id: Date.now(), product_id: "", quantity: "", price: "", vat_per: "" },
+  ]);
 
+  const [order_date, setOrderDate] = useState("");
+  const [delivery_date, setDeliveryDate] = useState("");
+  const [private_note, setPrivateNote] = useState("");
+  const [dis_per, setDisPer] = useState("");
+
+  useEffect(() => {
+    getAllSupplier();
+    getAllProducts();
+  }, []);
+
+  const getAllSupplier = async () => {
+    setFetchingData(true);
+    try {
+      const response = await api.getDataWithToken(`${getAllSuppliers}`);
+      setAllBrandsList(response.data);
+      const brandNames = response.data.map((item) => item.supplier_name);
+      setBrandList(brandNames);
+    } catch (error) {
+      console.error("Error fetching brands:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to fetch brands. Please try again.",
+      });
+    } finally {
+      setFetchingData(false);
+    }
+  };
+
+  const getAllProducts = async () => {
+    setFetchingData(true);
+    try {
+      const response = await api.getDataWithToken(`${product}`);
+      setAllProductsList(response.data);
+      const productsNames = response.data.map((item) => item.product_name);
+      setProductsList(productsNames);
+    } catch (error) {
+      console.error("Error fetching brands:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to fetch brands. Please try again.",
+      });
+    } finally {
+      setFetchingData(false);
+    }
+  };
+
+  const handleBSupplierChange = (supplier_name, index) => {
+    const idAtIndex = allBrandsList[index].id;
+    setSelectedSupplierId(idAtIndex);
+  };
+
+  const handleProductsChange = (product_id, index) => {
+    
+    const newRows = [...rows];
+    newRows[index].product_id = product_id;
+    setRows(newRows);
+  };
+
+  const handleInputChange = (value, index, field) => {
+    const newRows = [...rows];
+    newRows[index][field] = value;
+    setRows(newRows);
+  };
+
+  const handleAddRow = () => {
+    setRows([
+      ...rows,
+      { id: Date.now(), product_id: "", quantity: "", price: "", vat_per: "" },
+    ]);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const obj = {
+      supplier_id: selectedBrandId,
+      order_date,
+      delivery_date,
+      private_note,
+      dis_per,
+      product_id: rows.map((row) => row.product_id),
+      quantity: rows.map((row) => row.quantity),
+      price: rows.map((row) => row.price),
+      vat_per: rows.map((row) => row.vat_per),
+    };
+
+    try {
+      const response = await api.postFormDataWithToken(
+        `${purchaseOrder}/create`,
+        obj
+      );
+      // Handle successful response
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Purchase added successfully.",
+      });
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to submit form. Please try again.",
+      });
+    }
+  };
+
+  const calculateTotals = () => {
+    let subTotal = 0;
+    let totalVat = 0;
+
+    rows.forEach((row) => {
+      const rowSubTotal = row.quantity * row.price;
+      subTotal += rowSubTotal;
+      totalVat += rowSubTotal * (row.vat_per / 100);
+    });
+
+    const discountAmount = subTotal * (dis_per / 100);
+    const grandTotal = subTotal + totalVat - discountAmount;
+
+    return {
+      subTotal: subTotal.toFixed(2),
+      totalVat: totalVat.toFixed(2),
+      grandTotal: grandTotal.toFixed(2),
+    };
+  };
+  const { subTotal, totalVat, grandTotal } = calculateTotals();
+
+  return (
+    <div>
+      <Grid container spacing={2}>
+        <Grid item lg={12} xs={12} sm={6} md={4}>
+          <UploadImagePlaceholder />
+        </Grid>
+        <Grid className="mt-5" item lg={4} xs={12} sm={6} md={4}>
+          <Dropdown
+            onChange={handleBSupplierChange}
+            options={suppliers}
+            title={"Supplier"}
+          />
+        </Grid>
+
+        <Grid className="mt-5" item lg={4} xs={12} sm={6} md={4}>
+          <InputWithTitle
+            title={"Order date"}
+            type="date"
+            onChange={setOrderDate}
+          />
+        </Grid>
+        <Grid className="mt-5" item lg={4} xs={12} sm={6} md={4}>
+          <InputWithTitle
+            title={"Delivery date"}
+            type="date"
+            onChange={setDeliveryDate}
+          />
+        </Grid>
+
+        <Grid className="mt-5" item lg={12} xs={12} sm={6} md={4}>
+          <InputWithTitle title={"Private Notes"} onChange={setPrivateNote} />
+        </Grid>
+      </Grid>
+
+      {/* Dynamic Rows */}
+      <div className={styles.itemGrid}>
+        {rows.map((row, index) => (
+          <Grid container spacing={2} key={row.id} className="mt-5">
+            <Grid item lg={2} xs={12} sm={6} md={4}>
+              <Dropdown
+                onChange={(value, dropdownIndex) =>
+                  handleProductsChange(allProductsList[dropdownIndex].id, index)
+                }
+                options={productsLists}
+                title={"Items"}
+              />
+            </Grid>
+
+            <Grid item lg={2} xs={12} sm={6} md={4}>
+              <InputWithTitle
+                title={"Quantity"}
+                onChange={(value) =>
+                  handleInputChange(value, index, "quantity")
+                }
+              />
+            </Grid>
+            <Grid item lg={2} xs={12} sm={6} md={4}>
+              <InputWithTitle
+                title={"Price"}
+                onChange={(value) => handleInputChange(value, index, "price")}
+              />
+            </Grid>
+
+            <Grid item lg={2} xs={12} sm={6} md={4}>
+              <InputWithTitle
+                title={"Sub Total"}
+                value={(row.quantity * row.price).toFixed(2)}
+                readOnly
+              />
+            </Grid>
+
+            <Grid item lg={2} xs={12} sm={6} md={4}>
+              <InputWithTitle
+                title={"Vat"}
+                onChange={(value) => handleInputChange(value, index, "vat_per")}
+              />
+            </Grid>
+
+            <Grid item lg={2} xs={12} sm={6} md={4}>
+              <InputWithTitle
+                title={"Total Amount"}
+                value={(
+                  row.quantity *
+                  row.price *
+                  (1 + row.vat_per / 100)
+                ).toFixed(2)}
+                readOnly
+              />
+            </Grid>
+          </Grid>
+        ))}
+
+        <div className={styles.btn}>
+          <div className={styles.addBtn} onClick={handleAddRow}>
+            Add
+          </div>
         </div>
-    )
-}
 
-export default AddPurchase
+        {/* Totals Section */}
+        <Grid container spacing={2} className="mt-5">
+          <Grid item lg={6} xs={12} sm={6} md={4}>
+            <div className={styles.subHead}>Sub Total</div>
+          </Grid>
+          <Grid item lg={6} xs={12} sm={6} md={4}>
+            <div className={styles.subAmount}>{subTotal}</div>
+          </Grid>
+        </Grid>
+
+        <Grid container spacing={2} className="mt-5">
+          <Grid item lg={11} xs={12} sm={6} md={4}>
+            <div className={styles.subHead}>Discount</div>
+          </Grid>
+          <Grid item lg={1} xs={12} sm={6} md={4}>
+            <div style={{ width: "90%" }}>
+              <InputWithTitle
+                placeholder={"discount"}
+                onChange={(value) => setDisPer(parseFloat(value) || 0)}
+              />
+            </div>
+          </Grid>
+        </Grid>
+
+        <Grid container spacing={2} className="mt-5">
+          <Grid item lg={6} xs={12} sm={6} md={4}>
+            <div className={styles.subHead}>Vat</div>
+          </Grid>
+          <Grid item lg={6} xs={12} sm={6} md={4}>
+            <div className={styles.subAmount}>{totalVat}</div>
+          </Grid>
+        </Grid>
+
+        <Grid container spacing={2} className="mt-5">
+          <Grid item lg={6} xs={12} sm={6} md={4}>
+            <div className={styles.subHead}>Grand Total</div>
+          </Grid>
+          <Grid item lg={6} xs={12} sm={6} md={4}>
+            <div className={styles.subAmount}>{grandTotal}</div>
+          </Grid>
+        </Grid>
+      </div>
+
+      <button onClick={handleSubmit}>Submit</button>
+    </div>
+  );
+};
+
+export default Page;

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import APICall from "@/networkUtil/APICall";
-import { suppliers } from "@/networkUtil/Constants";
+import { getAllSuppliers } from "@/networkUtil/Constants";
 import Swal from "sweetalert2";
 
 export const useSupplier = () => {
@@ -105,7 +105,7 @@ export const useSupplier = () => {
       setSendingData(true);
       try {
         const response = await api.postFormDataWithToken(
-          `${suppliers}/create`,
+          `${getAllSuppliers}/create`,
           obj
         );
         if (response.status === "success") {

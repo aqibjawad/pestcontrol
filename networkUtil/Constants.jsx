@@ -14,6 +14,9 @@ export const brand = apiPrefix + "/brand";
 // Products Apis here
 export const product = apiPrefix + "/product";
 
+// Products Apis here
+export const purchaseOrder = apiPrefix + "/purchase_order";
+
 // vehicles Apis here
 export const vehciles = apiPrefix + "/vehicle";
 
