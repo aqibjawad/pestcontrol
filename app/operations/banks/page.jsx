@@ -144,8 +144,8 @@ const Page = () => {
             <div className="mt-10"></div>
 
             <InputWithTitle
-              title={"Enter Bank Name"}
-              placeholder={"Enter Bank Number"}
+              title={"Enter Balance"}
+              placeholder={"Enter Blance"}
               value={balance}
               onChange={(value) => setBalance(value)}
             />

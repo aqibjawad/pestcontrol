@@ -2,8 +2,12 @@ import { useState, useEffect } from "react";
 import APICall from "@/networkUtil/APICall";
 import { bank } from "@/networkUtil/Constants";
 
+import { AppAlerts } from "../../../Helper/AppAlerts";
+
 export const useBanks = () => {
   const api = new APICall();
+  const alerts = new AppAlerts();
+
   const [fetchingData, setFetchingData] = useState(false);
   const [vehiclesList, setBanksList] = useState([]);
   const [bank_name, setBankNumber] = useState("");
@@ -28,26 +32,23 @@ export const useBanks = () => {
   };
 
   const addBank = async () => {
-    if (sendingData || bank_name === "", balance === "") return;
+    if ((sendingData || bank_name === "", balance === "")) return;
 
     setSendingData(true);
     try {
       const obj = { bank_name, balance };
-      const response = await api.postFormDataWithToken(
-        `${bank}/create`,
-        obj
-      );
+      const response = await api.postFormDataWithToken(`${bank}/create`, obj);
       if (response.status === "success") {
-        alert("Bank has been added");
+        alerts.successAlert("Bank has been updated");
         setBankNumber("");
-        setBalance("",)
+        setBalance("");
         await getAllBanks();
       } else {
-        alert("Could not add the vehicle, please try again");
+        alerts.errorAlert("The Bank number has already been taken.");
       }
     } catch (error) {
-      console.error("Error adding vehicle:", error);
-      alert("An error occurred while adding the vehicle");
+      console.error("Error adding Bank:", error);
+      alerts.errorAlert("The Bank number has already been taken.");
     } finally {
       setSendingData(false);
     }
