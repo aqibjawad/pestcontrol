@@ -20,7 +20,7 @@ const UploadImagePlaceholder = ({ title, onFileSelect }) => {
     }
   };
 
-  return (
+  return ( 
     <>
       <div className={styles.titleText}>{title}</div>
       <div onClick={handleClick} className={styles.mainContainer}>
@@ -30,10 +30,10 @@ const UploadImagePlaceholder = ({ title, onFileSelect }) => {
               <img
                 src={selectedImage}
                 height={200}
-                width={200}
+                width={300}
                 alt="Selected file"
                 style={{
-                  borderRadius: "50%",
+                  borderRadius: "5%",
                   objectFit: "cover",
                   objectPosition: "center", // Add this line
                 }}

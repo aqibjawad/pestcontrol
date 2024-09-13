@@ -10,18 +10,18 @@ import GreenButton from "@/components/generic/GreenButton";
 import { CircularProgress } from "@mui/material";
 import Tabs from "./tabs";
 
-import AppAlerts from "../../../Helper/AppAlerts"
-
 import { expense_category, bank, expense } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
 
+import { AppAlerts } from "../../../Helper/AppAlerts";
+
 const Page = () => {
   const api = new APICall();
+  const alerts = new AppAlerts();
 
   const [activeTab, setActiveTab] = useState("cash");
 
   const [expense_name, setExpName] = useState();
-  const [expense_category_id, setExpenseId] = useState();
   const [vat, setVat] = useState();
   const [total, setTotal] = useState();
   const [description, setDesc] = useState();
@@ -29,7 +29,6 @@ const Page = () => {
 
   const [amount, setAmount] = useState();
 
-  const [bank_id, setBankId] = useState();
   const [cheque_amount, setChequeAmount] = useState();
   const [cheque_date, setChequeDate] = useState();
   const [transection_id, setTransactionId] = useState();
@@ -45,6 +44,8 @@ const Page = () => {
   const [allBanksList, setAllBankList] = useState([]);
   const [allBankNameList, setBankNameList] = useState([]);
   const [selectedBankId, setSelectedBankId] = useState("");
+
+  const [sendingData, setSendingData] = useState(false);
 
   const [loading, setLoading] = useState(true);
 
@@ -148,11 +149,18 @@ const Page = () => {
         `${expense}/create`,
         expenseData
       );
-      // Handle successful response
-      console.log("Expense created successfully:", response);
-    } catch (error) {
-      // Handle error
-      console.error("Error creating expense:", error);
+
+      if (response.status === "success") {
+        alerts.successAlert("Expense has been updated");
+      } else {
+        alerts.errorAlert(response.message);
+      }
+
+      // if (response.status === "success") {
+      //   alerts.successAlert("Expense has been updated");
+      // } else {
+      //   alerts.errorAlert(response.message);
+      // }
     } finally {
       setLoading(false);
     }
@@ -162,7 +170,7 @@ const Page = () => {
     return (
       <div>
         <div className={styles.expenseTitle}>Expense</div>
-        <div className={styles.imageContainer}>
+        <div style={{ cursor: "pointer" }} className={styles.imageContainer}>
           <UploadImagePlaceholder onFileSelect={handleFileSelect} />
         </div>
       </div>
@@ -341,7 +349,11 @@ const Page = () => {
           <GreenButton onClick={handleSubmit} title={"Save"} />
         )}
       </div> */}
-      <GreenButton onClick={handleSubmit} title={"Save"} />
+      <GreenButton
+        sendingData={sendingData}
+        onClick={handleSubmit}
+        title={"Add Expense"}
+      />
     </div>
   );
 };
