@@ -45,7 +45,11 @@ const Vendors = () => {
                   <div className={styles.statusContainer}>{row.percentage}</div>
                 </td>
                 <td className="py-2 px-4">
-                  <Link href={"/"}>View Details</Link>
+                  <Link href={`/vendor_ledger?id=${row.id}`}>
+                    <span className="text-blue-600 hover:text-blue-800">
+                      View Details
+                    </span>
+                  </Link>
                 </td>
               </tr>
             ))}
