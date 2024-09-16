@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
 import SearchInput from "@/components/generic/SearchInput";
 import styles from "../../../styles/loginStyles.module.css";
-import { suppliers } from "@/networkUtil/Constants";
+import { getAllSuppliers } from "@/networkUtil/Constants";
 import Link from "next/link";
 import APICall from "@/networkUtil/APICall";
 import jsPDF from "jspdf";
@@ -66,29 +66,31 @@ const listTable = (data) => {
             <th className="py-2 px-4 border-b border-gray-200 text-left">
               Zip
             </th>
+            <th className="py-2 px-4 border-b border-gray-200 text-left">
+              View
+            </th>
           </tr>
         </thead>
         <tbody>
-          {data.length > 0 ? (
-            data.map((row, index) => (
-              <tr key={index} className="border-b border-gray-200">
-                <td className="py-5 px-4">{index + 1}</td>
-                <td className="py-2 px-4">{row.supplier_name}</td>
-                <td className="py-2 px-4">{row.company_name}</td>
-                <td className="py-2 px-4">{row.email}</td>
-                <td className="py-2 px-4">{row.trn_no}</td>
-                <td className="py-2 px-4">{row.vat}</td>
-                <td className="py-2 px-4">{row.hsn}</td>
-                <td className="py-2 px-4">{row.zip}</td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="10" className="py-5 px-4 text-center">
-                No data available
+          {data?.map((row, index) => (
+            <tr key={index} className="border-b border-gray-200">
+              <td className="py-5 px-4">{index + 1}</td>
+              <td className="py-2 px-4">{row.supplier_name}</td>
+              <td className="py-2 px-4">{row.company_name}</td>
+              <td className="py-2 px-4">{row.email}</td>
+              <td className="py-2 px-4">{row.trn_no}</td>
+              <td className="py-2 px-4">{row.vat}</td>
+              <td className="py-2 px-4">{row.hsn}</td>
+              <td className="py-2 px-4">{row.zip}</td>
+              <td className="py-2 px-4">
+                <Link href={`/account/supplier_ledger?id=${row.id}`}>
+                  <span className="text-blue-600 hover:text-blue-800">
+                    View Details
+                  </span>
+                </Link>
               </td>
             </tr>
-          )}
+          ))}
         </tbody>
       </table>
     </div>
@@ -99,13 +101,13 @@ const ViewSuppliers = () => {
   const api = new APICall();
 
   useEffect(() => {
-    getAllSuppliers();
+    getAllSuppliere();
   }, []);
 
-  const getAllSuppliers = async () => {
+  const getAllSuppliere = async () => {
     setFetchingData(true);
     try {
-      const response = await api.getDataWithToken(`${suppliers}`);
+      const response = await api.getDataWithToken(`${getAllSuppliers}`);
       setSupplierList(response.data);
     } catch (error) {
       console.error("Error fetching suppliers:", error);
@@ -182,7 +184,7 @@ const ViewSuppliers = () => {
                 marginLeft: "1rem",
                 padding: "12px, 16px, 12px, 16px",
                 borderRadius: "10px",
-                cursor:"pointer"
+                cursor: "pointer",
               }}
             >
               Download all

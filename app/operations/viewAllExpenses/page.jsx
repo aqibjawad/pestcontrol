@@ -107,7 +107,11 @@ const Page = () => {
                 </td>
                 <td className="py-2 px-4">
                   <div className={tableStyles.clientContact}>
-                    <Link href="/">View</Link>
+                    <Link href={`/operations/viewExpense?id=${row.id}`}>
+                      <span className="text-blue-600 hover:text-blue-800">
+                        View Details
+                      </span>
+                    </Link>
                   </div>
                 </td>
               </tr>
