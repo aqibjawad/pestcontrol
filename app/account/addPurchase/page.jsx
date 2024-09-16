@@ -18,6 +18,8 @@ import APICall from "@/networkUtil/APICall";
 
 import styles from "../../../styles/addPurchase.module.css";
 
+import GreenButton from "@/components/generic/GreenButton";
+
 const Page = () => {
   const api = new APICall();
 
@@ -29,8 +31,6 @@ const Page = () => {
 
   const [allProductsList, setAllProductsList] = useState([]);
   const [productsLists, setProductsList] = useState([]);
-  const [selectedProductId, setSelectedProductId] = useState("");
-
 
   // State to manage rows
   const [rows, setRows] = useState([
@@ -41,6 +41,9 @@ const Page = () => {
   const [delivery_date, setDeliveryDate] = useState("");
   const [private_note, setPrivateNote] = useState("");
   const [dis_per, setDisPer] = useState("");
+  const [purchase_invoice, setPurchaseInvoice] = useState("");
+
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
 
   useEffect(() => {
     getAllSupplier();
@@ -85,13 +88,17 @@ const Page = () => {
     }
   };
 
+  const handleInvoicePictureSelect = (file) => {
+    console.log("Selected Product Picture:", file);
+    setPurchaseInvoice(file);
+  };
+
   const handleBSupplierChange = (supplier_name, index) => {
     const idAtIndex = allBrandsList[index].id;
     setSelectedSupplierId(idAtIndex);
   };
 
   const handleProductsChange = (product_id, index) => {
-    
     const newRows = [...rows];
     newRows[index].product_id = product_id;
     setRows(newRows);
@@ -113,12 +120,15 @@ const Page = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    setLoadingSubmit(true);
+
     const obj = {
       supplier_id: selectedBrandId,
       order_date,
       delivery_date,
       private_note,
       dis_per,
+      purchase_invoice,
       product_id: rows.map((row) => row.product_id),
       quantity: rows.map((row) => row.quantity),
       price: rows.map((row) => row.price),
@@ -130,19 +140,21 @@ const Page = () => {
         `${purchaseOrder}/create`,
         obj
       );
-      // Handle successful response
-      Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: "Purchase added successfully.",
-      });
+      if (response.status === 200) {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Purchase added successfully.",
+        });
+      } else {        
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: `${response.error.message}`,
+        });
+      }
     } catch (error) {
       console.error("Error submitting form:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to submit form. Please try again.",
-      });
     }
   };
 
@@ -171,7 +183,10 @@ const Page = () => {
     <div>
       <Grid container spacing={2}>
         <Grid item lg={12} xs={12} sm={6} md={4}>
-          <UploadImagePlaceholder />
+          <UploadImagePlaceholder
+            title={"Invoice Image"}
+            onFileSelect={handleInvoicePictureSelect}
+          />
         </Grid>
         <Grid className="mt-5" item lg={4} xs={12} sm={6} md={4}>
           <Dropdown
@@ -308,7 +323,13 @@ const Page = () => {
         </Grid>
       </div>
 
-      <button onClick={handleSubmit}>Submit</button>
+      <div className="mt-20">
+        <GreenButton
+          onClick={handleSubmit}
+          title={"Save"}
+          disabled={loadingSubmit}
+        />
+      </div>
     </div>
   );
 };
