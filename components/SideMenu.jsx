@@ -70,62 +70,62 @@ export default function SideMenu({ children }) {
     {
       name: "Home",
       url: "superadmin-home",
-      icon: "http://localhost/upload/icons/icons_16.png",
+      icon: "/home.png",
     },
     {
       name: "Jobs",
       url: "jobs",
-      icon: "http://localhost/upload/icons/icons_421.png",
+      icon: "/jobs.png",
     },
     {
       name: "Contracts",
       url: "contracts",
-      icon: "http://localhost/upload/icons/icons_399.png",
+      icon: "/contracts.png",
     },
     {
       name: "Quotes",
       url: "quotes",
-      icon: "http://localhost/upload/icons/icons_733.png",
+      icon: "/quotes.png",
     },
     {
       name: "Calendar",
       url: "calendar",
-      icon: "http://localhost/upload/icons/icons_930.png",
+      icon: "/calender.png",
     },
     {
       name: "Clients",
       url: "clients",
-      icon: "http://localhost/upload/icons/icons_913.png",
+      icon: "/clients.png",
     },
     {
       name: "Operations",
       url: "operations",
-      icon: "http://localhost/upload/icons/icons_345.png",
+      icon: "/operations.png",
     },
     {
       name: "Sales",
       url: "sales",
-      icon: "http://localhost/upload/icons/icons_34.png",
+      icon: "/sales.png",
     },
     {
       name: "HR",
       url: "hr",
-      icon: "http://localhost/upload/icons/icons_95.png",
+      icon: "/hr.png",
     },
     {
       name: "Team Head",
       url: "teams",
-      icon: "http://localhost/upload/icons/icons_231.png",
+      icon: "/teamhead.png",
     },
     {
       name: "Company setup",
       url: "company_setup",
-      icon: "http://localhost/upload/icons/icons_30.png",
+      icon: "/comnpany.png",
     },
     {
       name: "Settings",
       url: "setting",
-      icon: "http://localhost/upload/icons/icons_170.png",
+      icon: "/setting-2.png",
     },
   ]);
 
@@ -197,7 +197,7 @@ export default function SideMenu({ children }) {
 
         <List>
           {Array.isArray(permissions) && permissions.length > 0 ? (
-            permissions.map((text, index) => (
+            permissions.map((text, index) => ( 
               <div
                 onClick={() => handleNext(text, index)}
                 key={index}
