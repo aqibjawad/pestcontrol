@@ -1,16 +1,13 @@
 "use client";
 import { useState, useEffect } from "react";
-
 import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
-
 import SearchInput from "@/components/generic/SearchInput";
-
 import styles from "../../../styles/loginStyles.module.css";
-
 import Link from "next/link";
-
 import APICall from "@/networkUtil/APICall";
 import { purchaseOrder } from "@/networkUtil/Constants";
+import Skeleton from "@mui/material/Skeleton";
+import Stack from "@mui/material/Stack";
 
 const PrchaseOrder = () => {
   const api = new APICall();
@@ -34,6 +31,16 @@ const PrchaseOrder = () => {
   };
 
   const listTable = () => {
+    if (fetchingData) {
+      return (
+        <Stack spacing={1}>
+          <Skeleton variant="rectangular" width="100%" height={40} />
+          <Skeleton variant="rectangular" width="100%" height={40} />
+          <Skeleton variant="rectangular" width="100%" height={40} />
+        </Stack>
+      );
+    }
+
     return (
       <div className={tableStyles.tableContainer}>
         <table className="min-w-full bg-white">
@@ -49,7 +56,7 @@ const PrchaseOrder = () => {
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 {" "}
-                City
+                City{" "}
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 {" "}
@@ -59,14 +66,13 @@ const PrchaseOrder = () => {
                 {" "}
                 Order Date{" "}
               </th>
-
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 {" "}
                 Total Amount{" "}
               </th>
-
               <th className="py-2 px-4 border-b border-gray-200 text-left">
-                View Details
+                {" "}
+                View Details{" "}
               </th>
             </tr>
           </thead>
@@ -92,14 +98,18 @@ const PrchaseOrder = () => {
                     {row.order_date}
                   </div>
                 </td>
-
                 <td className="py-2 px-4">
                   <div className={tableStyles.clientContact}>
                     {row.grand_total}
                   </div>
                 </td>
-
-                <td className="py-2 px-4">View Details</td>
+                <td className="py-2 px-4">
+                  <Link href={`/account/purchaseOrderDetails?id=${row.id}`}>
+                    <span className="text-blue-600 hover:text-blue-800">
+                      View Details
+                    </span>
+                  </Link>
+                </td>
               </tr>
             ))}
           </tbody>
