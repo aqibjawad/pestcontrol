@@ -143,7 +143,7 @@ const Page = () => {
                   <td> {employeeList?.employee?.hi_expiry} </td>
                   <td> {employeeList?.employee?.dm_card} </td>
                   <td> {employeeList?.employee?.dm_start} </td>
-                  <td> {employeeList?.employee?.dm_expiry} </td>
+                  <td> {employeeList?.employee?.hi_expiry} </td>
                 </tr>
               </tbody>
             </table>
