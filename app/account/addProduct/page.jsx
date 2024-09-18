@@ -12,8 +12,12 @@ import UploadImagePlaceholder from "../../../components/generic/uploadImage";
 import MultilineInput from "@/components/generic/MultilineInput";
 import GreenButton from "@/components/generic/GreenButton";
 
+import { useRouter } from "next/navigation";
+
 const Page = () => {
+
   const api = new APICall();
+  const router = useRouter();
 
   const [fetchingData, setFetchingData] = useState(false);
   const [allBrandsList, setAllBrandsList] = useState([]);
@@ -93,22 +97,25 @@ const Page = () => {
 
     const response = await api.postFormDataWithToken(`${product}/create`, obj);
 
-    // Swal.fire({
-    //   icon: "success",
-    //   title: "Success",
-    //   text: "Data has been added successfully!",
-    // });
+    if (response.status === "success") {
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Data has been added successfully!",
+      });
+      router.push("/operations/viewInventory/");
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to submit data. Please try again.",
+      });
+    }
 
     // try {
-
     //   // resetForm();
     // } catch (error) {
     //   console.error("Error submitting data:", error);
-    //   Swal.fire({
-    //     icon: "error",
-    //     title: "Error",
-    //     text: "Failed to submit data. Please try again.",
-    //   });
     // } finally {
     //   setLoadingSubmit(false);
     // }

@@ -1,17 +1,13 @@
 "use client";
 
 import React from "react";
+import Inventory from "./inventroy"
 
-// import ViewInventory from "./viewInventroy"
-
-// import Inventory from "./inventroy"
-
-import AddInventory from "./addInventory"
 
 const Index =()=>{
     return(
         <div>
-            <AddInventory />
+            <Inventory />
         </div>
     )
 }
