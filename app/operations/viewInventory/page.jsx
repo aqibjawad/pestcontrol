@@ -1,18 +1,15 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-
 import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
-
 import SearchInput from "@/components/generic/SearchInput";
-
 import styles from "../../../styles/loginStyles.module.css";
-
 import { product } from "@/networkUtil/Constants";
 import Loading from "../../../components/generic/Loading";
 import APICall from "@/networkUtil/APICall";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Skeleton } from "@mui/material";
 
 const Page = () => {
   const apiCall = new APICall();
@@ -37,66 +34,75 @@ const Page = () => {
     }
   };
 
-  const listTable = () => {
+  const ListTable = () => {
     return (
       <div className={tableStyles.tableContainer}>
         <table className="min-w-full bg-white">
           <thead>
             <tr>
               <th className="py-5 px-4 border-b border-gray-200 text-left">
-                {" "}
-                product Picture{" "}
+                Product Picture
               </th>
               <th className="py-5 px-4 border-b border-gray-200 text-left">
-                {" "}
-                Name{" "}
+                Name
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
-                {" "}
-                Product Type{" "}
+                Product Type
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
-                {" "}
-                Batch Number{" "}
+                Batch Number
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
-                {" "}
-                Actions{" "}
+                Actions
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Stock
               </th>
             </tr>
           </thead>
           <tbody>
             {suppliersList.map((row, index) => (
-              <tr key={index} className="border-b border-gray-200">
-                <td className="py-5 px-4">
-                  <img
-                    src={row.product_picture}
-                    alt={row.product_name}
-                    className="w-16 h-16 object-cover rounded"
-                  />
-                </td>
-                <td className="py-5 px-4">{row.product_name}</td>
-                <td className="py-2 px-4">
-                  <div className={tableStyles.clientContact}>
-                    {row.product_type}
-                  </div>
-                </td>
-                <td className="py-2 px-4">
-                  <div className={tableStyles.clientContact}>
-                    {row.batch_number}
-                  </div>
-                </td>
-                <td className="py-2 px-4">
-                  <div className={tableStyles.clientContact}>
-                    {" "}
-                    <Link href={`/operations/products/?id=${row.id}`}>
-                      <span className="text-blue-600 hover:text-blue-800">
-                        View Details
-                      </span>
-                    </Link>
-                  </div>
-                </td>
-              </tr>
+              <React.Fragment key={index}>
+                <tr className="border-b border-gray-200">
+                  <td className="py-5 px-4">
+                    <img
+                      src={row.product_picture}
+                      alt={row.product_name}
+                      className="w-16 h-16 object-cover rounded"
+                    />
+                  </td>
+                  <td className="py-5 px-4">{row.product_name}</td>
+                  <td className="py-2 px-4">
+                    <div className={tableStyles.clientContact}>
+                      {row.product_type}
+                    </div>
+                  </td>
+                  <td className="py-2 px-4">
+                    <div className={tableStyles.clientContact}>
+                      {row.batch_number}
+                    </div>
+                  </td>
+                  <td className="py-2 px-4">
+                    <div className={tableStyles.clientContact}>
+                      <Link href={`/operations/products/?id=${row.id}`}>
+                        <span className="text-blue-600 hover:text-blue-800">
+                          View Details
+                        </span>
+                      </Link>
+                    </div>
+                  </td>
+
+                  <td className="py-2 px-4">
+                    <div className={tableStyles.clientContact}>
+                      <Link href={`/operations/products/?id=${row.id}`}>
+                        <span className="text-blue-600 hover:text-blue-800">
+                          Assign Stock
+                        </span>
+                      </Link>
+                    </div>
+                  </td>
+                </tr>
+              </React.Fragment>
             ))}
           </tbody>
         </table>
@@ -195,7 +201,15 @@ const Page = () => {
       </div>
 
       <div className="grid grid-cols-12 gap-4">
-        <div className="col-span-12">{listTable()}</div>
+        <div className="col-span-12">
+          {fetchingData ? (
+            <div className={tableStyles.tableContainer}>
+              <Skeleton animation="wave" height={300} />
+            </div>
+          ) : (
+            <ListTable />
+          )}
+        </div>
       </div>
     </div>
   );

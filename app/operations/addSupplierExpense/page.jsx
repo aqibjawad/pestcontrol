@@ -21,7 +21,6 @@ const Page = () => {
 
   const [activeTab, setActiveTab] = useState("cash");
 
-  const [expense_name, setExpName] = useState();
   const [vat, setVat] = useState();
   const [total, setTotal] = useState();
   const [description, setDesc] = useState();
@@ -107,7 +106,6 @@ const Page = () => {
 
   const createExpenseObject = () => {
     let expenseObj = {
-      expense_name,
       supplier_id: selectedSupplierId,
       vat,
       total,
@@ -319,7 +317,7 @@ const Page = () => {
 
   return (
     <div>
-      <div className="pageTitle">Add Expenses</div>
+      <div className="pageTitle">Add Supplier Payments</div>
       <div className="mt-10"></div>
       <div className="p-4">{expenseForm()}</div>
       {/* <div>
