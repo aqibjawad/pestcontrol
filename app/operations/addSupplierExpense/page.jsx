@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import styles from "../../../styles/superAdmin/addExpensesStyles.module.css";
-import UploadImagePlaceholder from "../../../components/generic/uploadImage";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import MultilineInput from "@/components/generic/MultilineInput";
 import Dropdown from "@/components/generic/Dropdown";
@@ -15,9 +14,13 @@ import APICall from "@/networkUtil/APICall";
 
 import { AppAlerts } from "../../../Helper/AppAlerts";
 
+import { useRouter } from "next/navigation";
+
 const Page = () => {
+
   const api = new APICall();
   const alerts = new AppAlerts();
+  const router = useRouter();
 
   const [activeTab, setActiveTab] = useState("cash");
 
@@ -153,6 +156,7 @@ const Page = () => {
 
       if (response.status === "success") {
         alerts.successAlert("Expense has been updated");
+        router.push("/account/supplier_ledger/")
       } else {
         alerts.errorAlert(response.error.message);
       }
