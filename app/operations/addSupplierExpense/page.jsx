@@ -48,6 +48,8 @@ const Page = () => {
 
   const [loading, setLoading] = useState(true);
 
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
+
   const handleTabChange = (tab) => {
     setActiveTab(tab);
     // setFormData((prevState) => ({
@@ -140,7 +142,8 @@ const Page = () => {
   };
 
   const handleSubmit = async () => {
-    setLoading(true);
+    setLoadingSubmit(true);
+
     const expenseData = createExpenseObject();
     try {
       const response = await api.postFormDataWithToken(
@@ -320,6 +323,18 @@ const Page = () => {
       <div className="pageTitle">Add Supplier Payments</div>
       <div className="mt-10"></div>
       <div className="p-4">{expenseForm()}</div>
+      <div className="mt-10">
+        <GreenButton
+          onClick={handleSubmit}
+          title={loadingSubmit ? "Saving..." : "Save"}
+          disabled={loadingSubmit}
+          startIcon={
+            loadingSubmit ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : null
+          }
+        />
+      </div>
       {/* <div>
         {loading ? (
           <CircularProgress color="inherit" size={24} />
@@ -327,11 +342,11 @@ const Page = () => {
           <GreenButton onClick={handleSubmit} title={"Save"} />
         )}
       </div> */}
-      <GreenButton
+      {/* <GreenButton
         sendingData={sendingData}
         onClick={handleSubmit}
         title={"Add Expense"}
-      />
+      /> */}
     </div>
   );
 };

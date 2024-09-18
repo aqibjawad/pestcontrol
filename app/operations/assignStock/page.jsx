@@ -15,6 +15,8 @@ import {
   Paper,
 } from "@mui/material";
 
+
+
 const Page = () => {
   const {
     fetchingData,
@@ -47,9 +49,7 @@ const Page = () => {
               <img src={brandsList?.product_picture} width="50" height="200" />
             </TableCell>
             <TableCell component="th" scope="row">
-              <div>
-                {brandsList?.product_name}
-              </div>
+              <div>{brandsList?.product_name}</div>
             </TableCell>
           </TableRow>
         </TableBody>
@@ -90,11 +90,24 @@ const Page = () => {
               />
             </div>
             <div className="mt-10"></div>
-            <GreenButton
+            <div className="mt-20">
+              <GreenButton
+                onClick={addBrand}
+                title={loadingSubmit ? "Saving..." : "Save"}
+                disabled={loadingSubmit}
+                startIcon={
+                  loadingSubmit ? (
+                    <CircularProgress size={20} color="inherit" />
+                  ) : null
+                }
+              />
+            </div>
+
+            {/* <GreenButton
               sendingData={sendingData}
               onClick={addBrand}
               title={"Add Brand"}
-            />
+            /> */}
           </div>
         </div>
       )}
