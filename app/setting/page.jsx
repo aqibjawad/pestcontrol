@@ -21,6 +21,13 @@ const Page = () => {
           <Link href="/account/addSuppliers">Add Supplier</Link>
         </div>
       </Grid>
+
+      <Grid item xs={12} sm={6} md={4} lg={3}>
+        <div className={styles.addProd}>
+          <Link href="/operations/addSupplierExpense">Add Supplier Expense</Link>
+        </div>
+      </Grid>
+
       <Grid item xs={12} sm={6} md={4} lg={3}>
         <div className={styles.addProd}>
           <Link href="/addVendor">Add Vendors</Link>
