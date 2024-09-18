@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import UploadImagePlaceholder from "../../../components/generic/uploadImage";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import Dropdown from "@/components/generic/Dropdown";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 import {
   getAllSuppliers,
@@ -11,7 +12,7 @@ import {
   purchaseOrder,
 } from "@/networkUtil/Constants";
 
-import { Grid } from "@mui/material";
+import { Grid, CircularProgress } from "@mui/material";
 import Swal from "sweetalert2";
 
 import APICall from "@/networkUtil/APICall";
@@ -117,6 +118,10 @@ const Page = () => {
     ]);
   };
 
+  const deleteRow = (id) => {
+    setRows(rows.filter((row) => row.id !== id));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -127,7 +132,7 @@ const Page = () => {
       order_date,
       delivery_date,
       private_note,
-      dis_per,
+      dis_per: "0",
       purchase_invoice,
       product_id: rows.map((row) => row.product_id),
       quantity: rows.map((row) => row.quantity),
@@ -135,27 +140,31 @@ const Page = () => {
       vat_per: rows.map((row) => row.vat_per),
     };
 
-    try {
-      const response = await api.postFormDataWithToken(
-        `${purchaseOrder}/create`,
-        obj
-      );
-      if (response.status === 200) {
-        Swal.fire({
-          icon: "success",
-          title: "Success",
-          text: "Purchase added successfully.",
-        });
-      } else {        
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: `${response.error.message}`,
-        });
-      }
-    } catch (error) {
-      console.error("Error submitting form:", error);
+    const response = await api.postFormDataWithToken(
+      `${purchaseOrder}/create`,
+      obj
+    );
+
+    if (response.status === "success") {
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Purchase added successfully.",
+      });
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: `${response.error.message}`,
+      });
     }
+    // try {
+    //   if (response.status === 200) {
+    //   } else {
+    //   }
+    // } catch (error) {
+    //   console.error("Error submitting form:", error);
+    // }
   };
 
   const calculateTotals = () => {
@@ -192,7 +201,7 @@ const Page = () => {
           <Dropdown
             onChange={handleBSupplierChange}
             options={suppliers}
-            title={"Supplier"}
+            title={"Company"}
           />
         </Grid>
 
@@ -260,7 +269,7 @@ const Page = () => {
               />
             </Grid>
 
-            <Grid item lg={2} xs={12} sm={6} md={4}>
+            <Grid item lg={1} xs={12} sm={6} md={4}>
               <InputWithTitle
                 title={"Total Amount"}
                 value={(
@@ -270,6 +279,21 @@ const Page = () => {
                 ).toFixed(2)}
                 readOnly
               />
+            </Grid>
+
+            <Grid item lg={1} xs={12} sm={6} md={4}>
+              <DeleteIcon
+                style={{ marginTop: "3rem", color: "red", cursor: "pointer" }}
+                onClick={() => deleteRow(row.id)}
+              />
+              {/* <Button
+                variant="contained"
+                color="secondary"
+                
+                startIcon={}
+              >
+                Delete
+              </Button> */}
             </Grid>
           </Grid>
         ))}
@@ -326,8 +350,13 @@ const Page = () => {
       <div className="mt-20">
         <GreenButton
           onClick={handleSubmit}
-          title={"Save"}
+          title={loadingSubmit ? "Saving..." : "Save"}
           disabled={loadingSubmit}
+          startIcon={
+            loadingSubmit ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : null
+          }
         />
       </div>
     </div>

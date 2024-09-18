@@ -94,7 +94,7 @@ const Page = () => {
 
                   <td className="py-2 px-4">
                     <div className={tableStyles.clientContact}>
-                      <Link href={`/operations/products/?id=${row.id}`}>
+                      <Link href={`/operations/assignStock/?id=${row.id}`}>
                         <span className="text-blue-600 hover:text-blue-800">
                           Assign Stock
                         </span>
