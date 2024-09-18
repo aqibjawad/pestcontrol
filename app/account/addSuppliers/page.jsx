@@ -110,14 +110,6 @@ const Page = () => {
           />
         </div>
       </div>
-      <div className="mt-10">
-        <InputWithTitle
-          onChange={(value) => handleInputChange("vat", value)}
-          title="VAT"
-          placeholder={"VAT"}
-          value={supplierData.vat}
-        />
-      </div>
 
       <div className="mt-10">
         <InputWithTitle
@@ -174,8 +166,8 @@ const Page = () => {
       <div className="mt-10 flex gap-4">
         <div className="flex-grow">
           <InputWithTitle
-            title={"HSN"}
-            placeholder={"HSN"}
+            title={"Add Tag"}
+            placeholder={"Add Tag"}
             onChange={(value) => handleInputChange("hsn", value)}
             value={supplierData.hsn}
           />
