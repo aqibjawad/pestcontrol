@@ -60,6 +60,33 @@ const Page = () => {
             placeholder={"Vendor Email"}
           />
         </div>
+
+        <div className="mt-5">
+          <InputWithTitle
+            value={vendorData.email}
+            onChange={(value) => handleInputChange("email", value)}
+            title={"Add Tag"}
+            placeholder={"Add Tag"}
+          />
+        </div>
+
+        <div className="mt-5">
+          <InputWithTitle
+            value={vendorData.email}
+            onChange={(value) => handleInputChange("email", value)}
+            title={"Vat "}
+            placeholder={"Vat "}
+          />
+        </div>
+
+        <div className="mt-5">
+          <InputWithTitle
+            value={vendorData.email}
+            onChange={(value) => handleInputChange("email", value)}
+            title={"Opening Balance "}
+            placeholder={"Opening Balance "}
+          />
+        </div>
       </div>
 
       <div className={styles.itemTitle}>Manager</div>
