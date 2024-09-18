@@ -240,6 +240,7 @@ const Page = () => {
           <UploadImagePlaceholder
             onFileSelect={handleAttachmentSelect}
             title={"Attachment"}
+            multiple
           />
         </div>
       </div>
@@ -250,7 +251,7 @@ const Page = () => {
     return (
       <div className="mt-10">
         <Dropdown
-          options={["Powder", "Chemical", "Gel"]}
+          options={["Powder", "Chemical", "Gel", "Pieces"]}
           title={"Product Type"}
           onChange={(value) => setProductType(value)}
         />

@@ -122,7 +122,7 @@ const Page = () => {
 
         <div>
           <InputWithTitle
-            title="Pest Name"
+            title="Pest"
             placeholder="Fly, Rat etc"
             value={pestName}
             onChange={setPestName}

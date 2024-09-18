@@ -2,42 +2,47 @@ import { useRef, useState } from "react";
 import styles from "../../styles/superAdmin/uploadImageStyles.module.css";
 import Image from "next/image";
 
-const UploadImagePlaceholder = ({ title, onFileSelect }) => {
+const UploadImagePlaceholder = ({ title, onFileSelect, multiple = false }) => {
   const fileInputRef = useRef(null);
-  const [fileName, setFileName] = useState("No file selected");
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [fileNames, setFileNames] = useState([]);
+  const [selectedImages, setSelectedImages] = useState([]);
 
   const handleClick = () => {
     fileInputRef.current.click();
   };
 
   const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      setFileName(file.name);
-      setSelectedImage(URL.createObjectURL(file)); // Add this line
-      onFileSelect(file); // Call the callback function with the selected file
+    const files = Array.from(event.target.files);
+    if (files.length > 0) {
+      setFileNames(files.map((file) => file.name));
+      setSelectedImages(files.map((file) => URL.createObjectURL(file)));
+      onFileSelect(multiple ? files : files[0]);
     }
   };
 
-  return ( 
+  return (
     <>
       <div className={styles.titleText}>{title}</div>
       <div onClick={handleClick} className={styles.mainContainer}>
         <div>
           <center>
-            {selectedImage ? (
-              <img
-                src={selectedImage}
-                height={200}
-                width={300}
-                alt="Selected file"
-                style={{
-                  borderRadius: "5%",
-                  objectFit: "cover",
-                  objectPosition: "center", // Add this line
-                }}
-              />
+            {selectedImages.length > 0 ? (
+              <div className={styles.imageGrid}>
+                {selectedImages.map((image, index) => (
+                  <img
+                    key={index}
+                    src={image}
+                    height={100}
+                    width={100}
+                    alt={`Selected file ${index + 1}`}
+                    style={{
+                      borderRadius: "5%",
+                      objectFit: "cover",
+                      objectPosition: "center",
+                    }}
+                  />
+                ))}
+              </div>
             ) : (
               <>
                 <img
@@ -54,7 +59,11 @@ const UploadImagePlaceholder = ({ title, onFileSelect }) => {
             )}
           </center>
           <center>
-            <div className={styles.paragraphText}>{fileName}</div>
+            <div className={styles.paragraphText}>
+              {fileNames.length > 0
+                ? fileNames.join(", ")
+                : "No files selected"}
+            </div>
           </center>
         </div>
         <input
@@ -63,6 +72,7 @@ const UploadImagePlaceholder = ({ title, onFileSelect }) => {
           accept=".png, .jpg, .jpeg"
           onChange={handleFileChange}
           style={{ display: "none" }}
+          multiple={multiple}
         />
       </div>
     </>
