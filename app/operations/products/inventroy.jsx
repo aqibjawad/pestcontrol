@@ -120,8 +120,7 @@ const Inventory = () => {
       <div className="grid grid-cols-12 gap-4">
         <div className="col-span-6">
           <img
-            // src={employeeList?.product_picture}
-            src="http://backend-pestcontrol.worldcitizenconsultants.com/new/public/upload/products/pictures/products/pictures_66ea6ed53da5b.png"
+            src={employeeList?.product_picture}
             style={{ width: "269px", height: "493px", left: "315px" }}
           />
         </div>

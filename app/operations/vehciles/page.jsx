@@ -120,12 +120,60 @@ const Page = () => {
           <div>{viewList()}</div>
           <div>
             <div className="pageTitle">Add Vehicle</div>
+            <div className="mt-10"></div>
+
             <InputWithTitle
-              title={"Enter Vehicle Name"}
-              placeholder={"Enter Vehicle Number"}
+              title={"Enter Modal Name"}
+              placeholder={"Enter Modal Number"}
               value={vehicle_number}
               onChange={(value) => setVehicleNumber(value)}
             />
+
+            <div className="mt-5">
+              <InputWithTitle
+                title={"Enter Plate Number"}
+                placeholder={"Enter Plate Number"}
+                value={vehicle_number}
+                onChange={(value) => setVehicleNumber(value)}
+              />
+            </div>
+
+            <div className="mt-5">
+              <InputWithTitle
+                title={"Assign To"}
+                placeholder={"Assign To"}
+                value={vehicle_number}
+                onChange={(value) => setVehicleNumber(value)}
+              />
+            </div>
+
+            <div className="mt-5">
+              <InputWithTitle
+                title={"Condition"}
+                placeholder={"Condition"}
+                value={vehicle_number}
+                onChange={(value) => setVehicleNumber(value)}
+              />
+            </div>
+
+            <div className="mt-5">
+              <InputWithTitle
+                title={"Mulkia Expiry Date"}
+                placeholder={"Mulkia Expiry Date"}
+                value={vehicle_number}
+                onChange={(value) => setVehicleNumber(value)}
+              />
+            </div>
+
+            <div className="mt-5">
+              <InputWithTitle
+                title={"Oil Change Limit"}
+                placeholder={"Oil Change Limit"}
+                value={vehicle_number}
+                onChange={(value) => setVehicleNumber(value)}
+              />
+            </div>
+
             <div className="mt-10"></div>
             <GreenButton
               sendingData={sendingData}
