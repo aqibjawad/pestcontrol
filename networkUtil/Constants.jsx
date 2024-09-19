@@ -8,6 +8,10 @@ export const addSupplier = apiPrefix + "/add-supplier";
 
 export const addServicesURL = apiPrefix + "/add_agreement";
 
+// admin Apis here
+export const admin = apiPrefix + "/admin/ledger/get";
+
+
 // Brand Apis here
 export const brand = apiPrefix + "/brand";
 
@@ -41,6 +45,9 @@ export const services = apiPrefix + "/service";
 
 // Employee Api
 export const addEmployee = apiPrefix + "/employee/create";
+
+// Employee Api
+export const addStock = apiPrefix + "/employee";
 
 export const getAllEmpoyesUrl = apiPrefix + "/employee";
 

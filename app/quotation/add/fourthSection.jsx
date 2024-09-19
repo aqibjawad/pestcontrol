@@ -141,11 +141,11 @@ const Section = ({
                         gap: "10px",
                       }}
                     >
-                      {dateArray.map((date, index) => (
+                      {dateArray.map((date) => (
                         <Button
-                          key={index}
+                          key={date}
                           variant={
-                            selectedDates.includes(date)
+                            selectedDates.some(d => d.getDate() === date && d.getMonth() === new Date().getMonth())
                               ? "contained"
                               : "outlined"
                           }
@@ -159,16 +159,6 @@ const Section = ({
                 </>
               ) : (
                 <CalendarComponent onDateChange={handleDateChange} />
-              )}
-              {selectedJobType === "Custom" && (
-                <InputWithTitle
-                  title={"Custom Input"}
-                  type={"text"}
-                  name="customInput"
-                  placeholder={"Enter custom data"}
-                  value={customInput}
-                  onChange={(e) => setCustomInput(e.target.value)}
-                />
               )}
             </DialogContent>
             <DialogActions>
@@ -250,6 +240,7 @@ const Section = ({
     </div>
   );
 };
+
 const FourthSection = () => {
   const [sections, setSections] = useState([
     {
@@ -295,18 +286,24 @@ const FourthSection = () => {
     setSections(newSections);
   };
 
-  const handleDateChange = (index, dates) => {
+  const handleDateChange = (index, date) => {
     const newSections = [...sections];
-    newSections[index].selectedDates = dates;
+    const selectedDate = new Date(new Date().getFullYear(), new Date().getMonth(), date);
+
+    // Check if the date is already selected
+    if (newSections[index].selectedDates.some(d => d.getTime() === selectedDate.getTime())) {
+      newSections[index].selectedDates = newSections[index].selectedDates.filter(d => d.getTime() !== selectedDate.getTime());
+    } else {
+      newSections[index].selectedDates.push(selectedDate);
+    }
+
     setSections(newSections);
   };
 
   const handleDaySelectionChange = (index, day) => {
     const newSections = [...sections];
     if (newSections[index].selectedDates.includes(day)) {
-      newSections[index].selectedDates = newSections[
-        index
-      ].selectedDates.filter((d) => d !== day);
+      newSections[index].selectedDates = newSections[index].selectedDates.filter((d) => d !== day);
     } else {
       newSections[index].selectedDates.push(day);
     }
@@ -344,6 +341,9 @@ const FourthSection = () => {
   };
 
   const formatDate = (date) => {
+    if (typeof date === 'string') {
+      date = new Date(date);
+    }
     if (date instanceof Date && !isNaN(date)) {
       return date.toLocaleDateString("en-US", {
         year: "numeric",
@@ -393,7 +393,7 @@ const FourthSection = () => {
           }}
           dateArray={dateArray}
           selectedDates={section.selectedDates}
-          handleDateChange={(dates) => handleDateChange(index, dates)}
+          handleDateChange={(date) => handleDateChange(index, date)}
           daySelection={section.daySelection}
           setDaySelection={(daySelection) => {
             const newSections = [...sections];

@@ -59,17 +59,6 @@ const SecondSection = () => {
 
       <div className="mt-10">
         <InputWithTitle
-          title={"Tag"}
-          type={"text"}
-          name="name"
-          placeholder={"Tag"}
-          value={name}
-          onChange={handleNameChange}
-        />
-      </div>
-
-      <div className="mt-10">
-        <InputWithTitle
           title={"Food Watch Account"}
           type={"text"}
           name="name"

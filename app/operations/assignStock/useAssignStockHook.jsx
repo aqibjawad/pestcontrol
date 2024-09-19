@@ -1,26 +1,29 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import APICall from "@/networkUtil/APICall";
-import { product, getAllEmpoyesUrl } from "@/networkUtil/Constants";
-
+import {
+  product,
+  getAllEmpoyesUrl,
+  addStock,
+} from "@/networkUtil/Constants";
 import { useSearchParams } from "next/navigation";
 
-export const useBrands = () => {
-
+export const useAssignStockHook = () => {
   const api = new APICall();
-
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
 
   const [fetchingData, setFetchingData] = useState(false);
-  const [brandsList, setBrandsList] = useState();
-  const [brandName, setBrandName] = useState("");
+  const [brandsList, setBrandsList] = useState(null);
+  const [quantity, setQuantity] = useState("");
   const [sendingData, setSendingData] = useState(false);
-  const [editingBrandId, setEditingBrandId] = useState(null);
 
   const [employeesList, setEmployeesList] = useState([]);
-  const [employeesName, setEmployeesName] = useState("");
-  const [AllEmployeesList, setAllEmployeesList] = useState("");
-  const [SelectEmployeesId, setSelectedEmployeedId] = useState("");
+  const [employees, setEmployessList] = useState([]);
+  const [allEmployeesList, setAllEmployeesList] = useState([]);
+
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
 
   useEffect(() => {
     getAllBrands();
@@ -42,88 +45,72 @@ export const useBrands = () => {
   const getAllEmployees = async () => {
     setFetchingData(true);
     try {
-      const response = await api.getDataWithToken(`${getAllEmpoyesUrl}`);
+      const response = await api.getDataWithToken(
+        `${getAllEmpoyesUrl}/sales_manager/get`
+      );
       setEmployeesList(response.data);
+      setAllEmployeesList(response.data);
+      const employeeNames = response.data.map((item) => item.name);
+      setEmployessList(employeeNames);
     } catch (error) {
-      console.error("Error fetching Employees:", error);
+      console.error("Error fetching employees:", error);
     } finally {
       setFetchingData(false);
     }
   };
 
-  const handleEmployeedChange = (name, index) => {
-    const idAtIndex = AllEmployeesList[index].id;
-    setSelectedEmployeedId(idAtIndex);
-  };
-
-  const addBrand = async () => {
-    if (sendingData || brandName === "") return;
-
-    setSendingData(true);
-    try {
-      const obj = { name: brandName };
-      const response = await api.postFormDataWithToken(`${brand}/create`, obj);
-      if (response.status === "success") {
-        alert("Brand has been added");
-        setBrandName("");
-        await getAllBrands();
-      } else {
-        alert("Could not add the brand, please try again");
-      }
-    } catch (error) {
-      console.error("Error adding brand:", error);
-      alert("An error occurred while adding the brand");
-    } finally {
-      setSendingData(false);
+  const handleEmployeeChange = (name, index) => {
+    if (allEmployeesList[index] && allEmployeesList[index].id) {
+      const idAtIndex = allEmployeesList[index].id;
+      setSelectedEmployeeId(idAtIndex);
+    } else {
+      console.error("Invalid employee selection");
+      setSelectedEmployeeId("");
     }
   };
 
-  const updateBrand = async (id, newName) => {
-    if (sendingData || newName === "") return;
+  const assignStock = async () => {
+    if (sendingData || quantity === "" || selectedEmployeeId === "") return;
 
     setSendingData(true);
     try {
-      const obj = { name: newName };
-      const response = await api.updateFormDataWithToken(`${brand}/${id}`, obj);
+      const obj = {
+        product_id: id,
+        sales_manager_id: selectedEmployeeId,
+        quantity: quantity,
+      };
+      const response = await api.postFormDataWithToken(
+        `${addStock}/stock/assign`,
+        obj
+      );
       if (response.status === "success") {
-        alert("Brand has been updated");
-        setEditingBrandId(null);
-        setBrandName("");
+        alert("Stock has been assigned");
+        setQuantity("");
+        setSelectedEmployeeId("");
         await getAllBrands();
       } else {
-        alert("Could not update the brand, please try again");
+        alert("Could not assign the stock, please try again");
       }
     } catch (error) {
-      console.error("Error updating brand:", error);
-      alert("An error occurred while updating the brand");
+      console.error("Error assigning stock:", error);
+      alert("An error occurred while assigning the stock");
     } finally {
       setSendingData(false);
     }
-  };
-
-  const startEditing = (id, currentName) => {
-    setEditingBrandId(id);
-    setBrandName(currentName);
-  };
-
-  const cancelEditing = () => {
-    setEditingBrandId(null);
-    setBrandName("");
   };
 
   return {
     fetchingData,
     brandsList,
     employeesList,
-    brandName,
-    setBrandName,
+    quantity,
+    employees,
+    setQuantity,
     sendingData,
-    addBrand,
-    updateBrand,
-    editingBrandId,
-    startEditing,
-    cancelEditing,
-    setSelectedEmployeedId,
-    handleEmployeedChange,
+    assignStock,
+    setSelectedEmployeeId,
+    handleEmployeeChange,
   };
 };
+
+export default useAssignStockHook;

@@ -132,26 +132,26 @@ const Inventory = () => {
                   <TableCell>
                     <strong> Product Name:</strong>
                   </TableCell>
-                  <TableCell>{employeeList.product_name}</TableCell>
+                  <TableCell>{employeeList?.product_name}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>
                     <strong>Batch Number:</strong>
                   </TableCell>
-                  <TableCell>{employeeList.batch_number}</TableCell>
+                  <TableCell>{employeeList?.batch_number}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>
                     <strong>Manufacture Date:</strong>
                   </TableCell>
-                  <TableCell>{employeeList.mfg_date}</TableCell>
+                  <TableCell>{employeeList?.mfg_date}</TableCell>
                 </TableRow>
 
                 <TableRow>
                   <TableCell>
                     <strong>Unit:</strong>
                   </TableCell>
-                  <TableCell>{employeeList.unit}</TableCell>
+                  <TableCell>{employeeList?.unit}</TableCell>
                 </TableRow>
               </TableBody>
             </Table>

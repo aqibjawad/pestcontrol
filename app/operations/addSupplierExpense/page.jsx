@@ -17,7 +17,6 @@ import { AppAlerts } from "../../../Helper/AppAlerts";
 import { useRouter } from "next/navigation";
 
 const Page = () => {
-
   const api = new APICall();
   const alerts = new AppAlerts();
   const router = useRouter();
@@ -27,11 +26,10 @@ const Page = () => {
   const [vat, setVat] = useState();
   const [total, setTotal] = useState();
   const [description, setDesc] = useState();
-  const [expense_file, setExpenseFile] = useState();
 
   const [amount, setAmount] = useState();
 
-  const [cheque_amount, setChequeAmount] = useState();
+  const [cheque_no, setChequeNumber] = useState();
   const [cheque_date, setChequeDate] = useState();
   const [transection_id, setTransactionId] = useState();
 
@@ -45,10 +43,9 @@ const Page = () => {
   // All Banks States
   const [allBanksList, setAllBankList] = useState([]);
   const [allBankNameList, setBankNameList] = useState([]);
+
   const [selectedBankId, setSelectedBankId] = useState("");
-
-  const [sendingData, setSendingData] = useState(false);
-
+  
   const [loading, setLoading] = useState(true);
 
   const [loadingSubmit, setLoadingSubmit] = useState(false);
@@ -95,17 +92,13 @@ const Page = () => {
     }
   };
 
-  const handleFileSelect = (file) => {
-    setExpenseFile(file);
-  };
-
   const handleExpenseChange = (name, index) => {
     const idAtIndex = allSupplierList[index].id;
     setSelectedSupplierId(idAtIndex);
   };
 
   const handleBankChange = (name, index) => {
-    const idAtIndex = allBankNameList[index].id;
+    const idAtIndex = allBanksList[index].id;
     setSelectedBankId(idAtIndex);
   };
 
@@ -115,7 +108,6 @@ const Page = () => {
       vat,
       total,
       description,
-      expense_file,
       payment_type: activeTab,
     };
 
@@ -129,7 +121,8 @@ const Page = () => {
       expenseObj = {
         ...expenseObj,
         bank_id: selectedBankId,
-        cheque_amount,
+        amount,
+        cheque_no,
         cheque_date,
       };
     } else if (activeTab === "online") {
@@ -156,7 +149,7 @@ const Page = () => {
 
       if (response.status === "success") {
         alerts.successAlert("Expense has been updated");
-        router.push("/account/supplier_ledger/")
+        router.push(`/account/supplier_ledger/?id=${selectedSupplierId}`);
       } else {
         alerts.errorAlert(response.error.message);
       }
@@ -237,7 +230,7 @@ const Page = () => {
             <div className="mt-5">
               <InputWithTitle
                 title={"Cheque Date"}
-                type={"text"}
+                type={"date"}
                 placeholder={"Cheque Date"}
                 onChange={setChequeDate}
               />
@@ -247,7 +240,16 @@ const Page = () => {
                 title={"Cheque Amount"}
                 type={"text"}
                 placeholder={"Cheque Amount"}
-                onChange={setChequeAmount}
+                onChange={setAmount}
+              />
+            </div>
+
+            <div className="mt-5">
+              <InputWithTitle
+                title={"Cheque Number"}
+                type={"text"}
+                placeholder={"Cheque Number"}
+                onChange={setChequeNumber}
               />
             </div>
 

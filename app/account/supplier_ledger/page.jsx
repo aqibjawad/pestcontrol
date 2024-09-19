@@ -48,7 +48,9 @@ const Page = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const response = await api.getDataWithToken(`${getAllSuppliers}/${id}`);
+      const response = await api.getDataWithToken(
+        `${getAllSuppliers}/ledger/get/${id}`
+      );
 
       const data = response.data;
 
@@ -99,21 +101,19 @@ const Page = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Date</TableCell>
-              <TableCell> HSN </TableCell>
-              <TableCell> VAT </TableCell>
-              <TableCell> Naam / Jama </TableCell>
-              <TableCell>Balance</TableCell>
+              <TableCell> Credit </TableCell>
+              <TableCell> Debit </TableCell>
+              <TableCell> Balance </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            <TableRow>
-              <TableCell>{formatDate(rowData.created_at)}</TableCell>
-              <TableCell>{rowData.hsn}</TableCell>
-              <TableCell>{rowData.vat}</TableCell>
-              <TableCell>{rowData.balance < 0 ? "Naam" : "Jama"}</TableCell>
-              <TableCell>{rowData.opening_balance}</TableCell>
-            </TableRow>
+            {rowData.map((row, index) => (
+              <TableRow key={index}>
+                <TableCell>{row.cr_amt}</TableCell>
+                <TableCell>{row.dr_amt}</TableCell>
+                <TableCell>{row.cash_balance}</TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </TableContainer>

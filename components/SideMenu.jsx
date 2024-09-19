@@ -69,7 +69,7 @@ export default function SideMenu({ children }) {
   const [permissions, setPermissions] = useState([
     {
       name: "Home",
-      url: "superadmin-home",
+      url: "superadmin/dashboard",
       icon: "/home.png",
     },
     {

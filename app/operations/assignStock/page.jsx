@@ -1,6 +1,7 @@
 "use client";
-import React from "react";
-import { useBrands } from "./useAssignStockHook"; // Adjust the import path as needed
+
+import React, { useState } from "react";
+import { useAssignStockHook } from "./useAssignStockHook";
 import Loading from "../../../components/generic/Loading";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import GreenButton from "@/components/generic/GreenButton";
@@ -13,26 +14,24 @@ import {
   TableHead,
   TableRow,
   Paper,
+  CircularProgress,
 } from "@mui/material";
-
-
 
 const Page = () => {
   const {
     fetchingData,
+    employees,
     brandsList,
     employeesList,
-    brandName,
-    setBrandName,
+    quantity,
+    setQuantity,
     sendingData,
-    addBrand,
-    updateBrand,
-    editingBrandId,
-    startEditing,
-    cancelEditing,
-    setSelectedEmployeedId,
-    handleEmployeedChange,
-  } = useBrands();
+    assignStock,
+    setSelectedEmployeeId,
+    handleEmployeeChange,
+  } = useAssignStockHook();
+
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
 
   const viewList = () => (
     <TableContainer component={Paper}>
@@ -46,7 +45,12 @@ const Page = () => {
         <TableBody>
           <TableRow sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
             <TableCell component="th" scope="row">
-              <img src={brandsList?.product_picture} width="50" height="200" />
+              <img
+                src={brandsList?.product_picture}
+                width="50"
+                height="200"
+                alt="Product"
+              />
             </TableCell>
             <TableCell component="th" scope="row">
               <div>{brandsList?.product_name}</div>
@@ -57,42 +61,48 @@ const Page = () => {
     </TableContainer>
   );
 
+  const handleSave = async () => {
+    setLoadingSubmit(true);
+    try {
+      await assignStock();
+    } catch (error) {
+      console.error("Error assigning stock:", error);
+    } finally {
+      setLoadingSubmit(false);
+    }
+  };
+
   return (
     <div>
-      <div className="pageTitle"> Assign Stock </div>
+      <div className="pageTitle">Assign Stock</div>
       <div className="mt-10"></div>
       {fetchingData ? (
         <Loading />
       ) : (
         <div className="grid grid-cols-2 gap-4">
-          <div className="">{viewList()}</div>
-          <div className=" ">
+          <div>{viewList()}</div>
+          <div>
             <div className="pageTitle">Assign Stock</div>
 
             <div className="mt-5">
               <Dropdown
-                onChange={handleEmployeedChange}
-                options={employeesList}
-                title={"Select Employee"}
+                onChange={handleEmployeeChange}
+                options={employees}
+                title="Select Employee"
               />
             </div>
-
-            {/* <div className="mt-5">
-              <Dropdown options={employeesList} title={"Select Product"} />
-            </div> */}
 
             <div className="mt-5">
               <InputWithTitle
-                title={"Enter Quantity"}
-                placeholder={"Enter Quantity"}
-                value={brandName}
-                onChange={(value) => setBrandName(value)}
+                title="Enter Quantity"
+                placeholder="Enter Quantity"
+                value={quantity}
+                onChange={(value) => setQuantity(value)}
               />
             </div>
-            <div className="mt-10"></div>
             <div className="mt-20">
               <GreenButton
-                onClick={addBrand}
+                onClick={handleSave}
                 title={loadingSubmit ? "Saving..." : "Save"}
                 disabled={loadingSubmit}
                 startIcon={
@@ -102,12 +112,6 @@ const Page = () => {
                 }
               />
             </div>
-
-            {/* <GreenButton
-              sendingData={sendingData}
-              onClick={addBrand}
-              title={"Add Brand"}
-            /> */}
           </div>
         </div>
       )}

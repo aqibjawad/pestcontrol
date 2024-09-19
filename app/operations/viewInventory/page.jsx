@@ -53,6 +53,12 @@ const Page = () => {
                 Batch Number
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Total
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Remaining
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Actions
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
@@ -80,6 +86,16 @@ const Page = () => {
                   <td className="py-2 px-4">
                     <div className={tableStyles.clientContact}>
                       {row.batch_number}
+                    </div>
+                  </td>
+                  <td className="py-2 px-4">
+                    <div className={tableStyles.clientContact}>
+                      {row?.stocks?.total_qty}
+                    </div>
+                  </td>
+                  <td className="py-2 px-4">
+                    <div className={tableStyles.clientContact}>
+                      {row.stock?.remaining_qty}
                     </div>
                   </td>
                   <td className="py-2 px-4">

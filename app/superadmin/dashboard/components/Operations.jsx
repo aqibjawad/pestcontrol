@@ -1,7 +1,33 @@
-import React from "react";
+"use client";
+
+import React, {useState, useEffect} from "react";
 import styles from "../../../../styles/superAdmin/opreationStyles.module.css";
 import DateFilters from "../../../../components/generic/DateFilters";
+
+import APICall from "@/networkUtil/APICall";
+import { admin } from "@/networkUtil/Constants";
+
 const Operations = () => {
+  const api = new APICall();
+  const [fetchingData, setFetchingData] = useState(false);
+  const [expenseList, setExpenseList] = useState([]);
+
+  useEffect(() => {
+    getAllExpenses();
+  }, []);
+
+  const getAllExpenses = async () => {
+    setFetchingData(true);
+    try {
+      const response = await api.getDataWithToken(`${admin}`);
+      setExpenseList(response.data);
+    } catch (error) {
+      console.error("Error fetching vehicles:", error);
+    } finally {
+      setFetchingData(false);
+    }
+  };
+
   const totalExpenses = () => {
     return (
       <div className={styles.itemContainer}>
