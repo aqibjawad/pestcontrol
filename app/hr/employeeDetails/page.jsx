@@ -49,7 +49,7 @@ const Page = () => {
         <div className={styles.personalName}> {employeeList.name} </div>
 
         <div className={styles.personalContainer}>
-          <div className={styles.personalHead}>Personal Image</div>
+          <div className={styles.personalHead}>Personal Information</div>
 
           <div className={styles.tableContainer}>
             <table className={styles.table}>
@@ -216,6 +216,41 @@ const Page = () => {
                   <td> {employeeList?.employee?.basic_salary} </td>
                   <td> {employeeList?.employee?.allowance} </td>
                   <td> {employeeList?.employee?.total_salary} </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div className={styles.personalDetailsContainer}>
+        <div className={styles.personalContainer}>
+          <div className={styles.personalHead}>
+            {employeeList?.stocks?.[0]?.product?.product_name}{" "}
+            {/* Display the product name */}
+          </div>
+
+          <div className={styles.tableContainer}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Total Quantity</th> {/* New column for total quantity */}
+                  <th>Remaining Quantity</th>
+                  {/* New column for remaining quantity */}
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    {employeeList.stocks?.map((stock) => (
+                      <div key={stock.id}>{stock.total_qty}</div>
+                    ))}
+                  </td>
+                  <td>
+                    {employeeList.stocks?.map((stock) => (
+                      <div key={stock.id}>{stock.remaining_qty}</div>
+                    ))}
+                  </td>
                 </tr>
               </tbody>
             </table>
