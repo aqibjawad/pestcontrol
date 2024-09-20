@@ -29,6 +29,9 @@ const Page = () => {
 
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
+  const supplierName = searchParams.get("supplier_name");
+  const companyName = searchParams.get("company_name");
+  const number = searchParams.get("number");
 
   const [tableData, setTableData] = useState([]);
   const [rowData, setRowData] = useState([]);
@@ -85,7 +88,7 @@ const Page = () => {
   return (
     <div>
       <div className={styles.container}>
-        <div className={styles.leftSection}>{rowData?.supplier_name}</div>
+        <div className={styles.leftSection}>{supplierName}</div>
         <Button
           className={styles.hideOnPrint}
           variant="contained"
@@ -95,7 +98,8 @@ const Page = () => {
           PDF Generate
         </Button>
       </div>
-      <div className={styles.leftContact}>{rowData?.number}</div>
+      <div className={styles.leftSection1}>{companyName}</div>
+      <div className={styles.leftSection1}>{number}</div>
 
       <TableContainer component={Paper} ref={tableRef}>
         <Table>

@@ -84,7 +84,13 @@ const listTable = (data) => {
               <td className="py-2 px-4">{row.hsn}</td>
               <td className="py-2 px-4">{row.zip}</td>
               <td className="py-2 px-4">
-                <Link href={`/account/supplier_ledger?id=${row.id}`}>
+                <Link
+                  href={`/account/supplier_ledger?id=${
+                    row.id
+                  }&supplier_name=${encodeURIComponent(
+                    row.supplier_name
+                  )}&company_name=${encodeURIComponent(row.company_name)}&number=${encodeURIComponent(row.number)}`}
+                >
                   <span className="text-blue-600 hover:text-blue-800">
                     View Details
                   </span>

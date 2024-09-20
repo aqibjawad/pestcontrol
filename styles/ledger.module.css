@@ -59,8 +59,17 @@
   font-family: "regular";
   font-size: 24px;
   font-weight: 600;
-  line-height: 36px;
 }
+
+.leftSection1 {
+  font-family: "regular";
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 36px;
+  padding-left: 20px;
+
+}
+
 
 .leftContact {
   font-family: "regular";
@@ -74,6 +83,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  
 }
 
 .rightItem {
