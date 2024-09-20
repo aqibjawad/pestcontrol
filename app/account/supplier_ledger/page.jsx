@@ -16,13 +16,13 @@ import {
   Typography,
   Button,
 } from "@mui/material";
-
 import "jspdf-autotable";
 
 import { getAllSuppliers } from "../../../networkUtil/Constants";
 import { useSearchParams } from "next/navigation";
 
 import APICall from "../../../networkUtil/APICall";
+import { format } from "date-fns";
 
 const Page = () => {
   const api = new APICall();
@@ -73,7 +73,7 @@ const Page = () => {
   };
 
   const handlePrint = () => {
-    // window.print();
+    window.print();
     // router.push("/supplier_invoice");
   };
 
@@ -101,19 +101,45 @@ const Page = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell> Credit </TableCell>
-              <TableCell> Debit </TableCell>
-              <TableCell> Balance </TableCell>
+              <TableCell>Date</TableCell>
+              <TableCell>Description</TableCell>
+              <TableCell>Credit</TableCell>
+              <TableCell>Debit</TableCell>
+              <TableCell>Balance</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {rowData.map((row, index) => (
-              <TableRow key={index}>
-                <TableCell>{row.cr_amt}</TableCell>
-                <TableCell>{row.dr_amt}</TableCell>
-                <TableCell>{row.cash_balance}</TableCell>
-              </TableRow>
-            ))}
+            {loading
+              ? Array.from(new Array(5)).map((_, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <Skeleton variant="text" width={100} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="text" width={200} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="text" width={100} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="text" width={100} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="text" width={100} />
+                    </TableCell>
+                  </TableRow>
+                ))
+              : rowData.map((row, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      {format(new Date(row.updated_at), "yyyy-MM-dd")}
+                    </TableCell>
+                    <TableCell>{row.description}</TableCell>
+                    <TableCell>{row.cr_amt}</TableCell>
+                    <TableCell>{row.dr_amt}</TableCell>
+                    <TableCell>{row.cash_balance}</TableCell>
+                  </TableRow>
+                ))}
           </TableBody>
         </Table>
       </TableContainer>

@@ -1,13 +1,24 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { services } from "../../../networkUtil/Constants";
+import APICall from "../../../networkUtil/APICall";
 
 const ServiceAgreement = () => {
-  const [agreements, setAgreements] = useState([
-    { id: 1, text: "Agreement 1", checked: false },
-    { id: 2, text: "Agreement 2", checked: false },
-    { id: 3, text: "Agreement 3", checked: false }
-  ]);
+  const api = new APICall();
+  const [service, setServices] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  const getAllServices = async () => {
+    setIsLoading(true);
+    const response = await api.getDataWithToken(services);
+    setServices(response.data);
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    getAllServices();
+  }, []);
 
   const handleCheckboxChange = (id) => {
     setAgreements((prevAgreements) =>
@@ -23,14 +34,17 @@ const ServiceAgreement = () => {
     <div>
       <h1 className="mt-5">Service Agreement</h1>
       <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
-        {agreements.map((agreement) => (
-          <div key={agreement.id} style={{ display: "flex", alignItems: "center" }}>
+        {service.map((agreement) => (
+          <div
+            key={agreement.id}
+            style={{ display: "flex", alignItems: "center" }}
+          >
             <input
               type="checkbox"
               checked={agreement.checked}
               onChange={() => handleCheckboxChange(agreement.id)}
             />
-            <label style={{ marginLeft: "0.5rem" }}>{agreement.text}</label>
+            <label style={{ marginLeft: "0.5rem" }}>{agreement.pest_name}</label>
           </div>
         ))}
       </div>

@@ -9,6 +9,7 @@ import Link from "next/link";
 import APICall from "@/networkUtil/APICall";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { Skeleton } from "@mui/material"; // Import Skeleton
 
 // Generate PDF function
 const generatePDF = async () => {
@@ -99,6 +100,8 @@ const listTable = (data) => {
 
 const ViewSuppliers = () => {
   const api = new APICall();
+  const [fetchingData, setFetchingData] = useState(false);
+  const [supplierList, setSupplierList] = useState([]);
 
   useEffect(() => {
     getAllSuppliere();
@@ -115,9 +118,6 @@ const ViewSuppliers = () => {
       setFetchingData(false);
     }
   };
-
-  const [fetchingData, setFetchingData] = useState(false);
-  const [supplierList, setSupplierList] = useState([]);
 
   return (
     <div>
@@ -182,7 +182,6 @@ const ViewSuppliers = () => {
                 justifyContent: "center",
                 alignItems: "center",
                 marginLeft: "1rem",
-                padding: "12px, 16px, 12px, 16px",
                 borderRadius: "10px",
                 cursor: "pointer",
               }}
@@ -197,7 +196,6 @@ const ViewSuppliers = () => {
                 fontWeight: "600",
                 fontSize: "16px",
                 marginLeft: "auto",
-                marginRight: "auto",
                 height: "44px",
                 width: "60px",
                 display: "flex",
@@ -210,34 +208,24 @@ const ViewSuppliers = () => {
             >
               <Link href="/account/addSuppliers">Add</Link>
             </div>
-            {/* <button
-              onClick={generatePDF}
-              style={{
-                marginTop: "2rem",
-                backgroundColor: "#32A92E",
-                color: "white",
-                fontWeight: "600",
-                fontSize: "16px",
-                height: "44px",
-                width: "120px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                marginLeft: "1rem",
-                cursor: "pointer",
-                borderRadius: "10px",
-                border: "none",
-              }}
-            >
-              Download PDF
-            </button> */}
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-12 gap-4">
         <div className="col-span-12">
-          {fetchingData ? <div>Loading...</div> : listTable(supplierList)}
+          {fetchingData ? (
+            <div>
+              {/* Display Skeletons for loading state */}
+              <Skeleton variant="rectangular" width="100%" height={50} />
+              <Skeleton variant="rectangular" width="100%" height={50} />
+              <Skeleton variant="rectangular" width="100%" height={50} />
+              <Skeleton variant="rectangular" width="100%" height={50} />
+              <Skeleton variant="rectangular" width="100%" height={50} />
+            </div>
+          ) : (
+            listTable(supplierList)
+          )}
         </div>
       </div>
     </div>
