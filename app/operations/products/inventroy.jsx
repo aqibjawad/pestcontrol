@@ -12,9 +12,9 @@ import {
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
   Paper,
+  Skeleton,
 } from "@mui/material";
 
 const Inventory = () => {
@@ -24,7 +24,7 @@ const Inventory = () => {
   const id = searchParams.get("id");
 
   const [fetchingData, setFetchingData] = useState(false);
-  const [employeeList, setEmployeeList] = useState([]);
+  const [employeeList, setEmployeeList] = useState(null);
 
   useEffect(() => {
     getAllEmployees();
@@ -79,36 +79,51 @@ const Inventory = () => {
             </tr>
           </thead>
           <tbody>
-            {rows.map((row, index) => (
-              <tr key={index} className="border-b border-gray-200">
-                <td className="py-5 px-4">{row.clientName}</td>
-                <td className="py-2 px-4">
-                  <div className={tableStyles.clientContact}>
-                    {row.clientContact}
-                  </div>
-                </td>
-                <td className="py-2 px-4">
-                  <div className={tableStyles.clientContact}>
-                    {row.clientContact}
-                  </div>
-                </td>
-                <td className="py-2 px-4">
-                  <div className={tableStyles.clientContact}>
-                    {row.clientContact}
-                  </div>
-                </td>
-                <td className="py-2 px-4">
-                  <div className={tableStyles.clientContact}>
-                    {row.clientContact}
-                  </div>
-                </td>
-                <td className="py-2 px-4">
-                  <div className={tableStyles.clientContact}>
-                    {row.clientContact}
-                  </div>
-                </td>
-              </tr>
-            ))}
+            {fetchingData
+              ? Array.from({ length: 5 }).map((_, index) => (
+                  <tr key={index} className="border-b border-gray-200">
+                    <td className="py-5 px-4">
+                      <Skeleton width="100%" height={30} />
+                    </td>
+                    <td className="py-2 px-4">
+                      <Skeleton width="100%" height={30} />
+                    </td>
+                    <td className="py-2 px-4">
+                      <Skeleton width="100%" height={30} />
+                    </td>
+                    <td className="py-2 px-4">
+                      <Skeleton width="100%" height={30} />
+                    </td>
+                    <td className="py-2 px-4">
+                      <Skeleton width="100%" height={30} />
+                    </td>
+                  </tr>
+                ))
+              : rows.map((row, index) => (
+                  <tr key={index} className="border-b border-gray-200">
+                    <td className="py-5 px-4">{row.clientName}</td>
+                    <td className="py-2 px-4">
+                      <div className={tableStyles.clientContact}>
+                        {row.clientContact}
+                      </div>
+                    </td>
+                    <td className="py-2 px-4">
+                      <div className={tableStyles.clientContact}>
+                        {row.clientContact}
+                      </div>
+                    </td>
+                    <td className="py-2 px-4">
+                      <div className={tableStyles.clientContact}>
+                        {row.clientContact}
+                      </div>
+                    </td>
+                    <td className="py-2 px-4">
+                      <div className={tableStyles.clientContact}>
+                        {row.clientContact}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
           </tbody>
         </table>
       </div>
@@ -119,40 +134,63 @@ const Inventory = () => {
     <div>
       <div className="grid grid-cols-12 gap-4">
         <div className="col-span-6">
-          <img
-            src={employeeList?.product_picture}
-            style={{ width: "269px", height: "493px", left: "315px" }}
-          />
+          {fetchingData ? (
+            <Skeleton
+              variant="rectangular"
+              width={269}
+              height={493}
+              sx={{ borderRadius: "8px" }}
+            />
+          ) : (
+            <img
+              src={employeeList?.product_picture}
+              style={{ width: "269px", height: "493px", left: "315px" }}
+            />
+          )}
         </div>
         <div className="col-span-6">
           <TableContainer sx={{ mt: 2 }}>
             <Table>
               <TableBody>
-                <TableRow>
-                  <TableCell>
-                    <strong> Product Name:</strong>
-                  </TableCell>
-                  <TableCell>{employeeList?.product_name}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>
-                    <strong>Batch Number:</strong>
-                  </TableCell>
-                  <TableCell>{employeeList?.batch_number}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>
-                    <strong>Manufacture Date:</strong>
-                  </TableCell>
-                  <TableCell>{employeeList?.mfg_date}</TableCell>
-                </TableRow>
-
-                <TableRow>
-                  <TableCell>
-                    <strong>Unit:</strong>
-                  </TableCell>
-                  <TableCell>{employeeList?.unit}</TableCell>
-                </TableRow>
+                {fetchingData ? (
+                  Array.from({ length: 4 }).map((_, index) => (
+                    <TableRow key={index}>
+                      <TableCell>
+                        <Skeleton width="100%" height={30} />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton width="100%" height={30} />
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <>
+                    <TableRow>
+                      <TableCell>
+                        <strong> Product Name:</strong>
+                      </TableCell>
+                      <TableCell>{employeeList?.product_name}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>
+                        <strong>Batch Number:</strong>
+                      </TableCell>
+                      <TableCell>{employeeList?.batch_number}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>
+                        <strong>Manufacture Date:</strong>
+                      </TableCell>
+                      <TableCell>{employeeList?.mfg_date}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>
+                        <strong>Unit:</strong>
+                      </TableCell>
+                      <TableCell>{employeeList?.unit}</TableCell>
+                    </TableRow>
+                  </>
+                )}
               </TableBody>
             </Table>
           </TableContainer>

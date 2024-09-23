@@ -13,3 +13,8 @@
   text-align: center;
   color: white
 }
+
+.border{
+  border-top: 1px solid black;
+  margin-top: 1rem;
+}

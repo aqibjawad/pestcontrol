@@ -5,67 +5,113 @@ import { Grid } from "@mui/material";
 
 const Page = () => {
   return (
-    <Grid container spacing={2}>
-      <Grid item xs={12} sm={6} md={4} lg={3}>
-        <div className={styles.addProd}>
-          <Link href="/account/addProduct">Add Product</Link>
-        </div>
-      </Grid>
-      <Grid item xs={12} sm={6} md={4} lg={3}>
-        <div className={styles.addProd}>
-          <Link href="/setting/serviceAgreements">Add Services</Link>
-        </div>
-      </Grid>
-      <Grid item xs={12} sm={6} md={4} lg={3}>
-        <div className={styles.addProd}>
-          <Link href="/account/addSuppliers">Add Supplier</Link>
-        </div>
+    <>
+      <Grid container spacing={2}>
+        <Grid item xs={12} sm={6} md={4} lg={3}>
+          <div className={styles.addProd}>
+            <Link href="/account/addProduct">Add Product</Link>
+          </div>
+        </Grid>
+        <Grid item xs={12} sm={6} md={4} lg={3}>
+          <div className={styles.addProd}>
+            <Link href="/setting/serviceAgreements">Add Services</Link>
+          </div>
+        </Grid>
+        <Grid item xs={12} sm={6} md={4} lg={3}>
+          <div className={styles.addProd}>
+            <Link href="/account/addSuppliers">Add Supplier</Link>
+          </div>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={4} lg={3}>
+          <div className={styles.addProd}>
+            <Link href="/operations/addSupplierExpense">
+              Add Supplier Expense
+            </Link>
+          </div>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={4} lg={3}>
+          <div className={styles.addProd}>
+            <Link href="/addVendor">Add Vendors</Link>
+          </div>
+        </Grid>
+        <Grid item xs={12} sm={6} md={4} lg={3}>
+          <div className={styles.addProd}>
+            <Link href="/operations/vehciles">Add Vehicles</Link>
+          </div>
+        </Grid>
+        <Grid item xs={12} sm={6} md={4} lg={3}>
+          <div className={styles.addProd}>
+            <Link href="/operations/banks">Add Banks</Link>
+          </div>
+        </Grid>
+        <Grid item xs={12} sm={6} md={4} lg={3}>
+          <div className={styles.addProd}>
+            <Link href="/operations/expense_category">
+              Add Expense Category
+            </Link>
+          </div>
+        </Grid>
+        <Grid item xs={12} sm={6} md={4} lg={3}>
+          <div className={styles.addProd}>
+            <Link href="/operations/addExpense">Add Expense</Link>
+          </div>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={4} lg={3}>
+          <div className={styles.addProd}>
+            <Link href="/account/addVehiclesExpense">Add Vehicle Expense</Link>
+          </div>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={4} lg={3}>
+          <div className={styles.addProd}>
+            <Link href="/account/addPurchase">Add Purchase Order</Link>
+          </div>
+        </Grid>
       </Grid>
 
-      <Grid item xs={12} sm={6} md={4} lg={3}>
-        <div className={styles.addProd}>
-          <Link href="/operations/addSupplierExpense">Add Supplier Expense</Link>
-        </div>
-      </Grid>
+      <div className={styles.border}></div>
 
-      <Grid item xs={12} sm={6} md={4} lg={3}>
-        <div className={styles.addProd}>
-          <Link href="/addVendor">Add Vendors</Link>
-        </div>
-      </Grid>
-      <Grid item xs={12} sm={6} md={4} lg={3}>
-        <div className={styles.addProd}>
-          <Link href="/operations/vehciles">Add Vehicles</Link>
-        </div>
-      </Grid>
-      <Grid item xs={12} sm={6} md={4} lg={3}>
-        <div className={styles.addProd}>
-          <Link href="/operations/banks">Add Banks</Link>
-        </div>
-      </Grid>
-      <Grid item xs={12} sm={6} md={4} lg={3}>
-        <div className={styles.addProd}>
-          <Link href="/operations/expense_category">Add Expense Category</Link>
-        </div>
-      </Grid>
-      <Grid item xs={12} sm={6} md={4} lg={3}>
-        <div className={styles.addProd}>
-          <Link href="/operations/addExpense">Add Expense</Link>
-        </div>
-      </Grid>
+      <Grid container spacing={2}>
+        <Grid className="mt-5" item xs={12} sm={6} md={4} lg={3}>
+          <div className={styles.addProd}>
+            <Link href="/account/purchaseOrders">View Purchase Order</Link>
+          </div>
+        </Grid>
 
-      <Grid item xs={12} sm={6} md={4} lg={3}>
-        <div className={styles.addProd}>
-          <Link href="/operations/addExpense">Add Vehicle Expense</Link>
-        </div>
-      </Grid>
+        <Grid className="mt-5" item xs={12} sm={6} md={4} lg={3}>
+          <div className={styles.addProd}>
+            <Link href="/operations/viewInventory">View Inventory</Link>
+          </div>
+        </Grid>
 
-      <Grid item xs={12} sm={6} md={4} lg={3}>
-        <div className={styles.addProd}>
-          <Link href="/account/addPurchase">Add Purchase Order</Link>
-        </div>
+        <Grid className="mt-5" item xs={12} sm={6} md={4} lg={3}>
+          <div className={styles.addProd}>
+            <Link href="/account/viewSuppliers">View Suppliers</Link>
+          </div>
+        </Grid>
+
+        <Grid className="mt-5" item xs={12} sm={6} md={4} lg={3}>
+          <div className={styles.addProd}>
+            <Link href="/allVendors">View Vendors</Link>
+          </div>
+        </Grid>
+
+        <Grid className="mt-5" item xs={12} sm={6} md={4} lg={3}>
+          <div className={styles.addProd}>
+            <Link href="/operations/viewAllExpenses">View Expense</Link>
+          </div>
+        </Grid>
+
+        <Grid className="mt-5" item xs={12} sm={6} md={4} lg={3}>
+          <div className={styles.addProd}>
+            <Link href="/account/viewVehicles">View Vehicle Expense</Link>
+          </div>
+        </Grid>
       </Grid>
-    </Grid>
+    </>
   );
 };
 
