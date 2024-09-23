@@ -70,6 +70,18 @@ const Page = () => {
             <Link href="/account/addPurchase">Add Purchase Order</Link>
           </div>
         </Grid>
+
+        <Grid item xs={12} sm={6} md={4} lg={3}>
+          <div className={styles.addProd}>
+            <Link href="/quotation">Add Quotation</Link>
+          </div>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={4} lg={3}>
+          <div className={styles.addProd}>
+            <Link href="/operations/treatment_method">Add Treatment Method</Link>
+          </div>
+        </Grid>
       </Grid>
 
       <div className={styles.border}></div>

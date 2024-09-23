@@ -32,6 +32,8 @@ export const expense_category = apiPrefix + "/expense_category";
 
 export const vehicleExpense = apiPrefix + "/vehicle_expense"
 
+export const treatmentMethod = apiPrefix + "/treatment_method"
+
 
 // vehicles Apis here
 export const expense = apiPrefix + "/expense";
