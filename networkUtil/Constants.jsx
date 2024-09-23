@@ -27,12 +27,15 @@ export const vehciles = apiPrefix + "/vehicle";
 // vehicles Apis here
 export const bank = apiPrefix + "/bank";
 
+export const clients = apiPrefix + "/client";
+
+
 // vehicles Apis here
 export const expense_category = apiPrefix + "/expense_category";
 
 export const vehicleExpense = apiPrefix + "/vehicle_expense"
 
-export const treatmentMethod = apiPrefix + "/treatment_method"
+export const treatmentMethod = apiPrefix + "/treatment_method" 
 
 
 // vehicles Apis here

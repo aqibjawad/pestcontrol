@@ -1,11 +1,41 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "../../../styles/loginStyles.module.css";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import Dropdown from "@/components/generic/Dropdown";
 
+import { clients } from "../../../networkUtil/Constants";
+import APICall from "../../../networkUtil/APICall";
+
 const FirstSection = () => {
+  
+  const api = new APICall();
+
+  const [client, setClients] = useState([]);
+  console.log(clients);
+  
+
+  const [isLoading, setIsLoading] = useState(true);
+
+  const getAllClients = async () => {
+    setIsLoading(true);
+    try {
+      const response = await api.getDataWithToken(clients);
+      console.log(response);
+      
+      setClients(response.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getAllClients();
+  }, []);
+
   const [name, setName] = useState("");
   const [firmName, setFirmName] = useState("");
 

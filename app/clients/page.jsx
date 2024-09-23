@@ -57,6 +57,7 @@ const Page = () => {
     industry_name: "",
     referencable_id: "",
     referencable_type: "",
+    opening_balance: ""
   });
 
   const handleClickOpen = () => {
@@ -173,16 +174,18 @@ const Page = () => {
 
   const handleSubmit = async () => {
     setSendingData(true);
-    try {
       await api.postFormDataWithToken(`${clients}/create`, formData);
-      // Handle success (e.g., show a success message, close the dialog, etc.)
-      handleClose();
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      // Handle error
-    } finally {
-      setSendingData(false);
-    }
+      // handleClose();
+  
+    // try {
+    
+      
+    // } catch (error) {
+    //   console.error("Error submitting form:", error);
+    //   // Handle error
+    // } finally {
+    //   setSendingData(false);
+    // }
   };
 
   return (
@@ -360,13 +363,13 @@ const Page = () => {
             <Grid item container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <InputWithTitle
-                  label="Industry Name"
-                  name="industry_name"
-                  value={formData.industry_name}
+                  label="Opening Balance"
+                  name="opening_balance"
+                  value={formData.opening_balance}
                   onChange={handleInputChange}
                   variant="outlined"
                   fullWidth
-                  placeholder="Industry Name"
+                  placeholder="Opening Balance"
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -374,6 +377,20 @@ const Page = () => {
                   title="Select Option"
                   options={dropdownOptions.map((option) => option.name)}
                   onChange={handleDropdownChange}
+                />
+              </Grid>
+            </Grid>
+
+            <Grid item container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <InputWithTitle
+                  label="Industry Name"
+                  name="industry_name"
+                  value={formData.industry_name}
+                  onChange={handleInputChange}
+                  variant="outlined"
+                  fullWidth
+                  placeholder="Industry Name"
                 />
               </Grid>
             </Grid>

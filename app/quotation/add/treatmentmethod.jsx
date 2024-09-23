@@ -1,36 +1,57 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { treatmentMethod } from "../../../networkUtil/Constants";
+import APICall from "../../../networkUtil/APICall";
 
 const TreatmentMethod = () => {
-  const [agreements, setAgreements] = useState([
-    { id: 1, text: "Agreement 1", checked: false },
-    { id: 2, text: "Agreement 2", checked: false },
-    { id: 3, text: "Agreement 3", checked: false }
-  ]);
+  const api = new APICall();
+  const [mthods, setMethod] = useState([]);  
+  const [isLoading, setIsLoading] = useState(true);
+
+  const getAllMethods = async () => {
+    setIsLoading(true);
+    try {
+      const response = await api.getDataWithToken(treatmentMethod);
+      setMethod(response.data.map((item) => ({ ...item, checked: false }))); // Add checked property
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getAllMethods();
+  }, []);
 
   const handleCheckboxChange = (id) => {
-    setAgreements((prevAgreements) =>
-      prevAgreements.map((agreement) =>
-        agreement.id === id
-          ? { ...agreement, checked: !agreement.checked }
-          : agreement
+    setMethod((prevMethods) =>
+      prevMethods.map((method) =>
+        method.id === id ? { ...method, checked: !method.checked } : method
       )
     );
   };
 
+  if (isLoading) {
+    return <div>Loading...</div>; // Loading state
+  }
+
   return (
     <div>
-      <h1 className="mt-5"> Treatment Method </h1>
+      <h1 className="mt-5">Treatment Method</h1>
       <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
-        {agreements.map((agreement) => (
-          <div key={agreement.id} style={{ display: "flex", alignItems: "center" }}>
+        {mthods.map((method) => (
+          <div
+            key={method.id}
+            style={{ display: "flex", alignItems: "center" }}
+          >
             <input
               type="checkbox"
-              checked={agreement.checked}
-              onChange={() => handleCheckboxChange(agreement.id)}
+              checked={method.checked}
+              onChange={() => handleCheckboxChange(method.id)}
             />
-            <label style={{ marginLeft: "0.5rem" }}>{agreement.text}</label>
+            <label style={{ marginLeft: "0.5rem" }}>{method.name}</label>
           </div>
         ))}
       </div>

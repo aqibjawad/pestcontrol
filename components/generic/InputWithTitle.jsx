@@ -7,7 +7,7 @@ const InputWithTitle = ({ title, onChange, ...rest }) => {
       <div className={styles.title}>{title}</div>
       <div className={styles.inputContainer}>
         <input
-          onChange={(e) => onChange(e.target.value)} // Ensure onChange is called with the correct value
+          onChange={(e) => onChange(e)} // Pass the entire event object
           className={`w-full ${styles.inputField}`}
           {...rest}
         />
