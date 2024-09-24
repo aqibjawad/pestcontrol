@@ -32,7 +32,7 @@ const Page = () => {
   const handleSubmit = async () => {
     const payload = {
       manage_type: "create",
-      user_id: formData.user_id, // Replace with dynamic user ID if necessary
+      user_id: formData.user_id,
       quote_title: formData.quoteTitle,
       client_address_id: formData.clientAddressId,
       subject: formData.subject,
@@ -43,7 +43,7 @@ const Page = () => {
       duration_in_months: formData.durationInMonths,
       is_food_watch_account: formData.isFoodWatchAccount ? 1 : 0,
       billing_method: formData.billing_method,
-      services: formData.services, // Ensure this is structured as needed
+      services: formData.services, // Ensure this matches the expected format
     };
 
     try {

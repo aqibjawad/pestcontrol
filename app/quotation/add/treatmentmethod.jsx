@@ -15,11 +15,7 @@ const TreatmentMethod = ({ setFormData }) => {
   const getAllServices = async () => {
     setIsLoading(true);
     const response = await api.getDataWithToken(treatmentMethods);
-    const agreementsWithChecked = response.data.map((agreement) => ({
-      ...agreement,
-      checked: false,
-    }));
-    setServices(agreementsWithChecked);
+    setServices(response.data);
     setIsLoading(false);
   };
 
@@ -86,11 +82,6 @@ const TreatmentMethod = ({ setFormData }) => {
             </label>
           </div>
         ))}
-      </div>
-      <div className="mt-10 mb-10">
-        <JobsList
-          checkedServices={myServices.filter((service) => service.isChecked)}
-        />
       </div>
     </div>
   );
