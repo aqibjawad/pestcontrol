@@ -57,3 +57,6 @@ export const addStock = apiPrefix + "/employee";
 export const getAllEmpoyesUrl = apiPrefix + "/employee";
 
 export const getAllSuppliers = apiPrefix + "/supplier";
+
+export const quotation = apiPrefix + "/quote";
+

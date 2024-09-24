@@ -12,9 +12,8 @@ export default function Dropdown({ title, options, onChange }) {
 
   const handleChange = (event) => {
     const value = event.target.value;
-    const index = options.indexOf(value);
     setSelectedValue(value);
-    onChange(value, index);
+    onChange(value);
   };
 
   return (
@@ -31,8 +30,8 @@ export default function Dropdown({ title, options, onChange }) {
           onChange={handleChange}
         >
           {options.map((item, index) => (
-            <MenuItem key={index} value={item}>
-              {item}
+            <MenuItem key={index} value={item.value}>
+              {item.label}
             </MenuItem>
           ))}
         </Select>

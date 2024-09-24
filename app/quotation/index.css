@@ -1,5 +1,5 @@
 .quote-main-head {
-  font-family: "Montserrat";
+  font-family: "regular";
   font-size: 24px;
   font-weight: 600;
   line-height: 20px;
@@ -8,7 +8,7 @@
 }
 
 .quote-main-decrp {
-  font-family: "Montserrat";
+  font-family: "regular";
   font-size: 16px;
   font-weight: 600;
   line-height: 28.16px;
@@ -26,7 +26,7 @@
 }
 
 .discount {
-  font-family: Montserrat;
+  font-family: "regular";
   font-size: 20px;
   font-weight: 600;
   line-height: 24.38px;
@@ -36,7 +36,7 @@
 }
 
 .vat {
-  font-family: Montserrat;
+  font-family: "regular";
   font-size: 16px;
   font-weight: 500;
   line-height: 28.16px;
@@ -45,7 +45,7 @@
 }
 
 .total {
-  font-family: Montserrat;
+  font-family: "regular";
   font-size: 16px;
   font-weight: 500;
   line-height: 28.16px;

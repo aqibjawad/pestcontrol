@@ -1,50 +1,54 @@
 import React from "react";
+import { Grid, Box, Typography } from "@mui/material";
 
 import "../index.css";
-import styles from "../../../styles/quotes.module.css"
+import styles from "../../../styles/quotes.module.css";
 
-const ContractSummery = () => {
+const ContractSummary = () => {
   return (
-    <div
-      style={{
+    <Box
+      sx={{
         border: "1px solid black",
-        marginTop:"2rem"
+        marginTop: "1rem",
       }}
     >
-      <div
-        className="mt-5"
-        style={{
+      <Typography
+        variant="h6"
+        sx={{
           padding: "34px",
           fontWeight: "600",
           fontSize: "20px",
         }}
       >
-        Contract Summery
-      </div>
+        Contract Summary
+      </Typography>
 
-      <div className="flex justify-between" style={{padding:"34px"}}>
-        <div className="flex flex-col">
-          <div className={styles.subTotal}>Subtotal</div>
-          <div className="discount">discount:</div>
-          <div className="vat">VAT</div>
-          <div className="total">Grand Total</div>
-        </div>
+      <Grid container spacing={2} sx={{ paddingLeft: "34px", paddingBottom: "34px"  }}>
+        <Grid item lg={6} xs={6}>
+          <Box className={styles.subTotal}>Subtotal</Box>
+          <Box className="discount">Discount:</Box>
+          <Box className="discount">VAT</Box>
+          <Box className="discount">Grand Total</Box>
+        </Grid>
 
-        <div className="flex flex-col">
-          <div className="sub-total">Subtotal</div>
-          <div>
-            <div className="flex mt-4">
-              <div className="discount-button flex flex-col">0</div>
-
-              <div className="discount-perc flex flex-col">%</div>
-            </div>
-          </div>
-          <div className="vat">VAT</div>
-          <div className="total">Grand Total</div>
-        </div>
-      </div>
-    </div>
+        <Grid item lg={6} xs={6}>
+          <Box className="sub-total">Subtotal</Box>
+          <Box>
+            <Grid container spacing={1} alignItems="center">
+              <Grid item>
+                <Box className="discount-button flex flex-col">0</Box>
+              </Grid>
+              <Grid item>
+                <Box className="discount-perc flex flex-col">%</Box>
+              </Grid>
+            </Grid>
+          </Box>
+          <Box className="vat">VAT</Box>
+          <Box className="total">Grand Total</Box>
+        </Grid>
+      </Grid>
+    </Box>
   );
 };
 
-export default ContractSummery;
+export default ContractSummary;

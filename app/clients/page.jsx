@@ -8,44 +8,27 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Button,
   Grid,
-  TextField,
   Typography,
+  Skeleton,
 } from "@mui/material";
-import styles from "../../styles/loginStyles.module.css";
 import APICall from "@/networkUtil/APICall";
 import { clients } from "@/networkUtil/Constants";
 import Dropdown from "../../components/generic/Dropdown";
-
 import InputWithTitle from "../../components/generic/InputWithTitle";
-
 import { AppHelpers } from "../../Helper/AppHelpers";
-
-const rows = Array.from({ length: 10 }, (_, index) => ({
-  clientName: "Olivia Rhye",
-  clientContact: "10",
-  quoteSend: "10",
-  quoteApproved: "50",
-  cashAdvance: "$50,000",
-}));
+import Link from "next/link";
 
 const Page = () => {
   const api = new APICall();
   const [fetchingData, setFetchingData] = useState(false);
   const [brandsList, setBrandsList] = useState([]);
-
   const [clientsList, setClientsList] = useState([]);
-
-  const [brandName, setBrandName] = useState("");
+  const [allClientsList, setAllClientsList] = useState([]);
   const [sendingData, setSendingData] = useState(false);
-  const [editingBrandId, setEditingBrandId] = useState(null);
   const [open, setOpen] = useState(false);
-
-  // For dropdown
   const [dropdownOptions, setDropdownOptions] = useState([]);
   const [selectedOption, setSelectedOption] = useState(null);
-  const [myClients, setMyClients] = useState();
 
   // State for form inputs
   const [formData, setFormData] = useState({
@@ -57,7 +40,7 @@ const Page = () => {
     industry_name: "",
     referencable_id: "",
     referencable_type: "",
-    opening_balance: ""
+    opening_balance: "",
   });
 
   const handleClickOpen = () => {
@@ -74,6 +57,54 @@ const Page = () => {
   }, []);
 
   const listServiceTable = () => {
+    if (fetchingData) {
+      return (
+        <div className={tableStyles.tableContainer}>
+          <table className="min-w-full bg-white">
+            <thead>
+              <tr>
+                {[
+                  "Customer",
+                  "Phone Number",
+                  "Firm",
+                  "Date",
+                  "Add Address",
+                ].map((header) => (
+                  <th
+                    key={header}
+                    className="py-5 px-4 border-b border-gray-200 text-left"
+                  >
+                    <Skeleton width="80%" />
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {Array.from({ length: 5 }).map((_, index) => (
+                <tr key={index} className="border-b border-gray-200">
+                  <td className="py-5 px-4">
+                    <Skeleton />
+                  </td>
+                  <td className="py-2 px-4">
+                    <Skeleton />
+                  </td>
+                  <td className="py-2 px-4">
+                    <Skeleton />
+                  </td>
+                  <td className="py-2 px-4">
+                    <Skeleton />
+                  </td>
+                  <td>
+                    <Skeleton />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
     return (
       <div className={tableStyles.tableContainer}>
         <table className="min-w-full bg-white">
@@ -91,16 +122,32 @@ const Page = () => {
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Date
               </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Add Address
+              </th>
             </tr>
           </thead>
           <tbody>
-            {clientsList.map((row, index) => (
+            {allClientsList.map((row, index) => (
               <tr key={index} className="border-b border-gray-200">
                 <td className="py-5 px-4">{row.name}</td>
-                <td className="py-2 px-4">{row.phone}</td>
-                <td className="py-2 px-4">{row.firm_name}</td>
+                <td className="py-2 px-4">{row?.client?.phone_number}</td>
+                <td className="py-2 px-4">{row?.client?.firm_name}</td>
                 <td className="py-2 px-4">
-                  {AppHelpers.convertDate(row.date)}
+                  {AppHelpers.convertDate(row.created_at)}
+                </td>
+                <td>
+                  <Link
+                    href={`/address?id=${row.id}&name=${encodeURIComponent(
+                      row.name
+                    )}&phone_number=${encodeURIComponent(
+                      row?.client?.phone_number
+                    )}`}
+                  >
+                    <span className="text-blue-600 hover:text-blue-800">
+                      Add Address
+                    </span>
+                  </Link>
                 </td>
               </tr>
             ))}
@@ -115,12 +162,10 @@ const Page = () => {
     try {
       const response = await api.getDataWithToken(`${clients}/references/get`);
       setBrandsList(response);
-
-      // Ensure response.data contains the type field
       const options = response.map((item) => ({
         id: item.id,
         name: item.name,
-        type: item.type, // Ensure this field is included
+        type: item.type,
       }));
       setDropdownOptions(options);
     } catch (error) {
@@ -131,36 +176,32 @@ const Page = () => {
   };
 
   const getAllClients = async () => {
+    setFetchingData(true);
     try {
       const response = await api.getDataWithToken(clients);
-      var clientsList = [];
-      response.data.map((item) => {
-        let client = {
-          name: item.name,
-          email: item.email,
-          phone: item.client[0].phone_number,
-          firm_name: item.client[0].firm_name,
-          date: item.created_at,
-        };
-        clientsList.push(client);
-      });
-      console.log(clientsList);
-
+      setAllClientsList(response.data);
+      const clientsList = response.data.map((item) => ({
+        name: item.name,
+        email: item.email,
+        phone: item.client[0].phone_number,
+        firm_name: item.client[0].firm_name,
+        date: item.created_at,
+      }));
       setClientsList(clientsList);
     } catch (error) {
       console.error(error.message);
+    } finally {
+      setFetchingData(false);
     }
   };
 
   const handleDropdownChange = (value) => {
     const selected = dropdownOptions.find((option) => option.name === value);
-    console.log(selected);
-
     setSelectedOption(selected);
     setFormData({
       ...formData,
       referencable_id: selected?.id || "",
-      referencable_type: selected?.type || "", // Ensure the type is available in your options
+      referencable_type: selected?.type || "",
     });
   };
 
@@ -174,18 +215,16 @@ const Page = () => {
 
   const handleSubmit = async () => {
     setSendingData(true);
+    try {
       await api.postFormDataWithToken(`${clients}/create`, formData);
-      // handleClose();
-  
-    // try {
-    
-      
-    // } catch (error) {
-    //   console.error("Error submitting form:", error);
-    //   // Handle error
-    // } finally {
-    //   setSendingData(false);
-    // }
+      // Optionally, refresh the client list after submission
+      await getAllClients();
+      handleClose();
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    } finally {
+      setSendingData(false);
+    }
   };
 
   return (
@@ -236,15 +275,13 @@ const Page = () => {
                 color: "white",
                 fontWeight: "600",
                 fontSize: "16px",
-                marginLeft: "auto",
-                marginRight: "auto",
+                marginLeft: "1rem",
+                cursor: "pointer",
                 height: "48px",
                 width: "150px",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                marginLeft: "1rem",
-                cursor: "pointer",
               }}
             >
               + Clients
@@ -270,7 +307,6 @@ const Page = () => {
               justifyContent: "center",
               alignItems: "center",
               marginLeft: "1rem",
-              padding: "12px, 16px, 12px, 16px",
               borderRadius: "10px",
             }}
           >
@@ -291,14 +327,12 @@ const Page = () => {
                 Add Clients
               </Typography>
             </Grid>
-
             <Grid item>
               <Typography variant="body1" color="textSecondary" align="center">
                 Thank you for choosing us to meet your needs. We look forward to
                 serving you with excellence
               </Typography>
             </Grid>
-
             <Grid item container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <InputWithTitle
@@ -323,7 +357,6 @@ const Page = () => {
                 />
               </Grid>
             </Grid>
-
             <Grid item>
               <InputWithTitle
                 label="Email"
@@ -335,7 +368,6 @@ const Page = () => {
                 placeholder="Please enter Email"
               />
             </Grid>
-
             <Grid item>
               <InputWithTitle
                 label="Phone Number"
@@ -347,7 +379,6 @@ const Page = () => {
                 placeholder="Please enter Phone Number"
               />
             </Grid>
-
             <Grid item>
               <InputWithTitle
                 label="Mobile Number"
@@ -359,7 +390,6 @@ const Page = () => {
                 placeholder="Please enter Mobile Number"
               />
             </Grid>
-
             <Grid item container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <InputWithTitle
@@ -380,7 +410,6 @@ const Page = () => {
                 />
               </Grid>
             </Grid>
-
             <Grid item container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <InputWithTitle

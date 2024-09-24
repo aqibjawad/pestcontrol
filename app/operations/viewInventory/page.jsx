@@ -67,9 +67,10 @@ const Page = () => {
             </tr>
           </thead>
           <tbody>
-            {suppliersList.map((row, index) => (
-              <React.Fragment key={index}>
-                <tr className="border-b border-gray-200">
+            {suppliersList.map((row, index) => {
+              const stock = row.stocks[0] || {}; // Get the first stock object
+              return (
+                <tr className="border-b border-gray-200" key={index}>
                   <td className="py-5 px-4">
                     <img
                       src={row.product_picture}
@@ -90,12 +91,12 @@ const Page = () => {
                   </td>
                   <td className="py-2 px-4">
                     <div className={tableStyles.clientContact}>
-                      {row?.stocks?.total_qty}
+                      {stock.total_qty || 0}
                     </div>
                   </td>
                   <td className="py-2 px-4">
                     <div className={tableStyles.clientContact}>
-                      {row.stock?.remaining_qty}
+                      {stock.remaining_qty || 0}
                     </div>
                   </td>
                   <td className="py-2 px-4">
@@ -107,7 +108,6 @@ const Page = () => {
                       </Link>
                     </div>
                   </td>
-
                   <td className="py-2 px-4">
                     <div className={tableStyles.clientContact}>
                       <Link href={`/operations/assignStock/?id=${row.id}`}>
@@ -118,8 +118,8 @@ const Page = () => {
                     </div>
                   </td>
                 </tr>
-              </React.Fragment>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>

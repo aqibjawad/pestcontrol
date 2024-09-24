@@ -1,27 +1,29 @@
-import React, { useState } from 'react';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import React, { useState, useEffect } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
-const CalendarComponent = ({ onDateChange }) => {
-  const [dates, setDates] = useState([]);
+const CalendarComponent = ({ onDateChange, initialDates = [] }) => {
+  const [dates, setDates] = useState(initialDates);
+
+  useEffect(() => {
+    setDates(initialDates);
+  }, [initialDates]);
 
   const handleDateChange = (date) => {
     if (date) {
-      // Convert date to string for easier comparison
       const dateStr = date.toDateString();
       setDates((prevDates) => {
         const newDates = prevDates.includes(dateStr)
-          ? prevDates.filter(d => d !== dateStr)
+          ? prevDates.filter((d) => d !== dateStr)
           : [...prevDates, dateStr];
-        
-        onDateChange(newDates); // Pass updated list of dates
+
+        onDateChange(newDates);
         return newDates;
       });
     }
   };
 
-  // Convert date strings back to Date objects for rendering
-  const formattedDates = dates.map(dateStr => new Date(dateStr));
+  const formattedDates = dates.map((dateStr) => new Date(dateStr));
 
   return (
     <div>
@@ -30,11 +32,11 @@ const CalendarComponent = ({ onDateChange }) => {
         onChange={handleDateChange}
         inline
         highlightDates={formattedDates}
-        dayClassName={date =>
-          dates.includes(date.toDateString()) ? 'selected-date' : undefined
+        dayClassName={(date) =>
+          dates.includes(date.toDateString()) ? "selected-date" : undefined
         }
       />
-      <p>Selected Dates: {dates.join(', ')}</p>
+      <p>Selected Dates: {dates.join(", ")}</p>
       <style jsx>{`
         .selected-date {
           background-color: #007bff;
