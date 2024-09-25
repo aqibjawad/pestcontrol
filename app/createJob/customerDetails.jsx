@@ -7,7 +7,11 @@ import Dropdown from "@/components/generic/Dropdown";
 
 const CustomerDetails = () => {
   const [name, setFullName] = useState("");
-  const [brands, setBrands] = useState(["Brand A", "Brand B", "Brand C"]);
+  const [brands, setBrands] = useState([
+    { label: "Brand A", value: "brandA" },
+    { label: "Brand B", value: "brandB" },
+    { label: "Brand C", value: "brandC" },
+  ]);
 
   const handleBrandChange = (name, index) => {
     console.log("test");

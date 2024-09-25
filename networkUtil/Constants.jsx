@@ -60,5 +60,7 @@ export const getAllSuppliers = apiPrefix + "/supplier";
 
 export const quotation = apiPrefix + "/quote";
 
-export const termsCond = apiPrefix + "/terms_and_condition"
+export const termsCond = apiPrefix + "/terms_and_condition";
+
+export const job = apiPrefix + "/job"
 

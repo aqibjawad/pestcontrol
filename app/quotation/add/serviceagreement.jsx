@@ -6,7 +6,6 @@ import APICall from "../../../networkUtil/APICall";
 import JobsList from "./JobsList";
 
 const ServiceAgreement = ({ setFormData, formData }) => {
-  
   const api = new APICall();
   const [service, setServices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -35,11 +34,14 @@ const ServiceAgreement = ({ setFormData, formData }) => {
 
   const makeServicesList = () => {
     const servicesWithCheck = service.map((item) => ({
-      id: item.id,
-      pest_name: item.pest_name,
-      service_title: item.service_title,
-      term_and_conditions: item.term_and_conditions,
-      isChecked: false,
+      service_id: item.id,
+      detail: [
+        {
+          job_type: item.job_type || "one_time",
+          rate: item.rate || 1, // Defaulting to 0 if not provided
+          dates: item.dates || [], // Defaulting to an empty array if not provided
+        },
+      ],
     }));
 
     setMyServices(servicesWithCheck);

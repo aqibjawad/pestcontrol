@@ -30,7 +30,7 @@ const TermsConditions = ({ setFormData }) => {
     if (value) {
       setFormData((prev) => ({
         ...prev,
-        tm_ids: Array.isArray(prev.tm_ids) ? [...prev.tm_ids, value] : [value],
+        term_and_condition_id: String(value),
       }));
     }
   };

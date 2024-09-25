@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import BasicQuote from "./add/basicQuote";
 import ServiceAgreement from "./add/serviceagreement";
-import TreatmentMethod from "./add/treatmentMethod";
+import Method from "./add/method";
 import Invoice from "./add/invoice";
 import ContractSummery from "./add/contract";
 import Scope from "./add/scope";
@@ -28,19 +28,20 @@ const Page = () => {
     is_food_watch_account: false,
     billing_method: "",
     services: [],
+    dates:[],
   });
 
-    const handleSubmit = async () => {
-      try {
-        const response = await api.postDataWithTokn(
-          `${quotation}/manage`,
-          formData
-        );
-        console.log("Response:", formData);
-      } catch (error) {
-        console.error("Error sending data:", error);
-      }
-    };
+  const handleSubmit = async () => {
+    try {
+      const response = await api.postDataWithTokn(
+        `${quotation}/manage`,
+        formData
+      );
+      console.log("Response:", formData);
+    } catch (error) {
+      console.error("Error sending data:", error);
+    }
+  };
 
   return (
     <div>
@@ -51,7 +52,7 @@ const Page = () => {
 
       <BasicQuote setFormData={setFormData} />
       <ServiceAgreement setFormData={setFormData} formData={formData} />
-      <TreatmentMethod setFormData={setFormData} />
+      <Method setFormData={setFormData} />
       <Invoice setFormData={setFormData} />
       <ContractSummery />
       <Scope />

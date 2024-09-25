@@ -12,34 +12,21 @@ import Button from "@mui/material/Button";
 import { Grid } from "@mui/material";
 
 const JobsList = ({ checkedServices, setFormData }) => {
-  // console.log("checked", formData);
-
   const [selectedProduct, setSelectedProduct] = useState({});
-
-  // console.log("selected", selectedProduct);
-
   const [noOfMonth, setNoOfMonth] = useState("");
   const [rate, setRate] = useState("");
   const [open, setOpen] = useState(false);
   const [selectedJobType, setSelectedJobType] = useState("");
+  console.log(selectedJobType);
+
   const [selectedDates, setSelectedDates] = useState([]);
-  const [subTotal, setSubTotal] = useState(0); // State for subtotal
+
+  const [subTotal, setSubTotal] = useState(0);
 
   useEffect(() => {
-    // Calculate subtotal whenever selected dates or rate changes
-    const total = selectedDates.length * (parseFloat(rate) || 0);
+    const total = selectedDates.length * (parseFloat(rate) || 1);
     setSubTotal(total);
   }, [selectedDates, rate]);
-
-  const daysOfWeek = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday",
-  ];
 
   const jobTypes = [
     { label: "One Time", value: "one_time" },
@@ -55,6 +42,24 @@ const JobsList = ({ checkedServices, setFormData }) => {
   };
 
   const handleDateSave = () => {
+    setFormData((prev) => ({
+      ...prev,
+      services: prev.services.map((service) => {
+        if (service.id === selectedProduct.id) {
+          return {
+            ...service,
+            detail: [
+              {
+                job_type: selectedJobType, // Include job type here
+                rate: 1,
+                dates: selectedDates,
+              },
+            ],
+          };
+        }
+        return service;
+      }),
+    }));
     setOpen(false);
   };
 
@@ -66,13 +71,15 @@ const JobsList = ({ checkedServices, setFormData }) => {
   };
 
   const onChange = (key, value) => {
-    setProduct({ ...selectedProduct, [key]: value });
+    setSelectedProduct({ ...selectedProduct, [key]: value });
   };
 
   const handleDateChange = (dates) => {
-    setSelectedDates(dates);
+    const formattedDates = dates.map((date) =>
+      new Date(date).toISOString().slice(0, 10)
+    );
+    setSelectedDates(formattedDates); // Update the selected dates here
   };
-
   const getServices = (services, product) => {
     if (!services.length) return [product];
 
@@ -85,10 +92,22 @@ const JobsList = ({ checkedServices, setFormData }) => {
   };
 
   const setProduct = (product) => {
+    const updatedService = {
+      ...product,
+      detail: [
+        {
+          job_type: selectedJobType, // Ensure this is included
+          rate: 1,
+          dates: selectedDates,
+        },
+      ],
+      isChecked: true,
+    };
+
     setSelectedProduct(product);
     setFormData((prev) => ({
       ...prev,
-      services: getServices(prev.services, product),
+      services: getServices(prev.services, updatedService),
     }));
   };
 
@@ -136,10 +155,15 @@ const JobsList = ({ checkedServices, setFormData }) => {
                 <DialogTitle>Select Dates</DialogTitle>
                 <DialogContent>
                   <CalendarComponent
-                    onDateChange={handleDateChange}
-                    initialDates={selectedDates}
-                    onChange={(value) => {
-                      handleDateChange("dates", value);
+                    initialDates={selectedDates.map((date) => new Date(date))}
+                    onDateChange={(value) => {
+                      handleDateChange(value);
+                      onChange(
+                        "dates",
+                        value.map((date) =>
+                          new Date(date).toISOString().slice(0, 10)
+                        )
+                      ); // Format dates before saving
                     }}
                   />
                 </DialogContent>
@@ -156,7 +180,7 @@ const JobsList = ({ checkedServices, setFormData }) => {
                 type={"text"}
                 name="rate"
                 placeholder={"Rate"}
-                onChange={(value) => setRate("rate", value)}
+                onChange={(value) => setRate(value)} // Fixed this line
               />
             </Grid>
 
@@ -166,8 +190,8 @@ const JobsList = ({ checkedServices, setFormData }) => {
                 type={"text"}
                 name="subTotal"
                 placeholder={"Sub Total"}
-                value={subTotal} // Set the calculated subtotal here
-                readOnly // Make it read-only
+                value={subTotal}
+                readOnly
               />
             </Grid>
 
@@ -211,9 +235,7 @@ const JobsList = ({ checkedServices, setFormData }) => {
         >
           <div style={{ color: "#344054", marginTop: "1rem" }}>
             {selectedProduct ? (
-              <>
-                <div>{selectedProduct.term_and_conditions}</div>
-              </>
+              <div>{selectedProduct.term_and_conditions}</div>
             ) : (
               <div>No product selected</div>
             )}
