@@ -12,6 +12,8 @@ import APICall from "@/networkUtil/APICall";
 import { quotation } from "../../networkUtil/Constants";
 import { useSearchParams } from "next/navigation";
 
+import GreenButton from "@/components/generic/GreenButton";
+
 const Page = () => {
   const api = new APICall();
   const searchParams = useSearchParams();
@@ -36,10 +38,8 @@ const Page = () => {
 
   const handleSubmit = async () => {
     try {
-      const response = await api.postDataWithTokn(
-        `${quotation}/manage`,
-        formData
-      );
+      const endpoint = id ? `${quotation}/manage/${id}` : `${quotation}/manage`;
+      const response = await api.postDataWithTokn(endpoint, formData);
       console.log("Response:", response.data);
     } catch (error) {
       console.error("Error sending data:", error);
@@ -51,14 +51,15 @@ const Page = () => {
   useEffect(() => {
     if (id) {
       getAllQuotes();
+      setFormData((prev) => ({ ...prev, manage_type: "edit" })); 
     }
-  }, [id]); // Fetch when id changes
+  }, [id]);
 
   const getAllQuotes = async () => {
     setFetchingData(true);
     try {
       const response = await api.getDataWithToken(`${quotation}/${id}`);
-      setFormData(response.data); // Update formData with fetched data
+      setFormData(response.data);
     } catch (error) {
       console.error("Error fetching quotes:", error);
     } finally {
@@ -66,7 +67,7 @@ const Page = () => {
     }
   };
 
-  if (fetchingData) return <div>Loading...</div>; // Optional loading state
+  if (fetchingData) return <div>Loading...</div>;
 
   return (
     <div>
@@ -83,7 +84,9 @@ const Page = () => {
       <Scope formData={formData} />
       <TermConditions setFormData={setFormData} formData={formData} />
 
-      <button onClick={handleSubmit}>Submit</button>
+      <div className="mt-10">
+        <GreenButton onClick={handleSubmit} title={id ? "Update" : "Submit"} />
+      </div>
     </div>
   );
 };
