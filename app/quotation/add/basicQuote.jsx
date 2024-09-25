@@ -13,7 +13,13 @@ const BasicQuote = ({ setFormData }) => {
   const api = new APICall();
 
   const [allBrandsList, setAllBrandsList] = useState([]);
+  const [allClients, setAllClients] = useState([]);  
+  
+  
+
   const [selectedBrand, setSelectedBrand] = useState(null);
+  console.log("kjljl",selectedBrand);
+
   const [contractReference, setContractReference] = useState("");
   const [firmName, setFirmName] = useState("");
   const [contractedBy, setContractedBy] = useState("");
@@ -26,6 +32,7 @@ const BasicQuote = ({ setFormData }) => {
   const getAllClients = async () => {
     try {
       const response = await api.getDataWithToken(clients);
+      setAllClients(response.data)
       const transformedClients = response.data.map((client) => ({
         value: client.id, // use client ID as the value
         label: client.name || client.client?.firm_name || "Unknown Client", // use client name or firm name
@@ -36,32 +43,17 @@ const BasicQuote = ({ setFormData }) => {
     }
   };
 
-  const handleDropdownChange = (name, index) => {
-    const selectedClient = allBrandsList[index];
-    if (selectedClient) {
-      const clientData = selectedClient.client || {};
-
-      // Update states
-      setSelectedBrand(selectedClient);
-      setContractReference(clientData.referencable?.name || "");
-      setFirmName(clientData.firm_name || "");
-      setContractedBy(clientData.referencable?.name || "");
-
-      // Update addresses
-      const addressList = clientData.addresses
-        ? clientData.addresses.map((address) => address.address)
-        : [];
-      setAddresses(addressList);
-
-      // Update formData
-      setFormData((prev) => ({
-        ...prev,
-        clientAddressId: null, // Reset to ensure a new selection
-        quoteTitle: "", // Clear quote title or set appropriately
-        description: "", // Clear description or set appropriately
-      }));
-    }
+  const handleClientChange = (client) => {    
+    setSelectedBrand(client);
+    
+    setFormData((prev) => ({
+      ...prev,
+      clientId: client.id,
+      clientName: client.name,
+      // Add any other relevant client data to the form data
+    }));
   };
+
 
   const handleAddressChange = (value) => {
     setFormData((prev) => ({
@@ -93,7 +85,7 @@ const BasicQuote = ({ setFormData }) => {
           <Dropdown
             title={"Client"}
             options={allBrandsList}
-            onChange={handleDropdownChange}
+            onChange={handleClientChange}
           />
         </Grid>
         <Grid item lg={6} xs={12} md={6} mt={2}>

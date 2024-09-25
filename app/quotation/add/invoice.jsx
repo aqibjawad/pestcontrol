@@ -6,10 +6,10 @@ import InputWithTitle from "@/components/generic/InputWithTitle";
 import { FormGroup, FormControlLabel, Checkbox, Button } from "@mui/material";
 import APICall from "../../../networkUtil/APICall";
 
-const Invoice = ({ setFormData }) => {
+const Invoice = ({ setFormData, formData }) => {
   
   const [billingFrequency, setBillingFrequency] = useState("");
-  const [billingMethods, setBillingMethods] = useState({
+  const [billing_methods, setbilling_methods] = useState({
     monthly: false,
     service: false,
     yearly: false,
@@ -17,12 +17,12 @@ const Invoice = ({ setFormData }) => {
 
   const handleBillingFrequencyChange = (value) => {
     setBillingFrequency(value);
-    setFormData((prev) => ({ ...prev, billingMethod: value })); // Update billing method in formData
+    setFormData((prev) => ({ ...prev, billing_method: value })); // Update billing method in formData
   };
 
   const handleCheckboxChange = (event) => {
     const { name, checked } = event.target;
-    setBillingMethods((prev) => ({
+    setbilling_methods((prev) => ({
       ...prev,
       [name]: checked,
     }));
@@ -56,7 +56,7 @@ const Invoice = ({ setFormData }) => {
                 <FormControlLabel
                   control={
                     <Checkbox
-                      checked={billingMethods.monthly}
+                      checked={billing_methods.monthly}
                       onChange={handleCheckboxChange}
                       name="monthly"
                     />
@@ -68,7 +68,7 @@ const Invoice = ({ setFormData }) => {
                 <FormControlLabel
                   control={
                     <Checkbox
-                      checked={billingMethods.service}
+                      checked={billing_methods.service}
                       onChange={handleCheckboxChange}
                       name="service"
                     />
@@ -80,7 +80,7 @@ const Invoice = ({ setFormData }) => {
                 <FormControlLabel
                   control={
                     <Checkbox
-                      checked={billingMethods.yearly}
+                      checked={billing_methods.yearly}
                       onChange={handleCheckboxChange}
                       name="yearly"
                     />

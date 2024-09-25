@@ -29,33 +29,36 @@ const Page = () => {
     services: [],
   });
 
-  const handleSubmit = async () => {
-    const payload = {
-      manage_type: "create",
-      user_id: formData.user_id,
-      quote_title: formData.quoteTitle,
-      client_address_id: formData.clientAddressId,
-      subject: formData.subject,
-      tm_ids: formData.tm_ids,
-      description: formData.description,
-      trn: formData.trn,
-      tag: formData.tag,
-      duration_in_months: formData.durationInMonths,
-      is_food_watch_account: formData.isFoodWatchAccount ? 1 : 0,
-      billing_method: formData.billing_method,
-      services: formData.services, // Ensure this matches the expected format
-    };
+    const handleSubmit = async () => {
+      const payload = JSON.stringify({
+        manage_type: "create",
+        user_id: formData.user_id,
+        quote_title: formData.quoteTitle,
+        client_address_id: formData.clientAddressId,
+        subject: formData.subject,
+        tm_ids: formData.tm_ids,
+        description: formData.description,
+        trn: formData.trn,
+        tag: formData.tag,
+        duration_in_months: formData.durationInMonths,
+        is_food_watch_account: formData.isFoodWatchAccount ? 1 : 0,
+        billing_method: formData.billing_method,
+        services: formData.services, 
+      });
+      const parsedPayload = JSON.parse(payload);
+      console.log("payload",parsedPayload);
+      
 
-    try {
-      const response = await api.postFormDataWithToken(
-        `${quotation}/manage`,
-        payload
-      );
-      console.log("Response:", response);
-    } catch (error) {
-      console.error("Error sending data:", error);
-    }
-  };
+      try {
+        const response = await api.postFormDataWithToken(
+          `${quotation}/manage`,
+          payload
+        );
+        console.log("Response:", response);
+      } catch (error) {
+        console.error("Error sending data:", error);
+      }
+    };
 
   return (
     <div>
@@ -65,7 +68,7 @@ const Page = () => {
       </div>
 
       <BasicQuote setFormData={setFormData} />
-      <ServiceAgreement setFormData={setFormData} />
+      <ServiceAgreement setFormData={setFormData} formData={formData} />
       <TreatmentMethod setFormData={setFormData} />
       <Invoice setFormData={setFormData} />
       <ContractSummery />

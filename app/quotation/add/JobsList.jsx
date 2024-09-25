@@ -11,10 +11,15 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Button from "@mui/material/Button";
 import { Grid } from "@mui/material";
 
-const JobsList = ({ checkedServices }) => {
+const JobsList = ({ checkedServices, setFormData, formData }) => {
+  console.log("checked", formData);
+
+  const [selectedProduct, setSelectedProduct] = useState({});
+
+  console.log("selected", selectedProduct);
+
   const [noOfMonth, setNoOfMonth] = useState("");
   const [rate, setRate] = useState("");
-  const [selectedProduct, setSelectedProduct] = useState(null);
   const [open, setOpen] = useState(false);
   const [selectedJobType, setSelectedJobType] = useState("");
   const [selectedDates, setSelectedDates] = useState([]);
@@ -60,13 +65,36 @@ const JobsList = ({ checkedServices }) => {
     }
   };
 
+  const onChange = (key, value) => {
+    setProduct({ ...selectedProduct, [key]: value });
+  };
+
   const handleDateChange = (dates) => {
     setSelectedDates(dates);
   };
 
+  const getServices = (services, product) => {
+    if (!services.length) return [product];
+
+    return services.map((d) => {
+      if (d.id === product.id) {
+        return product;
+      }
+      return d;
+    });
+  };
+
+  const setProduct = (product) => {
+    setSelectedProduct(product);
+    setFormData((prev) => ({
+      ...prev,
+      services: getServices(prev.services, product),
+    }));
+  };
+
   const handleDropdownChange = (value) => {
     const product = checkedServices.find((service) => service.id === value);
-    setSelectedProduct(product);
+    setProduct(product);
   };
 
   return (
@@ -74,7 +102,7 @@ const JobsList = ({ checkedServices }) => {
       <div style={{ marginBottom: "2rem" }}>
         <div style={{ marginTop: "1rem" }}>
           <Grid container spacing={2}>
-            <Grid lg={2} item xs={4}>
+            <Grid lg={3} item xs={4}>
               <Dropdown
                 title={"Selected Products"}
                 options={checkedServices.map((service) => ({
@@ -85,21 +113,24 @@ const JobsList = ({ checkedServices }) => {
               />
             </Grid>
 
-            <Grid lg={2} item xs={4}>
+            <Grid lg={3} item xs={4}>
               <InputWithTitle
                 title={"No of Month"}
                 type={"text"}
                 name="noOfMonth"
                 placeholder={"No of Month"}
-                onChange={setNoOfMonth}
+                onChange={(value) => onChange("noOfMonth", value)}
               />
             </Grid>
 
-            <Grid lg={2} item xs={4}>
+            <Grid lg={3} item xs={4}>
               <Dropdown
                 title={"Job Type"}
                 options={jobTypes}
-                onChange={handleJobTypeChange}
+                onChange={(value) => {
+                  handleJobTypeChange(value);
+                  onChange("job_type", value);
+                }}
               />
               <Dialog open={open} onClose={handleClose}>
                 <DialogTitle>Select Dates</DialogTitle>
@@ -107,6 +138,9 @@ const JobsList = ({ checkedServices }) => {
                   <CalendarComponent
                     onDateChange={handleDateChange}
                     initialDates={selectedDates}
+                    onChange={(value) => {
+                      handleDateChange("dates", value);
+                    }}
                   />
                 </DialogContent>
                 <DialogActions>
@@ -122,7 +156,7 @@ const JobsList = ({ checkedServices }) => {
                 type={"text"}
                 name="rate"
                 placeholder={"Rate"}
-                onChange={setRate}
+                onChange={(value) => setRate("rate", value)}
               />
             </Grid>
 

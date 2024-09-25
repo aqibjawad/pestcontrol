@@ -5,7 +5,7 @@ import { services } from "../../../networkUtil/Constants";
 import APICall from "../../../networkUtil/APICall";
 import JobsList from "./JobsList";
 
-const ServiceAgreement = ({ setFormData }) => {
+const ServiceAgreement = ({ setFormData, formData }) => {
   
   const api = new APICall();
   const [service, setServices] = useState([]);
@@ -90,6 +90,8 @@ const ServiceAgreement = ({ setFormData }) => {
       <div className="mt-10 mb-10">
         <JobsList
           checkedServices={myServices.filter((service) => service.isChecked)}
+          formData={formData}
+          setFormData={setFormData}
         />
       </div>
     </div>
