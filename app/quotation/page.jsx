@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import BasicQuote from "./add/basicQuote";
 import ServiceAgreement from "./add/serviceagreement";
 import Method from "./add/method";
@@ -10,9 +10,12 @@ import Scope from "./add/scope";
 import TermConditions from "./add/terms";
 import APICall from "@/networkUtil/APICall";
 import { quotation } from "../../networkUtil/Constants";
+import { useSearchParams } from "next/navigation";
 
 const Page = () => {
   const api = new APICall();
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
 
   const [formData, setFormData] = useState({
     manage_type: "create",
@@ -28,7 +31,7 @@ const Page = () => {
     is_food_watch_account: false,
     billing_method: "",
     services: [],
-    dates:[],
+    dates: [],
   });
 
   const handleSubmit = async () => {
@@ -37,11 +40,33 @@ const Page = () => {
         `${quotation}/manage`,
         formData
       );
-      console.log("Response:", formData);
+      console.log("Response:", response.data);
     } catch (error) {
       console.error("Error sending data:", error);
     }
   };
+
+  const [fetchingData, setFetchingData] = useState(false);
+
+  useEffect(() => {
+    if (id) {
+      getAllQuotes();
+    }
+  }, [id]); // Fetch when id changes
+
+  const getAllQuotes = async () => {
+    setFetchingData(true);
+    try {
+      const response = await api.getDataWithToken(`${quotation}/${id}`);
+      setFormData(response.data); // Update formData with fetched data
+    } catch (error) {
+      console.error("Error fetching quotes:", error);
+    } finally {
+      setFetchingData(false);
+    }
+  };
+
+  if (fetchingData) return <div>Loading...</div>; // Optional loading state
 
   return (
     <div>
@@ -50,13 +75,13 @@ const Page = () => {
         Us to meet your needs. We look forward to serving you with excellence.
       </div>
 
-      <BasicQuote setFormData={setFormData} />
+      <BasicQuote setFormData={setFormData} formData={formData} />
       <ServiceAgreement setFormData={setFormData} formData={formData} />
-      <Method setFormData={setFormData} />
-      <Invoice setFormData={setFormData} />
-      <ContractSummery />
-      <Scope />
-      <TermConditions setFormData={setFormData} />
+      <Method setFormData={setFormData} formData={formData} />
+      <Invoice setFormData={setFormData} formData={formData} />
+      <ContractSummery formData={formData} />
+      <Scope formData={formData} />
+      <TermConditions setFormData={setFormData} formData={formData} />
 
       <button onClick={handleSubmit}>Submit</button>
     </div>

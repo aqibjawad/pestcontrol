@@ -7,7 +7,7 @@ import APICall from "../../../networkUtil/APICall";
 import { Grid } from "@mui/material";
 import MultilineInput from "@/components/generic/MultilineInput";
 
-const BasicQuote = ({ setFormData }) => {
+const BasicQuote = ({ setFormData, formData }) => {
   const api = new APICall();
 
   const [allBrandsList, setAllBrandsList] = useState([]);
