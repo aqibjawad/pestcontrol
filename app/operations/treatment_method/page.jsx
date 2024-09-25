@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { useExpenseCategory } from "./useTreatMethodHook"; // Adjust the import path as needed
+import { useExpenseCategory } from "./useTreatMethodHook";
 import Loading from "../../../components/generic/Loading";
 import styles from "../../../styles/account/addBrandStyles.module.css";
 import { Delete, Edit, Check, Close } from "@mui/icons-material";
@@ -21,7 +21,7 @@ const Page = () => {
     fetchingData,
     expenseList,
     methodName,
-    setTreatMethod,
+    setMethodName,
     sendingData,
     addExpense,
     updateExpense,
@@ -30,12 +30,12 @@ const Page = () => {
     cancelEditing,
   } = useExpenseCategory();
 
-  const handleEditClick = (id, number) => {
-    startEditing(id, number);
+  const handleEditClick = (id, name) => {
+    startEditing(id, name);
   };
 
   const handleUpdateClick = () => {
-    updateExpense(editingExpenseId, methodName);
+    updateExpense();
   };
 
   const handleCancelClick = () => {
@@ -56,49 +56,19 @@ const Page = () => {
           {expenseList?.map((item, index) => (
             <TableRow key={item.id}>
               <TableCell>{index + 1}</TableCell>
+              <TableCell>{item.name}</TableCell>
               <TableCell>
-                {editingExpenseId === item.id ? (
-                  <input
-                    type="text"
-                    value={methodName}
-                    onChange={(e) => setTreatMethod(e.target.value)}
-                    className={styles.editInput}
-                  />
-                ) : (
-                  item.name
-                )}
-              </TableCell>
-              <TableCell>
-                {editingExpenseId === item.id ? (
-                  <>
-                    <Check
-                      sx={{ color: "#3deb49", cursor: "pointer" }}
-                      onClick={handleUpdateClick}
-                    />
-                    <Close
-                      sx={{
-                        color: "red",
-                        marginLeft: "10px",
-                        cursor: "pointer",
-                      }}
-                      onClick={handleCancelClick}
-                    />
-                  </>
-                ) : (
-                  <>
-                    <Edit
-                      sx={{ color: "#3deb49", cursor: "pointer" }}
-                      onClick={() => handleEditClick(item.id, item.methodName)}
-                    />
-                    <Delete
-                      sx={{
-                        color: "red",
-                        marginLeft: "10px",
-                        cursor: "pointer",
-                      }}
-                    />
-                  </>
-                )}
+                <Edit
+                  sx={{ color: "#3deb49", cursor: "pointer" }}
+                  onClick={() => handleEditClick(item.id, item.name)}
+                />
+                <Delete
+                  sx={{
+                    color: "red",
+                    marginLeft: "10px",
+                    cursor: "pointer",
+                  }}
+                />
               </TableCell>
             </TableRow>
           ))}
@@ -117,28 +87,31 @@ const Page = () => {
         <div className="grid grid-cols-2 gap-4">
           <div>{viewList()}</div>
           <div>
-            <div className="pageTitle">Add Treatment Method</div>
+            <div className="pageTitle">
+              {editingExpenseId ? "Edit" : "Add"} Treatment Method
+            </div>
             <div className="mt-10"></div>
             <InputWithTitle
-              title={"Enter treatment Method"}
-              placeholder={"Enter treatment Method"}
+              title={"Enter Treatment Method"}
+              placeholder={"Enter Treatment Method"}
               value={methodName}
-              onChange={(value) => setTreatMethod(value)}
+              onChange={(value) => setMethodName(value)}
             />
             <div className="mt-10"></div>
             <GreenButton
               sendingData={sendingData}
-              onClick={
-                editingExpenseId
-                  ? () => updateExpense(editingExpenseId, methodName)
-                  : addExpense
-              }
+              onClick={editingExpenseId ? handleUpdateClick : addExpense}
               title={
                 editingExpenseId
-                  ? "Update treatment Method"
-                  : "Add treatment Method"
+                  ? "Update Treatment Method"
+                  : "Add Treatment Method"
               }
             />
+            {/* {editingExpenseId && (
+              <button onClick={handleCancelClick} className="ml-4">
+                Cancel
+              </button>
+            )} */}
           </div>
         </div>
       )}

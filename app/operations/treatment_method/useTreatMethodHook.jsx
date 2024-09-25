@@ -1,3 +1,4 @@
+// useTreatMethodHook.js
 import { useState, useEffect } from "react";
 import APICall from "@/networkUtil/APICall";
 import { treatmentMethod } from "@/networkUtil/Constants";
@@ -8,23 +9,22 @@ export const useExpenseCategory = () => {
   const alerts = new AppAlerts();
 
   const [fetchingData, setFetchingData] = useState(false);
-  const [expenseList, setVehiclesList] = useState([]);
+  const [expenseList, setExpenseList] = useState([]);
   const [sendingData, setSendingData] = useState(false);
-  const [editingExpenseId, setEditingVehiclesId] = useState(null);
-
-  const [methodName, setTreatMethod] = useState("");
+  const [editingExpenseId, setEditingExpenseId] = useState(null);
+  const [methodName, setMethodName] = useState("");
 
   useEffect(() => {
-    getAllVehicles();
+    getAllMethods();
   }, []);
 
-  const getAllVehicles = async () => {
+  const getAllMethods = async () => {
     setFetchingData(true);
     try {
       const response = await api.getDataWithToken(`${treatmentMethod}`);
-      setVehiclesList(response.data);
+      setExpenseList(response.data);
     } catch (error) {
-      console.error("Error fetching vehicles:", error);
+      console.error("Error fetching treatment methods:", error);
     } finally {
       setFetchingData(false);
     }
@@ -41,45 +41,42 @@ export const useExpenseCategory = () => {
         obj
       );
       if (response.status === "success") {
-        alerts.successAlert("Expense Category has been updated");
-        setTreatMethod("");
-        await getAllVehicles();
+        alerts.successAlert("Treatment Method has been added");
+        setMethodName("");
+        await getAllMethods();
       } else {
-        alerts.errorAlert("The Expense Category has already been taken.");
+        alerts.errorAlert("The Treatment Method has already been taken.");
       }
     } catch (error) {
-      console.error("Error adding vehicle:", error);
-      alerts.errorAlert(
-        "An error occurred while updating the Expense Category."
-      );
+      console.error("Error adding treatment method:", error);
+      alerts.errorAlert("An error occurred while adding the Treatment Method.");
     } finally {
       setSendingData(false);
     }
   };
 
-  const updateExpense = async (id, methodName) => {
-    if (sendingData || methodName === "") return;
+  const updateExpense = async () => {
+    if (sendingData || methodName === "" || !editingExpenseId) return;
 
     setSendingData(true);
     try {
       const obj = { name: methodName };
-
       const response = await api.updateFormDataWithToken(
-        `${treatmentMethod}/update/${id}`,
+        `${treatmentMethod}/update/${editingExpenseId}`,
         obj
       );
       if (response.status === "success") {
-        alerts.errorAlert("The Expense Category has updated!");
-        setEditingVehiclesId(null);
-        setTreatMethod("");
-        await getAllVehicles();
+        alerts.successAlert("The Treatment Method has been updated!");
+        setEditingExpenseId(null);
+        setMethodName("");
+        await getAllMethods();
       } else {
-        alerts.errorAlert("The Expense Category has already been taken.");
+        alerts.errorAlert("The Treatment Method has already been taken.");
       }
     } catch (error) {
-      console.error("Error updating Expense Category:", error);
+      console.error("Error updating Treatment Method:", error);
       alerts.errorAlert(
-        "An error occurred while updating the Expense Category."
+        "An error occurred while updating the Treatment Method."
       );
     } finally {
       setSendingData(false);
@@ -87,20 +84,20 @@ export const useExpenseCategory = () => {
   };
 
   const startEditing = (id, currentName) => {
-    setEditingVehiclesId(id);
-    setTreatMethod(currentName);
+    setEditingExpenseId(id);
+    setMethodName(currentName);
   };
 
   const cancelEditing = () => {
-    setEditingVehiclesId(null);
-    setTreatMethod("");
+    setEditingExpenseId(null);
+    setMethodName("");
   };
 
   return {
     fetchingData,
     expenseList,
     methodName,
-    setTreatMethod,
+    setMethodName,
     sendingData,
     addExpense,
     updateExpense,
