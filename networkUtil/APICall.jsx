@@ -83,7 +83,7 @@ class APICall {
   }
 
   async postDataWithTokn(url, data) {
-    return this.makeRequest("post", url, data, true, true);
+    return this.makeRequest("post", url, data, true, false);
   }
 }
 

@@ -73,7 +73,7 @@ const Page = () => {
 
         <Grid item xs={12} sm={6} md={4} lg={3}>
           <div className={styles.addProd}>
-            <Link href="/terms&conditions">Add Terms and Conditions</Link>
+            <Link href="/terms&conditions">Terms and Conditions</Link>
           </div>
         </Grid>
 
@@ -85,7 +85,9 @@ const Page = () => {
 
         <Grid item xs={12} sm={6} md={4} lg={3}>
           <div className={styles.addProd}>
-            <Link href="/operations/treatment_method">Add Treatment Method</Link>
+            <Link href="/operations/treatment_method">
+              Add Treatment Method
+            </Link>
           </div>
         </Grid>
       </Grid>
@@ -126,6 +128,12 @@ const Page = () => {
         <Grid className="mt-5" item xs={12} sm={6} md={4} lg={3}>
           <div className={styles.addProd}>
             <Link href="/account/viewVehicles">View Vehicle Expense</Link>
+          </div>
+        </Grid>
+
+        <Grid className="mt-5" item xs={12} sm={6} md={4} lg={3}>
+          <div className={styles.addProd}>
+            <Link href="/viewQuote">View Quote</Link>
           </div>
         </Grid>
       </Grid>

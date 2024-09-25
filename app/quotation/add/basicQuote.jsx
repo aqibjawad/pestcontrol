@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useEffect, useState } from "react";
 import styles from "../../../styles/loginStyles.module.css";
 import InputWithTitle from "@/components/generic/InputWithTitle";
@@ -13,17 +11,13 @@ const BasicQuote = ({ setFormData }) => {
   const api = new APICall();
 
   const [allBrandsList, setAllBrandsList] = useState([]);
-  const [allClients, setAllClients] = useState([]);  
-  
-  
-
-  const [selectedBrand, setSelectedBrand] = useState(null);
-  console.log("kjljl",selectedBrand);
-
+  const [allClients, setAllClients] = useState([]);
+  const [selectedBrand, setSelectedClientId] = useState(null);
   const [contractReference, setContractReference] = useState("");
   const [firmName, setFirmName] = useState("");
-  const [contractedBy, setContractedBy] = useState("");
   const [addresses, setAddresses] = useState([]);
+  const [referenceName, setReferenceName] = useState("");
+  const [selectedAddress, setSelectedAddress] = useState("");
 
   useEffect(() => {
     getAllClients();
@@ -32,47 +26,58 @@ const BasicQuote = ({ setFormData }) => {
   const getAllClients = async () => {
     try {
       const response = await api.getDataWithToken(clients);
-      setAllClients(response.data)
+      setAllClients(response.data);
       const transformedClients = response.data.map((client) => ({
-        value: client.id, // use client ID as the value
-        label: client.name || client.client?.firm_name || "Unknown Client", // use client name or firm name
+        value: client.id,
+        label: client.name || client.client?.firm_name || "Unknown Client",
+        data: client, // Save the entire client object for later use
       }));
       setAllBrandsList(transformedClients);
     } catch (error) {
-      console.error("Error fetching brands:", error);
+      console.error("Error fetching clients:", error);
     }
   };
 
-  const handleClientChange = (client) => {    
-    setSelectedBrand(client);
+  const handleClientChange = (value) => {
+    const selectedClient = allClients.find((client) => client.id === value);
+    console.log(selectedClient);
     
-    setFormData((prev) => ({
-      ...prev,
-      clientId: client.id,
-      clientName: client.name,
-      // Add any other relevant client data to the form data
-    }));
-  };
+    if (selectedClient) {
+      setSelectedClientId(value);
+      setFormData((prev) => ({
+        ...prev,
+        user_id: selectedClient.id,
+      })); // Set user ID
 
+      // Update fields
+      const clientData = selectedClient.client;
+      if (clientData && clientData.referencable) {
+        const referenceData = clientData.referencable;
+        setReferenceName(referenceData.name);
+      } else {
+        setReferenceName(""); // Clear if not available
+      }
+
+      setFirmName(clientData.firm_name || "");
+      setAddresses(
+        clientData.addresses.map((address) => ({
+          value: address.id,
+          label: address.address,
+        }))
+      );
+    }
+  };
 
   const handleAddressChange = (value) => {
+    const selectedAddressObj = addresses.find(
+      (address) => address.value === value
+    );
+    setSelectedAddress(value); // Update the selected address state
     setFormData((prev) => ({
       ...prev,
-      clientAddressId: value, // Assuming value is the selected address ID
+      client_address_id: selectedAddressObj ? selectedAddressObj.value : "", // Set client address ID
+      selectedAddress: selectedAddressObj ? selectedAddressObj.label : "", // Update formData with address
     }));
-  };
-
-  const handleFirmNameChange = (value) => {
-    setFirmName(value);
-    setFormData((prev) => ({ ...prev, firmName: value }));
-  };
-
-  const handleTrnChange = (value) => {
-    setFormData((prev) => ({ ...prev, trn: value }));
-  };
-
-  const handleTagChange = (value) => {
-    setFormData((prev) => ({ ...prev, tag: value }));
   };
 
   return (
@@ -81,60 +86,62 @@ const BasicQuote = ({ setFormData }) => {
       style={{ fontSize: "16px", margin: "auto" }}
     >
       <Grid container spacing={2}>
-        <Grid item lg={6} xs={12} md={6} mt={2}>
+        <Grid className="mt-5" item lg={6} xs={12} md={6} mt={2}>
           <Dropdown
-            title={"Client"}
             options={allBrandsList}
             onChange={handleClientChange}
+            value={allBrandsList.find(
+              (option) => option.value === selectedBrand
+            )}
           />
         </Grid>
+
         <Grid item lg={6} xs={12} md={6} mt={2}>
           <InputWithTitle
             title={"Contract Reference"}
             type={"text"}
             placeholder={"Contract Reference"}
-            value={contractReference}
+            value={contractReference} // Use contract reference here
             onChange={(value) => {
               setContractReference(value);
               setFormData((prev) => ({ ...prev, contractReference: value }));
             }}
           />
         </Grid>
+
         <Grid item lg={6} xs={12} md={6} mt={2}>
           <InputWithTitle
             title={"Firm"}
             type={"text"}
             placeholder={"Firm"}
-            value={firmName}
-            onChange={handleFirmNameChange}
+            value={firmName} // Use the firm name from the selected client
+            onChange={(value) => {
+              setFirmName(value);
+              setFormData((prev) => ({ ...prev, firmName: value }));
+            }}
           />
         </Grid>
+
+        <Grid item lg={6} xs={12} md={6} mt={2}>
+          <Dropdown
+            title={"Select address"}
+            options={addresses}
+            onChange={handleAddressChange}
+            value={selectedAddress} // Bind the selected address
+          />
+        </Grid>
+
         <Grid item lg={6} xs={12} md={6} mt={2}>
           <InputWithTitle
             title={"Quotes title"}
             type={"text"}
             placeholder={"Quotes title"}
             onChange={(value) => {
-              setFormData((prev) => ({ ...prev, quoteTitle: value }));
+              setFormData((prev) => ({ ...prev, quote_title: value }));
             }}
           />
         </Grid>
-        <Grid item lg={6} xs={12} md={6} mt={2}>
-          <Dropdown
-            title={"Contracted by"}
-            options={contractedBy ? [contractedBy] : []}
-          />
-        </Grid>
-        <Grid item lg={6} xs={12} md={6} mt={2}>
-          <Dropdown
-            title={"Select address"}
-            options={addresses.map((address, index) => ({
-              value: index,
-              label: address,
-            }))}
-            onChange={handleAddressChange} // Add onChange to update formData
-          />
-        </Grid>
+
         <Grid item lg={6} xs={12} md={6} mt={2}>
           <InputWithTitle
             title={"Subject"}
@@ -145,32 +152,40 @@ const BasicQuote = ({ setFormData }) => {
             }}
           />
         </Grid>
+
         <Grid item lg={6} xs={12} md={6} mt={2}>
           <InputWithTitle
             title={"TRN"}
             type={"text"}
             placeholder={"TRN"}
-            onChange={handleTrnChange}
+            onChange={(value) => {
+              setFormData((prev) => ({ ...prev, trn: value }));
+            }}
           />
         </Grid>
+
         <Grid item lg={6} xs={12} md={6} mt={2}>
           <InputWithTitle
             title={"Tag"}
             type={"text"}
             placeholder={"Tag"}
-            onChange={handleTagChange}
+            onChange={(value) => {
+              setFormData((prev) => ({ ...prev, tag: value }));
+            }}
           />
         </Grid>
+
         <Grid item lg={6} xs={12} md={6} mt={2}>
           <InputWithTitle
             title={"Duration in Month"}
             type={"text"}
             placeholder={"Duration in Month"}
             onChange={(value) => {
-              setFormData((prev) => ({ ...prev, durationInMonths: value }));
+              setFormData((prev) => ({ ...prev, duration_in_months: value }));
             }}
           />
         </Grid>
+
         <Grid className="mt-10" item lg={6} xs={12} md={6} mt={2}>
           <InputWithTitle
             title={"Food Watch Account"}
@@ -181,6 +196,7 @@ const BasicQuote = ({ setFormData }) => {
             }}
           />
         </Grid>
+
         <Grid item lg={6} xs={12} mt={5}>
           <MultilineInput
             title={"Description"}

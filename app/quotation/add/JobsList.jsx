@@ -11,12 +11,12 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Button from "@mui/material/Button";
 import { Grid } from "@mui/material";
 
-const JobsList = ({ checkedServices, setFormData, formData }) => {
-  console.log("checked", formData);
+const JobsList = ({ checkedServices, setFormData }) => {
+  // console.log("checked", formData);
 
   const [selectedProduct, setSelectedProduct] = useState({});
 
-  console.log("selected", selectedProduct);
+  // console.log("selected", selectedProduct);
 
   const [noOfMonth, setNoOfMonth] = useState("");
   const [rate, setRate] = useState("");

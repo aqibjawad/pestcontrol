@@ -15,46 +15,28 @@ const Page = () => {
   const api = new APICall();
 
   const [formData, setFormData] = useState({
-    quoteTitle: "",
+    manage_type: "create",
+    quote_title: "",
     user_id: "",
-    clientAddressId: null,
+    client_address_id: null,
     subject: "",
     tm_ids: [],
     description: "",
     trn: "",
     tag: "",
-    durationInMonths: "",
-    isFoodWatchAccount: false,
+    duration_in_months: "",
+    is_food_watch_account: false,
     billing_method: "",
     services: [],
   });
 
     const handleSubmit = async () => {
-      const payload = JSON.stringify({
-        manage_type: "create",
-        user_id: formData.user_id,
-        quote_title: formData.quoteTitle,
-        client_address_id: formData.clientAddressId,
-        subject: formData.subject,
-        tm_ids: formData.tm_ids,
-        description: formData.description,
-        trn: formData.trn,
-        tag: formData.tag,
-        duration_in_months: formData.durationInMonths,
-        is_food_watch_account: formData.isFoodWatchAccount ? 1 : 0,
-        billing_method: formData.billing_method,
-        services: formData.services, 
-      });
-      const parsedPayload = JSON.parse(payload);
-      console.log("payload",parsedPayload);
-      
-
       try {
-        const response = await api.postFormDataWithToken(
+        const response = await api.postDataWithTokn(
           `${quotation}/manage`,
-          payload
+          formData
         );
-        console.log("Response:", response);
+        console.log("Response:", formData);
       } catch (error) {
         console.error("Error sending data:", error);
       }
@@ -73,7 +55,7 @@ const Page = () => {
       <Invoice setFormData={setFormData} />
       <ContractSummery />
       <Scope />
-      <TermConditions />
+      <TermConditions setFormData={setFormData} />
 
       <button onClick={handleSubmit}>Submit</button>
     </div>

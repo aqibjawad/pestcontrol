@@ -3,13 +3,11 @@
 import React, { useState } from "react";
 import styles from "../../../styles/loginStyles.module.css";
 import InputWithTitle from "@/components/generic/InputWithTitle";
-import { FormGroup, FormControlLabel, Checkbox, Button } from "@mui/material";
-import APICall from "../../../networkUtil/APICall";
+import { FormGroup, FormControlLabel, Checkbox } from "@mui/material";
 
 const Invoice = ({ setFormData, formData }) => {
-  
   const [billingFrequency, setBillingFrequency] = useState("");
-  const [billing_methods, setbilling_methods] = useState({
+  const [billing_methods, setBillingMethods] = useState({
     monthly: false,
     service: false,
     yearly: false,
@@ -17,26 +15,39 @@ const Invoice = ({ setFormData, formData }) => {
 
   const handleBillingFrequencyChange = (value) => {
     setBillingFrequency(value);
-    setFormData((prev) => ({ ...prev, billing_method: value })); // Update billing method in formData
+    setFormData((prev) => ({ ...prev, billing_frequency: value })); // Update billing frequency in formData
   };
 
   const handleCheckboxChange = (event) => {
     const { name, checked } = event.target;
-    setbilling_methods((prev) => ({
+
+    // Update the local state for checkboxes
+    setBillingMethods((prev) => ({
       ...prev,
       [name]: checked,
     }));
+
+    // Create a string of selected billing methods
+    const updatedBillingMethods = {
+      monthly: billing_methods.monthly,
+      service: billing_methods.service,
+      yearly: billing_methods.yearly,
+      [name]: checked, // Set the changed value
+    };
+
+    // Create a string of selected methods
+    const selectedMethods = Object.keys(updatedBillingMethods)
+      .filter((method) => updatedBillingMethods[method])
+      .join(", "); // Join methods with a comma
+
     setFormData((prev) => ({
       ...prev,
-      services: { ...prev.services, [name]: checked }, // Store selected billing methods
+      billing_method: selectedMethods, // Store selected billing methods as a string
     }));
   };
 
   return (
-    <div
-      className={styles.userFormContainer}
-      style={{ fontSize: "16px", margin: "auto" }}
-    >
+    <div className={styles.userFormContainer} style={{ fontSize: "16px", margin: "auto" }}>
       <div className="mt-5 border border-gray-300">
         <div className="p-2.5 font-semibold text-lg">Invoice</div>
 
