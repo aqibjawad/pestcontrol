@@ -5,7 +5,7 @@ import { Grid, Checkbox, FormControlLabel, Typography } from "@mui/material";
 
 import { styled } from "@mui/material/styles";
 
-const Invoice = () => {
+const Invoice = ({ quote }) => {
   const CustomCheckbox = styled(Checkbox)(({ theme }) => ({
     "&.Mui-checked": {
       color: "#38A73B", // Custom color when checked
@@ -30,7 +30,7 @@ const Invoice = () => {
             disabled
             checked
             control={<CustomCheckbox />}
-            label={<Typography variant="body1">Service</Typography>}
+            label={<Typography variant="body1"> {quote?.billing_method} </Typography>}
           />
         </Grid>
       </Grid>

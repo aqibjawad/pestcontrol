@@ -11,37 +11,39 @@ import {
   TableRow,
 } from "@mui/material";
 
-const ServiceProduct = () => {
-  const rows = [
-    { name: "Frozen yogurt", calories: 159, fat: 6.0, carbs: 24, protein: 4.0 },
-  ];
+const ServiceProduct = ({ quote }) => {
+
+
+  const rows = quote?.quote_services || [];
 
   return (
     <div className={styles.clientRecord}>
-      <div className={styles.clientHead}> Service product </div>
+      <div className={styles.clientHead}>Service Product</div>
 
-      <TableContainer>
+      <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
           <TableHead className={styles.tableHead}>
             <TableRow>
-              <TableCell align="center"> Service product </TableCell>
-              <TableCell align="center"> No. of months </TableCell>
-              <TableCell align="center"> Job type </TableCell>
-              <TableCell align="center"> Rate </TableCell>
-              <TableCell align="center"> Sub Total </TableCell>
+              <TableCell align="center">Service Product</TableCell>
+              <TableCell align="center">No. of Months</TableCell>
+              <TableCell align="center">Job Type</TableCell>
+              <TableCell align="center">Rate</TableCell>
+              <TableCell align="center">Sub Total</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {rows.map((row) => (
               <TableRow
-                key={row.name}
+                key={row.id}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
-                <TableCell align="center">{row.name}</TableCell>
-                <TableCell align="center">{row.calories}</TableCell>
-                <TableCell align="center">{row.fat}</TableCell>
-                <TableCell align="center">{row.carbs}</TableCell>
-                <TableCell align="center">{row.protein}</TableCell>
+                <TableCell align="center">
+                  {row.service.service_title}
+                </TableCell>
+                <TableCell align="center">{row.no_of_services}</TableCell>
+                <TableCell align="center">{row.job_type}</TableCell>
+                <TableCell align="center">{row.rate}</TableCell>
+                <TableCell align="center">{row.sub_total}</TableCell>
               </TableRow>
             ))}
           </TableBody>

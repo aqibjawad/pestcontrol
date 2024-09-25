@@ -11,7 +11,14 @@ import {
   TableRow,
 } from "@mui/material";
 
-const CustomerDetails = () => {
+const CustomerDetails = ({ quote }) => {
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A"; // Handle no date case
+    const options = { year: "numeric", month: "long", day: "numeric" };
+    const date = new Date(dateString);
+    return date.toLocaleDateString(undefined, options); // Formats to "Month Day, Year"
+  };
+
   return (
     <div className={styles.quoteMain}>
       <Grid container spacing={3}>
@@ -23,49 +30,45 @@ const CustomerDetails = () => {
                   <TableCell>
                     <strong> Customer:</strong>
                   </TableCell>
-                  <TableCell> 45d46 </TableCell>
+                  <TableCell> {quote?.user?.name} </TableCell>
                 </TableRow>
 
                 <TableRow sx={{ border: "none" }}>
                   <TableCell>
                     <strong> Reference:</strong>
                   </TableCell>
-                  <TableCell> 45d46 </TableCell>
-                </TableRow>
-
-                <TableRow sx={{ border: "none" }}>
                   <TableCell>
-                    <strong> Contract person:</strong>
+                    {" "}
+                    {quote?.user?.client?.referencable?.name}{" "}
                   </TableCell>
-                  <TableCell> 45d46 </TableCell>
-                </TableRow>
-
-                <TableRow sx={{ border: "none" }}>
-                  <TableCell>
-                    <strong> Total quotations :</strong>
-                  </TableCell>
-                  <TableCell> 45d46 </TableCell>
                 </TableRow>
 
                 <TableRow sx={{ border: "none" }}>
                   <TableCell>
                     <strong> Job title: </strong>
                   </TableCell>
-                  <TableCell> 45d46 </TableCell>
+                  <TableCell> {quote?.quote_title} </TableCell>
                 </TableRow>
 
                 <TableRow sx={{ border: "none" }}>
                   <TableCell>
                     <strong> Country: </strong>
                   </TableCell>
-                  <TableCell> 45d46 </TableCell>
+                  <TableCell> UAE </TableCell>
                 </TableRow>
 
                 <TableRow sx={{ border: "none" }}>
                   <TableCell>
                     <strong> Priority: </strong>
                   </TableCell>
-                  <TableCell> 45d46 </TableCell>
+                  <TableCell> High </TableCell>
+                </TableRow>
+
+                <TableRow sx={{ border: "none" }}>
+                  <TableCell>
+                    <strong> Date: </strong>
+                  </TableCell>
+                  <TableCell> {formatDate(quote?.updated_at)} </TableCell>
                 </TableRow>
               </TableBody>
             </Table>
@@ -78,51 +81,37 @@ const CustomerDetails = () => {
               <TableBody>
                 <TableRow sx={{ border: "none" }}>
                   <TableCell>
-                    <strong> Date: </strong>
-                  </TableCell>
-                  <TableCell> 45d46 </TableCell>
-                </TableRow>
-
-                <TableRow sx={{ border: "none" }}>
-                  <TableCell>
                     <strong> Job type : </strong>
                   </TableCell>
-                  <TableCell> 45d46 </TableCell>
+                  <TableCell> Reoccuring </TableCell>
                 </TableRow>
 
                 <TableRow sx={{ border: "none" }}>
                   <TableCell>
                     <strong> Duration: </strong>
                   </TableCell>
-                  <TableCell> 45d46 </TableCell>
+                  <TableCell> {quote?.duration_in_months} </TableCell>
                 </TableRow>
 
                 <TableRow sx={{ border: "none" }}>
                   <TableCell>
                     <strong> VAT: </strong>
                   </TableCell>
-                  <TableCell> 45d46 </TableCell>
+                  <TableCell> {quote?.vat} </TableCell>
                 </TableRow>
 
                 <TableRow sx={{ border: "none" }}>
                   <TableCell>
                     <strong> TRN: </strong>
                   </TableCell>
-                  <TableCell> 45d46 </TableCell>
+                  <TableCell> {quote?.trn} </TableCell>
                 </TableRow>
 
                 <TableRow sx={{ border: "none" }}>
                   <TableCell>
                     <strong> Firm: </strong>
                   </TableCell>
-                  <TableCell> 45d46 </TableCell>
-                </TableRow>
-
-                <TableRow sx={{ border: "none" }}>
-                  <TableCell>
-                    <strong> Priority: </strong>
-                  </TableCell>
-                  <TableCell> 45d46 </TableCell>
+                  <TableCell> {quote?.user?.client?.firm_name} </TableCell>
                 </TableRow>
               </TableBody>
             </Table>

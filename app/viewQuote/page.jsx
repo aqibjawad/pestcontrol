@@ -15,6 +15,8 @@ import SearchInput from "@/components/generic/SearchInput";
 import APICall from "@/networkUtil/APICall";
 import { quotation } from "@/networkUtil/Constants";
 
+import Link from "next/link";
+
 const Quotation = () => {
   const api = new APICall();
 
@@ -28,7 +30,7 @@ const Quotation = () => {
   const getAllQuotes = async () => {
     setFetchingData(true);
     try {
-      const response = await api.getDataWithToken(`${quotation}/contracted`);
+      const response = await api.getDataWithToken(`${quotation}/all`);
       setQuoteList(response.data);
     } catch (error) {
       console.error("Error fetching quotes:", error);
@@ -46,10 +48,9 @@ const Quotation = () => {
               <TableCell>Customer</TableCell>
               <TableCell>Billing Method</TableCell>
               <TableCell>Quote Title</TableCell>
-              <TableCell>Contract Start</TableCell>
-              <TableCell>Contract End</TableCell>
               <TableCell>Treatment Method Name</TableCell>
               <TableCell>Sub Total</TableCell>
+              <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -65,14 +66,20 @@ const Quotation = () => {
                   <TableCell>{row?.user?.name}</TableCell>
                   <TableCell>{row.billing_method}</TableCell>
                   <TableCell>{row.quote_title}</TableCell>
-                  <TableCell>{row.contract_start_date}</TableCell>
-                  <TableCell>{row.contract_end_date}</TableCell>
                   <TableCell>
                     {row?.treatment_methods
                       ?.map((method) => method.name)
                       .join(", ") || "N/A"}
                   </TableCell>
                   <TableCell>{row.sub_total}</TableCell>
+                  <TableCell>
+                    {" "}
+                    <Link href={`/quotePdf?id=${row.id}`}>
+                      <span className="text-blue-600 hover:text-blue-800">
+                        View Details
+                      </span>
+                    </Link>
+                  </TableCell>
                 </TableRow>
               ))
             )}
