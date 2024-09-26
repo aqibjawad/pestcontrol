@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-const CalendarComponent = ({ onDateChange, initialDates = [] }) => {
+const CalendarComponent = ({ onDateChange, initialDates = [], isDateSelectable }) => {
   const [dates, setDates] = useState(initialDates);
 
   useEffect(() => {
@@ -32,9 +32,11 @@ const CalendarComponent = ({ onDateChange, initialDates = [] }) => {
         onChange={handleDateChange}
         inline
         highlightDates={formattedDates}
-        dayClassName={(date) =>
-          dates.includes(date.toDateString()) ? "selected-date" : undefined
-        }
+        dayClassName={(date) => {
+          const dateStr = date.toDateString();
+          return dates.includes(dateStr) ? "selected-date" : undefined;
+        }}
+        filterDate={isDateSelectable} // Use filterDate to restrict selectable dates
       />
       <p>Selected Dates: {dates.join(", ")}</p>
       <style jsx>{`

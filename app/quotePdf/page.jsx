@@ -20,6 +20,7 @@ const Page = () => {
 
   const [fetchingData, setFetchingData] = useState(false);
   const [quoteList, setQuoteList] = useState(null); // Change initial state to null
+  const [isApproved, setIsApproved] = useState(false); // Track approval status
 
   useEffect(() => {
     getAllQuotes();
@@ -30,6 +31,10 @@ const Page = () => {
     try {
       const response = await api.getDataWithToken(`${quotation}/${id}`);
       setQuoteList(response.data);
+      // Check if the quote is contracted on data fetch
+      if (response.data.type === "contracted") {
+        setIsApproved(true);
+      }
     } catch (error) {
       console.error("Error fetching quotes:", error);
     } finally {
@@ -43,6 +48,8 @@ const Page = () => {
         `${quotation}/move/contract/${id}`
       );
       console.log("Response:", response);
+      setIsApproved(true); // Update approval status after submission
+      // Optionally: you could also check the response to see if it is contracted
     } catch (error) {
       console.error("Error sending data:", error);
     }
@@ -77,7 +84,9 @@ const Page = () => {
             <div className="flex">
               <div className="flex-grow"></div>
               <div>
-                <div className={styles.heading}> Quotes </div>
+                <div className={styles.heading}>
+                  {isApproved ? "Contracted" : "Quotes"}
+                </div>
               </div>
             </div>
           </Grid>
@@ -97,24 +106,33 @@ const Page = () => {
 
       <Grid container spacing={3}>
         <Grid item lg={6} xs={12} sm={6} md={4}>
-          <div onClick={handleEditQuote} className={styles.approveDiv}>
-            Edit Quote
-          </div>
+          {!isApproved && (
+            <div onClick={handleEditQuote} className={styles.approveDiv}>
+              Edit Quote
+            </div>
+          )}
+          {isApproved && (
+            <div onClick={handlePrint} className={styles.approveDiv}>
+              Print
+            </div>
+          )}
         </Grid>
 
         <Grid item lg={6} xs={12} sm={6} md={4}>
           <div className="flex">
             <div className="flex-grow"></div>
             <div>
-              <div onClick={handleSubmit} className={styles.approveDiv}>
-                Approve
-              </div>
+              {!isApproved && (
+                <div onClick={handleSubmit} className={styles.approveDiv}>
+                  Approve
+                </div>
+              )}
+
+              {isApproved && <div className={styles.approveDiv}>Approved</div>}
             </div>
           </div>
         </Grid>
       </Grid>
-
-      {/* <div onClick={handlePrint}>print</div> */}
     </div>
   );
 };

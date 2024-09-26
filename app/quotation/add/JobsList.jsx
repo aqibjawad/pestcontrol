@@ -69,9 +69,38 @@ const JobsList = ({
 
   const handleJobTypeChange = (value) => {
     setSelectedJobType(value);
-    if (["one_time", "yearly", "monthly", "weekly"].includes(value)) {
-      setOpen(true);
+    if (["one_time", "yearly", "monthly", "weekly", "custom", "daily"].includes(value)) {
+        setOpen(true);
+        if (value === "daily") {
+            const today = new Date().toISOString().slice(0, 10);
+            setSelectedDates([today]); // Automatically select today's date
+        }
     }
+};
+
+
+  const isDateSelectable = (date) => {
+    const today = new Date();
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
+
+    // If daily, only allow today
+    if (selectedJobType === "daily") {
+      return (
+        date.getDate() === today.getDate() &&
+        date.getMonth() === currentMonth &&
+        date.getFullYear() === currentYear
+      );
+    }
+
+    // For monthly, allow dates only in the current month
+    if (selectedJobType === "monthly") {
+      return (
+        date.getMonth() === currentMonth && date.getFullYear() === currentYear
+      );
+    }
+
+    return true; // Allow all dates for other job types
   };
 
   const onChange = (key, value) => {
@@ -177,6 +206,7 @@ const JobsList = ({
                         )
                       );
                     }}
+                    isDateSelectable={isDateSelectable} // Pass the function to filter selectable dates
                   />
                 </DialogContent>
                 <DialogActions>
@@ -213,7 +243,9 @@ const JobsList = ({
         </div>
 
         <div style={{ marginTop: "1rem" }}>
-          <div style={{ color: "#667085", fontWeight: "500", fontSize: "14px" }}>
+          <div
+            style={{ color: "#667085", fontWeight: "500", fontSize: "14px" }}
+          >
             {selectedDates.length > 0 ? (
               <>
                 Selected Dates: {selectedDates.join(", ")}
