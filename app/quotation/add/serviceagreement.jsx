@@ -1,81 +1,85 @@
-"use client";
-
-import React, { useEffect, useMemo, useState } from "react";
+// ServiceAgreement.jsx
+import React, { useEffect, useState } from "react";
 import { services } from "../../../networkUtil/Constants";
 import APICall from "../../../networkUtil/APICall";
 import JobsList from "./JobsList";
-
 import ContractSummary from "./contract";
 
 const ServiceAgreement = ({ setFormData, formData }) => {
   const api = new APICall();
-  const [service, setServices] = useState([]);
+  const [allServices, setAllServices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [myServices, setMyServices] = useState([]);
+  const [jobLists, setJobLists] = useState([]);
 
   const getAllServices = async () => {
     setIsLoading(true);
-    const response = await api.getDataWithToken(services);
-    const agreementsWithChecked = response.data.map((agreement) => ({
-      ...agreement,
-      checked: false,
-    }));
-    setServices(agreementsWithChecked);
-    setIsLoading(false);
+    try {
+      const response = await api.getDataWithToken(services);
+      const servicesWithChecked = response.data.map((service) => ({
+        ...service,
+        isChecked: false,
+      }));
+      setAllServices(servicesWithChecked);
+    } catch (error) {
+      console.error("Error fetching services:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
     getAllServices();
   }, []);
 
-  useEffect(() => {
-    if (service !== undefined) {
-      makeServicesList();
-    }
-  }, [service]);
-
-  const [subTotals, setSubTotals] = useState([]);
-
-  // Function to update subtotal for each JobsList component
-  const updateSubTotal = (index, subTotal) => {
-    setSubTotals((prev) => {
-      const updatedSubTotals = [...prev];
-      updatedSubTotals[index] = subTotal;
-      return updatedSubTotals;
-    });
-  };
-
-  // Calculate grand total
-  const grandTotal = subTotals.reduce((total, sub) => total + sub, 0);
-
-  const makeServicesList = () => {
-    const servicesWithCheck = service.map((item) => ({
-      service_id: item.id,
-      pest_name: item.pest_name, // Make sure this property is included
-      isChecked: false,
-      detail: [
-        {
-          job_type: item.job_type,
-          rate: 1,
-          dates: item.dates || [],
-        },
-      ],
-    }));
-
-    setMyServices(servicesWithCheck);
-  };
-
-  const handleCheckboxChange = (index) => {
-    setMyServices((prevServices) =>
-      prevServices.map((service, i) =>
-        i === index ? { ...service, isChecked: !service.isChecked } : service
+  const handleCheckboxChange = (serviceId) => {
+    setAllServices((prevServices) =>
+      prevServices.map((service) =>
+        service.id === serviceId
+          ? { ...service, isChecked: !service.isChecked }
+          : service
       )
     );
   };
 
+  useEffect(() => {
+    const selectedServices = allServices.filter((service) => service.isChecked);
+    setJobLists(
+      selectedServices.map((service) => ({
+        serviceId: service.id,
+        serviceName: service.pest_name,
+        jobType: "",
+        rate: "100",
+        dates: [],
+        subTotal: 0,
+      }))
+    );
+  }, [allServices]);
+
+  const updateJobList = (index, updatedJob) => {
+    setJobLists((prevJobLists) => {
+      const newJobLists = [...prevJobLists];
+      newJobLists[index] = { ...newJobLists[index], ...updatedJob };
+      return newJobLists;
+    });
+  };
+
+  const grandTotal = jobLists.reduce((total, job) => total + job.subTotal, 0);
+
   const handleSubmit = () => {
-    const checkedServices = myServices.filter((service) => service.isChecked);
-    setFormData((prev) => ({ ...prev, services: checkedServices }));
+    const formattedServices = jobLists.map((job) => ({
+      service_id: job.serviceId,
+      pest_name: job.serviceName,
+      isChecked: true,
+      detail: [
+        {
+          job_type: job.jobType,
+          rate: job.rate,
+          dates: job.dates,
+        },
+      ],
+    }));
+
+    setFormData((prev) => ({ ...prev, services: formattedServices }));
   };
 
   if (isLoading) {
@@ -83,49 +87,38 @@ const ServiceAgreement = ({ setFormData, formData }) => {
   }
 
   return (
-    <div
-      className="mt-10"
-      style={{ border: "1px solid #D0D5DD", padding: "20px" }}
-    >
+    <div className="mt-10" style={{ border: "1px solid #D0D5DD", padding: "20px" }}>
       <div className="mt-5" style={{ fontSize: "20px", fontWeight: "600" }}>
         Service Agreement
       </div>
-      <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
-        {myServices?.map((agreement, index) => (
-          <div
-            key={agreement.service_id}
-            style={{ display: "flex", alignItems: "center" }}
-          >
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", marginTop: "1rem" }}>
+        {allServices.map((service) => (
+          <div key={service.id} style={{ display: "flex", alignItems: "center" }}>
             <input
               type="checkbox"
-              checked={agreement.isChecked}
-              onChange={() => handleCheckboxChange(index)}
+              checked={service.isChecked}
+              onChange={() => handleCheckboxChange(service.id)}
             />
-            <label style={{ marginLeft: "0.5rem" }}>
-              {agreement.pest_name}
-            </label>
+            <label style={{ marginLeft: "0.5rem" }}>{service.pest_name}</label>
           </div>
         ))}
       </div>
       <div className="mt-10 mb-10">
-        {myServices
-          .filter((service) => service.isChecked)
-          .map((service, index) => (
-            <JobsList
-              checkedServices={myServices.filter(
-                (service) => service.isChecked
-              )}
-              formData={formData}
-              setFormData={setFormData}
-              updateSubTotal={(subTotal) => updateSubTotal(index, subTotal)}
-            />
-          ))}
+        {jobLists.map((job, index) => (
+          <JobsList
+            key={job.serviceId}
+            jobData={job}
+            allServices={allServices}
+            updateJobList={(updatedJob) => updateJobList(index, updatedJob)}
+            duration_in_months={formData.duration_in_months}
+          />
+        ))}
       </div>
-
-      {/* Pass the grand total to the ContractSummary */}
       <ContractSummary grandTotal={grandTotal} />
+      <button onClick={handleSubmit}>Submit</button>
     </div>
   );
 };
 
 export default ServiceAgreement;
+

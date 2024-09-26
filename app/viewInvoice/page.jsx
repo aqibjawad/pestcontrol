@@ -13,15 +13,15 @@ import {
 } from "@mui/material";
 import SearchInput from "@/components/generic/SearchInput";
 import APICall from "@/networkUtil/APICall";
-import { quotation } from "@/networkUtil/Constants";
+import { serviceInvoice } from "@/networkUtil/Constants";
 
 import Link from "next/link";
 
-const Quotation = () => {
+const Page = () => {
   const api = new APICall();
 
   const [fetchingData, setFetchingData] = useState(false);
-  const [quoteList, setQuoteList] = useState([]);
+  const [invoiceList, setInvoiceList] = useState([]);
 
   useEffect(() => {
     getAllQuotes();
@@ -30,8 +30,8 @@ const Quotation = () => {
   const getAllQuotes = async () => {
     setFetchingData(true);
     try {
-      const response = await api.getDataWithToken(`${quotation}/all`);
-      setQuoteList(response.data);
+      const response = await api.getDataWithToken(`${serviceInvoice}`);
+      setInvoiceList(response.data);
     } catch (error) {
       console.error("Error fetching quotes:", error);
     } finally {
@@ -46,11 +46,10 @@ const Quotation = () => {
           <TableHead>
             <TableRow>
               <TableCell>Customer</TableCell>
-              <TableCell>Billing Method</TableCell>
-              <TableCell>Quote Title</TableCell>
-              <TableCell>Treatment Method Name</TableCell>
-              <TableCell>Sub Total</TableCell>
+              <TableCell>Invoice Issue Date</TableCell>
+              <TableCell>Total Amount</TableCell>
               <TableCell>Actions</TableCell>
+              <TableCell>Add Payment</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -61,22 +60,24 @@ const Quotation = () => {
                 </TableCell>
               </TableRow>
             ) : (
-              quoteList.map((row, index) => (
+              invoiceList.map((row, index) => (
                 <TableRow key={index}>
                   <TableCell>{row?.user?.name}</TableCell>
-                  <TableCell>{row.billing_method}</TableCell>
-                  <TableCell>{row.quote_title}</TableCell>
-                  <TableCell>
-                    {row?.treatment_methods
-                      ?.map((method) => method.name)
-                      .join(", ") || "N/A"}
-                  </TableCell>
-                  <TableCell>{row.sub_total}</TableCell>
+                  <TableCell>{row.issued_date}</TableCell>
+                  <TableCell>{row.total_amt}</TableCell>
                   <TableCell>
                     {" "}
                     <Link href={`/quotePdf?id=${row.id}`}>
                       <span className="text-blue-600 hover:text-blue-800">
                         View Details
+                      </span>
+                    </Link>
+                  </TableCell>
+                  <TableCell>
+                    {" "}
+                    <Link href={`/servicePayment?id=${row.id}`}>
+                      <span className="text-blue-600 hover:text-blue-800">
+                        Add Payments
                       </span>
                     </Link>
                   </TableCell>
@@ -95,7 +96,7 @@ const Quotation = () => {
         <div
           style={{ fontSize: "20px", fontWeight: "600", marginBottom: "-4rem" }}
         >
-          Quotations
+          Invoices
         </div>
         <div
           style={{
@@ -132,4 +133,4 @@ const Quotation = () => {
   );
 };
 
-export default Quotation;
+export default Page;
