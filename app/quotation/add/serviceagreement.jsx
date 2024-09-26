@@ -55,8 +55,8 @@ const ServiceAgreement = ({ setFormData, formData }) => {
       isChecked: false,
       detail: [
         {
-          job_type: item.job_type || "one_time",
-          rate: item.rate || 1,
+          job_type: item.job_type,
+          rate: 1,
           dates: item.dates || [],
         },
       ],

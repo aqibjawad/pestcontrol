@@ -16,8 +16,8 @@ const Invoice = ({ setFormData, formData }) => {
 
     setFormData((prev) => ({
       ...prev,
-      billing_frequency: value,
-      billing_method: "", // Clear billing method since input is used
+      no_of_installments: value,
+      billing_method: "installments", // Set billing method to "installment" when billing frequency is entered
     }));
   };
 
@@ -30,7 +30,7 @@ const Invoice = ({ setFormData, formData }) => {
 
     setFormData((prev) => ({
       ...prev,
-      billing_frequency: "", // Clear the billing frequency when a radio button is selected
+      no_of_installments: "", // Clear the billing frequency when a radio button is selected
       billing_method: value, // Set selected billing method
     }));
   };

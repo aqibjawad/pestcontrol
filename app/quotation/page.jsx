@@ -5,12 +5,15 @@ import BasicQuote from "./add/basicQuote";
 import ServiceAgreement from "./add/serviceagreement";
 import Method from "./add/method";
 import Invoice from "./add/invoice";
-import ContractSummery from "./add/contract";
 import Scope from "./add/scope";
 import TermConditions from "./add/terms";
 import APICall from "@/networkUtil/APICall";
 import { quotation } from "../../networkUtil/Constants";
 import { useSearchParams } from "next/navigation";
+
+import { useRouter } from "next/navigation";
+
+import Swal from "sweetalert2";
 
 import GreenButton from "@/components/generic/GreenButton";
 
@@ -18,6 +21,7 @@ import { Grid } from "@mui/material";
 
 const Page = () => {
   const api = new APICall();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
 
@@ -35,28 +39,48 @@ const Page = () => {
     is_food_watch_account: false,
     billing_method: "test",
     services: [],
-    dates: [],
+    rate: 1,
   });
-  console.log(formData);
-  
+
+  const [loading, setLoading] = useState(false); // Loading state
+  const [fetchingData, setFetchingData] = useState(false);
 
   const handleSubmit = async () => {
+    setLoading(true); // Start loader
     try {
       const endpoint = id ? `${quotation}/manage/${id}` : `${quotation}/manage`;
       const response = await api.postDataWithTokn(endpoint, formData);
-      
+      if (response.status === "success") {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Data has been added successfully!",
+        });
+        router.push("/viewQuote")
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to submit data. Please try again.",
+        });
+      }
       console.log("Response:", response.data);
     } catch (error) {
-      console.error("Error sending data:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: `${response.error.message}`,
+      });
+      console.error("Error submitting data:", error);
+    } finally {
+      setLoading(false); // Stop loader
     }
   };
-
-  const [fetchingData, setFetchingData] = useState(false);
 
   useEffect(() => {
     if (id) {
       getAllQuotes();
-      setFormData((prev) => ({ ...prev, manage_type: "edit" })); 
+      setFormData((prev) => ({ ...prev, manage_type: "edit" }));
     }
   }, [id]);
 
@@ -89,7 +113,11 @@ const Page = () => {
       <Scope formData={formData} />
       <TermConditions setFormData={setFormData} formData={formData} />
       <div className="mt-10">
-        <GreenButton onClick={handleSubmit} title={id ? "Update" : "Submit"} />
+        <GreenButton
+          onClick={handleSubmit}
+          title={loading ? "Submitting..." : id ? "Update" : "Submit"} // Show loader text
+          disabled={loading} // Disable button while loading
+        />
       </div>
     </div>
   );

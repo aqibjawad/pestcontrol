@@ -17,20 +17,20 @@ const JobsList = ({
   formData,
   updateSubTotal,
 }) => {
-  const [selectedProduct, setSelectedProduct] = useState(null); // Make sure the default is null
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const [noOfMonth, setNoOfMonth] = useState("");
-  const [rate, setRate] = useState("");
+  const [rate, setRate] = useState("100"); // Set a default value for rate, e.g., "100"
   const [open, setOpen] = useState(false);
   const [selectedJobType, setSelectedJobType] = useState("");
   const [selectedDates, setSelectedDates] = useState([]);
   const [subTotal, setSubTotal] = useState(0);
 
-  // Calculate subtotal whenever rate or selected dates change
+  // Calculate subtotal whenever selected dates or noOfMonth changes
   useEffect(() => {
-    const total = selectedDates.length * (parseFloat(rate) || 0);
+    const total = selectedDates.length * (parseFloat(noOfMonth) || 0);
     setSubTotal(total);
     updateSubTotal(total); // Call the parent function to update the subtotal
-  }, [selectedDates, rate]);
+  }, [selectedDates, noOfMonth]);
 
   const jobTypes = [
     { label: "One Time", value: "one_time" },
@@ -55,7 +55,7 @@ const JobsList = ({
             detail: [
               {
                 job_type: selectedJobType,
-                rate: rate,
+                rate: rate, // Send rate to the backend
                 dates: selectedDates,
               },
             ],
@@ -125,12 +125,6 @@ const JobsList = ({
     setProduct(product);
   };
 
-  useEffect(() => {
-    const total = selectedDates.length * (parseFloat(rate) || 0);
-    setSubTotal(total);
-    updateSubTotal(total); // This will call the parent function to update the subtotal
-  }, [selectedDates, rate]);
-
   return (
     <div>
       <div style={{ marginBottom: "2rem" }}>
@@ -143,7 +137,7 @@ const JobsList = ({
                   label: service.pest_name,
                   value: service.id,
                 }))}
-                value={selectedProduct?.id || ""} // Ensure the selected value is set here
+                value={selectedProduct?.id || ""}
                 onChange={handleDropdownChange}
               />
             </Grid>
@@ -154,7 +148,9 @@ const JobsList = ({
                 type={"text"}
                 name="noOfMonth"
                 placeholder={"No of Month"}
-                onChange={(value) => onChange("noOfMonth", value)}
+                onChange={(value) => {
+                  setNoOfMonth(value); // Update noOfMonth state
+                }}
               />
             </Grid>
 
@@ -196,8 +192,10 @@ const JobsList = ({
                 type={"text"}
                 name="rate"
                 placeholder={"Rate"}
-                value={rate}
-                onChange={(value) => setRate(value)} // Update rate on change
+                value={rate} // Display the default rate value
+                onChange={(value) => {
+                  setRate(value); // Update rate for backend submission
+                }}
               />
             </Grid>
 
@@ -211,19 +209,11 @@ const JobsList = ({
                 readOnly
               />
             </Grid>
-
-            <Grid className="mt-10" item xs={1}>
-              <Button variant="outlined" color="error">
-                Delete
-              </Button>
-            </Grid>
           </Grid>
         </div>
 
         <div style={{ marginTop: "1rem" }}>
-          <div
-            style={{ color: "#667085", fontWeight: "500", fontSize: "14px" }}
-          >
+          <div style={{ color: "#667085", fontWeight: "500", fontSize: "14px" }}>
             {selectedDates.length > 0 ? (
               <>
                 Selected Dates: {selectedDates.join(", ")}

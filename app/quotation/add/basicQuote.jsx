@@ -188,7 +188,6 @@ const BasicQuote = ({ setFormData, formData }) => {
             type={"number"} // Use "number" to restrict non-numeric input
             placeholder={"Duration in Month"}
             value={formData.duration_in_months}
-            value={formData.duration_in_months || ""} // Bind the value
             onChange={(value) => {
               // Ensure value is a number and not greater than 12
               if (value <= 12 && value >= 0) {
