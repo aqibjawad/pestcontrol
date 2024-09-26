@@ -11,21 +11,25 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Button from "@mui/material/Button";
 import { Grid } from "@mui/material";
 
-const JobsList = ({ checkedServices, setFormData }) => {
-  const [selectedProduct, setSelectedProduct] = useState({});
+const JobsList = ({
+  checkedServices,
+  setFormData,
+  formData,
+  updateSubTotal,
+}) => {
+  const [selectedProduct, setSelectedProduct] = useState(null); // Make sure the default is null
   const [noOfMonth, setNoOfMonth] = useState("");
   const [rate, setRate] = useState("");
   const [open, setOpen] = useState(false);
   const [selectedJobType, setSelectedJobType] = useState("");
-  console.log(selectedJobType);
-
   const [selectedDates, setSelectedDates] = useState([]);
-
   const [subTotal, setSubTotal] = useState(0);
 
+  // Calculate subtotal whenever rate or selected dates change
   useEffect(() => {
-    const total = selectedDates.length * (parseFloat(rate) || 1);
+    const total = selectedDates.length * (parseFloat(rate) || 0);
     setSubTotal(total);
+    updateSubTotal(total); // Call the parent function to update the subtotal
   }, [selectedDates, rate]);
 
   const jobTypes = [
@@ -50,8 +54,8 @@ const JobsList = ({ checkedServices, setFormData }) => {
             ...service,
             detail: [
               {
-                job_type: selectedJobType, // Include job type here
-                rate: 1,
+                job_type: selectedJobType,
+                rate: rate,
                 dates: selectedDates,
               },
             ],
@@ -80,15 +84,20 @@ const JobsList = ({ checkedServices, setFormData }) => {
     );
     setSelectedDates(formattedDates); // Update the selected dates here
   };
+
   const getServices = (services, product) => {
     if (!services.length) return [product];
 
-    return services.map((d) => {
-      if (d.id === product.id) {
-        return product;
-      }
-      return d;
-    });
+    const isUpdated = services.find(({ id }) => id === product.id);
+    if (isUpdated) {
+      return services.map((d) => {
+        if (d.id === product.id) {
+          return product;
+        }
+        return d;
+      });
+    }
+    return [...services, product];
   };
 
   const setProduct = (product) => {
@@ -96,15 +105,15 @@ const JobsList = ({ checkedServices, setFormData }) => {
       ...product,
       detail: [
         {
-          job_type: selectedJobType, // Ensure this is included
-          rate: 1,
+          job_type: selectedJobType,
+          rate: rate,
           dates: selectedDates,
         },
       ],
       isChecked: true,
     };
 
-    setSelectedProduct(product);
+    setSelectedProduct(product); // Set selectedProduct
     setFormData((prev) => ({
       ...prev,
       services: getServices(prev.services, updatedService),
@@ -115,6 +124,12 @@ const JobsList = ({ checkedServices, setFormData }) => {
     const product = checkedServices.find((service) => service.id === value);
     setProduct(product);
   };
+
+  useEffect(() => {
+    const total = selectedDates.length * (parseFloat(rate) || 0);
+    setSubTotal(total);
+    updateSubTotal(total); // This will call the parent function to update the subtotal
+  }, [selectedDates, rate]);
 
   return (
     <div>
@@ -128,6 +143,7 @@ const JobsList = ({ checkedServices, setFormData }) => {
                   label: service.pest_name,
                   value: service.id,
                 }))}
+                value={selectedProduct?.id || ""} // Ensure the selected value is set here
                 onChange={handleDropdownChange}
               />
             </Grid>
@@ -163,7 +179,7 @@ const JobsList = ({ checkedServices, setFormData }) => {
                         value.map((date) =>
                           new Date(date).toISOString().slice(0, 10)
                         )
-                      ); // Format dates before saving
+                      );
                     }}
                   />
                 </DialogContent>
@@ -180,7 +196,8 @@ const JobsList = ({ checkedServices, setFormData }) => {
                 type={"text"}
                 name="rate"
                 placeholder={"Rate"}
-                onChange={(value) => setRate(value)} // Fixed this line
+                value={rate}
+                onChange={(value) => setRate(value)} // Update rate on change
               />
             </Grid>
 
@@ -190,7 +207,7 @@ const JobsList = ({ checkedServices, setFormData }) => {
                 type={"text"}
                 name="subTotal"
                 placeholder={"Sub Total"}
-                value={subTotal}
+                value={subTotal} // Display subtotal here
                 readOnly
               />
             </Grid>

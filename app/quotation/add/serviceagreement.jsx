@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { services } from "../../../networkUtil/Constants";
 import APICall from "../../../networkUtil/APICall";
 import JobsList from "./JobsList";
+
+import ContractSummary from "./contract";
 
 const ServiceAgreement = ({ setFormData, formData }) => {
   const api = new APICall();
@@ -32,14 +34,30 @@ const ServiceAgreement = ({ setFormData, formData }) => {
     }
   }, [service]);
 
+  const [subTotals, setSubTotals] = useState([]);
+
+  // Function to update subtotal for each JobsList component
+  const updateSubTotal = (index, subTotal) => {
+    setSubTotals((prev) => {
+      const updatedSubTotals = [...prev];
+      updatedSubTotals[index] = subTotal;
+      return updatedSubTotals;
+    });
+  };
+
+  // Calculate grand total
+  const grandTotal = subTotals.reduce((total, sub) => total + sub, 0);
+
   const makeServicesList = () => {
     const servicesWithCheck = service.map((item) => ({
       service_id: item.id,
+      pest_name: item.pest_name, // Make sure this property is included
+      isChecked: false,
       detail: [
         {
           job_type: item.job_type || "one_time",
-          rate: item.rate || 1, // Defaulting to 0 if not provided
-          dates: item.dates || [], // Defaulting to an empty array if not provided
+          rate: item.rate || 1,
+          dates: item.dates || [],
         },
       ],
     }));
@@ -73,9 +91,9 @@ const ServiceAgreement = ({ setFormData, formData }) => {
         Service Agreement
       </div>
       <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
-        {myServices.map((agreement, index) => (
+        {myServices?.map((agreement, index) => (
           <div
-            key={agreement.id}
+            key={agreement.service_id}
             style={{ display: "flex", alignItems: "center" }}
           >
             <input
@@ -90,12 +108,22 @@ const ServiceAgreement = ({ setFormData, formData }) => {
         ))}
       </div>
       <div className="mt-10 mb-10">
-        <JobsList
-          checkedServices={myServices.filter((service) => service.isChecked)}
-          formData={formData}
-          setFormData={setFormData}
-        />
+        {myServices
+          .filter((service) => service.isChecked)
+          .map((service, index) => (
+            <JobsList
+              checkedServices={myServices.filter(
+                (service) => service.isChecked
+              )}
+              formData={formData}
+              setFormData={setFormData}
+              updateSubTotal={(subTotal) => updateSubTotal(index, subTotal)}
+            />
+          ))}
       </div>
+
+      {/* Pass the grand total to the ContractSummary */}
+      <ContractSummary grandTotal={grandTotal} />
     </div>
   );
 };

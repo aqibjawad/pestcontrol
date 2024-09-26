@@ -1,50 +1,94 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Grid, Box, Typography } from "@mui/material";
+import InputWithTitle from "@/components/generic/InputWithTitle";
 
-import "../index.css";
-import styles from "../../../styles/quotes.module.css";
+const ContractSummary = ({ grandTotal }) => {
+  const [discount, setDiscount] = useState(0); // Discount in percentage
+  const [vat, setVAT] = useState(0); // VAT in percentage
+  const [finalTotal, setFinalTotal] = useState(grandTotal); // Final grand total after discount and VAT
 
-const ContractSummary = () => {
+  // Calculate the final total whenever the discount, VAT, or grandTotal changes
+  useEffect(() => {
+    const discountAmount = (grandTotal * discount) / 100;
+    const vatAmount = ((grandTotal - discountAmount) * vat) / 100;
+    const totalWithVAT = grandTotal - discountAmount + vatAmount;
+    setFinalTotal(totalWithVAT);
+  }, [discount, vat, grandTotal]);
+
   return (
     <Box
       sx={{
-        border: "1px solid black",
         marginTop: "1rem",
+        padding: "2rem",
+        borderRadius: "8px",
+        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
       }}
     >
       <Typography
         variant="h6"
         sx={{
-          padding: "34px",
           fontWeight: "600",
           fontSize: "20px",
+          marginBottom: "1rem",
         }}
       >
         Contract Summary
       </Typography>
 
-      <Grid container spacing={2} sx={{ paddingLeft: "34px", paddingBottom: "34px"  }}>
-        <Grid item lg={6} xs={6}>
-          <Box className={styles.subTotal}>Subtotal</Box>
-          <Box className="discount">Discount:</Box>
-          <Box className="discount">VAT</Box>
-          <Box className="discount">Grand Total</Box>
-        </Grid>
-
-        <Grid item lg={6} xs={6}>
-          <Box className="sub-total">Subtotal</Box>
-          <Box>
-            <Grid container spacing={1} alignItems="center">
-              <Grid item>
-                <Box className="discount-button flex flex-col">0</Box>
-              </Grid>
-              <Grid item>
-                <Box className="discount-perc flex flex-col">%</Box>
-              </Grid>
-            </Grid>
+      <Grid container spacing={3}>
+        {/* Left Side (Labels) */}
+        <Grid item lg={6} xs={12}>
+          <Box
+            sx={{ display: "flex", alignItems: "center", marginBottom: "1rem" }}
+          >
+            <Typography sx={{ fontWeight: "500", width: "100px" }}>
+              Subtotal:
+            </Typography>
+            <Typography>{grandTotal}</Typography>
           </Box>
-          <Box className="vat">VAT</Box>
-          <Box className="total">Grand Total</Box>
+
+          <Box
+            sx={{ display: "flex", alignItems: "center", marginBottom: "1rem" }}
+          >
+            <Typography sx={{ fontWeight: "500", width: "100px" }}>
+              Discount:
+            </Typography>
+            <InputWithTitle
+              title=""
+              type="number"
+              name="discount"
+              placeholder="Enter Discount"
+              value={discount}
+              onChange={(value) => setDiscount(parseFloat(value) || 0)}
+              inputStyle={{ width: "100px" }} // Add a custom width for input
+            />
+          </Box>
+
+          <Box
+            sx={{ display: "flex", alignItems: "center", marginBottom: "1rem" }}
+          >
+            <Typography sx={{ fontWeight: "500", width: "100px" }}>
+              VAT:
+            </Typography>
+            <InputWithTitle
+              title=""
+              type="number"
+              name="vat"
+              placeholder="Enter VAT"
+              value={vat}
+              onChange={(value) => setVAT(parseFloat(value) || 0)}
+              inputStyle={{ width: "100px" }} // Add a custom width for input
+            />
+          </Box>
+
+          <Box
+            sx={{ display: "flex", alignItems: "center", marginTop: "2rem" }}
+          >
+            <Typography sx={{ fontWeight: "500", width: "100px" }}>
+              Grand Total:
+            </Typography>
+            <Typography>{finalTotal}</Typography>
+          </Box>
         </Grid>
       </Grid>
     </Box>

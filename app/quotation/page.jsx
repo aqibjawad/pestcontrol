@@ -14,6 +14,8 @@ import { useSearchParams } from "next/navigation";
 
 import GreenButton from "@/components/generic/GreenButton";
 
+import { Grid } from "@mui/material";
+
 const Page = () => {
   const api = new APICall();
   const searchParams = useSearchParams();
@@ -31,15 +33,18 @@ const Page = () => {
     tag: "",
     duration_in_months: "",
     is_food_watch_account: false,
-    billing_method: "",
+    billing_method: "test",
     services: [],
     dates: [],
   });
+  console.log(formData);
+  
 
   const handleSubmit = async () => {
     try {
       const endpoint = id ? `${quotation}/manage/${id}` : `${quotation}/manage`;
       const response = await api.postDataWithTokn(endpoint, formData);
+      
       console.log("Response:", response.data);
     } catch (error) {
       console.error("Error sending data:", error);
@@ -80,10 +85,9 @@ const Page = () => {
       <ServiceAgreement setFormData={setFormData} formData={formData} />
       <Method setFormData={setFormData} formData={formData} />
       <Invoice setFormData={setFormData} formData={formData} />
-      <ContractSummery formData={formData} />
+      {/* <ContractSummery formData={formData} /> */}
       <Scope formData={formData} />
       <TermConditions setFormData={setFormData} formData={formData} />
-
       <div className="mt-10">
         <GreenButton onClick={handleSubmit} title={id ? "Update" : "Submit"} />
       </div>
