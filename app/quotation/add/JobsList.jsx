@@ -69,7 +69,7 @@ const JobsList = ({
 
   const handleJobTypeChange = (value) => {
     setSelectedJobType(value);
-    if (["one_time", "yearly", "monthly"].includes(value)) {
+    if (["one_time", "yearly", "monthly", "weekly"].includes(value)) {
       setOpen(true);
     }
   };

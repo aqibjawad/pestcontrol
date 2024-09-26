@@ -20,7 +20,7 @@ const Invoice = ({ quote }) => {
         <Grid item lg={6} xs={12} sm={6} md={4}>
           <div className={styles.billingHead}>Billing frequency</div>
 
-          <div className={styles.biilingData}>Billing Frequency</div>
+          <div className={styles.biilingData}> {quote.no_of_installments} </div>
         </Grid>
 
         <Grid className="" item lg={6} xs={12} sm={6} md={4}>
