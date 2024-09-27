@@ -28,6 +28,8 @@ const Page = () => {
   const [buttonLoading, setButtonLoading] = useState(false); // Loader state for button
   const [invoiceDetails, setInvoiceDetails] = useState([]); // State to store invoice details data
 
+  const [invoiceAllDetails, setInvoiceAllDetails] = useState([]);
+
   useEffect(() => {
     setTimeout(() => {
       getPayments();
@@ -38,7 +40,8 @@ const Page = () => {
     setLoading(true);
     try {
       const response = await api.getDataWithToken(`${serviceInvoice}/${id}`);
-      setInvoiceDetails(response.data.details); // Extract details from the response
+      setInvoiceDetails(response.data.details); 
+      setInvoiceAllDetails(response.data);
     } catch (error) {
       console.error("Error fetching invoice details:", error);
     } finally {
@@ -92,7 +95,7 @@ const Page = () => {
 
   return (
     <>
-      <div>Service Payment Invoice</div>
+      <div style={{fontSize:"20px", fontWeight:"600", marginBottom:"2rem"}}> {invoiceAllDetails.service_invoice_id} </div>
       <Grid container spacing={2}>
         <Grid item xs={12} sm={6} md={6}>
           <TableContainer component={Paper}>
