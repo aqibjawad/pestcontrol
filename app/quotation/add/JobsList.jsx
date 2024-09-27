@@ -18,6 +18,8 @@ const JobsList = ({ jobData, allServices, updateJobList, duration_in_months }) =
   const [subTotal, setSubTotal] = useState(jobData.subTotal);
   const [intervalDays, setIntervalDays] = useState(5);
 
+  const [no_of_months, setNoOfMonths] = useState();
+
   const jobTypes = [
     { label: "One Time", value: "one_time" },
     { label: "Yearly", value: "yearly" },
@@ -82,8 +84,8 @@ const JobsList = ({ jobData, allServices, updateJobList, duration_in_months }) =
             type="text"
             name="noOfMonth"
             placeholder="No of Month"
-            value={duration_in_months}
-            readOnly
+            value={no_of_months}
+            onChange={setNoOfMonths}
           />
         </Grid>
         <Grid item lg={3} xs={4}>

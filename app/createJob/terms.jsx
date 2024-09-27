@@ -1,31 +1,47 @@
-import React from "react";
+"use client";
 
-import Accordion from "@mui/material/Accordion";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import AccordionDetails from "@mui/material/AccordionDetails";
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import React, { useState, useEffect } from "react";
+import APICall from "@/networkUtil/APICall";
+import { termsCond } from "../../networkUtil/Constants";
+import Dropdown from "@/components/generic/Dropdown";
 
-import styles from "../../styles/quotes.module.css"
+const TermsConditions = ({ setFormData }) => {
+  const api = new APICall();
+  const [brands, setBrandList] = useState([]);
 
-const TermsConditions = () => {
+  useEffect(() => {
+    getAllClients();
+  }, []);
+
+  const getAllClients = async () => {
+    try {
+      const response = await api.getDataWithToken(termsCond);
+      const brandNames = response.data.map((item) => ({
+        label: item.name,
+        value: item.id,
+      }));
+      setBrandList(brandNames);
+    } catch (error) {
+      console.error("Error fetching brands:", error);
+    }
+  };
+
+  const handleBrandChange = (value) => {
+    if (value) {
+      setFormData((prev) => ({
+        ...prev,
+        term_and_condition_id: String(value),
+      }));
+    }
+  };
+
   return (
     <div className="mt-10">
-        <div className={styles.termHead}>
-            Terms and Conditions
-        </div>
-      <Accordion>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel1-content"
-          id="panel1-header"
-        >
-          Accordion 1
-        </AccordionSummary>
-        <AccordionDetails>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
-          malesuada lacus ex, sit amet blandit leo lobortis eget.
-        </AccordionDetails>
-      </Accordion>
+      <Dropdown
+        title={"Select Terms and Conditions"}
+        options={brands}
+        onChange={handleBrandChange}
+      />
     </div>
   );
 };

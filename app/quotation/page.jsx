@@ -17,8 +17,6 @@ import Swal from "sweetalert2";
 
 import GreenButton from "@/components/generic/GreenButton";
 
-import { Grid } from "@mui/material";
-
 const Page = () => {
   const api = new APICall();
   const router = useRouter();
@@ -41,6 +39,9 @@ const Page = () => {
     services: [],
     rate: 1,
   });
+
+  console.log(formData);
+  
 
   const [loading, setLoading] = useState(false); // Loading state
   const [fetchingData, setFetchingData] = useState(false);

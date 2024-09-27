@@ -87,13 +87,26 @@ const ServiceAgreement = ({ setFormData, formData }) => {
   }
 
   return (
-    <div className="mt-10" style={{ border: "1px solid #D0D5DD", padding: "20px" }}>
+    <div
+      className="mt-10"
+      style={{ border: "1px solid #D0D5DD", padding: "20px" }}
+    >
       <div className="mt-5" style={{ fontSize: "20px", fontWeight: "600" }}>
         Service Agreement
       </div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", marginTop: "1rem" }}>
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "1rem",
+          marginTop: "1rem",
+        }}
+      >
         {allServices.map((service) => (
-          <div key={service.id} style={{ display: "flex", alignItems: "center" }}>
+          <div
+            key={service.id}
+            style={{ display: "flex", alignItems: "center" }}
+          >
             <input
               type="checkbox"
               checked={service.isChecked}
@@ -115,10 +128,8 @@ const ServiceAgreement = ({ setFormData, formData }) => {
         ))}
       </div>
       <ContractSummary grandTotal={grandTotal} />
-      <button onClick={handleSubmit}>Submit</button>
     </div>
   );
 };
 
 export default ServiceAgreement;
-
