@@ -30,7 +30,7 @@ const JobsList = ({ jobData, allServices, updateJobList, duration_in_months }) =
   ];
 
   useEffect(() => {
-    const total = selectedDates.length * parseFloat(rate || 0);
+    const total = selectedDates?.length * parseFloat(rate || 0);
     setSubTotal(total);
 
     updateJobList({
@@ -119,8 +119,8 @@ const JobsList = ({ jobData, allServices, updateJobList, duration_in_months }) =
       </Grid>
 
       <div style={{ marginTop: "1rem" }}>
-        <div style={{ color: "#667085", fontWeight: "500", fontSize: "14px" }}>
-          {selectedDates.length > 0 ? (
+        {/* <div style={{ color: "#667085", fontWeight: "500", fontSize: "14px" }}>
+          {selectedDates?.length > 0 ? (
             <>
               Selected Dates: {selectedDates.join(", ")}
               <Button
@@ -135,14 +135,14 @@ const JobsList = ({ jobData, allServices, updateJobList, duration_in_months }) =
           ) : (
             "No dates selected"
           )}
-        </div>
+        </div> */}
       </div>
 
       <Dialog open={open} onClose={() => setOpen(false)}>
         <DialogTitle>Select Dates</DialogTitle>
         <DialogContent>
           <CalendarComponent
-            initialDates={selectedDates.map((date) => new Date(date))}
+            initialDates={selectedDates?.map((date) => new Date(date))}
             onDateChange={handleDateChange}
           />
           {selectedJobType === "custom" && (

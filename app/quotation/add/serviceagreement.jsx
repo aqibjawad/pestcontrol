@@ -5,6 +5,8 @@ import APICall from "../../../networkUtil/APICall";
 import JobsList from "./JobsList";
 import ContractSummary from "./contract";
 
+import { Button } from "@mui/material";
+
 const ServiceAgreement = ({ setFormData, formData }) => {
   const api = new APICall();
   const [allServices, setAllServices] = useState([]);
@@ -59,6 +61,7 @@ const ServiceAgreement = ({ setFormData, formData }) => {
     setJobLists((prevJobLists) => {
       const newJobLists = [...prevJobLists];
       newJobLists[index] = { ...newJobLists[index], ...updatedJob };
+      setFormData(prev => ({ ...prev, services: newJobLists}));
       return newJobLists;
     });
   };
@@ -81,6 +84,14 @@ const ServiceAgreement = ({ setFormData, formData }) => {
 
     setFormData((prev) => ({ ...prev, services: formattedServices }));
   };
+
+  const addJobList =()=>{
+   
+   setFormData(prev => ({ ...prev, services:  [...prev.services, {}] })
+   )
+  }
+
+  console.log('formData.services', formData.services)
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -117,7 +128,7 @@ const ServiceAgreement = ({ setFormData, formData }) => {
         ))}
       </div>
       <div className="mt-10 mb-10">
-        {jobLists.map((job, index) => (
+        {formData.services.map((job, index) => (
           <JobsList
             key={job.serviceId}
             jobData={job}
@@ -127,6 +138,9 @@ const ServiceAgreement = ({ setFormData, formData }) => {
           />
         ))}
       </div>
+      <Button onClick={addJobList}>
+        Add
+      </Button>
       <ContractSummary grandTotal={grandTotal} />
     </div>
   );

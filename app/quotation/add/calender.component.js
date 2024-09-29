@@ -2,24 +2,28 @@ import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-const CalendarComponent = ({ onDateChange, initialDates = [], isDateSelectable }) => {
+const CalendarComponent = ({
+  onDateChange,
+  initialDates = [],
+  isDateSelectable,
+}) => {
   const [dates, setDates] = useState(initialDates);
 
   useEffect(() => {
-    setDates(initialDates);
+    if (JSON.stringify(dates) !== JSON.stringify(initialDates)) {
+      setDates(initialDates);
+    }
   }, [initialDates]);
 
   const handleDateChange = (date) => {
     if (date) {
       const dateStr = date.toDateString();
-      setDates((prevDates) => {
-        const newDates = prevDates.includes(dateStr)
-          ? prevDates.filter((d) => d !== dateStr)
-          : [...prevDates, dateStr];
+      const newDates = dates.includes(dateStr)
+        ? dates.filter((d) => d !== dateStr)
+        : [...dates, dateStr];
 
-        onDateChange(newDates);
-        return newDates;
-      });
+      setDates(newDates);
+      onDateChange(newDates);
     }
   };
 
@@ -36,7 +40,7 @@ const CalendarComponent = ({ onDateChange, initialDates = [], isDateSelectable }
           const dateStr = date.toDateString();
           return dates.includes(dateStr) ? "selected-date" : undefined;
         }}
-        filterDate={isDateSelectable} // Use filterDate to restrict selectable dates
+        filterDate={isDateSelectable}
       />
       <p>Selected Dates: {dates.join(", ")}</p>
       <style jsx>{`
