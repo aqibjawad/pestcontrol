@@ -15,9 +15,14 @@ const CalendarComponent = ({
     }
   }, [initialDates]);
 
+  // Format the date to 'YYYY-MM-DD'
+  const formatDate = (date) => {
+    return date.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+  };
+
   const handleDateChange = (date) => {
     if (date) {
-      const dateStr = date.toDateString();
+      const dateStr = formatDate(date);
       const newDates = dates.includes(dateStr)
         ? dates.filter((d) => d !== dateStr)
         : [...dates, dateStr];
@@ -37,7 +42,7 @@ const CalendarComponent = ({
         inline
         highlightDates={formattedDates}
         dayClassName={(date) => {
-          const dateStr = date.toDateString();
+          const dateStr = formatDate(date);
           return dates.includes(dateStr) ? "selected-date" : undefined;
         }}
         filterDate={isDateSelectable}

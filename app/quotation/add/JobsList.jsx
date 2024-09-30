@@ -68,11 +68,11 @@ const JobsList = ({ jobData, allServices, updateJobList, duration_in_months }) =
               label: service.pest_name,
               value: service.id,
             }))}
-            value={jobData.serviceId}
+            value={jobData.service_id}
             onChange={(value) => {
               const selectedService = allServices.find((service) => service.id === value);
               updateJobList({
-                serviceId: value,
+                service_id: value,
                 serviceName: selectedService.pest_name,
               });
             }}

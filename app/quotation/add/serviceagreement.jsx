@@ -1,17 +1,14 @@
-// ServiceAgreement.jsx
 import React, { useEffect, useState } from "react";
 import { services } from "../../../networkUtil/Constants";
 import APICall from "../../../networkUtil/APICall";
 import JobsList from "./JobsList";
 import ContractSummary from "./contract";
-
 import { Button } from "@mui/material";
 
 const ServiceAgreement = ({ setFormData, formData }) => {
   const api = new APICall();
   const [allServices, setAllServices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [jobLists, setJobLists] = useState([]);
 
   const getAllServices = async () => {
     setIsLoading(true);
@@ -43,55 +40,79 @@ const ServiceAgreement = ({ setFormData, formData }) => {
     );
   };
 
+  const convertDate = (dateString) => {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      console.error("Invalid date:", dateString);
+      return dateString;
+    }
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${month}-${day}-${year}`;
+  };
+
+
   useEffect(() => {
     const selectedServices = allServices.filter((service) => service.isChecked);
-    setJobLists(
-      selectedServices.map((service) => ({
-        serviceId: service.id,
-        serviceName: service.pest_name,
-        jobType: "",
-        rate: "100",
-        dates: [],
-        subTotal: 0,
-      }))
-    );
+    const newServices = selectedServices.map((service) => ({
+      service_id: service.id,
+      service_name: service.pest_name,
+      detail: [
+        {
+          job_type: "one_time", // Changed from "ontime" to "one_time"
+          rate: "100",
+          dates: [convertDate(new Date())], // Changed date format
+        },
+      ],
+      subTotal: 100, // Initialize subTotal
+    }));
+    setFormData((prev) => ({ ...prev, services: newServices }));
   }, [allServices]);
 
   const updateJobList = (index, updatedJob) => {
-    setJobLists((prevJobLists) => {
-      const newJobLists = [...prevJobLists];
-      newJobLists[index] = { ...newJobLists[index], ...updatedJob };
-      setFormData(prev => ({ ...prev, services: newJobLists}));
-      return newJobLists;
+    setFormData((prev) => {
+      const newServices = [...prev.services];
+      newServices[index] = {
+        ...newServices[index],
+        ...updatedJob,
+        detail: [
+          {
+            job_type: updatedJob.jobType,
+            rate: updatedJob.rate,
+            dates: updatedJob.dates,
+          },
+        ],
+      };
+      return { ...prev, services: newServices };
     });
   };
 
-  const grandTotal = jobLists.reduce((total, job) => total + job.subTotal, 0);
-
-  const handleSubmit = () => {
-    const formattedServices = jobLists.map((job) => ({
-      service_id: job.serviceId,
-      pest_name: job.serviceName,
-      isChecked: true,
-      detail: [
+  const addJobList = () => {
+    setFormData((prev) => ({
+      ...prev,
+      services: [
+        ...prev.services,
         {
-          job_type: job.jobType,
-          rate: job.rate,
-          dates: job.dates,
+          service_id: null,
+          service_name: "",
+          detail: [
+            {
+              job_type: "one_time",
+              rate: "100",
+              dates: ["2024-09-30"],
+            },
+          ],
+          subTotal: 100,
         },
       ],
     }));
-
-    setFormData((prev) => ({ ...prev, services: formattedServices }));
   };
 
-  const addJobList =()=>{
-   
-   setFormData(prev => ({ ...prev, services:  [...prev.services, {}] })
-   )
-  }
-
-  console.log('formData.services', formData.services)
+  const grandTotal = formData.services.reduce(
+    (total, job) => total + job.subTotal,
+    0
+  );
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -130,7 +151,7 @@ const ServiceAgreement = ({ setFormData, formData }) => {
       <div className="mt-10 mb-10">
         {formData.services.map((job, index) => (
           <JobsList
-            key={job.serviceId}
+            key={job.service_id || index}
             jobData={job}
             allServices={allServices}
             updateJobList={(updatedJob) => updateJobList(index, updatedJob)}
@@ -138,9 +159,7 @@ const ServiceAgreement = ({ setFormData, formData }) => {
           />
         ))}
       </div>
-      <Button onClick={addJobList}>
-        Add
-      </Button>
+      <Button onClick={addJobList}>Add</Button>
       <ContractSummary grandTotal={grandTotal} />
     </div>
   );
