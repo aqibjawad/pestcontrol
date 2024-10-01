@@ -1,24 +1,54 @@
 "use client";
 
-import React from "react";
-
+import React, { useState } from "react";
 import styles from "../../styles/job.module.css";
-
 import { Grid } from "@mui/material";
-
-import Dropdown from "../../components/generic/Dropdown";
 import InputWithTitle from "../../components/generic/InputWithTitle";
+import { job } from "@/networkUtil/Constants";
+import APICall from "@/networkUtil/APICall";
 
-const ResheduleTreatment = () => {
-  const dateList = [
-    { label: "Brand A", id: 1 },
-    { label: "Brand B", id: 2 },
-    { label: "Brand C", id: 3 },
-    { label: "Brand D", id: 4 },
-  ];
+const RescheduleTreatment = ({ jobId }) => {
+  const api = new APICall();
 
-  const handleDropdownChange = (value) => {
-    console.log("Selected value:", value);
+  const [job_date, setJobDate] = useState("");
+  const [reason, setReason] = useState("");
+  const [isLoading, setLoading] = useState(false);
+
+  const handleFormSubmit = async () => {
+    if (!job_date || !reason) {
+      alert("Please fill in both date and reason fields");
+      return;
+    }
+
+    setLoading(true);
+
+    const formData = {
+      job_id: jobId,
+      job_date: job_date, // Using the state value
+      reason: reason, // Using the state value
+    };
+
+    try {
+      const response = await api.postDataWithTokn(
+        `${job}/reschedule`,
+        formData
+      );
+
+      if (response.error) {
+        alert(response.error.error);
+        console.log(response.error.error);
+      } else {
+        alert("Treatment rescheduled successfully!");
+        // Optionally reset form
+        setJobDate("");
+        setReason("");
+      }
+    } catch (error) {
+      console.error("Error rescheduling treatment:", error);
+      alert("An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -30,42 +60,45 @@ const ResheduleTreatment = () => {
           </div>
         </Grid>
 
-        <Grid item lg={2} sm={12} xs={12} md={8}>
+        {/* <Grid item lg={2} sm={12} xs={12} md={8}>
           <div className={styles.addBtn}>
             <div className={styles.addText}> start job </div>
           </div>
-        </Grid>
+        </Grid> */}
       </Grid>
 
       <div className={styles.formReschedule}>
-        <Dropdown
+        <InputWithTitle
+          onChange={(value) => setJobDate(value)}
+          value={job_date}
+          type={"date"}
           title={"Date"}
-          options={dateList}
-          onChange={handleDropdownChange}
         />
 
         <div className="mt-5">
-          <InputWithTitle title={"Time"} />
-        </div>
-
-        <div className="mt-5">
-          <Dropdown
+          <InputWithTitle
+            onChange={(value) => setReason(value)}
+            value={reason}
             title={"Reason"}
-            options={dateList}
-            onChange={handleDropdownChange}
           />
         </div>
 
         <Grid container spacing={2}>
           <Grid item lg={6} sm={12} xs={12} md={4}>
             <div className={styles.reschBtn}>
-              <div className={styles.addText}>Reschedule</div>
+              <div
+                onClick={handleFormSubmit}
+                className={styles.addText}
+                style={{ cursor: isLoading ? "not-allowed" : "pointer" }}
+              >
+                {isLoading ? "Rescheduling..." : "Reschedule"}
+              </div>
             </div>
           </Grid>
 
           <Grid item lg={6} sm={12} xs={12} md={8}>
             <div className={styles.reschBtn}>
-              <div className={styles.addText}> Create report </div>
+              <div className={styles.addText}> Start Job </div>
             </div>
           </Grid>
         </Grid>
@@ -74,4 +107,4 @@ const ResheduleTreatment = () => {
   );
 };
 
-export default ResheduleTreatment;
+export default RescheduleTreatment;

@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styles from "../../styles/job.module.css";
-
 import {
   Grid,
   Table,
@@ -11,37 +10,25 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
-
 import SearchInput from "../../components/generic/SearchInput";
 
-const Members = () => {
-  const sampleData = [
-    {
-      id: 1,
-      name: "John Doe",
-      role: "Developer",
-      email: "john.doe@example.com",
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      role: "Designer",
-      email: "jane.smith@example.com",
-    },
-    {
-      id: 3,
-      name: "Bob Johnson",
-      role: "Project Manager",
-      email: "bob.johnson@example.com",
-    },
-  ];
+const Members = ({ jobList }) => {
+  const [team, setTeam] = useState([]);
+
+  useEffect(() => {
+    if (jobList !== undefined) {
+      if (jobList?.team_members !== undefined) {
+        setTeam(jobList?.team_members);
+      }
+    }
+  }, [jobList]);
 
   return (
     <div className={styles.mainDiv}>
       <Grid container spacing={2}>
         <Grid item lg={8} sm={12} xs={12} md={4}>
           <div className={styles.leftSection}>
-            <div className={styles.treatHead}>Crew Members </div>
+            <div className={styles.treatHead}>Crew Members</div>
           </div>
         </Grid>
 
@@ -66,15 +53,19 @@ const Members = () => {
               <TableRow>
                 <TableCell>ID</TableCell>
                 <TableCell>Members</TableCell>
-                <TableCell>Date</TableCell>
+                <TableCell>Email</TableCell>
+                <TableCell>Role</TableCell>{" "}
+                {/* Assuming role is still relevant */}
               </TableRow>
             </TableHead>
             <TableBody>
-              {sampleData.map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell>{row.id}</TableCell>
-                  <TableCell>{row.name}</TableCell>
-                  <TableCell>{row.role}</TableCell>
+              {team.map((member) => (
+                <TableRow key={member.id}>
+                  <TableCell>{member?.id}</TableCell>
+                  <TableCell>{member?.name}</TableCell>
+                  <TableCell>{member.email}</TableCell>
+                  <TableCell>{member.role_id}</TableCell>{" "}
+                  {/* Or another property, if you have roles mapped */}
                 </TableRow>
               ))}
             </TableBody>

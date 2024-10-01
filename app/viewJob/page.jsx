@@ -41,9 +41,9 @@ const Page = () => {
   return (
     <div>
       <JobDetails jobList={jobList} />
-      <Members />
-      <Instruction />
-      <ResheduleTreatment />
+      <Members jobList={jobList}  />
+      <Instruction jobList={jobList}  />
+      <ResheduleTreatment jobId={id} />
       {/* <SchedulePlan /> */}
     </div>
   );
