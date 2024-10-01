@@ -145,7 +145,7 @@ const Page = () => {
 
         <Grid className="mt-5" item xs={12} sm={6} md={4} lg={3}>
           <div className={styles.addProd}>
-            <Link href="/viewQuote">View Jobs</Link>
+            <Link href="/allJobs">View Jobs</Link>
           </div>
         </Grid>
 
