@@ -4,7 +4,6 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-
 import styles from "../../styles/generics/inputStyles.module.css";
 
 export default function Dropdown({ title, options, onChange }) {

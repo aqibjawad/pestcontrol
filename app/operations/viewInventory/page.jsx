@@ -67,7 +67,7 @@ const Page = () => {
             </tr>
           </thead>
           <tbody>
-            {suppliersList.map((row, index) => {
+            {suppliersList?.map((row, index) => {
               const stock = row.stocks[0] || {}; // Get the first stock object
               return (
                 <tr className="border-b border-gray-200" key={index}>
