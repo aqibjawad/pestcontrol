@@ -121,6 +121,7 @@ const BasicQuote = ({ setFormData, formData }) => {
             type={"text"}
             placeholder={"Firm"}
             value={firmName} // Use the firm name from the selected client
+            // defaultValue={formData.firm_name}
             disable
           />
         </Grid>

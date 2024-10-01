@@ -10,11 +10,8 @@ import TermConditions from "./add/terms";
 import APICall from "@/networkUtil/APICall";
 import { quotation } from "../../networkUtil/Constants";
 import { useSearchParams } from "next/navigation";
-
 import { useRouter } from "next/navigation";
-
 import Swal from "sweetalert2";
-
 import GreenButton from "@/components/generic/GreenButton";
 
 const Page = () => {
@@ -24,7 +21,7 @@ const Page = () => {
   const id = searchParams.get("id");
 
   const [formData, setFormData] = useState({
-    manage_type: "create",
+    manage_type: id ? "update" : "create", // Set manage_type based on presence of id
     quote_title: "",
     user_id: "",
     client_address_id: null,
@@ -35,21 +32,17 @@ const Page = () => {
     tag: "",
     duration_in_months: "",
     is_food_watch_account: false,
-    billing_method: "test",
+    billing_method: "",
     services: [],
-    rate: 1,
   });
 
-  console.log(formData);
-  
-
-  const [loading, setLoading] = useState(false); // Loading state
+  const [loading, setLoading] = useState(false);
   const [fetchingData, setFetchingData] = useState(false);
 
   const handleSubmit = async () => {
-    setLoading(true); // Start loader
+    setLoading(true);
     try {
-      const endpoint = id ? `${quotation}/manage/${id}` : `${quotation}/manage`;
+      const endpoint = `${quotation}/manage`;
       const response = await api.postDataWithTokn(endpoint, formData);
       if (response.status === "success") {
         Swal.fire({
@@ -57,7 +50,7 @@ const Page = () => {
           title: "Success",
           text: "Data has been added successfully!",
         });
-        router.push("/viewQuote")
+        router.push("/viewQuote");
       } else {
         Swal.fire({
           icon: "error",
@@ -70,17 +63,18 @@ const Page = () => {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: `${response.error.message}`,
+        text: error.message || "An error occurred.",
       });
       console.error("Error submitting data:", error);
     } finally {
-      setLoading(false); // Stop loader
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     if (id) {
       getAllQuotes();
+      // Update manage_type if id exists
       setFormData((prev) => ({ ...prev, manage_type: "edit" }));
     }
   }, [id]);
@@ -110,14 +104,13 @@ const Page = () => {
       <ServiceAgreement setFormData={setFormData} formData={formData} />
       <Method setFormData={setFormData} formData={formData} />
       <Invoice setFormData={setFormData} formData={formData} />
-      {/* <ContractSummery formData={formData} /> */}
       <Scope formData={formData} />
       <TermConditions setFormData={setFormData} formData={formData} />
       <div className="mt-10">
         <GreenButton
           onClick={handleSubmit}
-          title={loading ? "Submitting..." : id ? "Update" : "Submit"} // Show loader text
-          disabled={loading} // Disable button while loading
+          title={loading ? "Submitting..." : id ? "Update" : "Submit"}
+          disabled={loading}
         />
       </div>
     </div>

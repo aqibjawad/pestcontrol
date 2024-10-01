@@ -6,7 +6,7 @@ import CustomerDetails from "./customerDetails";
 import ServiceProduct from "./services";
 import Invoice from "./invoices";
 import ContractSummary from "./contract";
-import { Grid } from "@mui/material";
+import { Grid, Skeleton } from "@mui/material"; // Import Skeleton
 import styles from "../../styles/viewQuote.module.css";
 import { useSearchParams } from "next/navigation";
 import APICall from "@/networkUtil/APICall";
@@ -21,6 +21,7 @@ const Page = () => {
   const [fetchingData, setFetchingData] = useState(false);
   const [quoteList, setQuoteList] = useState(null); // Change initial state to null
   const [isApproved, setIsApproved] = useState(false); // Track approval status
+  const [loadingDetails, setLoadingDetails] = useState(true); // Loading state for details
 
   useEffect(() => {
     getAllQuotes();
@@ -39,6 +40,7 @@ const Page = () => {
       console.error("Error fetching quotes:", error);
     } finally {
       setFetchingData(false);
+      setLoadingDetails(false); // Set loadingDetails to false after fetching
     }
   };
 
@@ -49,7 +51,6 @@ const Page = () => {
       );
       console.log("Response:", response);
       setIsApproved(true); // Update approval status after submission
-      // Optionally: you could also check the response to see if it is contracted
     } catch (error) {
       console.error("Error sending data:", error);
     }
@@ -63,7 +64,18 @@ const Page = () => {
     window.print();
   };
 
-  if (fetchingData) return <div>Loading...</div>; // Optional: Loading state
+  if (fetchingData) {
+    return (
+      <div>
+        <Skeleton variant="rect" width="100%" height={200} />
+        <Skeleton variant="text" />
+        <Skeleton variant="text" width="80%" />
+        <Skeleton variant="text" width="60%" />
+        <Skeleton variant="text" />
+      </div>
+    ); // Show Skeletons while loading
+  }
+
   if (!quoteList) return <div>No data available</div>; // Handle no data case
 
   return (
@@ -93,10 +105,28 @@ const Page = () => {
         </Grid>
       </div>
 
-      <CustomerDetails quote={quoteList} />
-      <ServiceProduct quote={quoteList} />
-      <Invoice quote={quoteList} />
-      <ContractSummary quote={quoteList} />
+      {loadingDetails ? (
+        <>
+          <Skeleton variant="text" width="100%" height={50} />
+          <Skeleton variant="rect" width="100%" height={100} />
+          <Skeleton variant="text" width="100%" />
+          <Skeleton variant="text" width="100%" />
+          <Skeleton variant="text" width="100%" />
+          <Skeleton variant="rect" width="100%" height={100} />
+          <Skeleton variant="text" width="100%" />
+          <Skeleton variant="text" width="100%" />
+          <Skeleton variant="text" width="100%" />
+          <Skeleton variant="rect" width="100%" height={100} />
+          <Skeleton variant="text" width="100%" />
+        </>
+      ) : (
+        <>
+          <CustomerDetails quote={quoteList} />
+          <ServiceProduct quote={quoteList} />
+          <Invoice quote={quoteList} />
+          <ContractSummary quote={quoteList} />
+        </>
+      )}
 
       <img
         style={{ width: "100%", marginTop: "1rem" }}
@@ -107,12 +137,12 @@ const Page = () => {
       <Grid container spacing={3}>
         <Grid item lg={6} xs={12} sm={6} md={4}>
           {!isApproved && (
-            <div onClick={handleEditQuote} className={styles.approveDiv}>
+            <div style={{cursor:"pointer"}} onClick={handleEditQuote} className={styles.approveDiv}>
               Edit Quote
             </div>
           )}
           {isApproved && (
-            <div onClick={handlePrint} className={styles.approveDiv}>
+            <div style={{cursor:"pointer"}} onClick={handlePrint} className={styles.approveDiv}>
               Print
             </div>
           )}
@@ -123,12 +153,12 @@ const Page = () => {
             <div className="flex-grow"></div>
             <div>
               {!isApproved && (
-                <div onClick={handleSubmit} className={styles.approveDiv}>
+                <div style={{cursor:"pointer"}} onClick={handleSubmit} className={styles.approveDiv}>
                   Approve
                 </div>
               )}
 
-              {isApproved && <div className={styles.approveDiv}>Approved</div>}
+              {isApproved && <div style={{cursor:"pointer"}} className={styles.approveDiv}>Approved</div>}
             </div>
           </div>
         </Grid>

@@ -46,12 +46,11 @@ const ServiceAgreement = ({ setFormData, formData }) => {
       console.error("Invalid date:", dateString);
       return dateString;
     }
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
     const year = date.getFullYear();
-    return `${month}-${day}-${year}`;
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`; // Change format to YYYY-MM-DD
   };
-
 
   useEffect(() => {
     const selectedServices = allServices.filter((service) => service.isChecked);
@@ -60,8 +59,8 @@ const ServiceAgreement = ({ setFormData, formData }) => {
       service_name: service.pest_name,
       detail: [
         {
-          job_type: "one_time", // Changed from "ontime" to "one_time"
-          rate: "100",
+          job_type: "", // Changed from "ontime" to "one_time"
+          rate: "",
           dates: [convertDate(new Date())], // Changed date format
         },
       ],
@@ -98,9 +97,9 @@ const ServiceAgreement = ({ setFormData, formData }) => {
           service_name: "",
           detail: [
             {
-              job_type: "one_time",
-              rate: "100",
-              dates: ["2024-09-30"],
+              job_type: "",
+              rate: "",
+              dates: [convertDate(new Date())],
             },
           ],
           subTotal: 100,
@@ -109,7 +108,20 @@ const ServiceAgreement = ({ setFormData, formData }) => {
     }));
   };
 
-  const grandTotal = formData.services.reduce(
+  const removeJobList = (index) => {
+    setFormData((prev) => {
+      const newServices = prev.services.filter((_, i) => i !== index);
+      return { ...prev, services: newServices };
+    });
+  };
+
+  useEffect(() => {
+    if (!formData.services) {
+      setFormData((prev) => ({ ...prev, services: [] }));
+    }
+  }, [formData, setFormData]);
+
+  const grandTotal = (formData.services || []).reduce(
     (total, job) => total + job.subTotal,
     0
   );
@@ -149,17 +161,20 @@ const ServiceAgreement = ({ setFormData, formData }) => {
         ))}
       </div>
       <div className="mt-10 mb-10">
-        {formData.services.map((job, index) => (
+        {(formData.services || []).map((job, index) => (
           <JobsList
             key={job.service_id || index}
             jobData={job}
             allServices={allServices}
             updateJobList={(updatedJob) => updateJobList(index, updatedJob)}
+            onRemove={() => removeJobList(index)}
             duration_in_months={formData.duration_in_months}
           />
         ))}
       </div>
-      <Button onClick={addJobList}>Add</Button>
+      <Button variant="outlined" onClick={addJobList}>
+        Add
+      </Button>
       <ContractSummary grandTotal={grandTotal} />
     </div>
   );

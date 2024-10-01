@@ -47,7 +47,7 @@ const Invoice = ({ setFormData, formData }) => {
           <div className="w-1/2">
             <InputWithTitle
               title={"Billing Frequency"}
-              value={billingFrequency}
+              value={formData.no_of_installments}
               onChange={handleBillingFrequencyChange}
             />
           </div>

@@ -15,9 +15,8 @@ const CalendarComponent = ({
     }
   }, [initialDates]);
 
-  // Format the date to 'YYYY-MM-DD'
   const formatDate = (date) => {
-    return date.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+    return date.toISOString().split("T")[0];
   };
 
   const handleDateChange = (date) => {
@@ -47,7 +46,7 @@ const CalendarComponent = ({
         }}
         filterDate={isDateSelectable}
       />
-      <p>Selected Dates: {dates.join(", ")}</p>
+      <p>Selected Dates: {dates.length > 0 ? dates.join(", ") : "None"}</p>
       <style jsx>{`
         .selected-date {
           background-color: #007bff;
