@@ -204,7 +204,7 @@ const BasicQuote = ({ setFormData, formData }) => {
               }}
               className={`px-4 py-2 rounded ${
                 formData.isFoodWatchAccount === "yes"
-                  ? "bg-blue-500 text-white"
+                  ? "bg-green-500 text-white"
                   : "bg-gray-300 text-black"
               }`}
             >
@@ -216,7 +216,7 @@ const BasicQuote = ({ setFormData, formData }) => {
               }}
               className={`px-4 py-2 rounded ml-2 ${
                 formData.isFoodWatchAccount === "no"
-                  ? "bg-blue-500 text-white"
+                  ? "bg-green-500 text-white"
                   : "bg-gray-300 text-black"
               }`}
             >

@@ -21,7 +21,7 @@ const Page = () => {
   const id = searchParams.get("id");
 
   const [formData, setFormData] = useState({
-    manage_type: id ? "update" : "create", // Set manage_type based on presence of id
+    manage_type: "create", 
     quote_title: "",
     user_id: "",
     client_address_id: null,

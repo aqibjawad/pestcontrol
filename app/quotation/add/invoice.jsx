@@ -6,7 +6,7 @@ import InputWithTitle from "@/components/generic/InputWithTitle";
 import { FormGroup, FormControlLabel, Radio, RadioGroup } from "@mui/material";
 
 const Invoice = ({ setFormData, formData }) => {
-  const [billingFrequency, setBillingFrequency] = useState("");
+  const [billingFrequency, setBillingFrequency] = useState(0);
   const [selectedBillingMethod, setSelectedBillingMethod] = useState(""); // Track selected billing method
 
   const handleBillingFrequencyChange = (value) => {
@@ -30,7 +30,7 @@ const Invoice = ({ setFormData, formData }) => {
 
     setFormData((prev) => ({
       ...prev,
-      no_of_installments: "", // Clear the billing frequency when a radio button is selected
+      no_of_installments: 0, // Clear the billing frequency when a radio button is selected
       billing_method: value, // Set selected billing method
     }));
   };

@@ -71,7 +71,7 @@ const JobsList = ({
             options={allServices
               .filter((service) => service.isChecked)
               .map((service) => ({
-                label: service.pest_name,
+                label: service.service_title,
                 value: service.id,
               }))}
             value={jobData.service_id}
@@ -81,7 +81,7 @@ const JobsList = ({
               );
               updateJobList({
                 service_id: value,
-                serviceName: selectedService.pest_name,
+                serviceName: selectedService.service_title,
               });
             }}
           />
