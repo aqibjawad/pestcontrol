@@ -120,7 +120,7 @@ const Page = () => {
     // } finally {
     //   setLoadingSubmit(false);
     // }
-  };
+  }; 
 
   const validateForm = () => {
     const requiredFields = [

@@ -1,6 +1,7 @@
+// JobsList.jsx
 import React, { useState, useEffect } from "react";
 import InputWithTitle from "@/components/generic/InputWithTitle";
-import Dropdown from "@/components/generic/Dropdown";
+import Dropdown2 from "@/components/generic/Dropdown2";
 import CalendarComponent from "./calender.component";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -9,18 +10,14 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Button from "@mui/material/Button";
 import { Grid } from "@mui/material";
 
-const JobsList = ({
-  jobData,
-  allServices,
-  updateJobList,
-  duration_in_months,
-}) => {
-  const [rate, setRate] = useState(jobData.rate || 0); // Set default rate to 0
+const JobsList = ({ jobData, allServices, updateJobList, duration_in_months }) => {
+  const [rate, setRate] = useState(jobData.rate);
   const [open, setOpen] = useState(false);
   const [selectedJobType, setSelectedJobType] = useState(jobData.jobType);
-  const [selectedDates, setSelectedDates] = useState(jobData.dates || []); // Default to empty array
-  const [subTotal, setSubTotal] = useState(jobData.subTotal || 0); // Default to 0
+  const [selectedDates, setSelectedDates] = useState(jobData.dates);
+  const [subTotal, setSubTotal] = useState(jobData.subTotal);
   const [intervalDays, setIntervalDays] = useState(5);
+
   const [no_of_months, setNoOfMonths] = useState();
 
   const jobTypes = [
@@ -33,7 +30,6 @@ const JobsList = ({
   ];
 
   useEffect(() => {
-    // Update subtotal whenever selectedDates or rate changes
     const total = selectedDates?.length * parseFloat(rate || 0);
     setSubTotal(total);
 
@@ -46,7 +42,7 @@ const JobsList = ({
   }, [selectedDates, rate, selectedJobType]);
 
   const handleDateChange = (dates) => {
-    const formattedDates = dates.map((date) =>
+    const formattedDates = dates.map((date) => 
       date instanceof Date ? date.toISOString().slice(0, 10) : date
     );
     setSelectedDates(formattedDates);
@@ -66,19 +62,15 @@ const JobsList = ({
     <div style={{ marginBottom: "2rem" }}>
       <Grid container spacing={2}>
         <Grid item lg={3} xs={4}>
-          <Dropdown
+          <Dropdown2
             title="Selected Products"
-            options={allServices
-              .filter((service) => service.isChecked)
-              .map((service) => ({
-                label: service.service_title,
-                value: service.id,
-              }))}
+            options={allServices.filter(service => service.isChecked).map((service) => ({
+              label: service.pest_name,
+              value: service.id,
+            }))}
             value={jobData.service_id}
             onChange={(value) => {
-              const selectedService = allServices.find(
-                (service) => service.id === value
-              );
+              const selectedService = allServices.find((service) => service.id === value);
               updateJobList({
                 service_id: value,
                 serviceName: selectedService.pest_name,
@@ -90,14 +82,14 @@ const JobsList = ({
           <InputWithTitle
             title="No of Jobs"
             type="text"
-            name="noOfJobs"
+            name="noOfMonth"
             placeholder="No of Jobs"
             value={no_of_months}
             onChange={setNoOfMonths}
           />
         </Grid>
         <Grid item lg={3} xs={4}>
-          <Dropdown
+          <Dropdown2
             title="Job Type"
             options={jobTypes}
             value={selectedJobType}
@@ -127,7 +119,7 @@ const JobsList = ({
       </Grid>
 
       <div style={{ marginTop: "1rem" }}>
-        <div style={{ color: "#667085", fontWeight: "500", fontSize: "14px" }}>
+        {/* <div style={{ color: "#667085", fontWeight: "500", fontSize: "14px" }}>
           {selectedDates?.length > 0 ? (
             <>
               Selected Dates: {selectedDates.join(", ")}
@@ -143,7 +135,7 @@ const JobsList = ({
           ) : (
             "No dates selected"
           )}
-        </div>
+        </div> */}
       </div>
 
       <Dialog open={open} onClose={() => setOpen(false)}>

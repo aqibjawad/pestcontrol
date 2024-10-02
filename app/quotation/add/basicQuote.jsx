@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styles from "../../../styles/loginStyles.module.css";
 import InputWithTitle from "@/components/generic/InputWithTitle";
-import Dropdown from "@/components/generic/Dropdown";
+import Dropdown2 from "@/components/generic/Dropdown2";
 import { clients } from "../../../networkUtil/Constants";
 import APICall from "../../../networkUtil/APICall";
 import { Grid, Skeleton } from "@mui/material";
@@ -44,6 +44,7 @@ const BasicQuote = ({ setFormData, formData }) => {
 
   const handleClientChange = (value) => {
     const selectedClient = allClients.find((client) => client.id === value);
+    console.log(selectedClient);
 
     if (selectedClient) {
       setSelectedClientId(value);
@@ -93,7 +94,7 @@ const BasicQuote = ({ setFormData, formData }) => {
           {loadingClients ? (
             <Skeleton variant="rectangular" width="100%" height={50} />
           ) : (
-            <Dropdown
+            <Dropdown2
               title={"select Client"}
               options={allBrandsList}
               onChange={handleClientChange}
@@ -109,7 +110,7 @@ const BasicQuote = ({ setFormData, formData }) => {
             title={"Contract Reference"}
             type={"text"}
             placeholder={"Contract Reference"}
-            value={referenceName ? referenceName : "No Reference"} // Conditional rendering
+            value={referenceName} // Use contract reference here
             disable
           />
         </Grid>
@@ -126,7 +127,7 @@ const BasicQuote = ({ setFormData, formData }) => {
         </Grid>
 
         <Grid item lg={6} xs={12} md={6} mt={2}>
-          <Dropdown
+          <Dropdown2
             title={"Select address"}
             options={addresses}
             onChange={handleAddressChange}
@@ -189,7 +190,10 @@ const BasicQuote = ({ setFormData, formData }) => {
             placeholder={"Duration in Month"}
             value={formData.duration_in_months}
             onChange={(value) => {
-              setFormData((prev) => ({ ...prev, duration_in_months: value }));
+              // Ensure value is a number and not greater than 12
+              if (value <= 12 && value >= 0) {
+                setFormData((prev) => ({ ...prev, duration_in_months: value }));
+              }
             }}
           />
         </Grid>
@@ -203,7 +207,7 @@ const BasicQuote = ({ setFormData, formData }) => {
               }}
               className={`px-4 py-2 rounded ${
                 formData.isFoodWatchAccount === "yes"
-                  ? "bg-green-500 text-white"
+                  ? "bg-blue-500 text-white"
                   : "bg-gray-300 text-black"
               }`}
             >
@@ -215,7 +219,7 @@ const BasicQuote = ({ setFormData, formData }) => {
               }}
               className={`px-4 py-2 rounded ml-2 ${
                 formData.isFoodWatchAccount === "no"
-                  ? "bg-green-500 text-white"
+                  ? "bg-blue-500 text-white"
                   : "bg-gray-300 text-black"
               }`}
             >

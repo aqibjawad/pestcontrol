@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import APICall from "@/networkUtil/APICall";
 import { termsCond } from "../../../networkUtil/Constants";
-import Dropdown from "@/components/generic/Dropdown";
+import Dropdown2 from "@/components/generic/Dropdown2";
 
 const TermsConditions = ({ setFormData }) => {
   const api = new APICall();
@@ -37,7 +37,7 @@ const TermsConditions = ({ setFormData }) => {
 
   return (
     <div className="mt-10">
-      <Dropdown
+      <Dropdown2
         title={"Select Terms and Conditions"}
         options={brands}
         onChange={handleBrandChange}
