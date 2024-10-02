@@ -52,22 +52,35 @@ const ServiceAgreement = ({ setFormData, formData }) => {
     return `${year}-${month}-${day}`; // Change format to YYYY-MM-DD
   };
 
-  useEffect(() => {
+  const addJobList = () => {
     const selectedServices = allServices.filter((service) => service.isChecked);
-    const newServices = selectedServices.map((service) => ({
+    const newJobs = selectedServices.map((service) => ({
       service_id: service.id,
       service_name: service.pest_name,
       detail: [
         {
-          job_type: "", // Changed from "ontime" to "one_time"
+          job_type: "",
           rate: "",
-          dates: [convertDate(new Date())], // Changed date format
+          dates: [convertDate(new Date())],
         },
       ],
-      subTotal: 100, // Initialize subTotal
+      subTotal: 100,
     }));
-    setFormData((prev) => ({ ...prev, services: newServices }));
-  }, [allServices]);
+
+    // Add jobs only if there are selected services
+    if (newJobs.length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        services: [...prev.services, ...newJobs],
+      }));
+      // Optionally, you can uncheck services after adding jobs
+      setAllServices((prev) =>
+        prev.map((service) => ({ ...service, isChecked: false }))
+      );
+    } else {
+      alert("Please select at least one service to add a job.");
+    }
+  };
 
   const updateJobList = (index, updatedJob) => {
     setFormData((prev) => {
@@ -85,27 +98,6 @@ const ServiceAgreement = ({ setFormData, formData }) => {
       };
       return { ...prev, services: newServices };
     });
-  };
-
-  const addJobList = () => {
-    setFormData((prev) => ({
-      ...prev,
-      services: [
-        ...prev.services,
-        {
-          service_id: null,
-          service_name: "",
-          detail: [
-            {
-              job_type: "",
-              rate: "",
-              dates: [convertDate(new Date())],
-            },
-          ],
-          subTotal: 100,
-        },
-      ],
-    }));
   };
 
   const removeJobList = (index) => {
@@ -162,14 +154,30 @@ const ServiceAgreement = ({ setFormData, formData }) => {
       </div>
       <div className="mt-10 mb-10">
         {(formData.services || []).map((job, index) => (
-          <JobsList
+          <div
             key={job.service_id || index}
-            jobData={job}
-            allServices={allServices}
-            updateJobList={(updatedJob) => updateJobList(index, updatedJob)}
-            onRemove={() => removeJobList(index)}
-            duration_in_months={formData.duration_in_months}
-          />
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: "10px",
+            }}
+          >
+            <JobsList
+              jobData={job}
+              allServices={allServices}
+              updateJobList={(updatedJob) => updateJobList(index, updatedJob)}
+              duration_in_months={formData.duration_in_months}
+            />
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={() => removeJobList(index)}
+              style={{ marginLeft: "10px" }}
+            >
+              Remove
+            </Button>
+          </div>
         ))}
       </div>
       <Button variant="outlined" onClick={addJobList}>

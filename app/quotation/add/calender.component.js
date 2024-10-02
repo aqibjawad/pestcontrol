@@ -33,6 +33,9 @@ const CalendarComponent = ({
 
   const formattedDates = dates.map((dateStr) => new Date(dateStr));
 
+  // Format selected dates for display
+  const displayDates = dates.map((dateStr) => new Date(dateStr).toLocaleDateString()).join(", ");
+
   return (
     <div>
       <DatePicker
@@ -46,7 +49,7 @@ const CalendarComponent = ({
         }}
         filterDate={isDateSelectable}
       />
-      <p>Selected Dates: {dates.length > 0 ? dates.join(", ") : "None"}</p>
+      <p>Selected Dates: {displayDates.length > 0 ? displayDates : "None"}</p>
       <style jsx>{`
         .selected-date {
           background-color: #007bff;
