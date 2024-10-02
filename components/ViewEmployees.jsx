@@ -54,7 +54,7 @@ const ViewEmployees = () => {
                     <div className={tableStyles.clientPhoto}>
                       <img
                         className={tableStyles.clientImage}
-                        src={row.employee[0].profile_image}
+                        src={row.employee[0]?.profile_image}
                       />
                     </div>
                     <div className="ml-10">
@@ -70,14 +70,12 @@ const ViewEmployees = () => {
                 </td>
                 <td className="py-2 px-4">
                   <div className={tableStyles.clientName}>
-                    {row.employee[0].phone_number}
+                    {row.employee?.phone_number}
                   </div>
                 </td>
                 <td className="py-2 px-4">
                   <div className={tableStyles.clientName}>
-                    {AppHelpers.shortDateConverter(
-                      row.employee[0].passport_expiry
-                    )}
+                      {row.employee?.passport_no}
                   </div>
                 </td>
 

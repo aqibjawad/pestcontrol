@@ -4,6 +4,7 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
+
 import styles from "../../styles/generics/inputStyles.module.css";
 
 export default function Dropdown({ title, options, onChange }) {
@@ -11,12 +12,13 @@ export default function Dropdown({ title, options, onChange }) {
 
   const handleChange = (event) => {
     const value = event.target.value;
+    const index = options.indexOf(value);
     setSelectedValue(value);
-    onChange(value); // Call onChange with the selected value
+    onChange(value, index);
   };
 
   return (
-    <Box sx={{ minWidth: 250 }}>
+    <Box sx={{ minWidth: 120 }}>
       <div className={styles.title}>{title}</div>
       <div className="mb-2"></div>
       <FormControl fullWidth>
@@ -29,8 +31,8 @@ export default function Dropdown({ title, options, onChange }) {
           onChange={handleChange}
         >
           {options.map((item, index) => (
-            <MenuItem key={index} value={item.value}>
-              {item.label}
+            <MenuItem key={index} value={item}>
+              {item}
             </MenuItem>
           ))}
         </Select>

@@ -22,6 +22,7 @@ import Link from "next/link";
 const Page = () => {
   const api = new APICall();
   const [fetchingData, setFetchingData] = useState(false);
+
   const [brandsList, setBrandsList] = useState([]);
   const [clientsList, setClientsList] = useState([]);
   const [allClientsList, setAllClientsList] = useState([]);
@@ -30,19 +31,17 @@ const Page = () => {
   const [dropdownOptions, setDropdownOptions] = useState([]);
   const [selectedOption, setSelectedOption] = useState(null);
 
-  // State for form inputs
-  const [formData, setFormData] = useState({
-    name: "",
-    firm_name: "",
-    email: "",
-    phone_number: "",
-    mobile_number: "",
-    industry_name: "",
-    referencable_id: "",
-    referencable_type: "",
-    opening_balance: "",
-  });
+  console.log(selectedOption);
 
+  const [name, setName] = useState("");
+  const [firm_name, setFirmName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone_number, setPhoneNumber] = useState("");
+  const [mobile_number, setMobNumber] = useState("");
+  const [industry_name, setIndustryName] = useState("");
+  const [opening_balance, setOpeningBalance] = useState("");
+
+  // State for form inputs
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -195,6 +194,12 @@ const Page = () => {
     }
   };
 
+  const [formData, setFormData] = useState({
+    referencable_id: "",
+    referencable_type: "",
+    // other fields...
+  });
+
   const handleDropdownChange = (value) => {
     const selected = dropdownOptions.find((option) => option.name === value);
     setSelectedOption(selected);
@@ -205,25 +210,48 @@ const Page = () => {
     });
   };
 
-  const handleInputChange = (name) => (value) => {
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-
   const handleSubmit = async () => {
     setSendingData(true);
-    try {
-      await api.postFormDataWithToken(`${clients}/create`, formData);
-      // Optionally, refresh the client list after submission
+
+    const obj = {
+      name,
+      firm_name,
+      email,
+      phone_number,
+      mobile_number,
+      industry_name,
+      referencable_id: formData.referencable_id,
+      referencable_type: formData.referencable_type,
+      opening_balance,
+    };
+    const response = await api.postFormDataWithToken(`${clients}/create`, obj);
+
+    if (response.status === "success") {
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Data has been added successfully!",
+      });
       await getAllClients();
       handleClose();
-    } catch (error) {
-      console.error("Error submitting form:", error);
-    } finally {
-      setSendingData(false);
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to submit data. Please try again.",
+      });
     }
+
+    // try {
+    //   // await api.postFormDataWithToken(`${clients}/create`, formData);
+    //   // // Optionally, refresh the client list after submission
+    //   // await getAllClients();
+    //   // handleClose();
+    // } catch (error) {
+    //   console.error("Error submitting form:", error);
+    // } finally {
+    //   setSendingData(false);
+    // }
   };
 
   return (
@@ -337,8 +365,8 @@ const Page = () => {
                 <InputWithTitle
                   label="Full name"
                   name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
+                  value={name}
+                  onChange={setName}
                   variant="outlined"
                   fullWidth
                   placeholder="Manager name"
@@ -348,8 +376,8 @@ const Page = () => {
                 <InputWithTitle
                   label="Firm Name"
                   name="firm_name"
-                  value={formData.firm_name}
-                  onChange={handleInputChange}
+                  value={firm_name}
+                  onChange={setFirmName}
                   variant="outlined"
                   fullWidth
                   placeholder="Firm Name"
@@ -360,8 +388,8 @@ const Page = () => {
               <InputWithTitle
                 label="Email"
                 name="email"
-                value={formData.email}
-                onChange={handleInputChange}
+                value={email}
+                onChange={setEmail}
                 variant="outlined"
                 fullWidth
                 placeholder="Please enter Email"
@@ -371,8 +399,8 @@ const Page = () => {
               <InputWithTitle
                 label="Phone Number"
                 name="phone_number"
-                value={formData.phone_number}
-                onChange={handleInputChange}
+                value={phone_number}
+                onChange={setPhoneNumber}
                 variant="outlined"
                 fullWidth
                 placeholder="Please enter Phone Number"
@@ -382,8 +410,8 @@ const Page = () => {
               <InputWithTitle
                 label="Mobile Number"
                 name="mobile_number"
-                value={formData.mobile_number}
-                onChange={handleInputChange}
+                value={mobile_number}
+                onChange={setMobNumber}
                 variant="outlined"
                 fullWidth
                 placeholder="Please enter Mobile Number"
@@ -394,8 +422,8 @@ const Page = () => {
                 <InputWithTitle
                   label="Opening Balance"
                   name="opening_balance"
-                  value={formData.opening_balance}
-                  onChange={handleInputChange}
+                  value={opening_balance}
+                  onChange={setOpeningBalance}
                   variant="outlined"
                   fullWidth
                   placeholder="Opening Balance"
@@ -403,7 +431,7 @@ const Page = () => {
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Dropdown
-                  title="Select Option"
+                  title="Select Reference"
                   options={dropdownOptions.map((option) => option.name)}
                   onChange={handleDropdownChange}
                 />
@@ -414,8 +442,8 @@ const Page = () => {
                 <InputWithTitle
                   label="Industry Name"
                   name="industry_name"
-                  value={formData.industry_name}
-                  onChange={handleInputChange}
+                  value={industry_name}
+                  onChange={setIndustryName}
                   variant="outlined"
                   fullWidth
                   placeholder="Industry Name"

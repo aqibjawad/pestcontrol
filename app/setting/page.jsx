@@ -102,6 +102,12 @@ const Page = () => {
             <Link href="/setting/serviceAgreements">Add Services</Link>
           </div>
         </Grid>
+
+        <Grid item xs={12} sm={6} md={4} lg={3}>
+          <div className={styles.addProd}>
+            <Link href="/hr/employee">Add Emplyees</Link>
+          </div>
+        </Grid>
       </Grid>
 
       <div className={styles.border}></div>

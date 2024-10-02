@@ -14,8 +14,9 @@ import GreenButton from "@/components/generic/GreenButton";
 
 import { useRouter } from "next/navigation";
 
-const Page = () => {
+import { CircularProgress } from "@mui/material";
 
+const Page = () => {
   const api = new APICall();
   const router = useRouter();
 
@@ -368,11 +369,9 @@ const Page = () => {
         <div>{secondSection()}</div>
       </div>
       <div className="mt-20">
-        <GreenButton
-          onClick={handleSubmit}
-          title={"Save"}
-          disabled={loadingSubmit}
-        />
+        <GreenButton onClick={handleSubmit} disabled={loadingSubmit}>
+          {loadingSubmit ? <CircularProgress size={24} /> : "Save"}
+        </GreenButton>
       </div>
     </div>
   );

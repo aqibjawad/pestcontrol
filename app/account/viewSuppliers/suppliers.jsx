@@ -59,12 +59,6 @@ const listTable = (data) => {
               TRN
             </th>
             <th className="py-2 px-4 border-b border-gray-200 text-left">
-              VAT
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              HSN
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
               Zip
             </th>
             <th className="py-2 px-4 border-b border-gray-200 text-left">
@@ -80,8 +74,6 @@ const listTable = (data) => {
               <td className="py-2 px-4">{row.company_name}</td>
               <td className="py-2 px-4">{row.email}</td>
               <td className="py-2 px-4">{row.trn_no}</td>
-              <td className="py-2 px-4">{row.vat}</td>
-              <td className="py-2 px-4">{row.hsn}</td>
               <td className="py-2 px-4">{row.zip}</td>
               <td className="py-2 px-4">
                 <Link

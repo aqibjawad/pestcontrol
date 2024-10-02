@@ -17,7 +17,6 @@ export const useSupplier = () => {
     company_name: "", // Updated to match validation schema
     email: "", // Remains the same
     number: "", // Remains the same
-    vat: "", // Remains the same
     trn_no: "", // Updated to match validation schema
     address: "", // Remains the same
     country: "", // Remains the same
@@ -69,8 +68,6 @@ export const useSupplier = () => {
       msg = "Please enter a valid email address";
     } else if (supplierData.number === "") {
       msg = "Please enter contact number";
-    } else if (supplierData.vat === "") {
-      msg = "Please enter VAT";
     } else if (supplierData.trn_no === "") {
       msg = "Please enter TRN";
     } else if (supplierData.address === "") {

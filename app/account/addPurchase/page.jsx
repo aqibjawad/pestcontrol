@@ -21,8 +21,12 @@ import styles from "../../../styles/addPurchase.module.css";
 
 import GreenButton from "@/components/generic/GreenButton";
 
+import { useRouter } from "next/navigation";
+
 const Page = () => {
+
   const api = new APICall();
+  const router = useRouter();
 
   const [fetchingData, setFetchingData] = useState(false);
 
@@ -151,6 +155,7 @@ const Page = () => {
         title: "Success",
         text: "Purchase added successfully.",
       });
+      router.push("/account/purchaseOrders");
     } else {
       Swal.fire({
         icon: "error",
