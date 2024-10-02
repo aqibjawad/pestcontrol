@@ -1,4 +1,3 @@
-// JobsList.jsx
 import React, { useState, useEffect } from "react";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import Dropdown2 from "@/components/generic/Dropdown2";
@@ -10,7 +9,12 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Button from "@mui/material/Button";
 import { Grid } from "@mui/material";
 
-const JobsList = ({ jobData, allServices, updateJobList, duration_in_months }) => {
+const JobsList = ({
+  jobData,
+  allServices,
+  updateJobList,
+  duration_in_months,
+}) => {
   const [rate, setRate] = useState(jobData.rate);
   const [open, setOpen] = useState(false);
   const [selectedJobType, setSelectedJobType] = useState(jobData.jobType);
@@ -42,7 +46,7 @@ const JobsList = ({ jobData, allServices, updateJobList, duration_in_months }) =
   }, [selectedDates, rate, selectedJobType]);
 
   const handleDateChange = (dates) => {
-    const formattedDates = dates.map((date) => 
+    const formattedDates = dates.map((date) =>
       date instanceof Date ? date.toISOString().slice(0, 10) : date
     );
     setSelectedDates(formattedDates);
@@ -64,13 +68,17 @@ const JobsList = ({ jobData, allServices, updateJobList, duration_in_months }) =
         <Grid item lg={3} xs={4}>
           <Dropdown2
             title="Selected Products"
-            options={allServices.filter(service => service.isChecked).map((service) => ({
-              label: service.pest_name,
-              value: service.id,
-            }))}
+            options={allServices
+              .filter((service) => service.isChecked)
+              .map((service) => ({
+                label: service.pest_name,
+                value: service.id,
+              }))}
             value={jobData.service_id}
             onChange={(value) => {
-              const selectedService = allServices.find((service) => service.id === value);
+              const selectedService = allServices.find(
+                (service) => service.id === value
+              );
               updateJobList({
                 service_id: value,
                 serviceName: selectedService.pest_name,
@@ -119,7 +127,7 @@ const JobsList = ({ jobData, allServices, updateJobList, duration_in_months }) =
       </Grid>
 
       <div style={{ marginTop: "1rem" }}>
-        {/* <div style={{ color: "#667085", fontWeight: "500", fontSize: "14px" }}>
+        <div style={{ color: "#667085", fontWeight: "500", fontSize: "14px" }}>
           {selectedDates?.length > 0 ? (
             <>
               Selected Dates: {selectedDates.join(", ")}
@@ -135,7 +143,7 @@ const JobsList = ({ jobData, allServices, updateJobList, duration_in_months }) =
           ) : (
             "No dates selected"
           )}
-        </div> */}
+        </div>
       </div>
 
       <Dialog open={open} onClose={() => setOpen(false)}>
