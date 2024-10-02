@@ -44,7 +44,6 @@ const BasicQuote = ({ setFormData, formData }) => {
 
   const handleClientChange = (value) => {
     const selectedClient = allClients.find((client) => client.id === value);
-    console.log(selectedClient);
 
     if (selectedClient) {
       setSelectedClientId(value);
@@ -110,7 +109,7 @@ const BasicQuote = ({ setFormData, formData }) => {
             title={"Contract Reference"}
             type={"text"}
             placeholder={"Contract Reference"}
-            value={referenceName} // Use contract reference here
+            value={referenceName ? referenceName : "No Reference"} // Conditional rendering
             disable
           />
         </Grid>

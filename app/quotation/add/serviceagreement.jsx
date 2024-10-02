@@ -73,10 +73,7 @@ const ServiceAgreement = ({ setFormData, formData }) => {
         ...prev,
         services: [...prev.services, ...newJobs],
       }));
-      // Optionally, you can uncheck services after adding jobs
-      setAllServices((prev) =>
-        prev.map((service) => ({ ...service, isChecked: false }))
-      );
+      // Do not reset checked state
     } else {
       alert("Please select at least one service to add a job.");
     }

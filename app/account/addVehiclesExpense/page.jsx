@@ -47,8 +47,12 @@ const Page = () => {
 
   // All Banks States
   const [allVehiclesList, setAllVehicleList] = useState([]);
+  
   const [allVehicleNameList, setVehicleNameList] = useState([]);
   const [selectedVehicleId, setSelectedVehicleId] = useState("");
+
+  console.log(selectedVehicleId);
+  
 
   const [fetchingData, setFetchingData] = useState(false);
 
@@ -95,8 +99,21 @@ const Page = () => {
     setSelectedBankId(selectedValue);
   };
 
-  const handleVehicleChange = (selectedValue) => {
-    setSelectedVehicleId(selectedValue);
+  // const handleVehicleChange = (selectedValue) => {
+  //   setSelectedVehicleId(selectedValue);
+  // };
+
+  const handleVehicleChange = (value) => {
+    const selectedClient = allVehicleNameList.find((vehcile) => vehcile.id === value);
+    
+    if (selectedClient) {
+      setSelectedVehicleId(selectedClient);
+      // setFormData((prev) => ({
+      //   ...prev,
+      //   vehicle_id: selectedClient.id,
+      // })); // Set user ID
+
+    }
   };
 
   const handleTabChange = (tab) => {
@@ -196,11 +213,12 @@ const Page = () => {
       <Grid className={styles.fromGrid} container spacing={3}>
         <Grid item lg={4} xs={12}>
           <Dropdown
+            title={"select Vehcile"}
+            options={allVehiclesList}
             onChange={handleVehicleChange}
-            title="Vehicles"
-            options={allVehicleNameList}
-            value={selectedVehicle.id}
-            displayValue={selectedVehicle.name}
+            value={allVehiclesList.find(
+              (option) => option.value === selectedVehicleId
+            )}
           />
         </Grid>
 
