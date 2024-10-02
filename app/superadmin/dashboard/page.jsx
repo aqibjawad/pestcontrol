@@ -3,8 +3,8 @@ import React, { useState } from "react";
 import styles from "../../../styles/superAdmin/dashboard.module.css";
 import Operations from "../dashboard/components/Operations";
 import UpcomingJobs from "../../../components/UpcomingJobs";
-import Vendors from "../../../components/Vendors";
-import Quotes from "../../../components/Quotes";
+import Vendors from "../../allVendors/page";
+import Quotation from "../../viewQuote/page"
 import Contracts from "../../../components/Contracts";
 import Finance from "../dashboard/components/Finance";
 import Reports from "./components/Reports";
@@ -35,7 +35,7 @@ const Index = () => {
                 key={index}
               >
                 {item}
-              </div>
+              </div> 
             );
           })}
         </div>
@@ -53,7 +53,7 @@ const Index = () => {
             <Operations />
             <UpcomingJobs />
             <Vendors />
-            <Quotes />
+            <Quotation />
             <Contracts />
 
           </div>

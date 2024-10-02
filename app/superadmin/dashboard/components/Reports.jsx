@@ -74,51 +74,52 @@ const rows = Array.from({ length: 2 }, (_, index) => ({
 
 const listSaleTable = () => {
     return (
-        <div className={tableStyles.tableContainer}>
-            <table class="min-w-full bg-white ">
-                <thead class="">
-                    <tr>
-                        <th class="py-5 px-4 border-b border-gray-200 text-left"> Name </th>
-                        <th class="py-2 px-4 border-b border-gray-200 text-left">Contact</th>
-                        <th class="py-2 px-4 border-b border-gray-200 text-left">
-                            Quote Send
-                        </th>
-                        <th class="py-2 px-4 border-b border-gray-200 text-left">
-                            Quote Approved
-                        </th>
+        // <div className={tableStyles.tableContainer}>
+        //     <table class="min-w-full bg-white ">
+        //         <thead class="">
+        //             <tr>
+        //                 <th class="py-5 px-4 border-b border-gray-200 text-left"> Name </th>
+        //                 <th class="py-2 px-4 border-b border-gray-200 text-left">Contact</th>
+        //                 <th class="py-2 px-4 border-b border-gray-200 text-left">
+        //                     Quote Send
+        //                 </th>
+        //                 <th class="py-2 px-4 border-b border-gray-200 text-left">
+        //                     Quote Approved
+        //                 </th>
 
-                        <th class="py-2 px-4 border-b border-gray-200 text-left">
-                            Cash Advance
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {rows.map((row, index) => (
-                        <tr key={index} className="border-b border-gray-200">
+        //                 <th class="py-2 px-4 border-b border-gray-200 text-left">
+        //                     Cash Advance
+        //                 </th>
+        //             </tr>
+        //         </thead>
+        //         <tbody>
+        //             {rows.map((row, index) => (
+        //                 <tr key={index} className="border-b border-gray-200">
 
-                            <td className="py-5 px-4"> {row.clientName} </td>
+        //                     <td className="py-5 px-4"> {row.clientName} </td>
 
-                            <td className="py-2 px-4">
-                                <div className={tableStyles.clientContact}>{row.clientContact}</div>
-                            </td>
+        //                     <td className="py-2 px-4">
+        //                         <div className={tableStyles.clientContact}>{row.clientContact}</div>
+        //                     </td>
 
-                            <td className="py-2 px-4">
-                                <div className={tableStyles.clientContact}>{row.clientContact}</div>
-                            </td>
+        //                     <td className="py-2 px-4">
+        //                         <div className={tableStyles.clientContact}>{row.clientContact}</div>
+        //                     </td>
 
-                            <td className="py-2 px-4">
-                                <div className={tableStyles.clientContact}>{row.clientContact}</div>
-                            </td>
+        //                     <td className="py-2 px-4">
+        //                         <div className={tableStyles.clientContact}>{row.clientContact}</div>
+        //                     </td>
 
-                            <td className="py-2 px-4">
-                                <div className={tableStyles.clientContact}>{row.clientContact}</div>
-                            </td>
+        //                     <td className="py-2 px-4">
+        //                         <div className={tableStyles.clientContact}>{row.clientContact}</div>
+        //                     </td>
 
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
+        //                 </tr>
+        //             ))}
+        //         </tbody>
+        //     </table>
+        // </div>
+        ""
     );
 };
 

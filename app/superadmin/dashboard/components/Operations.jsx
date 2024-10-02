@@ -27,7 +27,7 @@ const Operations = () => {
       setFetchingData(false);
     }
   };
-
+ 
   const totalExpenses = () => {
     return (
       <div className={styles.itemContainer}>
