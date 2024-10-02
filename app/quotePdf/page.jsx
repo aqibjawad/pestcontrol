@@ -2,15 +2,19 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation"; // Import useRouter
-import CustomerDetails from "./customerDetails";
-import ServiceProduct from "./services";
-import Invoice from "./invoices";
-import ContractSummary from "./contract";
 import { Grid, Skeleton } from "@mui/material"; // Import Skeleton
 import styles from "../../styles/viewQuote.module.css";
 import { useSearchParams } from "next/navigation";
 import APICall from "@/networkUtil/APICall";
 import { quotation } from "@/networkUtil/Constants";
+
+
+import CustomerDetails from "./customerDetails";
+import ServiceProduct from "./services";
+import Invoice from "./invoices";
+import ContractSummary from "./contract";
+import Terms from "./terms"
+import Treatment from "./methods"
 
 const Page = () => {
   const api = new APICall();
@@ -123,8 +127,10 @@ const Page = () => {
         <>
           <CustomerDetails quote={quoteList} />
           <ServiceProduct quote={quoteList} />
+          <Treatment quote={quoteList} />
           <Invoice quote={quoteList} />
           <ContractSummary quote={quoteList} />
+          <Terms quote={quoteList}/>
         </>
       )}
 

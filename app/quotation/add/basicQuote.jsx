@@ -190,10 +190,7 @@ const BasicQuote = ({ setFormData, formData }) => {
             placeholder={"Duration in Month"}
             value={formData.duration_in_months}
             onChange={(value) => {
-              // Ensure value is a number and not greater than 12
-              if (value <= 12 && value >= 0) {
-                setFormData((prev) => ({ ...prev, duration_in_months: value }));
-              }
+              setFormData((prev) => ({ ...prev, duration_in_months: value }));
             }}
           />
         </Grid>

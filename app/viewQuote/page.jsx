@@ -9,12 +9,11 @@ import {
   TableHead,
   TableRow,
   Paper,
-  CircularProgress,
+  Skeleton,
 } from "@mui/material";
 import SearchInput from "@/components/generic/SearchInput";
 import APICall from "@/networkUtil/APICall";
 import { quotation } from "@/networkUtil/Constants";
-
 import Link from "next/link";
 
 const Quotation = () => {
@@ -30,10 +29,16 @@ const Quotation = () => {
   const getAllQuotes = async () => {
     setFetchingData(true);
     try {
-      const response = await api.getDataWithToken(`${quotation}/all`);
-      setQuoteList(response.data);
+      const [quotesResponse, contactsResponse] = await Promise.all([
+        api.getDataWithToken(`${quotation}/all`),
+        api.getDataWithToken(`${quotation}/contracted`), // Replace 'contacts' with your actual endpoint
+      ]);
+
+      // Assuming both responses have a `data` property that is an array
+      const mergedData = [...quotesResponse.data, ...contactsResponse.data];
+      setQuoteList(mergedData);
     } catch (error) {
-      console.error("Error fetching quotes:", error);
+      console.error("Error fetching quotes and contacts:", error);
     } finally {
       setFetchingData(false);
     }
@@ -45,6 +50,7 @@ const Quotation = () => {
         <Table>
           <TableHead>
             <TableRow>
+              <TableCell>Sr No</TableCell>
               <TableCell>Customer</TableCell>
               <TableCell>Billing Method</TableCell>
               <TableCell>Quote Title</TableCell>
@@ -56,13 +62,21 @@ const Quotation = () => {
           <TableBody>
             {fetchingData ? (
               <TableRow>
-                <TableCell colSpan={7} style={{ textAlign: "center" }}>
-                  <CircularProgress />
+                <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                  {[...Array(5)].map((_, index) => (
+                    <Skeleton
+                      key={index}
+                      variant="text"
+                      width="80%"
+                      height={40}
+                    />
+                  ))}
                 </TableCell>
               </TableRow>
             ) : (
               quoteList.map((row, index) => (
                 <TableRow key={index}>
+                  <TableCell>{index + 1}</TableCell>
                   <TableCell>{row?.user?.name}</TableCell>
                   <TableCell>{row.billing_method}</TableCell>
                   <TableCell>{row.quote_title}</TableCell>
@@ -73,7 +87,6 @@ const Quotation = () => {
                   </TableCell>
                   <TableCell>{row.sub_total}</TableCell>
                   <TableCell>
-                    {" "}
                     <Link href={`/quotePdf?id=${row.id}`}>
                       <span className="text-blue-600 hover:text-blue-800">
                         View Details

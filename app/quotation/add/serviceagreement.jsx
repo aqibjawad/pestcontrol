@@ -180,9 +180,14 @@ const ServiceAgreement = ({ setFormData, formData }) => {
           </div>
         ))}
       </div>
-      <Button variant="outlined" onClick={addJobList}>
-        Add
-      </Button>
+      <div className="flex">
+        <div className="flex-grow"></div>
+        <div className="">
+          <Button variant="outlined" onClick={addJobList}>
+            Add
+          </Button>
+        </div>
+      </div>
       <ContractSummary grandTotal={grandTotal} />
     </div>
   );

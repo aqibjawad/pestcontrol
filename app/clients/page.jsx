@@ -205,8 +205,7 @@ const Page = () => {
     });
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
+  const handleInputChange = (name) => (value) => {
     setFormData({
       ...formData,
       [name]: value,

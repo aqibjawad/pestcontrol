@@ -96,6 +96,12 @@ const Page = () => {
             <Link href="/createJob">Add Job</Link>
           </div>
         </Grid>
+
+        <Grid item xs={12} sm={6} md={4} lg={3}>
+          <div className={styles.addProd}>
+            <Link href="/setting/serviceAgreements">Add Services</Link>
+          </div>
+        </Grid>
       </Grid>
 
       <div className={styles.border}></div>
@@ -152,6 +158,12 @@ const Page = () => {
         <Grid className="mt-5" item xs={12} sm={6} md={4} lg={3}>
           <div className={styles.addProd}>
             <Link href="/viewInvoice">View Invoice</Link>
+          </div>
+        </Grid>
+
+        <Grid className="mt-5" item xs={12} sm={6} md={4} lg={3}>
+          <div className={styles.addProd}>
+            <Link href="/clients">View Clients</Link>
           </div>
         </Grid>
       </Grid>

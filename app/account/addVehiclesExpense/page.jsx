@@ -52,6 +52,9 @@ const Page = () => {
 
   const [fetchingData, setFetchingData] = useState(false);
 
+  const [selectedVehicle, setSelectedVehicle] = useState({ id: "", name: "" });
+  const [selectedBank, setSelectedBank] = useState({ id: "", name: "" });
+
   useEffect(() => {
     getAllBanks();
     getAllVehicles();
@@ -87,14 +90,13 @@ const Page = () => {
     }
   };
 
-  const handleBankChange = (name, index) => {
-    const idAtIndex = allBanksList[index].id;
-    setSelectedBankId(idAtIndex);
+  const handleBankChange = (selectedValue, selectedLabel) => {
+    setSelectedBank({ id: selectedValue, name: selectedLabel });
+    setSelectedBankId(selectedValue);
   };
 
-  const handleVehicleChange = (name, index) => {
-    const idAtIndex = allVehiclesList[index].id;
-    setSelectedVehicleId(idAtIndex);
+  const handleVehicleChange = (selectedValue) => {
+    setSelectedVehicleId(selectedValue);
   };
 
   const handleTabChange = (tab) => {
@@ -147,7 +149,7 @@ const Page = () => {
       );
       if (response.status === 200) {
         alert("Vehicle Expense Added Successfully");
-        router.push("/account/viewVehicles")
+        router.push("/account/viewVehicles");
       }
       // Handle successful response
       console.log("Expense created successfully:", response);
@@ -195,8 +197,10 @@ const Page = () => {
         <Grid item lg={4} xs={12}>
           <Dropdown
             onChange={handleVehicleChange}
-            title={"Vehicles"}
+            title="Vehicles"
             options={allVehicleNameList}
+            value={selectedVehicle.id}
+            displayValue={selectedVehicle.name}
           />
         </Grid>
 
