@@ -64,19 +64,13 @@ const CustomerDetails = ({ quote }) => {
                   <TableCell> High </TableCell>
                 </TableRow>
 
-                <TableRow sx={{ border: "none" }}>
-                  <TableCell>
-                    <strong> Date: </strong>
-                  </TableCell>
-                  <TableCell> {formatDate(quote?.updated_at)} </TableCell>
-                </TableRow>
               </TableBody>
             </Table>
           </TableContainer>
         </Grid>
 
         <Grid item lg={6} xs={12} sm={6} md={4}>
-          <TableContainer sx={{ mt: 7 }}>
+          <TableContainer sx={{ mt: 6 }}>
             <Table sx={{ borderCollapse: "collapse" }}>
               <TableBody>
                 <TableRow sx={{ border: "none" }}>
@@ -95,13 +89,6 @@ const CustomerDetails = ({ quote }) => {
 
                 <TableRow sx={{ border: "none" }}>
                   <TableCell>
-                    <strong> VAT: </strong>
-                  </TableCell>
-                  <TableCell> {quote?.vat} </TableCell>
-                </TableRow>
-
-                <TableRow sx={{ border: "none" }}>
-                  <TableCell>
                     <strong> TRN: </strong>
                   </TableCell>
                   <TableCell> {quote?.trn} </TableCell>
@@ -112,6 +99,13 @@ const CustomerDetails = ({ quote }) => {
                     <strong> Firm: </strong>
                   </TableCell>
                   <TableCell> {quote?.user?.client?.firm_name} </TableCell>
+                </TableRow>
+
+                <TableRow sx={{ border: "none" }}>
+                  <TableCell>
+                    <strong> Date: </strong>
+                  </TableCell>
+                  <TableCell> {formatDate(quote?.updated_at)} </TableCell>
                 </TableRow>
               </TableBody>
             </Table>

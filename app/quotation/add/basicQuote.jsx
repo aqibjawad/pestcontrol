@@ -8,6 +8,7 @@ import { Grid, Skeleton } from "@mui/material";
 import MultilineInput from "@/components/generic/MultilineInput";
 
 const BasicQuote = ({ setFormData, formData }) => {
+  
   const api = new APICall();
 
   const [allBrandsList, setAllBrandsList] = useState([]);
@@ -98,9 +99,13 @@ const BasicQuote = ({ setFormData, formData }) => {
               title={"select Client"}
               options={allBrandsList}
               onChange={handleClientChange}
-              value={allBrandsList.find(
-                (option) => option.value === selectedBrand
-              )}
+              // value={allBrandsList.find(
+              //   (option) => option.value === selectedBrand
+              // )}
+              value={
+                selectedBrand || allBrandsList.find((option) => option.value === formData?.user?.name)
+              }
+              defaultValue={formData?.user?.name}
             />
           )}
         </Grid>
@@ -121,7 +126,7 @@ const BasicQuote = ({ setFormData, formData }) => {
             type={"text"}
             placeholder={"Firm"}
             value={firmName} // Use the firm name from the selected client
-            // defaultValue={formData.firm_name}
+            defaultValue={formData.firmName}
             disable
           />
         </Grid>

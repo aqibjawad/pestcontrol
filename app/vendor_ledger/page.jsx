@@ -20,15 +20,28 @@ import {
 import "jspdf-autotable";
 
 import { vendors } from "../../networkUtil/Constants";
-import { useSearchParams } from "next/navigation";
 
 import APICall from "../../networkUtil/APICall";
+
+
+const getIdFromUrl = (url) => {
+  const parts = url.split("?");
+  if (parts.length > 1) {
+    const queryParams = parts[1].split("&");
+    for (const param of queryParams) {
+      const [key, value] = param.split("=");
+      if (key === "id") {
+        return value;
+      }
+    }
+  }
+  return null;
+};
 
 const Page = () => {
   const api = new APICall();
 
-  const searchParams = useSearchParams();
-  const id = searchParams.get("id");
+  const [id, setId] = useState(null);
 
   const [tableData, setTableData] = useState([]);
   const [rowData, setRowData] = useState([]);
@@ -40,8 +53,14 @@ const Page = () => {
   const tableRef = useRef(null);
 
   useEffect(() => {
-    if (id) {
-      fetchData();
+    // Get the current URL
+    const currentUrl = window.location.href;
+
+    const urlId = getIdFromUrl(currentUrl);
+    setId(urlId);
+
+    if (urlId) {
+      fetchData(urlId);
     }
   }, [id]);
 

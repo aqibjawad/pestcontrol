@@ -6,28 +6,49 @@ import styles from "../../../styles/loginStyles.module.css";
 import Link from "next/link";
 import APICall from "@/networkUtil/APICall";
 import { purchaseOrder } from "@/networkUtil/Constants";
-import { useSearchParams } from "next/navigation";
-import { Skeleton } from "@mui/material"; // Import MUI Skeleton
+import { Skeleton } from "@mui/material";
 
-const PrchaseOrder = () => {
-  const searchParams = useSearchParams();
-  const id = searchParams.get("id");
+const getIdFromUrl = (url) => {
+  const parts = url.split("?");
+  if (parts.length > 1) {
+    const queryParams = parts[1].split("&");
+    for (const param of queryParams) {
+      const [key, value] = param.split("=");
+      if (key === "id") {
+        return value;
+      }
+    }
+  }
+  return null;
+};
+
+const PurchaseOrder = () => {
   const api = new APICall();
 
+  const [id, setId] = useState(null);
   const [orderDetails, setOrderDetails] = useState(null);
   const [tableDetails, setTableDetails] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (id) {
-      fetchOrderDetails();
-    }
-  }, [id]);
+    // Get the current URL
+    const currentUrl = window.location.href;
 
-  const fetchOrderDetails = async () => {
+    // Extract id from URL
+    const urlId = getIdFromUrl(currentUrl);
+    setId(urlId);
+
+    if (urlId) {
+      fetchOrderDetails(urlId);
+    }
+  }, []);
+
+  const fetchOrderDetails = async (orderId) => {
     setLoading(true);
     try {
-      const response = await api.getDataWithToken(`${purchaseOrder}/${id}`);
+      const response = await api.getDataWithToken(
+        `${purchaseOrder}/${orderId}`
+      );
       console.log("API response data:", response.data);
       setOrderDetails(response.data);
       setTableDetails(response.data.order_details || []);
@@ -48,25 +69,51 @@ const PrchaseOrder = () => {
         <table className="min-w-full bg-white">
           <thead>
             <tr>
-              <th className="py-5 px-4 border-b border-gray-200 text-left">Sr.</th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">Product Name</th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">Product Type</th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">Unit</th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">Manufacture Date</th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">Expiry Date</th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">Moccae Approval</th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">Moccae Start</th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">Moccae End</th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">Quantity</th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">Total</th>
+              <th className="py-5 px-4 border-b border-gray-200 text-left">
+                Sr.
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Product Name
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Product Type
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Unit
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Manufacture Date
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Expiry Date
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Moccae Approval
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Moccae Start
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Moccae End
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Quantity
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Total
+              </th>
             </tr>
           </thead>
           <tbody>
             {tableDetails.map((row, index) => (
               <tr key={index} className="border-b border-gray-200">
                 <td className="py-5 px-4">{index + 1}</td>
-                <td className="py-2 px-4">{row?.product?.product_name || "N/A"}</td>
-                <td className="py-2 px-4">{row.product?.product_type || "N/A"}</td>
+                <td className="py-2 px-4">
+                  {row?.product?.product_name || "N/A"}
+                </td>
+                <td className="py-2 px-4">
+                  {row.product?.product_type || "N/A"}
+                </td>
                 <td className="py-2 px-4">{row.product.unit || "N/A"}</td>
                 <td className="py-2 px-4">{row.product.mfg_date || "N/A"}</td>
                 <td className="py-2 px-4">{row.product.exp_date || "N/A"}</td>
@@ -86,11 +133,23 @@ const PrchaseOrder = () => {
   return (
     <div>
       <div style={{ padding: "30px", borderRadius: "10px" }}>
-        <div style={{ fontSize: "20px", fontFamily: "semibold", marginBottom: "-4rem" }}>
-          {loading ? <Skeleton width="50%" /> : orderDetails?.supplier?.supplier_name}
+        <div
+          style={{
+            fontSize: "20px",
+            fontFamily: "semibold",
+            marginBottom: "-4rem",
+          }}
+        >
+          {loading ? (
+            <Skeleton width="50%" />
+          ) : (
+            orderDetails?.supplier?.supplier_name
+          )}
         </div>
       </div>
-      <div style={{ fontSize: "16px", fontFamily: "semibold", padding: "30px" }}>
+      <div
+        style={{ fontSize: "16px", fontFamily: "semibold", padding: "30px" }}
+      >
         {loading ? <Skeleton width="30%" /> : orderDetails?.po_id}
       </div>
       <div className="grid grid-cols-12 gap-4 mt-5">
@@ -106,4 +165,4 @@ const PrchaseOrder = () => {
   );
 };
 
-export default PrchaseOrder;
+export default PurchaseOrder;

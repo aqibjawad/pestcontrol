@@ -19,10 +19,24 @@ import { serviceInvoice } from "@/networkUtil/Constants";
 import GreenButton from "@/components/generic/GreenButton";
 import Swal from "sweetalert2";
 
+const getIdFromUrl = (url) => {
+  const parts = url.split("?");
+  if (parts.length > 1) {
+    const queryParams = parts[1].split("&");
+    for (const param of queryParams) {
+      const [key, value] = param.split("=");
+      if (key === "id") {
+        return value;
+      }
+    }
+  }
+  return null;
+};
+
 const Page = () => {
   const api = new APICall();
-  const searchParams = useSearchParams();
-  const id = searchParams.get("id");
+
+  const [id, setId] = useState(null);
 
   const [loading, setLoading] = useState(true); // Loader state for table
   const [buttonLoading, setButtonLoading] = useState(false); // Loader state for button
@@ -31,16 +45,24 @@ const Page = () => {
   const [invoiceAllDetails, setInvoiceAllDetails] = useState([]);
 
   useEffect(() => {
-    setTimeout(() => {
-      getPayments();
-    }, 2000);
+    // Get the current URL
+    const currentUrl = window.location.href;
+
+    const urlId = getIdFromUrl(currentUrl);
+    setId(urlId);
+
+    if (urlId) {
+      setTimeout(() => {
+        getPayments(urlId);
+      }, 2000);
+    }
   }, [id]);
 
   const getPayments = async () => {
     setLoading(true);
     try {
       const response = await api.getDataWithToken(`${serviceInvoice}/${id}`);
-      setInvoiceDetails(response.data.details); 
+      setInvoiceDetails(response.data.details);
       setInvoiceAllDetails(response.data);
     } catch (error) {
       console.error("Error fetching invoice details:", error);
@@ -95,7 +117,12 @@ const Page = () => {
 
   return (
     <>
-      <div style={{fontSize:"20px", fontWeight:"600", marginBottom:"2rem"}}> {invoiceAllDetails.service_invoice_id} </div>
+      <div
+        style={{ fontSize: "20px", fontWeight: "600", marginBottom: "2rem" }}
+      >
+        {" "}
+        {invoiceAllDetails.service_invoice_id}{" "}
+      </div>
       <Grid container spacing={2}>
         <Grid item xs={12} sm={6} md={6}>
           <TableContainer component={Paper}>
@@ -173,7 +200,7 @@ const Page = () => {
                     alignItems: "center",
                   }}
                 >
-                    Pay All
+                  Pay All
                 </button>
               </div>
             </Grid>

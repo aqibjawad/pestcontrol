@@ -19,19 +19,21 @@ import {
 import "jspdf-autotable";
 
 import { getAllSuppliers } from "../../../networkUtil/Constants";
-import { useSearchParams } from "next/navigation";
-
 import APICall from "../../../networkUtil/APICall";
 import { format } from "date-fns";
+
+const getParamFromUrl = (url, param) => {
+  const searchParams = new URLSearchParams(url.split("?")[1]);
+  return searchParams.get(param);
+};
 
 const Page = () => {
   const api = new APICall();
 
-  const searchParams = useSearchParams();
-  const id = searchParams.get("id");
-  const supplierName = searchParams.get("supplier_name");
-  const companyName = searchParams.get("company_name");
-  const number = searchParams.get("number");
+  const [id, setId] = useState(null);
+  const [supplierName, setSupplierName] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [number, setNumber] = useState("");
 
   const [tableData, setTableData] = useState([]);
   const [rowData, setRowData] = useState([]);
@@ -43,16 +45,30 @@ const Page = () => {
   const tableRef = useRef(null);
 
   useEffect(() => {
-    if (id) {
-      fetchData();
-    }
-  }, [id]);
+    // Get the current URL
+    const currentUrl = window.location.href;
 
-  const fetchData = async () => {
+    // Extract parameters from URL
+    const urlId = getParamFromUrl(currentUrl, "id");
+    const urlSupplierName = getParamFromUrl(currentUrl, "supplier_name");
+    const urlCompanyName = getParamFromUrl(currentUrl, "company_name");
+    const urlNumber = getParamFromUrl(currentUrl, "number");
+
+    setId(urlId);
+    setSupplierName(urlSupplierName);
+    setCompanyName(urlCompanyName);
+    setNumber(urlNumber);
+
+    if (urlId) {
+      fetchData(urlId);
+    }
+  }, []);
+
+  const fetchData = async (supplierId) => {
     setLoading(true);
     try {
       const response = await api.getDataWithToken(
-        `${getAllSuppliers}/ledger/get/${id}`
+        `${getAllSuppliers}/ledger/get/${supplierId}`
       );
 
       const data = response.data;
@@ -77,12 +93,11 @@ const Page = () => {
 
   const handlePrint = () => {
     window.print();
-    // router.push("/supplier_invoice");
   };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString(); // Formats date as MM/DD/YYYY by default, adjust as needed
+    return date.toLocaleDateString();
   };
 
   return (

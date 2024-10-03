@@ -8,21 +8,42 @@ import Members from "./members";
 import Instruction from "./instruction";
 import ResheduleTreatment from "./rescheduleTreat";
 
-import { useSearchParams } from "next/navigation";
 import APICall from "@/networkUtil/APICall";
 import { job } from "@/networkUtil/Constants";
 
+const getIdFromUrl = (url) => {
+  const parts = url.split("?");
+  if (parts.length > 1) {
+    const queryParams = parts[1].split("&");
+    for (const param of queryParams) {
+      const [key, value] = param.split("=");
+      if (key === "id") {
+        return value;
+      }
+    }
+  }
+  return null;
+};
+
 const Page = () => {
   const api = new APICall();
-  const searchParams = useSearchParams();
-  const id = searchParams.get("id");
+
+  const [id, setId] = useState(null);
 
   const [fetchingData, setFetchingData] = useState(false);
   const [jobList, setQuoteList] = useState(null); // Change initial state to null
   const [loadingDetails, setLoadingDetails] = useState(true);
 
   useEffect(() => {
-    getAllJobs();
+    // Get the current URL
+    const currentUrl = window.location.href;
+
+    const urlId = getIdFromUrl(currentUrl);
+    setId(urlId);
+
+    if (urlId) {
+      getAllJobs(urlId);
+    }
   }, []);
 
   const getAllJobs = async () => {
@@ -41,8 +62,8 @@ const Page = () => {
   return (
     <div>
       <JobDetails jobList={jobList} />
-      <Members jobList={jobList}  />
-      <Instruction jobList={jobList}  />
+      <Members jobList={jobList} />
+      <Instruction jobList={jobList} />
       <ResheduleTreatment jobId={id} />
       {/* <SchedulePlan /> */}
     </div>

@@ -5,13 +5,9 @@ import APICall from "@/networkUtil/APICall";
 import {
   termsCond,
 } from "@/networkUtil/Constants";
-import { useSearchParams } from "next/navigation";
 
 export const useTermHook = () => {
   const api = new APICall();
-  const searchParams = useSearchParams();
-  const id = searchParams.get("id");
-
   const [fetchingData, setFetchingData] = useState(false);
   const [brandsList, setBrandsList] = useState(null);
   const [name, setName] = useState("");
@@ -20,7 +16,7 @@ export const useTermHook = () => {
 
   const [employeesList, setEmployeesList] = useState([]);
   const [employees, setEmployessList] = useState([]);
-
+ 
 
   useEffect(() => {
     getAllBrands();

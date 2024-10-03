@@ -8,27 +8,48 @@ import { useSearchParams } from "next/navigation";
 import APICall from "@/networkUtil/APICall";
 import { quotation } from "@/networkUtil/Constants";
 
-
 import CustomerDetails from "./customerDetails";
 import ServiceProduct from "./services";
 import Invoice from "./invoices";
 import ContractSummary from "./contract";
-import Terms from "./terms"
-import Treatment from "./methods"
+import Terms from "./terms";
+import Treatment from "./methods";
+
+const getIdFromUrl = (url) => {
+  const parts = url.split("?");
+  if (parts.length > 1) {
+    const queryParams = parts[1].split("&");
+    for (const param of queryParams) {
+      const [key, value] = param.split("=");
+      if (key === "id") {
+        return value;
+      }
+    }
+  }
+  return null;
+};
 
 const Page = () => {
+
   const api = new APICall();
-  const searchParams = useSearchParams();
-  const id = searchParams.get("id");
-  const router = useRouter(); // Initialize useRouter
+  const [id, setId] = useState(null);
+  const router = useRouter();
 
   const [fetchingData, setFetchingData] = useState(false);
-  const [quoteList, setQuoteList] = useState(null); // Change initial state to null
-  const [isApproved, setIsApproved] = useState(false); // Track approval status
-  const [loadingDetails, setLoadingDetails] = useState(true); // Loading state for details
+  const [quoteList, setQuoteList] = useState(null);
+  const [isApproved, setIsApproved] = useState(false);
+  const [loadingDetails, setLoadingDetails] = useState(true);
 
   useEffect(() => {
-    getAllQuotes();
+    // Get the current URL
+    const currentUrl = window.location.href;
+
+    const urlId = getIdFromUrl(currentUrl);
+    setId(urlId);
+
+    if (urlId) {
+      getAllQuotes(urlId);
+    }
   }, []);
 
   const getAllQuotes = async () => {
@@ -53,7 +74,7 @@ const Page = () => {
       const response = await api.getDataWithToken(
         `${quotation}/move/contract/${id}`
       );
-      console.log("Response:", response);
+      router.push("/viewQuote");
       setIsApproved(true); // Update approval status after submission
     } catch (error) {
       console.error("Error sending data:", error);
@@ -102,37 +123,34 @@ const Page = () => {
               <div>
                 <div className={styles.heading}>
                   {isApproved ? "Contracted" : "Quotes"}
-                </div>
+                </div> 
               </div>
             </div>
           </Grid>
         </Grid>
       </div>
 
-      {loadingDetails ? (
-        <>
-          <Skeleton variant="text" width="100%" height={50} />
-          <Skeleton variant="rect" width="100%" height={100} />
-          <Skeleton variant="text" width="100%" />
-          <Skeleton variant="text" width="100%" />
-          <Skeleton variant="text" width="100%" />
-          <Skeleton variant="rect" width="100%" height={100} />
-          <Skeleton variant="text" width="100%" />
-          <Skeleton variant="text" width="100%" />
-          <Skeleton variant="text" width="100%" />
-          <Skeleton variant="rect" width="100%" height={100} />
-          <Skeleton variant="text" width="100%" />
-        </>
-      ) : (
-        <>
-          <CustomerDetails quote={quoteList} />
-          <ServiceProduct quote={quoteList} />
-          <Treatment quote={quoteList} />
-          <Invoice quote={quoteList} />
-          <ContractSummary quote={quoteList} />
-          <Terms quote={quoteList}/>
-        </>
-      )}
+      <div className="my-4">
+        {loadingDetails ? (
+          <div className="space-y-4">
+            <div className="h-4 bg-gray-200 rounded animate-pulse w-full"></div>
+            <div className="h-4 bg-gray-200 rounded animate-pulse w-full"></div>
+            <div className="h-4 bg-gray-200 rounded animate-pulse w-full"></div>
+            <div className="h-24 bg-gray-200 rounded animate-pulse w-full"></div>
+            <div className="h-4 bg-gray-200 rounded animate-pulse w-full"></div>
+            <div className="h-4 bg-gray-200 rounded animate-pulse w-full"></div>
+          </div>
+        ) : (
+          <>
+            <CustomerDetails quote={quoteList} />
+            <ServiceProduct quote={quoteList} />
+            <Treatment quote={quoteList} />
+            <Invoice quote={quoteList} />
+            <ContractSummary quote={quoteList} />
+            <Terms quote={quoteList} />
+          </>
+        )}
+      </div>
 
       <img
         style={{ width: "100%", marginTop: "1rem" }}
@@ -143,12 +161,20 @@ const Page = () => {
       <Grid container spacing={3}>
         <Grid item lg={6} xs={12} sm={6} md={4}>
           {!isApproved && (
-            <div style={{cursor:"pointer"}} onClick={handleEditQuote} className={styles.approveDiv}>
+            <div
+              style={{ cursor: "pointer" }}
+              onClick={handleEditQuote}
+              className={styles.approveDiv}
+            >
               Edit Quote
             </div>
           )}
           {isApproved && (
-            <div style={{cursor:"pointer"}} onClick={handlePrint} className={styles.approveDiv}>
+            <div
+              style={{ cursor: "pointer" }}
+              onClick={handlePrint}
+              className={styles.approveDiv}
+            >
               Print
             </div>
           )}
@@ -159,12 +185,23 @@ const Page = () => {
             <div className="flex-grow"></div>
             <div>
               {!isApproved && (
-                <div style={{cursor:"pointer"}} onClick={handleSubmit} className={styles.approveDiv}>
+                <div
+                  style={{ cursor: "pointer" }}
+                  onClick={handleSubmit}
+                  className={styles.approveDiv}
+                >
                   Approve
                 </div>
               )}
 
-              {isApproved && <div style={{cursor:"pointer"}} className={styles.approveDiv}>Approved</div>}
+              {isApproved && (
+                <div
+                  style={{ cursor: "pointer" }}
+                  className={styles.approveDiv}
+                >
+                  Approved
+                </div>
+              )}
             </div>
           </div>
         </Grid>

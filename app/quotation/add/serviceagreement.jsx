@@ -55,6 +55,10 @@ const ServiceAgreement = ({ setFormData, formData }) => {
   const addJobList = () => {
     const selectedServices = allServices.filter((service) => service.isChecked);
 
+    if (selectedServices.length === 0) {
+      return; // Don't add any jobs if no services are selected
+    }
+
     // Create a new job for each selected service
     selectedServices.forEach((service) => {
       const newJob = {
@@ -155,6 +159,7 @@ const ServiceAgreement = ({ setFormData, formData }) => {
           </div>
         ))}
       </div>
+
       <div className="mt-10 mb-10">
         {(formData.services || []).map((job, index) => (
           <div
@@ -183,6 +188,7 @@ const ServiceAgreement = ({ setFormData, formData }) => {
           </div>
         ))}
       </div>
+
       <div className="flex">
         <div className="flex-grow"></div>
         <div className="">
@@ -191,6 +197,7 @@ const ServiceAgreement = ({ setFormData, formData }) => {
           </Button>
         </div>
       </div>
+      
       <ContractSummary setFormData={setFormData} grandTotal={grandTotal} />
     </div>
   );

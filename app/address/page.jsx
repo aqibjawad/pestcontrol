@@ -4,28 +4,54 @@ import React, { useState, useEffect } from "react";
 import { Grid } from "@mui/material";
 import FirstSection from "./add/firstSection";
 import SecondSection from "./add/secondSection";
-import { useSearchParams } from "next/navigation";
 import styles from "../../styles/addresses.module.css";
 import APICall from "@/networkUtil/APICall";
 
+const getIdFromUrl = (url) => {
+  const parts = url.split('?');
+  if (parts.length > 1) {
+    const queryParams = parts[1].split('&');
+    for (const param of queryParams) {
+      const [key, value] = param.split('=');
+      if (key === 'id') {
+        return value;
+      }
+    }
+  }
+  return null;
+};
+
 const Page = () => {
-  const searchParams = useSearchParams();
   const api = new APICall();
 
-  const id = searchParams.get("id");
-  const name = searchParams.get("name");
-  const phoneNumber = searchParams.get("phone_number");
-
+  const [id, setId] = useState(null);
+  const [name, setName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [sections, setSections] = useState([1]);
+  const [addressData, setAddressData] = useState({
+    address: "",
+    latitude: "",
+    longitude: ""
+  });
 
   useEffect(() => {
-    // Fetch address data when component mounts
-    fetchAddressData();
+    // Get the current URL
+    const currentUrl = window.location.href;
+    
+    const urlId = getIdFromUrl(currentUrl);
+    setId(urlId);
+
+    setName("");
+    setPhoneNumber("");
+
+    if (urlId) {
+      fetchAddressData(urlId);
+    }
   }, []);
 
-  const fetchAddressData = async () => {
+  const fetchAddressData = async (addressId) => {
     try {
-      const response = await api.getDataWithToken(`/api/address/${id}`);
+      const response = await api.getDataWithToken(`/api/address/${addressId}`);
       setAddressData({
         address: response.address,
         latitude: response.latitude,
@@ -54,6 +80,8 @@ const Page = () => {
           {sections.map((sectionId) => (
             <div key={sectionId} className="mt-5">
               <FirstSection
+                addressData={addressData}
+                onAddressChange={handleAddressChange}
               />
             </div>
           ))}

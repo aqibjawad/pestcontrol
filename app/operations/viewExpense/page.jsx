@@ -3,21 +3,27 @@ import { useState, useEffect } from "react";
 
 import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
 
-import SearchInput from "@/components/generic/SearchInput";
-
-import styles from "../../../styles/loginStyles.module.css";
-
-import Link from "next/link";
-
 import APICall from "@/networkUtil/APICall";
 import { expense } from "@/networkUtil/Constants";
 
-import { useSearchParams } from "next/navigation";
+const getIdFromUrl = (url) => {
+  const parts = url.split("?");
+  if (parts.length > 1) {
+    const queryParams = parts[1].split("&");
+    for (const param of queryParams) {
+      const [key, value] = param.split("=");
+      if (key === "id") {
+        return value;
+      }
+    }
+  }
+  return null;
+};
 
 const Page = () => {
-  const searchParams = useSearchParams();
-  const id = searchParams.get("id");
   const api = new APICall();
+
+  const [id, setId] = useState(null);
 
   const [orderDetails, setOrderDetails] = useState(null);
   const [tableDetails, setTableDetails] = useState([]);
@@ -25,8 +31,14 @@ const Page = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (id) {
-      fetchOrderDetails();
+    // Get the current URL
+    const currentUrl = window.location.href;
+
+    const urlId = getIdFromUrl(currentUrl);
+    setId(urlId);
+
+    if (urlId) {
+      fetchOrderDetails(urlId);
     }
   }, [id]);
 

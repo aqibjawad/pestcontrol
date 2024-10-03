@@ -2,34 +2,51 @@
 
 import React, { useState, useEffect } from "react";
 import Contact from "./contact";
-
 import styles from "../../../styles/personalDetails.module.css";
-
 import APICall from "@/networkUtil/APICall";
 import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
 
-import { useSearchParams } from "next/navigation";
+const getIdFromUrl = (url) => {
+  const parts = url.split('?');
+  if (parts.length > 1) {
+    const queryParams = parts[1].split('&');
+    for (const param of queryParams) {
+      const [key, value] = param.split('=');
+      if (key === 'id') {
+        return value;
+      }
+    }
+  }
+  return null;
+};
 
 const Page = () => {
   const api = new APICall();
 
-  const searchParams = useSearchParams();
-  const id = searchParams.get("id");
-
+  const [id, setId] = useState(null);
   const [fetchingData, setFetchingData] = useState(false);
   const [employeeList, setEmployeeList] = useState([]);
 
   useEffect(() => {
-    getAllEmployees();
+    // Get the current URL
+    const currentUrl = window.location.href;
+    
+    // Extract id from URL
+    const urlId = getIdFromUrl(currentUrl);
+    setId(urlId);
+
+    if (urlId) {
+      getAllEmployees(urlId);
+    }
   }, []);
 
-  const getAllEmployees = async () => {
+  const getAllEmployees = async (employeeId) => {
     setFetchingData(true);
     try {
-      const response = await api.getDataWithToken(`${getAllEmpoyesUrl}/${id}`);
+      const response = await api.getDataWithToken(`${getAllEmpoyesUrl}/${employeeId}`);
       setEmployeeList(response.data);
     } catch (error) {
-      console.error("Error fetching vehicles:", error);
+      console.error("Error fetching employees:", error);
     } finally {
       setFetchingData(false);
     }
@@ -37,7 +54,7 @@ const Page = () => {
 
   return (
     <div>
-      {/* Personal Inofrmation */}
+      {/* Personal Information */}
       <div className={styles.personalDetailsContainer}>
         <div className={styles.imageContainer}>
           <img
@@ -70,7 +87,7 @@ const Page = () => {
         </div>
       </div>
 
-      {/* Identification Inofrmation */}
+      {/* Identification Information */}
       <div>
         <div className={styles.personalContainer}>
           <div className={styles.personalHead}> Identification </div>
@@ -122,13 +139,13 @@ const Page = () => {
       {/* Insurance */}
       <div>
         <div className={styles.personalContainer}>
-          <div className={styles.personalHead}> Health Insurrance </div>
+          <div className={styles.personalHead}> Health Insurance </div>
 
           <div className={styles.tableContainer}>
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>Health Insurrance</th>
+                  <th>Health Insurance</th>
                   <th>Start Date</th>
                   <th>Expiry Date</th>
                   <th> DM Card</th>
@@ -226,17 +243,15 @@ const Page = () => {
       <div className={styles.personalDetailsContainer}>
         <div className={styles.personalContainer}>
           <div className={styles.personalHead}>
-            {employeeList?.stocks?.[0]?.product?.product_name}{" "}
-            {/* Display the product name */}
+            {employeeList?.stocks?.[0]?.product?.product_name}
           </div>
 
           <div className={styles.tableContainer}>
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>Total Quantity</th> {/* New column for total quantity */}
+                  <th>Total Quantity</th>
                   <th>Remaining Quantity</th>
-                  {/* New column for remaining quantity */}
                 </tr>
               </thead>
               <tbody>

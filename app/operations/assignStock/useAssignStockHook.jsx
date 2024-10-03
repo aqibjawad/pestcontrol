@@ -2,17 +2,27 @@
 
 import { useState, useEffect } from "react";
 import APICall from "@/networkUtil/APICall";
-import {
-  product,
-  getAllEmpoyesUrl,
-  addStock,
-} from "@/networkUtil/Constants";
+import { product, getAllEmpoyesUrl, addStock } from "@/networkUtil/Constants";
 import { useSearchParams } from "next/navigation";
+
+const getIdFromUrl = (url) => {
+  const parts = url.split("?");
+  if (parts.length > 1) {
+    const queryParams = parts[1].split("&");
+    for (const param of queryParams) {
+      const [key, value] = param.split("=");
+      if (key === "id") {
+        return value;
+      }
+    }
+  }
+  return null;
+};
 
 export const useAssignStockHook = () => {
   const api = new APICall();
-  const searchParams = useSearchParams();
-  const id = searchParams.get("id");
+
+  const [id, setId] = useState(null);
 
   const [fetchingData, setFetchingData] = useState(false);
   const [brandsList, setBrandsList] = useState(null);
@@ -26,7 +36,15 @@ export const useAssignStockHook = () => {
   const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
 
   useEffect(() => {
-    getAllBrands();
+    // Get the current URL
+    const currentUrl = window.location.href;
+
+    const urlId = getIdFromUrl(currentUrl);
+    setId(urlId);
+
+    if (urlId) {
+      getAllBrands(urlId);
+    }
     getAllEmployees();
   }, []);
 

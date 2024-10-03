@@ -9,19 +9,33 @@ import Scope from "./add/scope";
 import TermConditions from "./add/terms";
 import APICall from "@/networkUtil/APICall";
 import { quotation } from "../../networkUtil/Constants";
-import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import GreenButton from "@/components/generic/GreenButton";
 
+const getIdFromUrl = (url) => {
+  const parts = url.split("?");
+  if (parts.length > 1) {
+    const queryParams = parts[1].split("&");
+    for (const param of queryParams) {
+      const [key, value] = param.split("=");
+      if (key === "id") {
+        return value;
+      }
+    }
+  }
+  return null;
+};
+
 const Page = () => {
+
   const api = new APICall();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const id = searchParams.get("id");
+  const [id, setId] = useState(null);
 
   const [formData, setFormData] = useState({
-    manage_type: "create", 
+    manage_type: id ? "update" : "create",
+    quote_id: id || null, // Initialize quote_id with id if it exists
     quote_title: "",
     user_id: "",
     client_address_id: null,
@@ -38,19 +52,26 @@ const Page = () => {
 
   const [loading, setLoading] = useState(false);
   const [fetchingData, setFetchingData] = useState(false);
-
+ 
   const handleSubmit = async () => {
     setLoading(true);
     try {
       const endpoint = `${quotation}/manage`;
-      const response = await api.postDataWithTokn(endpoint, formData);
+      // Ensure manage_type and quote_id are correct before submission
+      const submissionData = {
+        ...formData,
+        manage_type: id ? "update" : "create",
+        quote_id: id || null, // Ensure quote_id is included for edit operations
+      };
+
+      const response = await api.postDataWithTokn(endpoint, submissionData);
       if (response.status === "success") {
         Swal.fire({
           icon: "success",
           title: "Success",
-          text: "Data has been added successfully!",
+          text: `Data has been ${id ? "updated" : "added"} successfully!`,
         });
-        router.push("/viewQuote");
+        // router.push("/viewQuote");
       } else {
         Swal.fire({
           icon: "error",
@@ -58,7 +79,6 @@ const Page = () => {
           text: "Failed to submit data. Please try again.",
         });
       }
-      console.log("Response:", response.data);
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -72,18 +92,28 @@ const Page = () => {
   };
 
   useEffect(() => {
-    if (id) {
-      getAllQuotes();
-      // Update manage_type if id exists
-      setFormData((prev) => ({ ...prev, manage_type: "edit" }));
+    // Get the current URL
+    const currentUrl = window.location.href;
+
+    const urlId = getIdFromUrl(currentUrl);
+    setId(urlId);
+
+    if (urlId) {
+      getAllQuotes(urlId);
     }
   }, [id]);
+
 
   const getAllQuotes = async () => {
     setFetchingData(true);
     try {
       const response = await api.getDataWithToken(`${quotation}/${id}`);
-      setFormData(response.data);
+      // Ensure manage_type and quote_id are set when setting fetched data
+      setFormData({
+        ...response.data,
+        manage_type: "update",
+        quote_id: id,
+      });
     } catch (error) {
       console.error("Error fetching quotes:", error);
     } finally {

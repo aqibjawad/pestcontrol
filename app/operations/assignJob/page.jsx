@@ -29,11 +29,26 @@ import {
   Grid,
 } from "@mui/material";
 
+const getIdFromUrl = (url) => {
+  const parts = url.split('?');
+  if (parts.length > 1) {
+    const queryParams = parts[1].split('&');
+    for (const param of queryParams) {
+      const [key, value] = param.split('=');
+      if (key === 'id') {
+        return value;
+      }
+    }
+  }
+  return null;
+};
+
 const Page = () => {
+
   const router = useRouter();
   const api = new APICall();
-  const searchParams = useSearchParams();
-  const id = searchParams.get("id");
+
+  const [id, setId] = useState(null);
 
   const [fetchingData, setFetchingData] = useState(false);
   const [jobList, setJobList] = useState({});
@@ -47,7 +62,19 @@ const Page = () => {
   const [loadingSubmit, setLoadingSubmit] = useState(false); // New loading state
 
   useEffect(() => {
-    getAllJobs();
+    // Get the current URL
+    const currentUrl = window.location.href;
+    
+    const urlId = getIdFromUrl(currentUrl);
+    setId(urlId);
+
+    if (urlId) {
+      getAllJobs(urlId);
+    }
+  }, []);
+
+
+  useEffect(() => {
     getAllSalesManagers();
   }, []);
 

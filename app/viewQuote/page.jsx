@@ -55,6 +55,7 @@ const Quotation = () => {
               <TableCell>Billing Method</TableCell>
               <TableCell>Quote Title</TableCell>
               <TableCell>Treatment Method Name</TableCell>
+              <TableCell> Services </TableCell>
               <TableCell>Sub Total</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
@@ -83,6 +84,12 @@ const Quotation = () => {
                   <TableCell>
                     {row?.treatment_methods
                       ?.map((method) => method.name)
+                      .join(", ") || "N/A"}
+                  </TableCell>
+
+                  <TableCell>
+                    {row?.quote_services
+                      ?.map((service) => service?.service?.service_title)
                       .join(", ") || "N/A"}
                   </TableCell>
                   <TableCell>{row.sub_total}</TableCell>
