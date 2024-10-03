@@ -35,16 +35,17 @@ const Page = () => {
   const [loadingDetails, setLoadingDetails] = useState(true);
 
   useEffect(() => {
-    // Get the current URL
     const currentUrl = window.location.href;
 
     const urlId = getIdFromUrl(currentUrl);
     setId(urlId);
-
-    if (urlId) {
-      getAllJobs(urlId);
-    }
   }, []);
+
+  useEffect(() => {
+    if (id !== undefined && id !== null) {
+      getAllJobs(id);
+    }
+  }, [id]);
 
   const getAllJobs = async () => {
     setFetchingData(true);

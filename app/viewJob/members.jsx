@@ -9,17 +9,16 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Skeleton, // Import Skeleton from MUI
 } from "@mui/material";
 import SearchInput from "../../components/generic/SearchInput";
 
-const Members = ({ jobList }) => {
+const Members = ({ jobList, loading }) => {
   const [team, setTeam] = useState([]);
 
   useEffect(() => {
-    if (jobList !== undefined) {
-      if (jobList?.team_members !== undefined) {
-        setTeam(jobList?.team_members);
-      }
+    if (jobList !== undefined && jobList?.team_members !== undefined) {
+      setTeam(jobList?.team_members);
     }
   }, [jobList]);
 
@@ -54,20 +53,27 @@ const Members = ({ jobList }) => {
                 <TableCell>ID</TableCell>
                 <TableCell>Members</TableCell>
                 <TableCell>Email</TableCell>
-                <TableCell>Role</TableCell>{" "}
-                {/* Assuming role is still relevant */}
+                <TableCell>Role</TableCell> {/* Assuming role is still relevant */}
               </TableRow>
             </TableHead>
             <TableBody>
-              {team.map((member) => (
-                <TableRow key={member.id}>
-                  <TableCell>{member?.id}</TableCell>
-                  <TableCell>{member?.name}</TableCell>
-                  <TableCell>{member.email}</TableCell>
-                  <TableCell>{member.role_id}</TableCell>{" "}
-                  {/* Or another property, if you have roles mapped */}
+              {loading ? (
+                // Display Skeletons while loading
+                <TableRow>
+                  <TableCell colSpan={4}>
+                    <Skeleton variant="rect" width="100%" height={50} />
+                  </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                team.map((member) => (
+                  <TableRow key={member.id}>
+                    <TableCell>{member?.id}</TableCell>
+                    <TableCell>{member?.name}</TableCell>
+                    <TableCell>{member.email}</TableCell>
+                    <TableCell>{member.role_id}</TableCell> {/* Or another property, if you have roles mapped */}
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </TableContainer>

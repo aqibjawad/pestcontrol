@@ -59,12 +59,6 @@ const RescheduleTreatment = ({ jobId }) => {
             <div className={styles.treatHead}>Reschedule treatment</div>
           </div>
         </Grid>
-
-        {/* <Grid item lg={2} sm={12} xs={12} md={8}>
-          <div className={styles.addBtn}>
-            <div className={styles.addText}> start job </div>
-          </div>
-        </Grid> */}
       </Grid>
 
       <div className={styles.formReschedule}>

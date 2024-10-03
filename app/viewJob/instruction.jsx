@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import {
   CircularProgress,
+  Skeleton,
   Table,
   TableBody,
   TableCell,
@@ -15,9 +16,7 @@ import styles from "../../styles/job.module.css";
 import MultiInput from "../../components/generic/MultilineInput";
 
 const Instruction = ({ jobList, loading }) => {
-
   const [reschedule, setReschedule] = useState([]);
-  
 
   useEffect(() => {
     if (jobList !== undefined) {
@@ -36,7 +35,7 @@ const Instruction = ({ jobList, loading }) => {
       </div>
 
       <div style={{ marginTop: "20px" }}>
-         <div className={styles.treatHead}>Reschedule treatment</div>
+        <div className={styles.treatHead}>Reschedule treatment</div>
         {loading ? (
           <CircularProgress />
         ) : (
@@ -51,9 +50,27 @@ const Instruction = ({ jobList, loading }) => {
               </TableHead>
               <TableBody>
                 <TableRow>
-                  <TableCell>{new Date(jobList?.created_at).toLocaleDateString()}</TableCell>
-                  <TableCell>{reschedule[0]?.job_date}</TableCell>
-                  <TableCell>{reschedule[0]?.reason}</TableCell>
+                  <TableCell>
+                    {jobList?.created_at ? (
+                      new Date(jobList?.created_at).toLocaleDateString()
+                    ) : (
+                      <Skeleton width={100} />
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {reschedule[0]?.job_date ? (
+                      reschedule[0]?.job_date
+                    ) : (
+                      <Skeleton width={100} />
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {reschedule[0]?.reason ? (
+                      reschedule[0]?.reason
+                    ) : (
+                      <Skeleton width={200} />
+                    )}
+                  </TableCell>
                 </TableRow>
               </TableBody>
             </Table>
