@@ -11,7 +11,7 @@ import {
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
+  TableHead, 
   TableRow,
   Paper,
 } from "@mui/material";
@@ -20,8 +20,19 @@ const Page = () => {
   const {
     fetchingData,
     vehiclesList,
+
     vehicle_number,
+    modal_number, 
+    condition,
+    expiry_date,
+    oil_change_limit,
+
     setVehicleNumber,
+    setModalNumber,
+    setCondition,
+    setExpiryDate,
+    setOilChange,
+
     sendingData,
     addVehicle,
     updateVehicle,
@@ -125,8 +136,8 @@ const Page = () => {
             <InputWithTitle
               title={"Enter Modal Name"}
               placeholder={"Enter Modal Number"}
-              value={vehicle_number}
-              onChange={(value) => setVehicleNumber(value)}
+              value={modal_number}
+              onChange={(value) => setModalNumber(value)}
             />
 
             <div className="mt-5">
@@ -151,8 +162,8 @@ const Page = () => {
               <InputWithTitle
                 title={"Condition"}
                 placeholder={"Condition"}
-                value={vehicle_number}
-                onChange={(value) => setVehicleNumber(value)}
+                value={condition}
+                onChange={(value) => setCondition(value)}
               />
             </div>
 
@@ -160,8 +171,9 @@ const Page = () => {
               <InputWithTitle
                 title={"Mulkia Expiry Date"}
                 placeholder={"Mulkia Expiry Date"}
-                value={vehicle_number}
-                onChange={(value) => setVehicleNumber(value)}
+                value={expiry_date}
+                type={"date"}
+                onChange={(value) => setExpiryDate(value)}
               />
             </div>
 
@@ -169,8 +181,8 @@ const Page = () => {
               <InputWithTitle
                 title={"Oil Change Limit"}
                 placeholder={"Oil Change Limit"}
-                value={vehicle_number}
-                onChange={(value) => setVehicleNumber(value)}
+                value={oil_change_limit}
+                onChange={(value) => setOilChange(value)}
               />
             </div>
 

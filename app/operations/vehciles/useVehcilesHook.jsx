@@ -4,13 +4,20 @@ import { vehciles } from "@/networkUtil/Constants";
 import { AppAlerts } from "../../../Helper/AppAlerts";
 
 export const useVehicles = () => {
+
   const api = new APICall();
   const alerts = new AppAlerts();
+
   const [fetchingData, setFetchingData] = useState(false);
   const [vehiclesList, setVehiclesList] = useState([]);
-  const [vehicle_number, setVehicleNumber] = useState("");
   const [sendingData, setSendingData] = useState(false);
   const [editingVehiclesId, setEditingVehiclesId] = useState(null);
+
+  const [vehicle_number, setVehicleNumber] = useState("");
+  const [modal_number, setModalNumber] = useState("");
+  const [condition, setCondition] = useState("");
+  const [expiry_date, setExpiryDate] = useState("");
+  const [oil_change_limit, setOilChange] = useState("");
 
   useEffect(() => {
     getAllVehicles();
@@ -29,12 +36,31 @@ export const useVehicles = () => {
     }
   };
 
+  // const getAllEmployees = async () => {
+  //   setFetchingData(true);
+  //   try {
+  //     const response = await api.getDataWithToken(`${vehciles}`);
+  //     setVehiclesList(response.data);
+  //   } catch (error) {
+  //     console.error("Error fetching vehicles:", error);
+  //     alerts.errorAlert("Failed to fetch vehicles. Please try again.");
+  //   } finally {
+  //     setFetchingData(false);
+  //   }
+  // };
+
   const addVehicle = async () => {
     if (sendingData || vehicle_number === "") return;
 
     setSendingData(true);
     try {
-      const obj = { vehicle_number };
+      const obj = { 
+        vehicle_number,
+        modal_number, 
+        condition,
+        expiry_date,
+        oil_change_limit
+      };
       const response = await api.postFormDataWithToken(
         `${vehciles}/create`,
         obj
@@ -93,8 +119,19 @@ export const useVehicles = () => {
   return {
     fetchingData,
     vehiclesList,
+
     vehicle_number,
+    modal_number, 
+    condition,
+    expiry_date,
+    oil_change_limit,
+
+    setModalNumber,
+    setCondition,
+    setExpiryDate,
+    setOilChange,
     setVehicleNumber,
+
     sendingData,
     addVehicle,
     updateVehicle,
