@@ -14,6 +14,7 @@ import Invoice from "./invoices";
 import ContractSummary from "./contract";
 import Terms from "./terms";
 import Treatment from "./methods";
+import QuoteServiceDates from "./QuoteServiceDates"
 
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
@@ -32,7 +33,10 @@ const getIdFromUrl = (url) => {
 const Page = () => {
 
   const api = new APICall();
+  
   const [id, setId] = useState(null);
+  
+
   const router = useRouter();
 
   const [fetchingData, setFetchingData] = useState(false);
@@ -46,14 +50,19 @@ const Page = () => {
 
     const urlId = getIdFromUrl(currentUrl);
     setId(urlId);
-
-    if (urlId) {
-      getAllQuotes(urlId);
-    }
   }, []);
 
+  useEffect(()=>{
+
+    if (id !== undefined && id !== null){
+        getAllQuotes(id);
+      
+    }
+  },[id]);
   const getAllQuotes = async () => {
     setFetchingData(true);
+
+    console.log(`${quotation}/${id}`);
     try {
       const response = await api.getDataWithToken(`${quotation}/${id}`);
       setQuoteList(response.data);
@@ -144,6 +153,7 @@ const Page = () => {
           <>
             <CustomerDetails quote={quoteList} />
             <ServiceProduct quote={quoteList} />
+            <QuoteServiceDates quote={quoteList} />
             <Treatment quote={quoteList} />
             <Invoice quote={quoteList} />
             <ContractSummary quote={quoteList} />

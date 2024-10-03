@@ -131,7 +131,7 @@ const Page = () => {
       </div>
 
       <BasicQuote setFormData={setFormData} formData={formData} />
-      <ServiceAgreement setFormData={setFormData} formData={formData} />
+      <ServiceAgreement duration_in_months={formData.duration_in_months} setFormData={setFormData} formData={formData} />
       <Method setFormData={setFormData} formData={formData} />
       <Invoice setFormData={setFormData} formData={formData} />
       <Scope setFormData={setFormData} formData={formData} />

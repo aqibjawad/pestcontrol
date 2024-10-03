@@ -5,7 +5,7 @@ import JobsList from "./JobsList";
 import ContractSummary from "./contract";
 import { Button } from "@mui/material";
 
-const ServiceAgreement = ({ setFormData, formData }) => {
+const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
   const api = new APICall();
   const [allServices, setAllServices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
