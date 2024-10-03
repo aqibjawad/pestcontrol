@@ -72,7 +72,7 @@ const Invoice = ({ setFormData, formData }) => {
               <FormControlLabel
                 control={<Radio />}
                 label="Yearly"
-                value="yearly"
+                value="one_time"
               />
             </RadioGroup>
           </div>

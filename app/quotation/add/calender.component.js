@@ -15,13 +15,25 @@ const CalendarComponent = ({
     }
   }, [initialDates]);
 
+  // Helper function to normalize date to local midnight
+  const normalizeDate = (date) => {
+    const newDate = new Date(date);
+    newDate.setHours(0, 0, 0, 0);
+    return newDate;
+  };
+
   const formatDate = (date) => {
-    return date.toISOString().split("T")[0];
+    const d = normalizeDate(date);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}-${String(d.getDate()).padStart(2, "0")}`;
   };
 
   const handleDateChange = (date) => {
     if (date) {
-      const dateStr = formatDate(date);
+      const normalizedDate = normalizeDate(date);
+      const dateStr = formatDate(normalizedDate);
       const newDates = dates.includes(dateStr)
         ? dates.filter((d) => d !== dateStr)
         : [...dates, dateStr];
@@ -31,10 +43,14 @@ const CalendarComponent = ({
     }
   };
 
-  const formattedDates = dates.map((dateStr) => new Date(dateStr));
+  const formattedDates = dates.map((dateStr) =>
+    normalizeDate(new Date(dateStr))
+  );
 
   // Format selected dates for display
-  const displayDates = dates.map((dateStr) => new Date(dateStr).toLocaleDateString()).join(", ");
+  const displayDates = dates
+    .map((dateStr) => normalizeDate(new Date(dateStr)).toLocaleDateString())
+    .join(", ");
 
   return (
     <div>
@@ -44,7 +60,7 @@ const CalendarComponent = ({
         inline
         highlightDates={formattedDates}
         dayClassName={(date) => {
-          const dateStr = formatDate(date);
+          const dateStr = formatDate(normalizeDate(date));
           return dates.includes(dateStr) ? "selected-date" : undefined;
         }}
         filterDate={isDateSelectable}
