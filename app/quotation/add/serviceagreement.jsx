@@ -49,34 +49,47 @@ const ServiceAgreement = ({ setFormData, formData }) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`; // Change format to YYYY-MM-DD
+    return `${year}-${month}-${day}`;
   };
 
   const addJobList = () => {
     const selectedServices = allServices.filter((service) => service.isChecked);
-    const newJobs = selectedServices.map((service) => ({
-      service_id: service.id,
-      service_name: service.pest_name,
-      detail: [
-        {
-          job_type: "",
-          rate: "",
-          dates: [convertDate(new Date())],
-        },
-      ],
-      subTotal: 100,
-    }));
 
-    // Add jobs only if there are selected services
-    if (newJobs.length > 0) {
+    // Create a new job for each selected service
+    selectedServices.forEach((service) => {
+      const newJob = {
+        service_id: service.id,
+        service_name: service.pest_name,
+        detail: [
+          {
+            job_type: "",
+            rate: "",
+            dates: [convertDate(new Date())],
+          },
+        ],
+        subTotal: 100,
+      };
+
       setFormData((prev) => ({
         ...prev,
-        services: [...prev.services, ...newJobs],
+        services: [...prev.services, newJob],
       }));
-      // Do not reset checked state
-    } else {
-      alert("Please select at least one service to add a job.");
-    }
+    });
+
+    // Uncheck all services after adding
+    setAllServices((prevServices) =>
+      prevServices.map((service) => ({
+        ...service,
+        isChecked: false,
+      }))
+    );
+  };
+
+  const removeJobList = (index) => {
+    setFormData((prev) => {
+      const newServices = prev.services.filter((_, i) => i !== index);
+      return { ...prev, services: newServices };
+    });
   };
 
   const updateJobList = (index, updatedJob) => {
@@ -93,13 +106,6 @@ const ServiceAgreement = ({ setFormData, formData }) => {
           },
         ],
       };
-      return { ...prev, services: newServices };
-    });
-  };
-
-  const removeJobList = (index) => {
-    setFormData((prev) => {
-      const newServices = prev.services.filter((_, i) => i !== index);
       return { ...prev, services: newServices };
     });
   };
@@ -152,7 +158,7 @@ const ServiceAgreement = ({ setFormData, formData }) => {
       <div className="mt-10 mb-10">
         {(formData.services || []).map((job, index) => (
           <div
-            key={job.service_id || index}
+            key={`${job.service_id}-${index}`}
             style={{
               display: "flex",
               alignItems: "center",
@@ -185,7 +191,7 @@ const ServiceAgreement = ({ setFormData, formData }) => {
           </Button>
         </div>
       </div>
-      <ContractSummary grandTotal={grandTotal} />
+      <ContractSummary setFormData={setFormData} grandTotal={grandTotal} />
     </div>
   );
 };

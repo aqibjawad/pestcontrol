@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Grid, Box, Typography } from "@mui/material";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 
-const ContractSummary = ({ grandTotal }) => {
+const ContractSummary = ({ grandTotal, setFormData }) => {
   const [discount, setDiscount] = useState(0); // Discount in percentage
   const [vat, setVAT] = useState(0); // VAT in percentage
   const [finalTotal, setFinalTotal] = useState(grandTotal); // Final grand total after discount and VAT

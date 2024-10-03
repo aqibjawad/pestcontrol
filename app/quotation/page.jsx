@@ -104,7 +104,7 @@ const Page = () => {
       <ServiceAgreement setFormData={setFormData} formData={formData} />
       <Method setFormData={setFormData} formData={formData} />
       <Invoice setFormData={setFormData} formData={formData} />
-      <Scope formData={formData} />
+      <Scope setFormData={setFormData} formData={formData} />
       <TermConditions setFormData={setFormData} formData={formData} />
       <div className="mt-10">
         <GreenButton

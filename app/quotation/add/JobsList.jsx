@@ -22,7 +22,8 @@ const JobsList = ({
   const [subTotal, setSubTotal] = useState(jobData.subTotal);
   const [intervalDays, setIntervalDays] = useState(5);
 
-  const [no_of_months, setNoOfMonths] = useState();
+  // Changed to match the number of selected dates
+  const [noOfJobs, setNoOfJobs] = useState(selectedDates?.length || 0);
 
   const jobTypes = [
     { label: "One Time", value: "one_time" },
@@ -36,6 +37,7 @@ const JobsList = ({
   useEffect(() => {
     const total = selectedDates?.length * parseFloat(rate || 0);
     setSubTotal(total);
+    setNoOfJobs(selectedDates?.length || 0);
 
     updateJobList({
       jobType: selectedJobType,
@@ -90,10 +92,10 @@ const JobsList = ({
           <InputWithTitle
             title="No of Jobs"
             type="text"
-            name="noOfMonth"
+            name="noOfJobs"
             placeholder="No of Jobs"
-            value={no_of_months}
-            onChange={setNoOfMonths}
+            value={noOfJobs}
+            readOnly={true}
           />
         </Grid>
         <Grid item lg={3} xs={4}>
