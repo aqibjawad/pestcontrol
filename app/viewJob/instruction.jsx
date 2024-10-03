@@ -20,11 +20,16 @@ const Instruction = ({ jobList, loading }) => {
 
   useEffect(() => {
     if (jobList !== undefined) {
-      if (jobList?.team_members !== undefined) {
-        setReschedule(jobList?.reschedule_dates);
-      }
+      const rows = jobList?.reschedule_dates || [];
+      setReschedule(rows); // Set the reschedule state with the fetched rows
     }
   }, [jobList]);
+
+  const formatDate = (dateString) => {
+    const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", options); // You can change 'en-US' to your preferred locale
+  };
 
   return (
     <div>
@@ -49,29 +54,30 @@ const Instruction = ({ jobList, loading }) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                <TableRow>
-                  <TableCell>
-                    {jobList?.created_at ? (
-                      new Date(jobList?.created_at).toLocaleDateString()
-                    ) : (
-                      <Skeleton width={100} />
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {reschedule[0]?.job_date ? (
-                      reschedule[0]?.job_date
-                    ) : (
-                      <Skeleton width={100} />
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {reschedule[0]?.reason ? (
-                      reschedule[0]?.reason
-                    ) : (
-                      <Skeleton width={200} />
-                    )}
-                  </TableCell>
-                </TableRow>
+                {reschedule.length > 0 ? (
+                  reschedule.map((item, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{formatDate(item.created_at)}</TableCell>
+                      <TableCell>{formatDate(item.updated_at)}</TableCell>
+                      <TableCell>{item.reason}</TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  // Show skeletons if there are no reschedule entries
+                  [...Array(5)].map((_, index) => (
+                    <TableRow key={index}>
+                      <TableCell>
+                        <Skeleton variant="text" width="80%" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton variant="text" width="80%" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton variant="text" width="80%" />
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </TableContainer>

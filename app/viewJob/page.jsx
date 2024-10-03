@@ -65,7 +65,7 @@ const Page = () => {
       <JobDetails jobList={jobList} />
       <Members jobList={jobList} />
       <Instruction jobList={jobList} />
-      <ResheduleTreatment jobId={id} />
+      <ResheduleTreatment jobList={jobList} jobId={id} />
       {/* <SchedulePlan /> */}
     </div>
   );

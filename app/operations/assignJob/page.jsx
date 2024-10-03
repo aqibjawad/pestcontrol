@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Dropdown from "@/components/generic/Dropdown";
+import Dropdown2 from "@/components/generic/Dropdown2";
 import MultilineInput from "../../../components/generic/MultilineInput";
 import GreenButton from "@/components/generic/GreenButton";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import APICall from "@/networkUtil/APICall";
 import { job, getAllEmpoyesUrl } from "@/networkUtil/Constants";
 
@@ -15,9 +15,6 @@ import {
   FormControlLabel,
   FormGroup,
   CircularProgress,
-} from "@mui/material";
-
-import {
   Table,
   TableBody,
   TableCell,
@@ -27,15 +24,16 @@ import {
   Paper,
   Skeleton,
   Grid,
+  Button,
 } from "@mui/material";
 
 const getIdFromUrl = (url) => {
-  const parts = url.split('?');
+  const parts = url.split("?");
   if (parts.length > 1) {
-    const queryParams = parts[1].split('&');
+    const queryParams = parts[1].split("&");
     for (const param of queryParams) {
-      const [key, value] = param.split('=');
-      if (key === 'id') {
+      const [key, value] = param.split("=");
+      if (key === "id") {
         return value;
       }
     }
@@ -44,35 +42,36 @@ const getIdFromUrl = (url) => {
 };
 
 const Page = () => {
-
   const router = useRouter();
   const api = new APICall();
 
-  const [id, setId] = useState(null);
-
+  const [id, setId] = useState();
   const [fetchingData, setFetchingData] = useState(false);
   const [jobList, setJobList] = useState({});
   const [salesManagers, setSalesManagers] = useState([]);
   const [selectedManagerId, setSelectedManagerId] = useState("");
   const [managerNames, setManagerNames] = useState([]);
   const [selectedManagers, setSelectedManagers] = useState(new Set());
-
   const [loadingDetails, setLoadingDetails] = useState(true);
   const [loadingManagers, setLoadingManagers] = useState(true);
-  const [loadingSubmit, setLoadingSubmit] = useState(false); // New loading state
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
+  const [jobStatus, setJobStatus] = useState("not_started");
 
   useEffect(() => {
-    // Get the current URL
     const currentUrl = window.location.href;
-    
     const urlId = getIdFromUrl(currentUrl);
     setId(urlId);
-
-    if (urlId) {
-      getAllJobs(urlId);
-    }
   }, []);
 
+  useEffect(() => {
+    if (id !== undefined && id !== null) {
+      setFormData((prev) => ({
+        ...prev,
+        job_id: id,
+      }));
+      getAllJobs();
+    }
+  }, [id]);
 
   useEffect(() => {
     getAllSalesManagers();
@@ -83,6 +82,7 @@ const Page = () => {
     try {
       const response = await api.getDataWithToken(`${job}/${id}`);
       setJobList(response.data || {});
+      setJobStatus(response.data.status || "not_started");
     } catch (error) {
       console.error("Error fetching jobs:", error);
     } finally {
@@ -161,7 +161,7 @@ const Page = () => {
   });
 
   const handleSubmit = async () => {
-    setLoadingSubmit(true); // Start loading
+    setLoadingSubmit(true);
     try {
       const endpoint = `${job}/sales_manager/assign`;
       const response = await api.postFormDataWithToken(endpoint, formData);
@@ -187,7 +187,7 @@ const Page = () => {
       });
       console.error("Error submitting data:", error);
     } finally {
-      setLoadingSubmit(false); // End loading
+      setLoadingSubmit(false);
     }
   };
 
@@ -201,6 +201,52 @@ const Page = () => {
       }
       return newSelected;
     });
+  };
+
+  const handleStartJob = async () => {
+    try {
+      // Implement job start logic here
+      // For example: const response = await api.postDataWithToken(`${job}/${id}/start`);
+      setJobStatus("in_progress");
+      Swal.fire({
+        icon: "success",
+        title: "Job Started",
+        text: "The job has been successfully started.",
+      });
+    } catch (error) {
+      console.error("Error starting job:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to start the job. Please try again.",
+      });
+    }
+  };
+
+  const handleCompleteJob = async () => {
+    try {
+      // Implement job completion logic here
+      // For example: const response = await api.postDataWithToken(`${job}/${id}/complete`);
+      setJobStatus("completed");
+      Swal.fire({
+        icon: "success",
+        title: "Job Completed",
+        text: "The job has been successfully completed.",
+      });
+    } catch (error) {
+      console.error("Error completing job:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to complete the job. Please try again.",
+      });
+    }
+  };
+
+  const handleCreateReport = () => {
+    // Implement report creation logic here
+    // This could navigate to a new page or open a modal for report creation
+    router.push(`/createReport?id=${id}`);
   };
 
   return (
@@ -245,13 +291,13 @@ const Page = () => {
       </div>
 
       <div className="mt-5">
-        <div className="flex gap-20">
-          <div className="flex-grow">
+        <Grid container spacing={3}>
+          <Grid item lg={6} xs={12} md={4}>
             <div className="mt-5">
               {loadingManagers ? (
                 <Skeleton variant="rect" width="100%" height={56} />
               ) : (
-                <Dropdown
+                <Dropdown2
                   onChange={handleCaptainChange}
                   title="Select Captain"
                   options={managerNames.map((name) => ({
@@ -268,7 +314,7 @@ const Page = () => {
               ) : (
                 <Grid container spacing={2}>
                   {salesManagers.map((manager) => (
-                    <Grid item key={manager.id} xs={3}>
+                    <Grid item key={manager.id} xs={12}>
                       <FormControlLabel
                         control={
                           <Checkbox
@@ -292,9 +338,9 @@ const Page = () => {
               value={formData.job_instructions}
               onChange={handleJobInstructionsChange}
             />
-          </div>
+          </Grid>
 
-          <div className="flex-grow">
+          <Grid item lg={6} xs={12} md={4}>
             <TableContainer
               component={Paper}
               style={{ marginTop: "20px", marginBottom: "20px" }}
@@ -333,9 +379,9 @@ const Page = () => {
                 </TableBody>
               </Table>
             </TableContainer>
-          </div>
+          </Grid>
 
-          <div className="flex-grow">
+          <Grid item lg={12} xs={12} md={4}>
             <div className="mr-10">
               <div className="pageTitle">Job Location</div>
               <img
@@ -346,8 +392,8 @@ const Page = () => {
                 width={400}
               />
             </div>
-          </div>
-        </div>
+          </Grid>
+        </Grid>
       </div>
 
       <div className="mt-10">
@@ -357,6 +403,38 @@ const Page = () => {
         />
         {loadingSubmit && (
           <CircularProgress size={24} style={{ marginLeft: 10 }} />
+        )}
+
+        {/* Conditional rendering for job status buttons */}
+        {jobStatus === "not_started" && (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleStartJob}
+            style={{ marginLeft: 10 }}
+          >
+            Start Job
+          </Button>
+        )}
+        {jobStatus === "in_progress" && (
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={handleCompleteJob}
+            style={{ marginLeft: 10 }}
+          >
+            Complete Job
+          </Button>
+        )}
+        {jobStatus === "completed" && (
+          <Button
+            variant="contained"
+            color="success"
+            onClick={handleCreateReport}
+            style={{ marginLeft: 10 }}
+          >
+            Create Report
+          </Button>
         )}
       </div>
     </div>

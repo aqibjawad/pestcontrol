@@ -59,6 +59,7 @@ const Page = () => {
       
     }
   },[id]);
+  
   const getAllQuotes = async () => {
     setFetchingData(true);
 

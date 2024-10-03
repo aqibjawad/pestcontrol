@@ -48,6 +48,7 @@ const Page = () => {
               <TableCell>Customer</TableCell>
               <TableCell>Description</TableCell>
               <TableCell>Job Title</TableCell>
+              <TableCell>Job Status</TableCell>
               <TableCell>Sub Total</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
@@ -63,8 +64,13 @@ const Page = () => {
               quoteList.map((row, index) => (
                 <TableRow key={index}>
                   <TableCell>{row?.user?.name}</TableCell>
-                  <TableCell>{row.description}</TableCell>
+                  <TableCell>{row.description.slice(0, 20)}</TableCell>
                   <TableCell>{row.job_title}</TableCell>
+                  <TableCell>
+                    {row.is_completed === "0" && "Not Started"}
+                    {row.is_completed === "1" && "Completed"}
+                    {row.is_completed === "2" && "In Progress"}
+                  </TableCell>
                   <TableCell>{row.sub_total}</TableCell>
                   <TableCell>
                     {" "}
@@ -120,7 +126,7 @@ const Page = () => {
               borderRadius: "10px",
             }}
           >
-            Download all
+            Date
           </div>
         </div>
       </div>
