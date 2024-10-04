@@ -15,12 +15,6 @@ const JobsList = ({
   updateJobList,
   duration_in_months,
 }) => {
-  console.log(
-    "Component rendered with duration_in_months:",
-    duration_in_months
-  );
-  console.log("Initial jobData:", jobData);
-
   const [rate, setRate] = useState(jobData.rate || 0);
   const [open, setOpen] = useState(false);
   const [selectedJobType, setSelectedJobType] = useState(jobData.jobType || "");
@@ -29,6 +23,9 @@ const JobsList = ({
   const [intervalDays, setIntervalDays] = useState(5);
   const [noOfJobs, setNoOfJobs] = useState(0);
   const [allGeneratedDates, setAllGeneratedDates] = useState([]);
+
+  const [generatedSubTotal, setGeneratedSubTotal] = useState(0);
+
 
   const jobTypes = [
     { label: "One Time", value: "one_time" },
@@ -69,24 +66,27 @@ const JobsList = ({
 
   useEffect(() => {
     let allDates = selectedDates ? [...selectedDates] : [];
+    let selectedSubTotal = allDates.length * parseFloat(rate || 0);
 
+    let generatedSubTotal = 0;
     if (selectedJobType === "monthly" && allDates.length > 0) {
-      allDates = generateMonthlyDates(allDates);
-      setAllGeneratedDates(allDates);
+      const generatedDates = generateMonthlyDates(allDates);
+      setAllGeneratedDates(generatedDates);
+      generatedSubTotal = generatedDates.length * parseFloat(rate || 0);
     } else {
       setAllGeneratedDates(allDates);
     }
 
-    const total = allDates.length * parseFloat(rate || 0);
-    setSubTotal(total);
-    setNoOfJobs(allDates.length);
+    setSubTotal(selectedSubTotal);
+    setGeneratedSubTotal(generatedSubTotal);
 
     updateJobList({
       jobType: selectedJobType,
       rate: rate,
-      dates: allDates, // Sending all dates including generated ones
-      displayDates: selectedDates, // Original selected dates
-      subTotal: total,
+      dates: selectedJobType === "monthly" ? allGeneratedDates : allDates,
+      displayDates: selectedDates,
+      subTotal:
+        selectedJobType === "monthly" ? generatedSubTotal : selectedSubTotal,
       service_id: jobData.service_id,
       serviceName: jobData.serviceName,
     });
@@ -140,7 +140,6 @@ const JobsList = ({
           <Dropdown2
             title="Selected Products"
             options={allServices
-              .filter((service) => service.isChecked)
               .map((service) => ({
                 label: service.service_title,
                 value: service.id,
@@ -158,6 +157,7 @@ const JobsList = ({
             }}
           />
         </Grid>
+
         <Grid item lg={3} xs={4}>
           <InputWithTitle
             title="No of Jobs"
@@ -168,6 +168,7 @@ const JobsList = ({
             readOnly={true}
           />
         </Grid>
+
         <Grid item lg={3} xs={4}>
           <Dropdown2
             title="Job Type"
@@ -176,6 +177,7 @@ const JobsList = ({
             onChange={handleJobTypeChange}
           />
         </Grid>
+
         <Grid item xs={2}>
           <InputWithTitle
             title="Rate"
@@ -186,9 +188,10 @@ const JobsList = ({
             onChange={(value) => setRate(value)}
           />
         </Grid>
+
         <Grid item xs={3}>
           <InputWithTitle
-            title="Sub Total"
+            title="Sub Total for selected Jobs"
             type="text"
             name="subTotal"
             placeholder="Sub Total"
@@ -196,6 +199,41 @@ const JobsList = ({
             readOnly
           />
         </Grid>
+
+        {selectedJobType === "monthly" ? (
+          <>
+            <Grid item lg={3} xs={4}>
+              <InputWithTitle
+                title="Total No Of Jobs"
+                type="text"
+                name="generatedDatesCount"
+                placeholder="Generated Jobs"
+                value={allGeneratedDates.length || 0}
+                readOnly={true}
+              />
+            </Grid>
+          </>
+        ) : (
+          ""
+        )}
+
+        {selectedJobType === "monthly" ? (
+          <>
+            <Grid item xs={3}>
+              <InputWithTitle
+                title="Sub total"
+                type="text"
+                name="generatedSubtotal"
+                placeholder="Generated Subtotal"
+                value={generatedSubTotal}
+                readOnly
+              />
+            </Grid>
+          </>
+        ) : (
+          ""
+        )}
+
       </Grid>
 
       <div style={{ marginTop: "1rem" }}>

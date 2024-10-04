@@ -404,38 +404,6 @@ const Page = () => {
         {loadingSubmit && (
           <CircularProgress size={24} style={{ marginLeft: 10 }} />
         )}
-
-        {/* Conditional rendering for job status buttons */}
-        {jobStatus === "not_started" && (
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleStartJob}
-            style={{ marginLeft: 10 }}
-          >
-            Start Job
-          </Button>
-        )}
-        {jobStatus === "in_progress" && (
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={handleCompleteJob}
-            style={{ marginLeft: 10 }}
-          >
-            Complete Job
-          </Button>
-        )}
-        {jobStatus === "completed" && (
-          <Button
-            variant="contained"
-            color="success"
-            onClick={handleCreateReport}
-            style={{ marginLeft: 10 }}
-          >
-            Create Report
-          </Button>
-        )}
       </div>
     </div>
   );

@@ -8,6 +8,8 @@ import { Button } from "@mui/material";
 const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
   const api = new APICall();
   const [allServices, setAllServices] = useState([]);
+  console.log(allServices);
+  
   const [isLoading, setIsLoading] = useState(true);
 
   const getAllServices = async () => {

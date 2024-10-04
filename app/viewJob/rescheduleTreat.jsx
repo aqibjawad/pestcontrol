@@ -8,16 +8,15 @@ import { job } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
 
 const RescheduleTreatment = ({ jobId, jobList }) => {
-
-  console.log(jobList?.is_completed);
-  
   const api = new APICall();
-
   const [job_date, setJobDate] = useState("");
   const [reason, setReason] = useState("");
   const [isLoading, setLoading] = useState(false);
-
   const [jobStatus, setJobStatus] = useState(jobList?.is_completed || "0");
+
+  useEffect(() => {
+    setJobStatus(jobList?.is_completed || "0");
+  }, [jobList]);
 
   const handleFormSubmit = async () => {
     if (!job_date || !reason) {
@@ -26,7 +25,6 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
     }
 
     setLoading(true);
-
     const formData = {
       job_id: jobId,
       job_date: job_date,
@@ -34,14 +32,9 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
     };
 
     try {
-      const response = await api.postDataWithTokn(
-        `${job}/reschedule`,
-        formData
-      );
-
+      const response = await api.postDataWithTokn(`${job}/reschedule`, formData);
       if (response.error) {
         alert(response.error.error);
-        console.log(response.error.error);
       } else {
         alert("Treatment rescheduled successfully!");
         setJobDate("");
@@ -55,10 +48,6 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
     }
   };
 
-  useEffect(() => {
-    setJobStatus(jobList?.is_completed || "0");
-  }, [jobList]);
-
   const handleJobAction = async () => {
     setLoading(true);
     try {
@@ -66,15 +55,15 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
         const response = await api.getDataWithToken(`${job}/move/complete/${jobId}`);
         if (response.success) {
           alert("Job completed successfully!");
-          setJobStatus("3"); // Assuming "3" means completed
+          setJobStatus("3");
         } else {
           alert(response.message || "Failed to complete job. Please try again.");
         }
-      } else {
+      } else if (jobStatus === "0") {
         const response = await api.getDataWithToken(`${job}/start/${jobId}`);
         if (response.success) {
           alert("Job started successfully!");
-          setJobStatus("2"); // "2" means started
+          setJobStatus("2");
         } else {
           alert(response.message || "Failed to start job. Please try again.");
         }
@@ -87,14 +76,73 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
     }
   };
 
-  const getJobActionText = () => {
-    if (isLoading) return jobStatus === "2" ? "Completing..." : "Starting...";
-    if (jobStatus === "0") return "Start Job";
-    if (jobStatus === "2") return "Complete Job";
-    return "Job Completed";
-  };
+  const renderActionButton = () => {
+    const buttonStyle = {
+      cursor: isLoading ? "not-allowed" : "pointer",
+      opacity: isLoading ? 0.5 : 1
+    };
 
-  const isJobActionDisabled = jobStatus === "3" || isLoading;
+    if (jobStatus === "0") {
+      return (
+        <>
+          <Grid item lg={6} sm={12} xs={12} md={4}>
+            <div className={styles.reschBtn}>
+              <div
+                onClick={handleFormSubmit}
+                className={styles.addText}
+                style={buttonStyle}
+              >
+                {isLoading ? "Rescheduling..." : "Reschedule"}
+              </div>
+            </div>
+          </Grid>
+          <Grid item lg={6} sm={12} xs={12} md={4}>
+            <div className={styles.reschBtn}>
+              <div
+                onClick={handleJobAction}
+                className={styles.addText}
+                style={buttonStyle}
+              >
+                {isLoading ? "Starting..." : "Start Job"}
+              </div>
+            </div>
+          </Grid>
+        </>
+      );
+    } else if (jobStatus === "2") {
+      return (
+        <Grid item lg={12} sm={12} xs={12} md={8}>
+          <div className={styles.reschBtn}>
+            <div
+              onClick={handleJobAction}
+              className={styles.addText}
+              style={buttonStyle}
+            >
+              {isLoading ? "Completing..." : "Complete Job"}
+            </div>
+          </div>
+        </Grid>
+      );
+    } else if (jobStatus === "1") {
+      return (
+        <Grid item lg={12} sm={12} xs={12} md={8}>
+          <div className={styles.reschBtn}>
+            <div
+              onClick={() => {
+                // Add navigation or modal for creating report
+                alert("Navigate to create report page");
+              }}
+              className={styles.addText}
+              style={buttonStyle}
+            >
+              Create Report
+            </div>
+          </div>
+        </Grid>
+      );
+    }
+    return null;
+  };
 
   return (
     <div style={{ marginTop: "2rem" }} className={styles.mainDivTreat}>
@@ -123,32 +171,7 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
         </div>
 
         <Grid container spacing={2}>
-          <Grid item lg={6} sm={12} xs={12} md={4}>
-            <div className={styles.reschBtn}>
-              <div
-                onClick={handleFormSubmit}
-                className={styles.addText}
-                style={{ cursor: isLoading ? "not-allowed" : "pointer" }}
-              >
-                {isLoading ? "Rescheduling..." : "Reschedule"}
-              </div>
-            </div>
-          </Grid>
-
-          <Grid item lg={6} sm={12} xs={12} md={8}>
-            <div className={styles.reschBtn}>
-              <div
-                onClick={isJobActionDisabled ? undefined : handleJobAction}
-                className={styles.addText}
-                style={{ 
-                  cursor: isJobActionDisabled ? "not-allowed" : "pointer",
-                  opacity: isJobActionDisabled ? 0.5 : 1
-                }}
-              >
-                {getJobActionText()}
-              </div>
-            </div>
-          </Grid>
+          {renderActionButton()}
         </Grid>
       </div>
     </div>
