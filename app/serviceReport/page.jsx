@@ -9,7 +9,7 @@ import Remarks from "./remarks";
 
 const Page =()=>{
     return(
-        <div>
+        <div> 
 
             <ClientDetails />
             <TypeVisit />

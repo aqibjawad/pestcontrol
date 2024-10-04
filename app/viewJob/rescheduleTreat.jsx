@@ -7,8 +7,13 @@ import InputWithTitle from "../../components/generic/InputWithTitle";
 import { job } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
 
+import { useRouter } from "next/navigation";
+
 const RescheduleTreatment = ({ jobId, jobList }) => {
   const api = new APICall();
+
+  const router = useRouter();
+
   const [job_date, setJobDate] = useState("");
   const [reason, setReason] = useState("");
   const [isLoading, setLoading] = useState(false);
@@ -32,7 +37,10 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
     };
 
     try {
-      const response = await api.postDataWithTokn(`${job}/reschedule`, formData);
+      const response = await api.postDataWithTokn(
+        `${job}/reschedule`,
+        formData
+      );
       if (response.error) {
         alert(response.error.error);
       } else {
@@ -52,12 +60,16 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
     setLoading(true);
     try {
       if (jobStatus === "2") {
-        const response = await api.getDataWithToken(`${job}/move/complete/${jobId}`);
+        const response = await api.getDataWithToken(
+          `${job}/move/complete/${jobId}`
+        );
         if (response.success) {
           alert("Job completed successfully!");
           setJobStatus("3");
         } else {
-          alert(response.message || "Failed to complete job. Please try again.");
+          alert(
+            response.message || "Failed to complete job. Please try again."
+          );
         }
       } else if (jobStatus === "0") {
         const response = await api.getDataWithToken(`${job}/start/${jobId}`);
@@ -76,10 +88,14 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
     }
   };
 
+  const handleServiceReport = () => {
+    router.push(`/serviceReport?=${jobId}`);
+  };
+
   const renderActionButton = () => {
     const buttonStyle = {
       cursor: isLoading ? "not-allowed" : "pointer",
-      opacity: isLoading ? 0.5 : 1
+      opacity: isLoading ? 0.5 : 1,
     };
 
     if (jobStatus === "0") {
@@ -128,10 +144,7 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
         <Grid item lg={12} sm={12} xs={12} md={8}>
           <div className={styles.reschBtn}>
             <div
-              onClick={() => {
-                // Add navigation or modal for creating report
-                alert("Navigate to create report page");
-              }}
+              onClick={handleServiceReport}
               className={styles.addText}
               style={buttonStyle}
             >
