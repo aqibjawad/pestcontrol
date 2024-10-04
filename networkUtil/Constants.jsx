@@ -11,7 +11,6 @@ export const addServicesURL = apiPrefix + "/add_agreement";
 // admin Apis here
 export const admin = apiPrefix + "/admin/ledger/get";
 
-
 // Brand Apis here
 export const brand = apiPrefix + "/brand";
 
@@ -29,18 +28,15 @@ export const bank = apiPrefix + "/bank";
 
 export const clients = apiPrefix + "/client";
 
-
 // vehicles Apis here
 export const expense_category = apiPrefix + "/expense_category";
 
-export const vehicleExpense = apiPrefix + "/vehicle_expense"
+export const vehicleExpense = apiPrefix + "/vehicle_expense";
 
-export const treatmentMethod = apiPrefix + "/treatment_method" 
-
+export const treatmentMethod = apiPrefix + "/treatment_method";
 
 // vehicles Apis here
 export const expense = apiPrefix + "/expense";
-
 
 // Venndor Apis
 export const vendors = apiPrefix + "/vendor";
@@ -64,6 +60,6 @@ export const termsCond = apiPrefix + "/terms_and_condition";
 
 export const job = apiPrefix + "/job";
 
-export const serviceInvoice = apiPrefix + "/service_invoices"
+export const serviceInvoice = apiPrefix + "/service_invoices";
 
-
+export const addSupplierBankInfo = apiPrefix + "/supplier/bank_info/add";

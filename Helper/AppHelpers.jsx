@@ -30,4 +30,12 @@ export class AppHelpers {
     const year = date.getFullYear();
     return `${day} ${month} ${year}`;
   }
+
+  static showAlerts(msg) {
+    Swil.fire({
+      icon: "error",
+      title: "Error",
+      text: msg,
+    });
+  }
 }

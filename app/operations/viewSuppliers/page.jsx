@@ -45,15 +45,6 @@ const Page = () => {
                 Email
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
-                TRN
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                VAT
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                HSN
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Amount
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
@@ -79,18 +70,6 @@ const Page = () => {
                   <td className="py-2 px-4">
                     <div className={tableStyles.clientContact}>{row.email}</div>
                   </td>
-
-                  <td className="py-2 px-4">
-                    <div className={tableStyles.clientContact}>
-                      {row.trn_no}
-                    </div>
-                  </td>
-                  <td className="py-2 px-4">
-                    <div className={tableStyles.clientContact}>{row.vat}</div>
-                  </td>
-                  <td className="py-2 px-4">
-                    <div className={tableStyles.clientContact}>{row.hsn}</div>
-                  </td>
                   <td className="py-2 px-4">
                     <div className={tableStyles.clientContact}>
                       {"AED -9000"}
@@ -100,7 +79,7 @@ const Page = () => {
                     <div className={tableStyles.clientContact}>
                       <Edit color="primary" /> <Delete sx={{ color: "red" }} />
                       <Link
-                        href={"#"}
+                        href={"operations/viewSuppliers/"}
                         sx={{
                           marginLeft: "10px",
                           color: "green",

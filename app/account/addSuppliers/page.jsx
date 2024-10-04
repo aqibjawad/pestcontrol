@@ -203,102 +203,6 @@ const Page = () => {
     />
   </div>;
 
-  const bankSection = () => (
-    <div className="mt-5">
-      {bankSections.map((bank, index) => (
-        <div key={index} className="mb-10">
-          <div className="mt-10 flex gap-4">
-            <div className="flex-grow">
-              <InputWithTitle
-                title="Bank Name"
-                placeholder="Bank Name"
-                onChange={(value) =>
-                  handleBankInputChange(index, "bankName", value)
-                }
-                value={bank.bankName || ""}
-              />
-            </div>
-            <div className="flex-grow">
-              <InputWithTitle
-                title="Company Name"
-                placeholder="Company Name"
-                onChange={(value) =>
-                  handleBankInputChange(index, "companyName", value)
-                }
-                value={bank.companyName || ""}
-              />
-            </div>
-            <div className="flex-grow">
-              <InputWithTitle
-                title="IBAN"
-                placeholder="IBAN"
-                onChange={(value) =>
-                  handleBankInputChange(index, "iban", value)
-                }
-                value={bank.iban || ""}
-              />
-            </div>
-          </div>
-          <div className="mt-10 flex gap-4">
-            <div className="flex-grow">
-              <InputWithTitle
-                title="Account Number"
-                placeholder="Account Number"
-                onChange={(value) =>
-                  handleBankInputChange(index, "accountNumber", value)
-                }
-                value={bank.accountNumber || ""}
-              />
-            </div>
-            <div className="flex-grow">
-              <InputWithTitle
-                title="Address"
-                placeholder="Address"
-                onChange={(value) =>
-                  handleBankInputChange(index, "address", value)
-                }
-                value={bank.address || ""}
-              />
-            </div>
-            <div className="flex-grow">
-              <InputWithTitle
-                title="State"
-                placeholder="State"
-                onChange={(value) =>
-                  handleBankInputChange(index, "state", value)
-                }
-                value={bank.state || ""}
-              />
-            </div>
-          </div>
-        </div>
-      ))}
-      <div className="mt-10 flex gap-4">
-        <div className="flex-grow">
-          <GreenButton
-            title="Add Another Bank"
-            onClick={handleAddBankSection}
-          />
-        </div>
-        <div className="flex-grow"></div>
-        <div className="flex-grow"></div>
-        <div className="flex-grow"></div>
-        <div className="flex-grow"></div>
-        <div className="flex-grow"></div>
-        <div className="flex-grow"></div>
-        <div className="flex-grow"></div>
-        <div className="flex-grow"></div>
-        <div className="flex-grow"></div>
-        <div className="flex-grow"></div>
-        <div className="flex-grow"></div>
-        <div className="flex-grow"></div>
-        <div className="flex-grow"></div>
-        <div className="flex-grow"></div>
-        <div className="flex-grow"></div>
-      </div>
-    </div>
-  );
-
   //
   return (
     <div>
@@ -329,7 +233,7 @@ const Page = () => {
         }}
       ></div>
 
-      <div className="mt-1">{loading ? renderSkeleton() : bankSection()}</div>
+      <div className="mt-1">{loading ? renderSkeleton() : <></>}</div>
 
       <div className="mt-10">
         <GreenButton
