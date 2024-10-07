@@ -16,6 +16,8 @@ import Swal from "sweetalert2";
 import { job } from "../../networkUtil/Constants";
 import { Button } from "@mui/material";
 
+import { useRouter } from "next/navigation";
+
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
   if (parts.length > 1) {
@@ -32,6 +34,8 @@ const getIdFromUrl = (url) => {
 
 const Page = () => {
   const api = new APICall();
+
+  const router = useRouter();
 
   const [fetchingData, setFetchingData] = useState(false);
   const [serviceReportList, setQuoteList] = useState(null);
@@ -89,7 +93,7 @@ const Page = () => {
           title: "Success",
           text: `Data has been ${id ? "updated" : "added"} successfully!`,
         });
-        router.push("/viewQuote");
+        router.push(`/serviceRpoertPdf?id=${id}`);
       } else {
         Swal.fire({
           icon: "error",

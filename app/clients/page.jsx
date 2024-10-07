@@ -6,7 +6,7 @@ import SearchInput from "@/components/generic/SearchInput";
 import {
   Dialog,
   DialogTitle,
-  DialogContent,
+  DialogContent, 
   DialogActions,
   Grid,
   Typography,
@@ -18,6 +18,8 @@ import Dropdown from "../../components/generic/Dropdown";
 import InputWithTitle from "../../components/generic/InputWithTitle";
 import { AppHelpers } from "../../Helper/AppHelpers";
 import Link from "next/link";
+
+import Swal from "sweetalert2";
 
 const Page = () => {
   const api = new APICall();

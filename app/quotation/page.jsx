@@ -76,7 +76,7 @@ const Page = () => {
         Swal.fire({
           icon: "error",
           title: "Error",
-          text: "Failed to submit data. Please try again.",
+          text: `${response.error.message}`,
         });
       }
     } catch (error) {

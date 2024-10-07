@@ -8,8 +8,6 @@ import { Button } from "@mui/material";
 const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
   const api = new APICall();
   const [allServices, setAllServices] = useState([]);
-  console.log(allServices);
-  
   const [isLoading, setIsLoading] = useState(true);
 
   const getAllServices = async () => {
@@ -55,34 +53,26 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
   };
 
   const addJobList = () => {
-    const selectedServices = allServices.filter((service) => service.isChecked);
+    // Create a default job without checking for selected services
+    const newJob = {
+      service_id: "", // You might want to set a default service ID or leave it empty
+      service_name: "", // This can be updated when the user selects a service in JobsList
+      detail: [
+        {
+          job_type: "",
+          rate: "",
+          dates: [convertDate(new Date())],
+        },
+      ],
+      subTotal: 100,
+    };
 
-    if (selectedServices.length === 0) {
-      return; // Don't add any jobs if no services are selected
-    }
+    setFormData((prev) => ({
+      ...prev,
+      services: [...(prev.services || []), newJob],
+    }));
 
-    // Create a new job for each selected service
-    selectedServices.forEach((service) => {
-      const newJob = {
-        service_id: service.id,
-        service_name: service.pest_name,
-        detail: [
-          {
-            job_type: "",
-            rate: "",
-            dates: [convertDate(new Date())],
-          },
-        ],
-        subTotal: 100,
-      };
-
-      setFormData((prev) => ({
-        ...prev,
-        services: [...prev.services, newJob],
-      }));
-    });
-
-    // Uncheck all services after adding
+    // Reset all checkboxes
     setAllServices((prevServices) =>
       prevServices.map((service) => ({
         ...service,
@@ -199,7 +189,7 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
           </Button>
         </div>
       </div>
-      
+
       <ContractSummary setFormData={setFormData} grandTotal={grandTotal} />
     </div>
   );

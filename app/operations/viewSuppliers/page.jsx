@@ -1,18 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
-import SearchInput from "@/components/generic/SearchInput";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-} from "@mui/material";
 
 import { getAllSuppliers } from "@/networkUtil/Constants";
-
-import styles from "../../../styles/loginStyles.module.css";
 import Loading from "../../../components/generic/Loading";
 import APICall from "@/networkUtil/APICall";
 import { Delete, Edit, ViewAgenda } from "@mui/icons-material";

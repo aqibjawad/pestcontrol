@@ -6,8 +6,7 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import Button from "@mui/material/Button";
-import { Grid } from "@mui/material";
+import { Grid, Tabs, Tab, Box, Button } from "@mui/material";
 
 const JobsList = ({
   jobData,
@@ -21,11 +20,10 @@ const JobsList = ({
   const [selectedDates, setSelectedDates] = useState(jobData.dates || []);
   const [subTotal, setSubTotal] = useState(jobData.subTotal || 0);
   const [intervalDays, setIntervalDays] = useState(5);
-  const [noOfJobs, setNoOfJobs] = useState(0);
   const [allGeneratedDates, setAllGeneratedDates] = useState([]);
-
   const [generatedSubTotal, setGeneratedSubTotal] = useState(0);
-
+  const [activeTab, setActiveTab] = useState(0);
+  const [dayWiseSelection, setDayWiseSelection] = useState([]);
 
   const jobTypes = [
     { label: "One Time", value: "one_time" },
@@ -36,29 +34,16 @@ const JobsList = ({
     { label: "Custom", value: "custom" },
   ];
 
-  const generateMonthlyDates = (initialDates) => {
+  const generateDates = (initialDates) => {
     if (!initialDates || initialDates.length === 0) return [];
 
     const allDates = [...initialDates];
+    const startDate = new Date(initialDates[0]);
 
-    for (let i = 1; i < duration_in_months; i++) {
-      initialDates.forEach((dateStr) => {
-        const date = new Date(dateStr);
-        const newDate = new Date(date);
-        newDate.setMonth(newDate.getMonth() + i);
-
-        const lastDayOfMonth = new Date(
-          newDate.getFullYear(),
-          newDate.getMonth() + 1,
-          0
-        ).getDate();
-        if (date.getDate() > lastDayOfMonth) {
-          newDate.setDate(lastDayOfMonth);
-        }
-
-        const generatedDate = newDate.toISOString().slice(0, 10);
-        allDates.push(generatedDate);
-      });
+    for (let i = 1; i < duration_in_months * 30; i++) {
+      const newDate = new Date(startDate);
+      newDate.setDate(newDate.getDate() + i);
+      allDates.push(newDate.toISOString().slice(0, 10));
     }
 
     return allDates.sort();
@@ -69,8 +54,11 @@ const JobsList = ({
     let selectedSubTotal = allDates.length * parseFloat(rate || 0);
 
     let generatedSubTotal = 0;
-    if (selectedJobType === "monthly" && allDates.length > 0) {
-      const generatedDates = generateMonthlyDates(allDates);
+    if (
+      (selectedJobType === "monthly" || selectedJobType === "daily") &&
+      allDates.length > 0
+    ) {
+      const generatedDates = generateDates(allDates);
       setAllGeneratedDates(generatedDates);
       generatedSubTotal = generatedDates.length * parseFloat(rate || 0);
     } else {
@@ -83,10 +71,15 @@ const JobsList = ({
     updateJobList({
       jobType: selectedJobType,
       rate: rate,
-      dates: selectedJobType === "monthly" ? allGeneratedDates : allDates,
+      dates:
+        selectedJobType === "monthly" || selectedJobType === "daily"
+          ? allGeneratedDates
+          : allDates,
       displayDates: selectedDates,
       subTotal:
-        selectedJobType === "monthly" ? generatedSubTotal : selectedSubTotal,
+        selectedJobType === "monthly" || selectedJobType === "daily"
+          ? generatedSubTotal
+          : selectedSubTotal,
       service_id: jobData.service_id,
       serviceName: jobData.serviceName,
     });
@@ -100,14 +93,8 @@ const JobsList = ({
       : [];
 
     if (selectedJobType === "daily") {
-      // Filter out any dates before today for daily job type
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const filteredDates = formattedDates.filter((dateStr) => {
-        const date = new Date(dateStr);
-        return date >= today;
-      });
-      setSelectedDates(filteredDates);
+      // For daily, only allow one date selection
+      setSelectedDates(formattedDates.slice(-1));
     } else {
       setSelectedDates(formattedDates);
     }
@@ -115,7 +102,7 @@ const JobsList = ({
 
   const handleJobTypeChange = (value) => {
     setSelectedJobType(value);
-    if (value === "monthly") {
+    if (value === "monthly" || value === "daily") {
       setSelectedDates([]);
       setAllGeneratedDates([]);
     }
@@ -133,17 +120,127 @@ const JobsList = ({
     }
   };
 
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue);
+  };
+
+  const renderDayWiseSelection = () => {
+    const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const weeks = ["1st Week", "2nd Week", "3rd Week", "4th Week"];
+
+    return (
+      <div className="day-wise-selection">
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              {days.map((day) => (
+                <th key={day}>{day}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {weeks.map((week, weekIndex) => (
+              <tr key={week}>
+                <td>{week}</td>
+                {days.map((day, dayIndex) => (
+                  <td key={`${week}-${day}`}>
+                    <Button
+                      variant={
+                        dayWiseSelection.some(
+                          (item) =>
+                            item.week === weekIndex && item.day === dayIndex
+                        )
+                          ? "contained"
+                          : "outlined"
+                      }
+                      onClick={() => {
+                        let newSelection = [];
+                        if (selectedJobType === "daily") {
+                          // For daily, only allow one selection
+                          newSelection = [{ week: weekIndex, day: dayIndex }];
+                        } else {
+                          newSelection = [...dayWiseSelection];
+                          const isSelected = newSelection.some(
+                            (item) =>
+                              item.week === weekIndex && item.day === dayIndex
+                          );
+                          if (isSelected) {
+                            const index = newSelection.findIndex(
+                              (item) =>
+                                item.week === weekIndex && item.day === dayIndex
+                            );
+                            if (index !== -1) newSelection.splice(index, 1);
+                          } else {
+                            newSelection.push({
+                              week: weekIndex,
+                              day: dayIndex,
+                            });
+                          }
+                        }
+                        setDayWiseSelection(newSelection);
+
+                        const generatedDates =
+                          generateDatesFromDayWiseSelection(newSelection);
+                        setSelectedDates(generatedDates);
+                      }}
+                    >
+                      {day}
+                    </Button>
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
+  const generateDatesFromDayWiseSelection = (dayWiseSelection) => {
+    const result = [];
+    const today = new Date();
+
+    for (let monthOffset = 0; monthOffset < duration_in_months; monthOffset++) {
+      const currentMonth = new Date(
+        today.getFullYear(),
+        today.getMonth() + monthOffset,
+        1
+      );
+
+      dayWiseSelection.forEach(({ week, day }) => {
+        const jsDay = day === 6 ? 0 : day + 1;
+        const datesInMonth = [];
+        const tempDate = new Date(currentMonth);
+
+        while (tempDate.getDay() !== jsDay) {
+          tempDate.setDate(tempDate.getDate() + 1);
+        }
+
+        while (tempDate.getMonth() === currentMonth.getMonth()) {
+          datesInMonth.push(new Date(tempDate));
+          tempDate.setDate(tempDate.getDate() + 7);
+        }
+
+        if (datesInMonth[week]) {
+          result.push(datesInMonth[week].toISOString().slice(0, 10));
+        }
+      });
+    }
+
+    return result.sort();
+  };
+
   return (
     <div style={{ marginBottom: "2rem" }}>
       <Grid container spacing={2}>
         <Grid item lg={3} xs={4}>
           <Dropdown2
             title="Selected Products"
-            options={allServices
-              .map((service) => ({
-                label: service.service_title,
-                value: service.id,
-              }))}
+            options={allServices.map((service) => ({
+              label: service.service_title,
+              value: service.id,
+            }))}
             value={jobData.service_id}
             onChange={(value) => {
               const selectedService = allServices.find(
@@ -164,7 +261,7 @@ const JobsList = ({
             type="text"
             name="noOfJobs"
             placeholder="No of Jobs"
-            value={selectedDates.length || 0} // Changed this to show only selected dates
+            value={selectedDates.length || 0}
             readOnly={true}
           />
         </Grid>
@@ -200,7 +297,7 @@ const JobsList = ({
           />
         </Grid>
 
-        {selectedJobType === "monthly" ? (
+        {(selectedJobType === "monthly" || selectedJobType === "daily") && (
           <>
             <Grid item lg={3} xs={4}>
               <InputWithTitle
@@ -212,13 +309,6 @@ const JobsList = ({
                 readOnly={true}
               />
             </Grid>
-          </>
-        ) : (
-          ""
-        )}
-
-        {selectedJobType === "monthly" ? (
-          <>
             <Grid item xs={3}>
               <InputWithTitle
                 title="Sub total"
@@ -230,10 +320,7 @@ const JobsList = ({
               />
             </Grid>
           </>
-        ) : (
-          ""
         )}
-
       </Grid>
 
       <div style={{ marginTop: "1rem" }}>
@@ -241,7 +328,8 @@ const JobsList = ({
           {selectedDates?.length > 0 ? (
             <>
               Selected Dates: {selectedDates.join(", ")}
-              {selectedJobType === "monthly" && (
+              {(selectedJobType === "monthly" ||
+                selectedJobType === "daily") && (
                 <span style={{ marginLeft: "10px", color: "#9E9E9E" }}>
                   (Will repeat for {duration_in_months} months)
                 </span>
@@ -268,18 +356,30 @@ const JobsList = ({
         fullWidth
       >
         <DialogTitle>
-          {selectedJobType === "monthly"
+          {selectedJobType === "monthly" || selectedJobType === "daily"
             ? `Select Dates (Will repeat for ${duration_in_months} months)`
             : selectedJobType === "daily"
-            ? "Select Dates (Only current and future dates allowed)"
+            ? "Select Date (Only one date allowed)"
             : "Select Dates"}
         </DialogTitle>
         <DialogContent>
-          <CalendarComponent
-            initialDates={selectedDates?.map((date) => new Date(date))}
-            onDateChange={handleDateChange}
-            minDate={selectedJobType === "daily" ? new Date() : undefined}
-          />
+          {(selectedJobType === "weekly" || selectedJobType === "daily") && (
+            <Tabs value={activeTab} onChange={handleTabChange}>
+              <Tab label="Date" />
+              <Tab label="Day-wise" />
+            </Tabs>
+          )}
+          <Box sx={{ p: 2 }}>
+            {activeTab === 0 && (
+              <CalendarComponent
+                initialDates={selectedDates?.map((date) => new Date(date))}
+                onDateChange={handleDateChange}
+                minDate={selectedJobType === "daily" ? new Date() : undefined}
+                maxSelectable={selectedJobType === "daily" ? 1 : undefined}
+              />
+            )}
+            {activeTab === 1 && renderDayWiseSelection()}
+          </Box>
           {selectedJobType === "custom" && (
             <InputWithTitle
               title="Interval Days"
