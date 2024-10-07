@@ -53,10 +53,17 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
   };
 
   const addJobList = () => {
-    // Create a default job without checking for selected services
+    // Create a default job using the selected services
+    const selectedServices = allServices.filter((service) => service.isChecked);
+    
+    if (selectedServices.length === 0) {
+      console.error("No services selected.");
+      return;
+    }
+  
     const newJob = {
-      service_id: "", // You might want to set a default service ID or leave it empty
-      service_name: "", // This can be updated when the user selects a service in JobsList
+      service_id: selectedServices[0].id, // Using the first selected service as an example
+      service_name: selectedServices[0].pest_name, // This can be updated as needed
       detail: [
         {
           job_type: "",
@@ -66,20 +73,20 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
       ],
       subTotal: 100,
     };
-
+  
     setFormData((prev) => ({
       ...prev,
       services: [...(prev.services || []), newJob],
     }));
-
-    // Reset all checkboxes
+  
+    // Only uncheck services that were not selected
     setAllServices((prevServices) =>
-      prevServices.map((service) => ({
-        ...service,
-        isChecked: false,
-      }))
+      prevServices.map((service) =>
+        service.isChecked ? service : { ...service, isChecked: false }
+      )
     );
   };
+  
 
   const removeJobList = (index) => {
     setFormData((prev) => {
