@@ -71,7 +71,7 @@ const Page = () => {
           title: "Success",
           text: `Data has been ${id ? "updated" : "added"} successfully!`,
         });
-        router.push("/viewQuote");
+        // router.push("/viewQuote");
       } else {
         Swal.fire({
           icon: "error",
