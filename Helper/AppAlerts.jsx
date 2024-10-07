@@ -33,6 +33,4 @@ export class AppAlerts {
       confirmButtonText: "OK",
     });
   }
-
-  // You can add more alert functions here...
 }

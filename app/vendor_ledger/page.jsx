@@ -23,7 +23,6 @@ import { vendors } from "../../networkUtil/Constants";
 
 import APICall from "../../networkUtil/APICall";
 
-
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
   if (parts.length > 1) {
@@ -127,11 +126,11 @@ const Page = () => {
           </TableHead>
           <TableBody>
             <TableRow>
-              <TableCell>{formatDate(rowData.created_at)}</TableCell>
-              <TableCell>{rowData.hsn}</TableCell>
-              <TableCell>{rowData.vat}</TableCell>
-              <TableCell>{rowData.balance < 0 ? "Naam" : "Jama"}</TableCell>
-              <TableCell>{rowData.opening_balance}</TableCell>
+              <TableCell>{formatDate(rowData?.created_at)}</TableCell>
+              <TableCell>{rowData?.hsn}</TableCell>
+              <TableCell>{rowData?.vat}</TableCell>
+              <TableCell>{rowData?.balance < 0 ? "Naam" : "Jama"}</TableCell>
+              <TableCell>{rowData?.opening_balance}</TableCell>
             </TableRow>
           </TableBody>
         </Table>

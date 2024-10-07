@@ -21,6 +21,7 @@ import "jspdf-autotable";
 import { getAllSuppliers } from "../../../networkUtil/Constants";
 import APICall from "../../../networkUtil/APICall";
 import { format } from "date-fns";
+import { useRouter } from "next/navigation";
 
 const getParamFromUrl = (url, param) => {
   const searchParams = new URLSearchParams(url.split("?")[1]);
@@ -41,7 +42,7 @@ const Page = () => {
   const [error, setError] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalData, setModalData] = useState(null);
-
+  const router = useRouter();
   const tableRef = useRef(null);
 
   useEffect(() => {
@@ -95,6 +96,10 @@ const Page = () => {
     window.print();
   };
 
+  const addViewBank = () => {
+    router.push(`/account/supplier_ledger/addSupplierBanks?id=${id}`);
+  };
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString();
@@ -104,14 +109,28 @@ const Page = () => {
     <div>
       <div className={styles.container}>
         <div className={styles.leftSection}>{supplierName}</div>
-        <Button
-          className={styles.hideOnPrint}
-          variant="contained"
-          color="primary"
-          onClick={handlePrint}
-        >
-          PDF Generate
-        </Button>
+        <div>
+          <div>
+            <Button
+              className={styles.hideOnPrint}
+              variant="contained"
+              color="primary"
+              onClick={handlePrint}
+            >
+              Generate PDF
+            </Button>
+          </div>
+          <div className="mt-2">
+            <Button
+              className={styles.hideOnPrint}
+              variant="contained"
+              color="primary"
+              onClick={addViewBank}
+            >
+              Add / View Banks
+            </Button>
+          </div>
+        </div>
       </div>
       <div className={styles.leftSection1}>{companyName}</div>
       <div className={styles.leftSection1}>{number}</div>
