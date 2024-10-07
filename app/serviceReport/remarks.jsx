@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import styles from "../../styles/serviceReport.module.css";
 import MultilineInput from "@/components/generic/MultilineInput";
 
-const Remarks = () => {
-  const [name, setFullName] = useState("");
-  const [brands, setBrands] = useState(["Brand A", "Brand B", "Brand C"]);
-
-  const handleBrandChange = (name, index) => {
-    console.log("test");
+const Remarks = ({ formData, setFormData }) => {
+  const handleRemarksChange = (value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      recommendations_and_remarks: value
+    }));
   };
 
   return (
@@ -18,7 +18,8 @@ const Remarks = () => {
         title={"Recommendations and remarks"}
         type={"text"}
         placeholder={"Enter description"}
-        onChange={handleBrandChange}
+        value={formData.recommendations_and_remarks || ""}
+        onChange={handleRemarksChange}
       />
     </div>
   );

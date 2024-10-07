@@ -1,31 +1,51 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "../../styles/serviceReport.module.css";
+import AddExtraChemicals from "../../components/addExtraChemicals";
 
-import AddChemicals from "../../components/addChemicals"
-
-const Extra = () => {
-  
+const Extra = ({ formData, setFormData }) => {
   const [openChemicals, setOpenChemicals] = useState(false);
-
-  console.log("modal",openChemicals);
-  
+  const [used_products, setExtraChemicals] = useState([]);
 
   const handleOpenChemicals = () => setOpenChemicals(true);
   const handleCloseChemicals = () => setOpenChemicals(false);
+
+  const handleAddExtraChemical = (newChemical) => {
+    // First, update the local state
+    const updatedChemicals = [
+      ...used_products,
+      { ...newChemical, id: Date.now() },
+    ];
+    setExtraChemicals(updatedChemicals);
+
+    // Then, update the parent formData
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      used_products: [
+        ...(prevFormData.used_products || []),
+        { ...newChemical, id: Date.now() },
+      ],
+    }));
+  };
+
+  // Initialize local state with existing chemicals when component mounts
+  useEffect(() => {
+    if (formData.used_products && Array.isArray(formData.used_products)) {
+      setExtraChemicals(formData.used_products);
+    }
+  }, [formData.used_products]);
 
   return (
     <div>
       <div className="flex justify-between" style={{ padding: "34px" }}>
         <div className="flex flex-col">
-          <div className={styles.areaHead}> Chemical and material </div>
+          <div className={styles.areaHead}>Extra Chemical and material</div>
         </div>
 
         <div className="flex flex-col">
           <div onClick={handleOpenChemicals} className={styles.areaButton}>
-            {" "}
-            + Add Chemicals{" "}
+            + Add Extra Chemicals
           </div>
         </div>
       </div>
@@ -34,28 +54,31 @@ const Extra = () => {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th> Sr No. </th>
-              <th> chemial and materialused </th>
-              <th> Infestation </th>
-              <th> Quantity </th>
-              <th> Price </th>
+              <th>Sr No.</th>
+              <th>Chemical and Material Used</th>
+              <th>Dose</th>
+              <th>Quantity</th>
+              <th>Price</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td> 01 </td>
-              <td> Internal areas of restaurant </td>
-              <td>High</td>
-              <td>High</td>
-              <td>High</td>
-            </tr>
+            {used_products.map((chemical, index) => (
+              <tr key={chemical.id}>
+                <td>{index + 1}</td>
+                <td>{chemical.name}</td>
+                <td>{chemical.dose}</td>
+                <td>{chemical.quantity}</td>
+                <td>{chemical.price}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
 
-      <AddChemicals
+      <AddExtraChemicals
         openChemicals={openChemicals}
         handleCloseChemicals={handleCloseChemicals}
+        onAddExtraChemical={handleAddExtraChemical}
       />
     </div>
   );

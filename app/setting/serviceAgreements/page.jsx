@@ -84,9 +84,9 @@ const Page = () => {
               <Table>
                 <TableHead>
                   <TableRow>
+                    <TableCell>Pest Name</TableCell>
                     <TableCell>Service Name</TableCell>
-                    <TableCell>Scope of Work</TableCell>
-                    <TableCell>Terms and Conditions</TableCell>
+                    <TableCell>Scope Of Work</TableCell>
                     <TableCell>Actions</TableCell>
                   </TableRow>
                 </TableHead>

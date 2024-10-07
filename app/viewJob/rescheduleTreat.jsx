@@ -89,7 +89,7 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
   };
 
   const handleServiceReport = () => {
-    router.push(`/serviceReport?=${jobId}`);
+    router.push(`/serviceReport?id=${jobId}`);
   };
 
   const renderActionButton = () => {

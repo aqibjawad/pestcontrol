@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation"; // Import useRouter
 import { Grid, Skeleton } from "@mui/material"; // Import Skeleton
 import styles from "../../styles/viewQuote.module.css";
-import { useSearchParams } from "next/navigation";
 import APICall from "@/networkUtil/APICall";
 import { quotation } from "@/networkUtil/Constants";
 
@@ -34,7 +33,7 @@ const Page = () => {
 
   const api = new APICall();
   
-  const [id, setId] = useState(null);
+  const [id, setId] = useState(null); 
   
 
   const router = useRouter();
