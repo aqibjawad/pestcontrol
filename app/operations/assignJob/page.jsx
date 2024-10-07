@@ -27,6 +27,8 @@ import {
   Button,
 } from "@mui/material";
 
+import { GoogleMap, LoadScript } from "@react-google-maps/api";
+
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
   if (parts.length > 1) {
@@ -191,62 +193,13 @@ const Page = () => {
     }
   };
 
-  const handleCheckboxChange = (managerId) => {
-    setSelectedManagers((prevSelected) => {
-      const newSelected = new Set(prevSelected);
-      if (newSelected.has(managerId)) {
-        newSelected.delete(managerId);
-      } else {
-        newSelected.add(managerId);
-      }
-      return newSelected;
-    });
-  };
+  // Extract latitude and longitude from the locationData
+  const lat = parseFloat(jobList?.client_address?.lat);
+  const lng = parseFloat(jobList?.client_address?.lang);
 
-  const handleStartJob = async () => {
-    try {
-      // Implement job start logic here
-      // For example: const response = await api.postDataWithToken(`${job}/${id}/start`);
-      setJobStatus("in_progress");
-      Swal.fire({
-        icon: "success",
-        title: "Job Started",
-        text: "The job has been successfully started.",
-      });
-    } catch (error) {
-      console.error("Error starting job:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to start the job. Please try again.",
-      });
-    }
-  };
-
-  const handleCompleteJob = async () => {
-    try {
-      // Implement job completion logic here
-      // For example: const response = await api.postDataWithToken(`${job}/${id}/complete`);
-      setJobStatus("completed");
-      Swal.fire({
-        icon: "success",
-        title: "Job Completed",
-        text: "The job has been successfully completed.",
-      });
-    } catch (error) {
-      console.error("Error completing job:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to complete the job. Please try again.",
-      });
-    }
-  };
-
-  const handleCreateReport = () => {
-    // Implement report creation logic here
-    // This could navigate to a new page or open a modal for report creation
-    router.push(`/createReport?id=${id}`);
+  const center = {
+    lat: lat, // Use the extracted latitude
+    lng: lng, // Use the extracted longitude
   };
 
   return (
@@ -384,13 +337,13 @@ const Page = () => {
           <Grid item lg={12} xs={12} md={4}>
             <div className="mr-10">
               <div className="pageTitle">Job Location</div>
-              <img
-                className="mt-10"
-                src="/map.png"
-                alt="Job location map"
-                height={400}
-                width={400}
-              />
+              <LoadScript googleMapsApiKey="AIzaSyBBHNqsXFQqg_-f6BkI5UH7X7nXK2KQzk8">
+                <GoogleMap
+                  mapContainerStyle={{ height: "400px", width: "100%" }}
+                  center={center}
+                  zoom={10}
+                />
+              </LoadScript>
             </div>
           </Grid>
         </Grid>

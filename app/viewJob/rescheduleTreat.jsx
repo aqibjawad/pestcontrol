@@ -44,9 +44,12 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
       if (response.error) {
         alert(response.error.error);
       } else {
-        alert("Treatment rescheduled successfully!");
+        alert("Rescheduled Job successfully!");
         setJobDate("");
         setReason("");
+        setTimeout(() => {
+          window.location.reload(); // Refresh the page
+        }, 1000); // 1 second delay
       }
     } catch (error) {
       console.error("Error rescheduling treatment:", error);
