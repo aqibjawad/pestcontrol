@@ -1,0 +1,10 @@
+.companyLogo{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo{
+    height: 200px;
+    width: 200px;
+}

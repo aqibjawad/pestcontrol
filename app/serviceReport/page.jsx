@@ -18,6 +18,8 @@ import { Button } from "@mui/material";
 
 import { useRouter } from "next/navigation";
 
+import GreenButton from "@/components/generic/GreenButton";
+
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
   if (parts.length > 1) {
@@ -32,10 +34,14 @@ const getIdFromUrl = (url) => {
   return null;
 };
 
+
 const Page = () => {
+
   const api = new APICall();
 
   const router = useRouter();
+
+  const [loading, setLoading] = useState(false);
 
   const [fetchingData, setFetchingData] = useState(false);
   const [serviceReportList, setQuoteList] = useState(null);
@@ -51,7 +57,7 @@ const Page = () => {
     job_id: null,
   });
 
-  const [id, setId] = useState("");  
+  const [id, setId] = useState("");
 
   useEffect(() => {
     // Get the current URL
@@ -59,7 +65,7 @@ const Page = () => {
 
     const urlId = getIdFromUrl(currentUrl);
     setId(urlId);
-    setFormData(prev => ({...prev, job_id: urlId}))
+    setFormData((prev) => ({ ...prev, job_id: urlId }));
   }, []);
 
   useEffect(() => {
@@ -83,6 +89,7 @@ const Page = () => {
   };
 
   const handleSubmit = async () => {
+    setLoading(true);
     try {
       const endpoint = `${job}/service_report/create`;
 
@@ -98,7 +105,7 @@ const Page = () => {
         Swal.fire({
           icon: "error",
           title: "Error",
-          text: "Failed to submit data. Please try again.",
+          text: `${response.error.message}`,
         });
       }
     } catch (error) {
@@ -108,6 +115,8 @@ const Page = () => {
         text: error.message || "An error occurred.",
       });
       console.error("Error submitting data:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -124,9 +133,13 @@ const Page = () => {
       <Extra formData={formData} setFormData={setFormData} />
       <Remarks formData={formData} setFormData={setFormData} />
 
-      <Button onClick={handleSubmit}>
-        Submit
-      </Button>
+      <div className="mt-10">
+        <GreenButton
+          onClick={handleSubmit}
+          title={loading ? "Submitting..." : "Submit"}
+          disabled={loading}
+        />
+      </div>
     </div>
   );
 };

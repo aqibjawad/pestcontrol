@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@mui/material";
 
-const ClientDetails = () => {
+const ClientDetails = ({ serviceReportList }) => {
   return (
     <div className={styles.quoteMain}>
       <Grid container spacing={3}>
@@ -22,16 +22,9 @@ const ClientDetails = () => {
               <TableBody>
                 <TableRow sx={{ border: "none" }}>
                   <TableCell>
-                    <strong> Customer id:</strong>
+                    <strong> Customer Name:</strong>
                   </TableCell>
-                  <TableCell> 45d46 </TableCell>
-                </TableRow>
-
-                <TableRow sx={{ border: "none" }}>
-                  <TableCell>
-                    <strong> Contract #:</strong>
-                  </TableCell>
-                  <TableCell> 45d46 </TableCell>
+                  <TableCell> {serviceReportList?.job?.user?.name} </TableCell>
                 </TableRow>
 
                 <TableRow sx={{ border: "none" }}>
@@ -51,23 +44,9 @@ const ClientDetails = () => {
               <TableBody>
                 <TableRow sx={{ border: "none" }}>
                   <TableCell>
-                    <strong> Customer id:</strong>
+                    <strong> Customer Email:</strong>
                   </TableCell>
-                  <TableCell> 45d46 </TableCell>
-                </TableRow>
-
-                <TableRow sx={{ border: "none" }}>
-                  <TableCell>
-                    <strong> Contract #:</strong>
-                  </TableCell>
-                  <TableCell> 45d46 </TableCell>
-                </TableRow>
-
-                <TableRow sx={{ border: "none" }}>
-                  <TableCell>
-                    <strong> Total # of Visits Up To Date:</strong>
-                  </TableCell>
-                  <TableCell> 45d46 </TableCell>
+                  <TableCell> {serviceReportList?.job?.user?.email} </TableCell>
                 </TableRow>
               </TableBody>
             </Table>

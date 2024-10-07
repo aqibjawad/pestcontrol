@@ -1,116 +1,41 @@
 import React from "react";
-import styles from "../../styles/viewQuote.module.css";
+import { Grid, Checkbox, FormControlLabel, Typography } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableRow,
-  TableHead,
-} from "@mui/material";
+const Treatment = ({ serviceReportList }) => {
+  const CustomCheckbox = styled(Checkbox)(({ theme }) => ({
+    "&.Mui-checked": {
+      color: "#38A73B",
+    },
+  }));
 
-const VisitRecords = () => {
+  const rows = serviceReportList?.treatment_methods || [];
+
   return (
-    <div className={styles.clientRecord}>
-      <div className={styles.clientHead}> Visit Records </div>
-
-      <TableContainer sx={{ mt: 1 }}>
-        <Table>
-          <TableHead className={styles.tableHead}>
-            <TableRow>
-              <TableCell>
-                <strong> Sr </strong>
-              </TableCell>
-
-              <TableCell>
-                <strong> Date </strong>
-              </TableCell>
-
-              <TableCell>
-                <strong> Type of visits </strong>
-              </TableCell>
-
-              <TableCell>
-                <strong> Service report # </strong>
-              </TableCell>
-
-              <TableCell>
-                <strong> Rodent Lvl of Infestation </strong>
-              </TableCell>
-
-              <TableCell>
-                <strong> Flying Insects Lvl of Infestation </strong>
-              </TableCell>
-            </TableRow>
-          </TableHead>
-
-          <TableBody>
-            <TableRow sx={{ border: "none" }}>
-              <TableCell>
-                <strong> category:</strong>
-              </TableCell>
-              <TableCell> 45d46 </TableCell>
-              <TableCell> 45d46 </TableCell>
-              <TableCell> 45d46 </TableCell>
-              <TableCell> 45d46 </TableCell>
-              <TableCell> 45d46 </TableCell>
-            </TableRow>
-
-            <TableRow sx={{ border: "none" }}>
-              <TableCell>
-                <strong> Address :</strong>
-              </TableCell>
-              <TableCell> 45d46 </TableCell>
-              <TableCell> 45d46 </TableCell>
-              <TableCell> 45d46 </TableCell>
-              <TableCell> 45d46 </TableCell>
-              <TableCell> 45d46 </TableCell>
-            </TableRow>
-
-            <TableRow sx={{ border: "none" }}>
-              <TableCell>
-                <strong> Contact :</strong>
-              </TableCell>
-              <TableCell> 45d46 </TableCell>
-              <TableCell> 45d46 </TableCell>
-              <TableCell> 45d46 </TableCell>
-              <TableCell> 45d46 </TableCell>
-              <TableCell> 45d46 </TableCell>
-            </TableRow>
-
-            <TableRow sx={{ border: "none" }}>
-              <TableCell>
-                <strong> Contract Starting Date :</strong>
-              </TableCell>
-              <TableCell> 45d46 </TableCell>
-            </TableRow>
-
-            <TableRow sx={{ border: "none" }}>
-              <TableCell>
-                <strong> Contract Ending Date :</strong>
-              </TableCell>
-              <TableCell> 45d46 </TableCell>
-            </TableRow>
-
-            <TableRow sx={{ border: "none" }}>
-              <TableCell>
-                <strong> Area Size :</strong>
-              </TableCell>
-              <TableCell> 45d46 </TableCell>
-            </TableRow>
-
-            <TableRow sx={{ border: "none" }}>
-              <TableCell>
-                <strong> Type Of Pests: :</strong>
-              </TableCell>
-              <TableCell> 45d46 </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </TableContainer>
+    <div
+      style={{
+        border: "1px solid #e0e0e0",
+        borderRadius: "4px",
+        padding: "16px",
+      }}
+    >
+      <Typography variant="h6" style={{ marginBottom: "16px" }}>
+        Treatment Methods
+      </Typography>
+      <Grid container spacing={2}>
+        {rows.map((row, index) => (
+          <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
+            <FormControlLabel
+              disabled
+              checked
+              control={<CustomCheckbox />}
+              label={<Typography variant="body1">{row?.name}</Typography>}
+            />
+          </Grid>
+        ))}
+      </Grid>
     </div>
   );
 };
 
-export default VisitRecords;
+export default Treatment;
