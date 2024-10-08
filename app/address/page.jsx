@@ -7,13 +7,19 @@ import SecondSection from "./add/secondSection";
 import styles from "../../styles/addresses.module.css";
 import APICall from "@/networkUtil/APICall";
 
+import GreenButton from "@/components/generic/GreenButton";
+
+import Swal from "sweetalert2";
+
+import { clients } from "@/networkUtil/Constants";
+
 const getIdFromUrl = (url) => {
-  const parts = url.split('?');
+  const parts = url.split("?");
   if (parts.length > 1) {
-    const queryParams = parts[1].split('&');
+    const queryParams = parts[1].split("&");
     for (const param of queryParams) {
-      const [key, value] = param.split('=');
-      if (key === 'id') {
+      const [key, value] = param.split("=");
+      if (key === "id") {
         return value;
       }
     }
@@ -23,64 +29,88 @@ const getIdFromUrl = (url) => {
 
 const Page = () => {
   const api = new APICall();
-
   const [id, setId] = useState(null);
-  const [name, setName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
   const [sections, setSections] = useState([1]);
-  const [addressData, setAddressData] = useState({
-    address: "",
-    latitude: "",
-    longitude: ""
+  const [formData, setFormData] = useState({
+    user_id: null,
+    address: "",      
+    city: "Dubai",         
+    lat: "",     
+    lang: "",    
+    country: "Dubai",      
+    state: "Dubai"         
   });
 
   useEffect(() => {
-    // Get the current URL
     const currentUrl = window.location.href;
-    
     const urlId = getIdFromUrl(currentUrl);
     setId(urlId);
-
-    setName("");
-    setPhoneNumber("");
-
-    if (urlId) {
-      fetchAddressData(urlId);
-    }
+    setFormData(prev => ({ ...prev, user_id: urlId }));
   }, []);
 
-  const fetchAddressData = async (addressId) => {
-    try {
-      const response = await api.getDataWithToken(`/api/address/${addressId}`);
-      setAddressData({
-        address: response.address,
-        latitude: response.latitude,
-        longitude: response.longitude
-      });
-    } catch (error) {
-      console.error("Error fetching address data:", error);
-    }
-  };
-
   const handleAddSection = () => {
-    setSections((prevSections) => [...prevSections, prevSections.length + 1]);
+    setSections(prevSections => [...prevSections, prevSections.length + 1]);
   };
 
   const handleAddressChange = (newAddressData) => {
-    setAddressData(newAddressData);
+    setFormData(prev => ({
+      ...prev,
+      address: newAddressData.address || "",
+      lat: newAddressData.lat || "",
+      lang: newAddressData.lang || ""
+    }));
+  };
+
+  const handleSubmit = async () => {
+    // setLoading(true);
+    try {
+      const submissionData = {
+        user_id: formData.user_id,
+        address: formData.address,
+        city: formData.city,
+        lat: formData.lat,
+        lang: formData.lang,
+        country: formData.country,
+        state: formData.state
+      };
+
+      console.log("Submitting data:", submissionData);
+
+      const response = await api.postDataWithTokn(`${clients}/address/create`, submissionData);
+      if (response.status === "success") {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: `Data has been ${id ? "updated" : "added"} successfully!`,
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: `${response.error.message}`,
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.message || "An error occurred.",
+      });
+      console.error("Error submitting data:", error);
+    } finally {
+      // setLoading(false);
+      console.log("test");
+    }
   };
 
   return (
     <>
-      <div className={styles.leftSection}>{name}</div>
-      <div className={styles.leftSection1}>{phoneNumber}</div>
-
       <Grid className="mt-10" container spacing={3}>
         <Grid lg={6} item xs={12} sm={6} md={4}>
-          {sections.map((sectionId) => (
+          {sections.map((sectionId, index) => (
             <div key={sectionId} className="mt-5">
               <FirstSection
-                addressData={addressData}
+                userId={formData.user_id}
                 onAddressChange={handleAddressChange}
               />
             </div>
@@ -90,6 +120,10 @@ const Page = () => {
           <SecondSection onClick={handleAddSection} />
         </Grid>
       </Grid>
+
+      <div className="mt-5">
+        <GreenButton title={"Submit"} onClick={handleSubmit} />
+      </div>
     </>
   );
 };

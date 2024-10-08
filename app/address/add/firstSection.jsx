@@ -1,30 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Grid } from "@mui/material";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import AddressPicker from "../../../components/AddressPicker";
 
-const FirstSection = ({ userId, addressData, onAddressChange }) => {
+const FirstSection = ({ userId, onAddressChange }) => {
+
   const [address, setAddress] = useState("");
-  const [city, setCity] = useState("");
-  const [longitude, setLongitude] = useState("");
-  const [latitude, setLatitude] = useState("");
+  const [lang, setLongitude] = useState("");
+  const [lat, setLatitude] = useState("");
+
+  useEffect(() => {
+    // Update parent component whenever these values change
+    onAddressChange({
+      address: address,
+      lat: lat,
+      lang: lang,
+    });
+  }, [address, lang, lat]);
 
   const handlePlaceSelected = (place) => {
-    console.log("Selected place:", JSON.stringify(place));
     if (place) {
       setAddress(place.formatted_address || "");
-      setCity(
-        place.address_components.find((c) => c.types.includes("locality"))
-          ?.long_name || ""
-      );
       setLongitude(place.geometry?.location.lng().toString() || "");
       setLatitude(place.geometry?.location.lat().toString() || "");
     }
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    onAddressChange({ ...addressData, [name]: value });
   };
 
   return (
@@ -45,7 +44,7 @@ const FirstSection = ({ userId, addressData, onAddressChange }) => {
       <Grid item lg={6} xs={12} sm={6} md={3}>
         <InputWithTitle
           title="Longitude"
-          value={longitude}
+          value={lang}
           onChange={(value) => setLongitude(value)}
           disabled
         />
@@ -54,7 +53,7 @@ const FirstSection = ({ userId, addressData, onAddressChange }) => {
       <Grid item lg={6} xs={12} sm={6} md={3}>
         <InputWithTitle
           title="Latitude"
-          value={latitude}
+          value={lat}
           onChange={(value) => setLatitude(value)}
           disabled
         />
