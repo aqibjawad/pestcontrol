@@ -34,9 +34,7 @@ const getIdFromUrl = (url) => {
   return null;
 };
 
-
 const Page = () => {
-
   const api = new APICall();
 
   const router = useRouter();
@@ -95,12 +93,14 @@ const Page = () => {
 
       const response = await api.postDataWithTokn(endpoint, formData);
       if (response.status === "success") {
+        const newId = response.data.id;
+        
         Swal.fire({
           icon: "success",
           title: "Success",
           text: `Data has been ${id ? "updated" : "added"} successfully!`,
         });
-        router.push(`/serviceRpoertPdf?id=${id}`);
+        router.push(`/serviceRpoertPdf?id=${newId}`);
       } else {
         Swal.fire({
           icon: "error",

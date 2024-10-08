@@ -7,12 +7,12 @@ import APICall from "@/networkUtil/APICall";
 import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
 
 const getIdFromUrl = (url) => {
-  const parts = url.split('?');
+  const parts = url.split("?");
   if (parts.length > 1) {
-    const queryParams = parts[1].split('&');
+    const queryParams = parts[1].split("&");
     for (const param of queryParams) {
-      const [key, value] = param.split('=');
-      if (key === 'id') {
+      const [key, value] = param.split("=");
+      if (key === "id") {
         return value;
       }
     }
@@ -30,7 +30,7 @@ const Page = () => {
   useEffect(() => {
     // Get the current URL
     const currentUrl = window.location.href;
-    
+
     // Extract id from URL
     const urlId = getIdFromUrl(currentUrl);
     setId(urlId);
@@ -43,7 +43,9 @@ const Page = () => {
   const getAllEmployees = async (employeeId) => {
     setFetchingData(true);
     try {
-      const response = await api.getDataWithToken(`${getAllEmpoyesUrl}/${employeeId}`);
+      const response = await api.getDataWithToken(
+        `${getAllEmpoyesUrl}/${employeeId}`
+      );
       setEmployeeList(response.data);
     } catch (error) {
       console.error("Error fetching employees:", error);
@@ -242,20 +244,24 @@ const Page = () => {
 
       <div className={styles.personalDetailsContainer}>
         <div className={styles.personalContainer}>
-          <div className={styles.personalHead}>
-            {employeeList?.stocks?.[0]?.product?.product_name}
-          </div>
+          <div className={styles.personalHead}>Stock</div>
 
           <div className={styles.tableContainer}>
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>Total Quantity</th>
-                  <th>Remaining Quantity</th>
+                  <th> Product Name </th>
+                  <th> Total Quantity </th>
+                  <th> Remaining Quantity </th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
+                  <td>
+                    {employeeList.stocks?.map((stock) => (
+                      <div key={stock.id}>{stock?.product?.product_name}</div>
+                    ))}
+                  </td>
                   <td>
                     {employeeList.stocks?.map((stock) => (
                       <div key={stock.id}>{stock.total_qty}</div>

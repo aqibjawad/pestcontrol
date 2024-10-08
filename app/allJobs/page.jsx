@@ -50,6 +50,7 @@ const Page = () => {
               <TableCell>Description</TableCell>
               <TableCell>Job Title</TableCell>
               <TableCell>Job Status</TableCell>
+              <TableCell>Service Report Status</TableCell>
               <TableCell>Sub Total</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
@@ -73,6 +74,12 @@ const Page = () => {
                     {row.is_completed === "1" && "Completed"}
                     {row.is_completed === "2" && "In Progress"}
                   </TableCell>
+
+                  <TableCell>
+                    {row.is_completed === "0" && "Not Service Report"}
+                    {row.is_completed === "1" && "Service Report Completed"}
+                  </TableCell>
+
                   <TableCell>{row.sub_total}</TableCell>
                   <TableCell>
                     {" "}

@@ -120,7 +120,7 @@ const Page = () => {
     // } finally {
     //   setLoadingSubmit(false);
     // }
-  }; 
+  };
 
   const validateForm = () => {
     const requiredFields = [
@@ -252,7 +252,7 @@ const Page = () => {
     return (
       <div className="mt-10">
         <Dropdown
-          options={["Powder", "Chemical", "Gel", "Pieces"]}
+          options={["Powder", "Liquid", "Gel", "Pieces"]}
           title={"Product Type"}
           onChange={(value) => setProductType(value)}
         />
@@ -325,7 +325,7 @@ const Page = () => {
           </div>
         </div>
 
-        <div className="mt-10">
+        {/* <div className="mt-10">
           <div className="flex gap-4">
             <div className="flex-grow">
               <InputWithTitle
@@ -347,7 +347,7 @@ const Page = () => {
             onChange={setPrice}
             value={price}
           />
-        </div>
+        </div> */}
 
         <div className="mt-10">
           <MultilineInput
@@ -368,11 +368,20 @@ const Page = () => {
         <div>{firstSection()}</div>
         <div>{secondSection()}</div>
       </div>
-      <div className="mt-20">
+
+      <div className="mt-10">
+        <GreenButton
+          onClick={handleSubmit}
+          title={loadingSubmit ? "Submitting..." : "Submit"}
+          disabled={loadingSubmit}
+        />
+      </div>
+
+      {/* <div className="mt-20">
         <GreenButton onClick={handleSubmit} disabled={loadingSubmit}>
           {loadingSubmit ? <CircularProgress size={24} /> : "Save"}
-        </GreenButton>
-      </div>
+        </GreenButton> 
+      </div> */}
     </div>
   );
 };
