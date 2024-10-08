@@ -45,6 +45,7 @@ const Page = () => {
   const [order_date, setOrderDate] = useState("");
   const [delivery_date, setDeliveryDate] = useState("");
   const [private_note, setPrivateNote] = useState("");
+  const [invoice_no, setInvoiceNo] = useState("");
   const [dis_per, setDisPer] = useState("");
   const [purchase_invoice, setPurchaseInvoice] = useState("");
 
@@ -225,8 +226,12 @@ const Page = () => {
           />
         </Grid>
 
-        <Grid className="mt-5" item lg={12} xs={12} sm={6} md={4}>
+        <Grid className="mt-5" item lg={10} xs={12} sm={6} md={4}>
           <InputWithTitle title={"Private Notes"} onChange={setPrivateNote} />
+        </Grid>
+
+        <Grid className="mt-5" item lg={2} xs={12} sm={6} md={4}>
+          <InputWithTitle title={"Invoice Number"} onChange={setInvoiceNo} />
         </Grid>
       </Grid>
 
@@ -234,7 +239,7 @@ const Page = () => {
       <div className={styles.itemGrid}>
         {rows.map((row, index) => (
           <Grid container spacing={2} key={row.id} className="mt-5">
-            <Grid item lg={2} xs={12} sm={6} md={4}>
+            <Grid item lg={3} xs={12} sm={6} md={4}>
               <Dropdown
                 onChange={(value, dropdownIndex) =>
                   handleProductsChange(allProductsList[dropdownIndex].id, index)
@@ -244,7 +249,7 @@ const Page = () => {
               />
             </Grid>
 
-            <Grid item lg={2} xs={12} sm={6} md={4}>
+            <Grid item lg={3} xs={12} sm={6} md={4}>
               <InputWithTitle
                 title={"Quantity"}
                 onChange={(value) =>
@@ -252,14 +257,14 @@ const Page = () => {
                 }
               />
             </Grid>
-            <Grid item lg={2} xs={12} sm={6} md={4}>
+            <Grid item lg={3} xs={12} sm={6} md={4}>
               <InputWithTitle
                 title={"Price"}
                 onChange={(value) => handleInputChange(value, index, "price")}
               />
             </Grid>
 
-            <Grid item lg={2} xs={12} sm={6} md={4}>
+            <Grid item lg={3} xs={12} sm={6} md={4}>
               <InputWithTitle
                 title={"Sub Total"}
                 value={(row.quantity * row.price).toFixed(2)}
@@ -267,14 +272,14 @@ const Page = () => {
               />
             </Grid>
 
-            <Grid item lg={2} xs={12} sm={6} md={4}>
+            <Grid item lg={3} xs={12} sm={6} md={4}>
               <InputWithTitle
                 title={"Vat"}
                 onChange={(value) => handleInputChange(value, index, "vat_per")}
               />
             </Grid>
 
-            <Grid item lg={1} xs={12} sm={6} md={4}>
+            <Grid item lg={3} xs={12} sm={6} md={4}>
               <InputWithTitle
                 title={"Total Amount"}
                 value={(
@@ -286,7 +291,7 @@ const Page = () => {
               />
             </Grid>
 
-            <Grid item lg={1} xs={12} sm={6} md={4}>
+            <Grid item lg={3} xs={12} sm={6} md={4}>
               <DeleteIcon
                 style={{ marginTop: "3rem", color: "red", cursor: "pointer" }}
                 onClick={() => deleteRow(row.id)}
@@ -320,10 +325,10 @@ const Page = () => {
         </Grid>
 
         <Grid container spacing={2} className="mt-5">
-          <Grid item lg={11} xs={12} sm={6} md={4}>
+          <Grid item lg={9} xs={12} sm={6} md={4}>
             <div className={styles.subHead}>Discount</div>
           </Grid>
-          <Grid item lg={1} xs={12} sm={6} md={4}>
+          <Grid item lg={3} xs={12} sm={6} md={4}>
             <div style={{ width: "90%" }}>
               <InputWithTitle
                 placeholder={"discount"}
