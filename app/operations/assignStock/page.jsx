@@ -22,12 +22,9 @@ const Page = () => {
     fetchingData,
     employees,
     brandsList,
-    employeesList,
     quantity,
     setQuantity,
-    sendingData,
     assignStock,
-    setSelectedEmployeeId,
     handleEmployeeChange,
   } = useAssignStockHook();
 
@@ -79,7 +76,7 @@ const Page = () => {
       {fetchingData ? (
         <Loading />
       ) : (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4"> 
           <div>{viewList()}</div>
           <div>
             <div className="pageTitle">Assign Stock</div>

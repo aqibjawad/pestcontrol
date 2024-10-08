@@ -36,17 +36,17 @@ export const useAssignStockHook = () => {
   const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
 
   useEffect(() => {
-    // Get the current URL
     const currentUrl = window.location.href;
-
     const urlId = getIdFromUrl(currentUrl);
     setId(urlId);
-
-    if (urlId) {
-      getAllBrands(urlId);
-    }
     getAllEmployees();
   }, []);
+
+  useEffect(() => {
+    if (id !== undefined && id !== null) {
+      getAllBrands(id);
+    }
+  }, [id]);
 
   const getAllBrands = async () => {
     setFetchingData(true);
