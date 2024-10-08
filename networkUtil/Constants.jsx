@@ -63,3 +63,5 @@ export const job = apiPrefix + "/job";
 export const serviceInvoice = apiPrefix + "/service_invoices";
 
 export const addSupplierBankInfo = apiPrefix + "/supplier/bank_info/add";
+
+export const customers = apiPrefix + "/customer";

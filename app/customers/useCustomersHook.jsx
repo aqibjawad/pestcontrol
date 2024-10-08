@@ -2,55 +2,31 @@
 
 import { useState, useEffect } from "react";
 import APICall from "@/networkUtil/APICall";
-import { product, getAllEmpoyesUrl, addStock } from "@/networkUtil/Constants";
-
-const getIdFromUrl = (url) => {
-  const parts = url.split("?");
-  if (parts.length > 1) {
-    const queryParams = parts[1].split("&");
-    for (const param of queryParams) {
-      const [key, value] = param.split("=");
-      if (key === "id") {
-        return value;
-      }
-    }
-  }
-  return null;
-};
+import { customers } from "@/networkUtil/Constants";
 
 export const useCustomersHook = () => {
   const api = new APICall();
 
-  const [id, setId] = useState(null);
-
   const [fetchingData, setFetchingData] = useState(false);
   const [brandsList, setBrandsList] = useState(null);
-  const [quantity, setQuantity] = useState("");
   const [sendingData, setSendingData] = useState(false);
-
-  const [employeesList, setEmployeesList] = useState([]);
-  const [employees, setEmployessList] = useState([]);
-  const [allEmployeesList, setAllEmployeesList] = useState([]);
 
   const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
 
+  const [person_name, setPersonName] = useState("");
+  const [contact, setContact] = useState("");
+  const [address, setAddress] = useState("");
+  const [opening_balance, setOpeningBalance] = useState("");
+  const [description, setDescrp] = useState("");
+
   useEffect(() => {
-    // Get the current URL
-    const currentUrl = window.location.href;
-
-    const urlId = getIdFromUrl(currentUrl);
-    setId(urlId);
-
-    if (urlId) {
-      getAllBrands(urlId);
-    }
-    getAllEmployees();
+    getAllCustomers();
   }, []);
 
-  const getAllBrands = async () => {
+  const getAllCustomers = async () => {
     setFetchingData(true);
     try {
-      const response = await api.getDataWithToken(`${product}/${id}`);
+      const response = await api.getDataWithToken(`${customers}`);
       setBrandsList(response.data);
     } catch (error) {
       console.error("Error fetching brands:", error);
@@ -59,58 +35,36 @@ export const useCustomersHook = () => {
     }
   };
 
-  const getAllEmployees = async () => {
-    setFetchingData(true);
-    try {
-      const response = await api.getDataWithToken(
-        `${getAllEmpoyesUrl}/sales_manager/get`
-      );
-      setEmployeesList(response.data);
-      setAllEmployeesList(response.data);
-      const employeeNames = response.data.map((item) => item.name);
-      setEmployessList(employeeNames);
-    } catch (error) {
-      console.error("Error fetching employees:", error);
-    } finally {
-      setFetchingData(false);
-    }
-  };
+  const addCustomer = async () => {
+    if (sendingData || !person_name) return;
 
-  const handleEmployeeChange = (name, index) => {
-    if (allEmployeesList[index] && allEmployeesList[index].id) {
-      const idAtIndex = allEmployeesList[index].id;
-      setSelectedEmployeeId(idAtIndex);
-    } else {
-      console.error("Invalid employee selection");
-      setSelectedEmployeeId("");
-    }
-  };
-
-  const assignStock = async () => {
-    if (sendingData || quantity === "" || selectedEmployeeId === "") return;
+    const customerData = {
+      person_name,
+      contact,
+      address,
+      opening_balance,
+      description,
+    };
 
     setSendingData(true);
     try {
-      const obj = {
-        product_id: id,
-        sales_manager_id: selectedEmployeeId,
-        quantity: quantity,
-      };
       const response = await api.postFormDataWithToken(
-        `${addStock}/stock/assign`,
-        obj
+        `${customers}/create`,
+        customerData
       );
       if (response.status === "success") {
-        alert("Stock has been assigned");
-        setQuantity("");
-        setSelectedEmployeeId("");
-        await getAllBrands();
+        alerts.successAlert("Customer has been added successfully");
+        setPersonName("");
+        setContact("");
+        setAddress("");
+        setOpeningBalance("");
+        setDescrp("");
       } else {
-        alert("Could not assign the stock, please try again");
+        alerts.errorAlert("Failed to add customer. Please try again.");
       }
     } catch (error) {
-      console.error("Error assigning stock:", error);
-      alert("An error occurred while assigning the stock");
+      console.error("Error adding customer:", error);
+      alerts.errorAlert("An error occurred while adding the customer.");
     } finally {
       setSendingData(false);
     }
@@ -119,14 +73,21 @@ export const useCustomersHook = () => {
   return {
     fetchingData,
     brandsList,
-    employeesList,
-    quantity,
-    employees,
-    setQuantity,
+
+    person_name,
+    setPersonName,
+    contact,
+    setContact,
+    address,
+    setAddress,
+    opening_balance,
+    setOpeningBalance,
+    description,
+    setDescrp,
+
     sendingData,
-    assignStock,
+    addCustomer,
     setSelectedEmployeeId,
-    handleEmployeeChange,
   };
 };
 
