@@ -114,6 +114,12 @@ const Page = () => {
             <Link href="/customers">Add Customer</Link>
           </div>
         </Grid>
+
+        <Grid item xs={12} sm={6} md={4} lg={3}>
+          <div className={styles.addProd}>
+            <Link href="/addCustomerLedger">Add Customer Ledger</Link>
+          </div>
+        </Grid>
       </Grid>
 
       <div className={styles.border}></div>
@@ -188,6 +194,12 @@ const Page = () => {
         <Grid className="mt-5" item xs={12} sm={6} md={4} lg={3}>
           <div className={styles.addProd}>
             <Link href="/operations/viewEmployees">View Emloyees</Link>
+          </div>
+        </Grid>
+
+        <Grid className="mt-5" item xs={12} sm={6} md={4} lg={3}>
+          <div className={styles.addProd}>
+            <Link href="/allCustomers">View Customers</Link>
           </div>
         </Grid>
       </Grid>
