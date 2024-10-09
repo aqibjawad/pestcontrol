@@ -14,7 +14,6 @@ import GreenButton from "@/components/generic/GreenButton";
 
 import { useRouter } from "next/navigation";
 
-import { CircularProgress } from "@mui/material";
 
 const Page = () => {
   const api = new APICall();

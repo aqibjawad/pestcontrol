@@ -3,19 +3,26 @@ import React, { useState, useEffect } from "react";
 import styles from "../styles/upcomingJobsStyles.module.css";
 import SearchInput from "../components/generic/SearchInput";
 import GreenButton from "../components/generic/GreenButton";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 const UpcomingJobs = ({ jobsList }) => {
+  const pathname = usePathname();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredJobs, setFilteredJobs] = useState(jobsList);
+  const [filteredJobs, setFilteredJobs] = useState([]);
+
+  // Check if we're on the dashboard route
+  const isDashboard = pathname.includes("/superadmin/dashboard");
 
   useEffect(() => {
     const filtered = jobsList.filter((job) =>
       job?.user?.name?.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    setFilteredJobs(filtered);
-  }, [searchTerm, jobsList]);
+
+    // If on dashboard, only show first 10 items
+    const limitedJobs = isDashboard ? filtered.slice(0, 10) : filtered;
+    setFilteredJobs(limitedJobs);
+  }, [searchTerm, jobsList, isDashboard]);
 
   const assignedJob = () => {
     router.push("/operations/assignJob");
@@ -89,12 +96,14 @@ const UpcomingJobs = ({ jobsList }) => {
   return (
     <div>
       <div className={styles.parentContainer}>
-        <div className="flex">
-          <div className="flex-grow">
-            <div className="pageTitle">Upcoming Jobs</div>
-          </div>
+        <div className="flex justify-between items-center mb-4">
+          {!isDashboard && (
+            <div className="flex-grow">
+              <div className="pageTitle">Upcoming Jobs</div>
+            </div>
+          )}
           <div className="flex">
-            <div className="mr-5">
+            <div className={isDashboard ? "" : "mr-5"}>
               <SearchInput onSearch={handleSearch} />
             </div>
           </div>
