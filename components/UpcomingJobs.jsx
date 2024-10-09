@@ -15,7 +15,7 @@ const UpcomingJobs = ({ jobsList }) => {
   const isDashboard = pathname.includes("/superadmin/dashboard");
 
   useEffect(() => {
-    const filtered = jobsList.filter((job) =>
+    const filtered = jobsList?.filter((job) =>
       job?.user?.name?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
