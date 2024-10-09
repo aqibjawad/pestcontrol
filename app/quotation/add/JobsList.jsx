@@ -305,7 +305,7 @@ const JobsList = ({
                 type="text"
                 name="generatedDatesCount"
                 placeholder="Generated Jobs"
-                value={allGeneratedDates.length || 0}
+                value={selectedDates.length * duration_in_months}
                 readOnly={true}
               />
             </Grid>

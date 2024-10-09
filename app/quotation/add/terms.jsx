@@ -5,13 +5,30 @@ import APICall from "@/networkUtil/APICall";
 import { termsCond } from "../../../networkUtil/Constants";
 import Dropdown2 from "@/components/generic/Dropdown2";
 
-const TermsConditions = ({ setFormData }) => {
+const TermsConditions = ({ formData, setFormData }) => {
+
+  // console.log("form darta",formData);
+  
   const api = new APICall();
   const [brands, setBrandList] = useState([]);
+  const [selectedBrand, setSelectedBrand] = useState();  
 
   useEffect(() => {
     getAllClients();
   }, []);
+
+  useEffect(() => {
+    console.log("jslkdfjk", formData.term_and_condition_id)
+    if (brands.length > 0 && formData.term_and_condition_id) {
+      const matchingBrand = brands.find(
+        (brand) => brand.value === formData.term_and_condition_id
+      );
+
+      if (matchingBrand) {
+        setSelectedBrand(matchingBrand);
+      }
+    }
+  }, [brands.length, formData.term_and_condition_id]);
 
   const getAllClients = async () => {
     try {
@@ -26,11 +43,12 @@ const TermsConditions = ({ setFormData }) => {
     }
   };
 
-  const handleBrandChange = (value) => {
-    if (value) {
+  const handleBrandChange = (selectedOption) => {
+    if (selectedOption) {
+      setSelectedBrand(selectedOption);
       setFormData((prev) => ({
         ...prev,
-        term_and_condition_id: String(value),
+        term_and_condition_id: String(selectedOption.value),
       }));
     }
   };
@@ -41,6 +59,7 @@ const TermsConditions = ({ setFormData }) => {
         title={"Select Terms and Conditions"}
         options={brands}
         onChange={handleBrandChange}
+        value={selectedBrand}
       />
     </div>
   );

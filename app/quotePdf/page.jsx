@@ -13,7 +13,7 @@ import Invoice from "./invoices";
 import ContractSummary from "./contract";
 import Terms from "./terms";
 import Treatment from "./methods";
-import QuoteServiceDates from "./QuoteServiceDates"
+import QuoteServiceDates from "./QuoteServiceDates";
 
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
@@ -30,18 +30,15 @@ const getIdFromUrl = (url) => {
 };
 
 const Page = () => {
-
   const api = new APICall();
-  
-  const [id, setId] = useState(null); 
-  
 
+  const [id, setId] = useState(null);
   const router = useRouter();
-
   const [fetchingData, setFetchingData] = useState(false);
   const [quoteList, setQuoteList] = useState(null);
   const [isApproved, setIsApproved] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(true);
+  const [isApproving, setIsApproving] = useState(false); // Add isApproving state
 
   useEffect(() => {
     // Get the current URL
@@ -51,22 +48,18 @@ const Page = () => {
     setId(urlId);
   }, []);
 
-  useEffect(()=>{
-
-    if (id !== undefined && id !== null){
-        getAllQuotes(id);
-      
+  useEffect(() => {
+    if (id !== undefined && id !== null) {
+      getAllQuotes(id);
     }
-  },[id]);
-  
+  }, [id]);
+
   const getAllQuotes = async () => {
     setFetchingData(true);
-
     console.log(`${quotation}/${id}`);
     try {
       const response = await api.getDataWithToken(`${quotation}/${id}`);
       setQuoteList(response.data);
-      // Check if the quote is contracted on data fetch
       if (response.data.type === "contracted") {
         setIsApproved(true);
       }
@@ -74,24 +67,27 @@ const Page = () => {
       console.error("Error fetching quotes:", error);
     } finally {
       setFetchingData(false);
-      setLoadingDetails(false); // Set loadingDetails to false after fetching
+      setLoadingDetails(false);
     }
   };
 
   const handleSubmit = async () => {
+    setIsApproving(true); // Start loader on click
     try {
       const response = await api.getDataWithToken(
         `${quotation}/move/contract/${id}`
       );
       router.push("/viewQuote");
-      setIsApproved(true); // Update approval status after submission
+      setIsApproved(true);
     } catch (error) {
       console.error("Error sending data:", error);
+    } finally {
+      setIsApproving(false); // Stop loader after completion
     }
   };
 
   const handleEditQuote = () => {
-    router.push(`/quotation?id=${id}`); // Navigate to the edit route with id
+    router.push(`/quotation?id=${id}`);
   };
 
   const handlePrint = () => {
@@ -107,10 +103,10 @@ const Page = () => {
         <Skeleton variant="text" width="60%" />
         <Skeleton variant="text" />
       </div>
-    ); // Show Skeletons while loading
+    );
   }
 
-  if (!quoteList) return <div>No data available</div>; // Handle no data case
+  if (!quoteList) return <div>No data available</div>;
 
   return (
     <div>
@@ -132,7 +128,7 @@ const Page = () => {
               <div>
                 <div className={styles.heading}>
                   {isApproved ? "Contracted" : "Quotes"}
-                </div> 
+                </div>
               </div>
             </div>
           </Grid>
@@ -200,7 +196,11 @@ const Page = () => {
                   onClick={handleSubmit}
                   className={styles.approveDiv}
                 >
-                  Approve
+                  {isApproving ? (
+                    <div>Loading...</div> // Show loading text when approving
+                  ) : (
+                    "Approve"
+                  )}
                 </div>
               )}
 

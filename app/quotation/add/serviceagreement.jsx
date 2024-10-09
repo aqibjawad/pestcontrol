@@ -6,6 +6,10 @@ import ContractSummary from "./contract";
 import { Button } from "@mui/material";
 
 const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
+
+  console.log("line 10000",formData.quote_services);
+  
+
   const api = new APICall();
   const [allServices, setAllServices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -51,6 +55,16 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
     const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
+
+  useEffect(() => {
+    if(formData.quote_services){
+      setFormData((prev) => {
+        const prevServices = prev?.services || []
+        const newServices = [...formData.quote_services,...prevServices];
+        return { ...prev, services: newServices };
+      })
+    }
+  }, [formData.quote_services]);  
 
   const addJobList = () => {
     // Create a default job using the selected services
@@ -184,7 +198,7 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
               Remove
             </Button>
           </div>
-        ))}
+        ))} 
       </div>
 
       <div className="flex">
