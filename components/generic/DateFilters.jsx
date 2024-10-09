@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Popover from "@mui/material/Popover";
-import Button from "@mui/material/Button";
+import PropTypes from "prop-types";
 import styles from "../../styles/dateFilter.module.css";
 
 const DateFilters = ({ onOptionChange, onDateChange }) => {
@@ -12,21 +12,58 @@ const DateFilters = ({ onOptionChange, onDateChange }) => {
 
   const handleOptionClick = (option) => {
     setSelectedOption(option);
+    let start, end;
+
+    switch (option) {
+      case "today":
+        start = end = new Date().toISOString().split("T")[0];
+        break;
+      case "This Month":
+        start = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+          .toISOString()
+          .split("T")[0];
+        end = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
+          .toISOString()
+          .split("T")[0];
+        break;
+      case "This Year":
+        start = new Date(new Date().getFullYear(), 0, 1)
+          .toISOString()
+          .split("T")[0];
+        end = new Date(new Date().getFullYear(), 11, 31)
+          .toISOString()
+          .split("T")[0];
+        break;
+      case "dateRange":
+        // Don't set dates here, let the user pick them
+        break;
+      default:
+        console.error("Unknown option selected");
+        return;
+    }
+
+    setStartDate(start);
+    setEndDate(end);
+    setTitle(option);
 
     if (option !== "dateRange") {
-      setStartDate(null);
-      setEndDate(null);
       handleClose();
-      onOptionChange(option, null, null);
+      if (typeof onDateChange === "function") {
+        onDateChange(start, end);
+      } else {
+        console.error("onDateChange is not a function");
+      }
     }
-    setTitle(option);
   };
-
   const handleStartDateChange = (event) => {
     const date = event.target.value;
     setStartDate(date);
     if (startDate !== undefined || endDate !== undefined) {
-      onDateChange(startDate, endDate);
+      if (typeof onDateChange === "function") {
+        onDateChange(startDate, endDate);
+      } else {
+        console.error("onDateChange is not a function");
+      }
     }
   };
 
@@ -35,7 +72,11 @@ const DateFilters = ({ onOptionChange, onDateChange }) => {
     setEndDate(date);
     if (startDate !== undefined || endDate !== undefined) {
       setTitle(formatDate(startDate) + " - " + formatDate(endDate));
-      onDateChange(startDate, endDate);
+      if (typeof onDateChange === "function") {
+        onDateChange(startDate, endDate);
+      } else {
+        console.error("onDateChange is not a function");
+      }
     }
   };
 
@@ -49,25 +90,24 @@ const DateFilters = ({ onOptionChange, onDateChange }) => {
 
   const open = Boolean(anchorEl);
   const id = open ? "date-filters-popover" : undefined;
+
   const formatDate = (dateString) => {
+    if (!dateString) return "";
     const date = new Date(dateString);
     const options = { month: "long", year: "numeric", day: "2-digit" };
     return date.toLocaleDateString("en-GB", options);
   };
+
   return (
     <div>
-      <Button
+      <button
+        className={styles.datePicker}
         aria-describedby={id}
         variant="outlined"
         onClick={handleClick}
-        style={{
-          color: "#fff",
-          borderColor: "#f3f3f3",
-          backgroundColor: "#32a92e",
-        }}
       >
         {title}
-      </Button>
+      </button>
       <Popover
         id={id}
         open={open}
@@ -101,7 +141,6 @@ const DateFilters = ({ onOptionChange, onDateChange }) => {
           <div>
             <div
               className={styles.dateItem}
-              variant="outlined"
               style={{ border: "none" }}
               onClick={() => handleOptionClick("This Month")}
             >
@@ -111,30 +150,48 @@ const DateFilters = ({ onOptionChange, onDateChange }) => {
           <div>
             <div
               className={styles.dateItem}
-              variant="outlined"
               style={{ border: "none" }}
               onClick={() => handleOptionClick("This Year")}
             >
               This Year
             </div>
           </div>
-          <div className={styles.dateItem}>Date Range</div>
-          <div className={styles.dateItem}>
-            <input
-              type="date"
-              value={startDate || ""}
-              onChange={handleStartDateChange}
-            />
-            <input
-              type="date"
-              value={endDate || ""}
-              onChange={handleEndDateChange}
-            />
+          <div
+            className={styles.dateItem}
+            onClick={() => handleOptionClick("dateRange")}
+          >
+            Date Range
           </div>
+          {selectedOption === "dateRange" && (
+            <div className={styles.dateItem}>
+              <input
+                type="date"
+                value={startDate || ""}
+                onChange={handleStartDateChange}
+              />
+              <input
+                type="date"
+                value={endDate || ""}
+                onChange={handleEndDateChange}
+              />
+            </div>
+          )}
         </div>
       </Popover>
     </div>
   );
+};
+
+// Define prop types for DateFilters
+DateFilters.propTypes = {
+  onOptionChange: PropTypes.func.isRequired,
+  onDateChange: PropTypes.func.isRequired,
+};
+
+// Default props if necessary
+DateFilters.defaultProps = {
+  onOptionChange: () => {},
+  onDateChange: () => {},
 };
 
 export default DateFilters;

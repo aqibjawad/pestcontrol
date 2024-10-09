@@ -9,19 +9,44 @@ import { purchaseOrder } from "@/networkUtil/Constants";
 import Skeleton from "@mui/material/Skeleton";
 import Stack from "@mui/material/Stack";
 
+import { format } from "date-fns";
+
+import DateFilters from "../../../components/generic/DateFilters"
+
 const PrchaseOrder = () => {
   const api = new APICall();
   const [fetchingData, setFetchingData] = useState(false);
   const [expenseList, setExpenseList] = useState([]);
 
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+
+  const handleDateChange = (start, end) => {
+    setStartDate(start);
+    setEndDate(end);
+  };
+
   useEffect(() => {
     getAllExpenses();
-  }, []);
+  }, [startDate, endDate]);
 
   const getAllExpenses = async () => {
     setFetchingData(true);
+    const queryParams = [];
+
+    if (startDate && endDate) {
+      queryParams.push(`start_date=${startDate}`);
+      queryParams.push(`end_date=${endDate}`);
+    } else {
+      const currentDate = format(new Date(), "yyyy-MM-dd");
+      queryParams.push(`start_date=${currentDate}`);
+      queryParams.push(`end_date=${currentDate}`);
+    }
+
     try {
-      const response = await api.getDataWithToken(`${purchaseOrder}`);
+      const response = await api.getDataWithToken(
+        `${purchaseOrder}?${queryParams.join("&")}`
+      );
       setExpenseList(response.data);
     } catch (error) {
       console.error("Error fetching vehicles:", error);
@@ -137,16 +162,13 @@ const PrchaseOrder = () => {
             className="flex"
             style={{ display: "flex", alignItems: "center" }}
           >
-            <div style={{ marginTop: "2rem", marginRight: "2rem" }}>
-              <SearchInput />
-            </div>
             <div
               style={{
                 marginTop: "2rem",
                 border: "1px solid #38A73B",
                 borderRadius: "8px",
                 height: "40px",
-                width: "100px",
+                width: "150px",
                 alignItems: "center",
                 display: "flex",
               }}
@@ -157,58 +179,9 @@ const PrchaseOrder = () => {
                 width={20}
                 className="ml-2 mr-2"
               />
-              Filters
-            </div>
-          </div>
-        </div>
-
-        <div className="flex">
-          <div className="flex-grow"></div>
-          <div
-            className="flex"
-            style={{ display: "flex", alignItems: "center" }}
-          >
-            <div
-              style={{
-                marginTop: "2rem",
-                backgroundColor: "#32A92E",
-                color: "white",
-                fontWeight: "600",
-                fontSize: "16px",
-                height: "44px",
-                width: "202px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                marginLeft: "1rem",
-                padding: "12px, 16px, 12px, 16px",
-                borderRadius: "10px",
-              }}
-            >
-              Download all
+              <DateFilters onDateChange={handleDateChange} />
             </div>
 
-            <div
-              style={{
-                marginTop: "2rem",
-                backgroundColor: "black",
-                color: "white",
-                fontWeight: "600",
-                fontSize: "16px",
-                marginLeft: "auto",
-                marginRight: "auto",
-                height: "44px",
-                width: "60px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                marginLeft: "1rem",
-                cursor: "pointer",
-                borderRadius: "10px",
-              }}
-            >
-              <Link href="/">Add</Link>
-            </div>
           </div>
         </div>
       </div>
