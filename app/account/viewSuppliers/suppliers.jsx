@@ -2,8 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
-import SearchInput from "@/components/generic/SearchInput";
-import styles from "../../../styles/loginStyles.module.css";
 import { getAllSuppliers } from "@/networkUtil/Constants";
 import Link from "next/link";
 import APICall from "@/networkUtil/APICall";
@@ -11,8 +9,12 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { Skeleton } from "@mui/material"; // Import Skeleton
 
+import DateFilters from "../../../components/generic/DateFilters";
+import { format } from "date-fns";
+
 // Generate PDF function
 const generatePDF = async () => {
+
   const input = document.getElementById("supplierTable");
   if (!input) return;
 
@@ -81,7 +83,9 @@ const listTable = (data) => {
                     row.id
                   }&supplier_name=${encodeURIComponent(
                     row.supplier_name
-                  )}&company_name=${encodeURIComponent(row.company_name)}&number=${encodeURIComponent(row.number)}`}
+                  )}&company_name=${encodeURIComponent(
+                    row.company_name
+                  )}&number=${encodeURIComponent(row.number)}`}
                 >
                   <span className="text-blue-600 hover:text-blue-800">
                     View Details
@@ -97,18 +101,42 @@ const listTable = (data) => {
 };
 
 const ViewSuppliers = () => {
+  
   const api = new APICall();
+
   const [fetchingData, setFetchingData] = useState(false);
   const [supplierList, setSupplierList] = useState([]);
 
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+
+  const handleDateChange = (start, end) => {
+    setStartDate(start);
+    setEndDate(end);
+  };
+
+
   useEffect(() => {
     getAllSuppliere();
-  }, []);
+  }, [startDate, endDate]);
 
   const getAllSuppliere = async () => {
     setFetchingData(true);
+
+    const queryParams = [];
+
+    if (startDate && endDate) {
+      queryParams.push(`start_date=${startDate}`);
+      queryParams.push(`end_date=${endDate}`);
+    } else {
+      const currentDate = format(new Date(), "yyyy-MM-dd");
+      queryParams.push(`start_date=${currentDate}`);
+      queryParams.push(`end_date=${currentDate}`);
+    }
+
+
     try {
-      const response = await api.getDataWithToken(`${getAllSuppliers}`);
+      const response = await api.getDataWithToken(`${getAllSuppliers}?${queryParams.join("&")}`);
       setSupplierList(response.data);
     } catch (error) {
       console.error("Error fetching suppliers:", error);
@@ -135,37 +163,6 @@ const ViewSuppliers = () => {
             className="flex"
             style={{ display: "flex", alignItems: "center" }}
           >
-            <div style={{ marginTop: "2rem", marginRight: "2rem" }}>
-              <SearchInput />
-            </div>
-            <div
-              style={{
-                marginTop: "2rem",
-                border: "1px solid #38A73B",
-                borderRadius: "8px",
-                height: "40px",
-                width: "100px",
-                alignItems: "center",
-                display: "flex",
-              }}
-            >
-              <img
-                src="/Filters lines.svg"
-                height={20}
-                width={20}
-                className="ml-2 mr-2"
-              />
-              Filters
-            </div>
-          </div>
-        </div>
-
-        <div className="flex">
-          <div className="flex-grow"></div>
-          <div
-            className="flex"
-            style={{ display: "flex", alignItems: "center" }}
-          >
             <div
               onClick={generatePDF}
               style={{
@@ -175,7 +172,7 @@ const ViewSuppliers = () => {
                 fontWeight: "600",
                 fontSize: "16px",
                 height: "44px",
-                width: "202px",
+                width: "180px",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
@@ -189,22 +186,22 @@ const ViewSuppliers = () => {
             <div
               style={{
                 marginTop: "2rem",
-                backgroundColor: "black",
-                color: "white",
-                fontWeight: "600",
-                fontSize: "16px",
-                marginLeft: "auto",
-                height: "44px",
-                width: "60px",
-                display: "flex",
-                justifyContent: "center",
+                border: "1px solid #38A73B",
+                borderRadius: "8px",
+                height: "40px",
+                width: "150px",
                 alignItems: "center",
-                marginLeft: "1rem",
-                cursor: "pointer",
-                borderRadius: "10px",
+                display: "flex",
+                marginLeft:"2rem"
               }}
             >
-              <Link href="/account/addSuppliers">Add</Link>
+              <img
+                src="/Filters lines.svg"
+                height={20}
+                width={20}
+                className="ml-2 mr-2"
+              />
+              <DateFilters onDateChange={handleDateChange} />
             </div>
           </div>
         </div>
