@@ -20,7 +20,7 @@ const UpcomingJobs = ({ jobsList }) => {
     );
 
     // If on dashboard, only show first 10 items
-    const limitedJobs = isDashboard ? filtered.slice(0, 10) : filtered;
+    const limitedJobs = isDashboard ? filtered?.slice(0, 10) : filtered;
     setFilteredJobs(limitedJobs);
   }, [searchTerm, jobsList, isDashboard]);
 

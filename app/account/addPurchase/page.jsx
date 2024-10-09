@@ -138,6 +138,7 @@ const Page = () => {
       delivery_date,
       private_note,
       dis_per: "0",
+      invoice_no,
       purchase_invoice,
       product_id: rows.map((row) => row.product_id),
       quantity: rows.map((row) => row.quantity),

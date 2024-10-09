@@ -63,7 +63,7 @@ const Page = () => {
                 </TableCell>
               </TableRow>
             ) : (
-              quoteList.map((row, index) => (
+              quoteList?.map((row, index) => (
                 <TableRow key={index}>
                   <TableCell>{row?.user?.name}</TableCell>
                   <TableCell>{row.job_date}</TableCell>
