@@ -17,20 +17,43 @@ import { saleOrder } from "@/networkUtil/Constants";
 
 import Link from "next/link";
 
+import DateFilters from "../../../components/generic/DateFilters";
+import { format } from "date-fns";
+
 const Page = () => {
   const api = new APICall();
 
   const [fetchingData, setFetchingData] = useState(false);
   const [quoteList, setQuoteList] = useState([]);
 
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+
+  const handleDateChange = (start, end) => {
+    setStartDate(start);
+    setEndDate(end);
+  };
+
   useEffect(() => {
     getAllQuotes();
-  }, []);
+  }, [startDate, endDate]);
 
   const getAllQuotes = async () => {
     setFetchingData(true);
+
+    const queryParams = [];
+
+    if (startDate && endDate) {
+      queryParams.push(`start_date=${startDate}`);
+      queryParams.push(`end_date=${endDate}`);
+    } else {
+      const currentDate = format(new Date(), "yyyy-MM-dd");
+      queryParams.push(`start_date=${currentDate}`);
+      queryParams.push(`end_date=${currentDate}`);
+    }
+
     try {
-      const response = await api.getDataWithToken(`${saleOrder}`);
+      const response = await api.getDataWithToken(`${saleOrder}?${queryParams.join("&")}`);
       setQuoteList(response.data);
     } catch (error) {
       console.error("Error fetching quotes:", error);
@@ -79,7 +102,7 @@ const Page = () => {
       </TableContainer>
     );
   };
-
+ 
   return (
     <div>
       <div style={{ padding: "30px", borderRadius: "10px" }}>
@@ -111,7 +134,7 @@ const Page = () => {
               borderRadius: "10px",
             }}
           >
-            Date
+            <DateFilters onDateChange={handleDateChange} />
           </div>
         </div>
       </div>
