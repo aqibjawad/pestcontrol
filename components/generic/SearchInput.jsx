@@ -1,6 +1,11 @@
 import React from "react";
 import styles from "../../styles/generics/serachInputStyles.module.css";
-const SearchInput = () => {
+
+const SearchInput = ({ onSearch }) => {
+  const handleChange = (e) => {
+    onSearch(e.target.value);
+  };
+
   return (
     <div className={styles.parent}>
       <img
@@ -8,8 +13,14 @@ const SearchInput = () => {
         height={20}
         width={20}
         className="ml-2 mr-2"
+        alt="Search"
       />
-      <input className={styles.inputBox} type="text" placeholder="Search" />
+      <input
+        className={styles.inputBox}
+        type="text"
+        placeholder="Search"
+        onChange={handleChange}
+      />
     </div>
   );
 };

@@ -1,14 +1,14 @@
-import * as React from "react";
-import Box from "@mui/material/Box";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
+import React, { useState, useEffect } from "react";
+import { Box, InputLabel, MenuItem, FormControl, Select } from "@mui/material";
 
-import styles from "../../styles/generics/inputStyles.module.css";
+export default function Dropdown2({ title, options, onChange, preSelected }) {
+  const [selectedValue, setSelectedValue] = useState("");
 
-export default function Dropdown2({ title, options, onChange }) {
-  const [selectedValue, setSelectedValue] = React.useState("");
+  useEffect(() => {
+    if (preSelected) {
+      setSelectedValue(preSelected);
+    }
+  }, [preSelected]);
 
   const handleChange = (event) => {
     const value = event.target.value;
@@ -18,7 +18,7 @@ export default function Dropdown2({ title, options, onChange }) {
 
   return (
     <Box sx={{ minWidth: 250 }}>
-      <div className={styles.title}>{title}</div>
+      <div className="title">{title}</div>
       <div className="mb-2"></div>
       <FormControl fullWidth>
         <InputLabel id="demo-simple-select-label">{title}</InputLabel>
@@ -30,8 +30,8 @@ export default function Dropdown2({ title, options, onChange }) {
           onChange={handleChange}
         >
           {options.map((item, index) => (
-            <MenuItem key={index} value={item.value}>
-              {item.label}
+            <MenuItem key={index} value={item}>
+              {item}
             </MenuItem>
           ))}
         </Select>

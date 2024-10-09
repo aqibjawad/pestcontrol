@@ -2,7 +2,8 @@
 import React, { useState } from "react";
 import styles from "../../../styles/superAdmin/dashboard.module.css";
 import Operations from "../dashboard/components/Operations";
-import UpcomingJobs from "../../../components/UpcomingJobs";
+// import UpcomingJobs from "../../../components/UpcomingJobs";
+import AllJobs from "../../allJobs/page"
 import Vendors from "../../allVendors/page";
 import Quotation from "../../viewQuote/page"
 import Contracts from "../../../components/Contracts";
@@ -51,7 +52,7 @@ const Index = () => {
         <div className="col-span-12 md:col-span-9">
           <div className={selectedIndex === 0 ? `block` : "hidden"}>
             <Operations />
-            <UpcomingJobs />
+            <AllJobs />
             <Vendors />
             <Quotation />
             <Contracts />
