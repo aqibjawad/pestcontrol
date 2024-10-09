@@ -2,29 +2,48 @@
 
 import React, { useEffect, useState } from "react";
 import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
-import SearchInput from "@/components/generic/SearchInput";
-import styles from "../../../styles/loginStyles.module.css";
 import { product } from "@/networkUtil/Constants";
-import Loading from "../../../components/generic/Loading";
 import APICall from "@/networkUtil/APICall";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@mui/material";
 
+import { format } from "date-fns";
+
+import DateFilters from "../../../components/generic/DateFilters";
+
 const Page = () => {
+
   const apiCall = new APICall();
   const router = new useRouter();
   const [fetchingData, setFetchingData] = useState(true);
   const [suppliersList, setSuppliersList] = useState([]);
 
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+
   useEffect(() => {
     getSuppliers();
-  }, []);
+  }, [startDate, endDate]);
 
   const getSuppliers = async () => {
     setFetchingData(true);
+
+    const queryParams = [];
+
+    if (startDate && endDate) {
+      queryParams.push(`start_date=${startDate}`);
+      queryParams.push(`end_date=${endDate}`);
+    } else {
+      const currentDate = format(new Date(), "yyyy-MM-dd");
+      queryParams.push(`start_date=${currentDate}`);
+      queryParams.push(`end_date=${currentDate}`);
+    }
+
     try {
-      const response = await apiCall.getDataWithToken(product);
+      const response = await apiCall.getDataWithToken(
+        `${product}?${queryParams.join("&")}`
+      );
       setSuppliersList(response.data);
     } catch (error) {
       console.error("Error fetching suppliers:", error);
@@ -32,6 +51,11 @@ const Page = () => {
     } finally {
       setFetchingData(false);
     }
+  };
+
+  const handleDateChange = (start, end) => {
+    setStartDate(start);
+    setEndDate(end);
   };
 
   const ListTable = () => {
@@ -144,28 +168,6 @@ const Page = () => {
             className="flex"
             style={{ display: "flex", alignItems: "center" }}
           >
-            <div style={{ marginTop: "2rem", marginRight: "2rem" }}>
-              <SearchInput />
-            </div>
-            <div
-              style={{
-                marginTop: "2rem",
-                border: "1px solid #38A73B",
-                borderRadius: "8px",
-                height: "40px",
-                width: "100px",
-                alignItems: "center",
-                display: "flex",
-              }}
-            >
-              <img
-                src="/Filters lines.svg"
-                height={20}
-                width={20}
-                className="ml-2 mr-2"
-              />
-              Filters
-            </div>
             <div
               style={{
                 marginTop: "2rem",
@@ -184,34 +186,8 @@ const Page = () => {
                 cursor: "pointer",
               }}
             >
-              Date
+              <DateFilters onDateChange={handleDateChange} />
             </div>
-          </div>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            marginTop: "2rem",
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "#32A92E",
-              color: "white",
-              fontWeight: "600",
-              fontSize: "16px",
-              height: "44px",
-              width: "202px",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              marginLeft: "1rem",
-              padding: "12px, 16px, 12px, 16px",
-              borderRadius: "10px",
-            }}
-          >
-            Download all
           </div>
         </div>
       </div>
