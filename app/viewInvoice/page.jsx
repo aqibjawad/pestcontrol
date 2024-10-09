@@ -11,11 +11,13 @@ import {
   Paper,
   CircularProgress,
 } from "@mui/material";
-import SearchInput from "@/components/generic/SearchInput";
 import APICall from "@/networkUtil/APICall";
 import { serviceInvoice } from "@/networkUtil/Constants";
 
 import Link from "next/link";
+
+import DateFilters from "../../components/generic/DateFilters";
+import { format } from "date-fns";
 
 const Page = () => {
   const api = new APICall();
@@ -23,14 +25,36 @@ const Page = () => {
   const [fetchingData, setFetchingData] = useState(false);
   const [invoiceList, setInvoiceList] = useState([]);
 
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+
+  const handleDateChange = (start, end) => {
+    setStartDate(start);
+    setEndDate(end);
+  };
+
   useEffect(() => {
     getAllQuotes();
-  }, []);
+  }, [startDate, endDate]);
 
   const getAllQuotes = async () => {
     setFetchingData(true);
+
+    const queryParams = [];
+
+    if (startDate && endDate) {
+      queryParams.push(`start_date=${startDate}`);
+      queryParams.push(`end_date=${endDate}`);
+    } else {
+      const currentDate = format(new Date(), "yyyy-MM-dd");
+      queryParams.push(`start_date=${currentDate}`);
+      queryParams.push(`end_date=${currentDate}`);
+    }
+
     try {
-      const response = await api.getDataWithToken(`${serviceInvoice}`);
+      const response = await api.getDataWithToken(
+        `${serviceInvoice}?${queryParams.join("&")}`
+      );
       setInvoiceList(response.data);
     } catch (error) {
       console.error("Error fetching quotes:", error);
@@ -98,30 +122,32 @@ const Page = () => {
         >
           Invoices
         </div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            marginTop: "2rem",
-          }}
-        >
+        <div className="flex">
+          <div className="flex-grow"></div>
           <div
-            style={{
-              backgroundColor: "#32A92E",
-              color: "white",
-              fontWeight: "600",
-              fontSize: "16px",
-              height: "44px",
-              width: "202px",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              marginLeft: "1rem",
-              padding: "12px 16px",
-              borderRadius: "10px",
-            }}
+            className="flex"
+            style={{ display: "flex", alignItems: "center" }}
           >
-            Download all
+            <div
+              style={{
+                marginTop: "2rem",
+                border: "1px solid #38A73B",
+                borderRadius: "8px",
+                height: "40px",
+                width: "150px",
+                alignItems: "center",
+                display: "flex",
+                marginLeft: "2rem",
+              }}
+            >
+              <img
+                src="/Filters lines.svg"
+                height={20}
+                width={20}
+                className="ml-2 mr-2"
+              />
+              <DateFilters onDateChange={handleDateChange} />
+            </div>
           </div>
         </div>
       </div>
