@@ -57,7 +57,7 @@ const UpcomingJobs = ({ jobsList }) => {
             </tr>
           </thead>
           <tbody>
-            {filteredJobs.map((row, index) => (
+            {filteredJobs?.map((row, index) => (
               <tr key={index} className="border-b border-gray-200">
                 <td className="py-5 px-4">
                   <div className={styles.clientName}>{row?.user?.name}</div>

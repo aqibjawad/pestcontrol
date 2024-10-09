@@ -56,8 +56,8 @@ const Scheduler = () => {
   };
 
   // Filter jobs by `updated_at` field
-  const filteredJobs = quoteList.filter((job) => {
-    const jobUpdateDate = new Date(job.updated_at); // Convert 'updated_at' string to Date object
+  const filteredJobs = quoteList?.filter((job) => {
+    const jobUpdateDate = new Date(job?.updated_at); // Convert 'updated_at' string to Date object
     return isSameDay(jobUpdateDate, selectedDate); // Compare selected date with job's updated_at
   });
 
