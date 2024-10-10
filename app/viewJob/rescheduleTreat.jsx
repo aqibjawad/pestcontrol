@@ -6,12 +6,10 @@ import { Grid } from "@mui/material";
 import InputWithTitle from "../../components/generic/InputWithTitle";
 import { job } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
-
 import { useRouter } from "next/navigation";
 
 const RescheduleTreatment = ({ jobId, jobList }) => {
   const api = new APICall();
-
   const router = useRouter();
 
   const [job_date, setJobDate] = useState("");
@@ -22,6 +20,12 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
   useEffect(() => {
     setJobStatus(jobList?.is_completed || "0");
   }, [jobList]);
+
+  const refreshPageAfterDelay = () => {
+    setTimeout(() => {
+      window.location.reload();
+    }, 500);
+  };
 
   const handleFormSubmit = async () => {
     if (!job_date || !reason) {
@@ -47,9 +51,7 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
         alert("Rescheduled Job successfully!");
         setJobDate("");
         setReason("");
-        setTimeout(() => {
-          window.location.reload(); // Refresh the page
-        }, 1000); // 1 second delay
+        refreshPageAfterDelay();
       }
     } catch (error) {
       console.error("Error rescheduling treatment:", error);
@@ -68,7 +70,7 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
         );
         if (response.success) {
           alert("Job completed successfully!");
-          setJobStatus("3");
+          refreshPageAfterDelay();
         } else {
           alert(
             response.message || "Failed to complete job. Please try again."
@@ -78,7 +80,7 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
         const response = await api.getDataWithToken(`${job}/start/${jobId}`);
         if (response.success) {
           alert("Job started successfully!");
-          setJobStatus("2");
+          refreshPageAfterDelay();
         } else {
           alert(response.message || "Failed to start job. Please try again.");
         }
