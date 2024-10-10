@@ -157,7 +157,11 @@ const Page = () => {
 
                 <td>
                   <Link
-                    href={`/clientsLedger?id=${row.id}`}
+                    href={`/client/clientLedger/?id=${row.id}&name=${encodeURIComponent(
+                      row.name
+                    )}&phone_number=${encodeURIComponent(
+                      row?.client?.phone_number
+                    )}`}
                   >
                     <span className="text-blue-600 hover:text-blue-800">
                       View Ledger
