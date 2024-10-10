@@ -93,7 +93,7 @@ const Page = () => {
                   <TableCell>{row.status}</TableCell>
                   <TableCell>
                     {" "}
-                    <Link href={`/quotePdf?id=${row.id}`}>
+                    <Link href={`/invoiceDetails?id=${row.id}`}>
                       <span className="text-blue-600 hover:text-blue-800">
                         View Details
                       </span>

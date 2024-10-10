@@ -15,24 +15,17 @@ export default function RootLayout({
 }>) {
   const noLayoutPages = [
     "/serviceReportPdf",
-    "/quotePdf/",
+    "/quotePdf",
     "/account/supplier_ledger",
+    "/invoiceDetails",
   ];
   const pathname = usePathname();
 
   // Extract just the pathname, excluding the query string part
   const cleanedPathname = pathname.split("?")[0];
 
-  // Check if the cleaned pathname is "/" or starts with "/"
-  const isRootPath =
-    cleanedPathname === "/" || cleanedPathname.startsWith("/?");
-
-  // Check if the cleaned pathname is in the noLayoutPages array or is a root path
-  const isNoLayoutPage = noLayoutPages.includes(cleanedPathname) || isRootPath;
-
-  // console.log("Current Pathname:", pathname);
-  // console.log("Cleaned Pathname:", cleanedPathname);
-  // console.log("Is No Layout Page:", noLayoutPages.includes(cleanedPathname))
+  // Check if the cleaned pathname starts with any of the noLayoutPages
+  const isNoLayoutPage = noLayoutPages.some(page => cleanedPathname.startsWith(page));
 
   return (
     <html lang="en">

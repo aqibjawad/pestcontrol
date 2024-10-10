@@ -1,0 +1,24 @@
+.companyName{
+    font-family: "regular";
+    font-weight: 500;
+    font-size: 15px;
+}
+
+.totalAmount{
+    font-family: "regular";
+    font-weight: 800;
+    font-size: 15px;
+    margin-top: 2rem;
+}
+
+.descrp{
+    font-family: "regular";
+    font-weight: 500;
+    font-size: 12px;
+}
+
+.Bankdescrp{
+    font-family: "regular";
+    font-weight: 500;
+    font-size: 10px;
+}
