@@ -6,7 +6,7 @@ import SearchInput from "@/components/generic/SearchInput";
 import {
   Dialog,
   DialogTitle,
-  DialogContent, 
+  DialogContent,
   DialogActions,
   Grid,
   Typography,
@@ -126,6 +126,10 @@ const Page = () => {
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Add Address
               </th>
+
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                View Ledger
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -147,6 +151,16 @@ const Page = () => {
                   >
                     <span className="text-blue-600 hover:text-blue-800">
                       Add Address
+                    </span>
+                  </Link>
+                </td>
+
+                <td>
+                  <Link
+                    href={`/clientsLedger?id=${row.id}`}
+                  >
+                    <span className="text-blue-600 hover:text-blue-800">
+                      View Ledger
                     </span>
                   </Link>
                 </td>

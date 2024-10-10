@@ -146,7 +146,7 @@ const Page = () => {
               <TableCell>Balance</TableCell>
             </TableRow>
           </TableHead>
-          <TableBody>
+          {/* <TableBody>
             {loading
               ? Array.from(new Array(5)).map((_, index) => (
                   <TableRow key={index}>
@@ -167,7 +167,7 @@ const Page = () => {
                     </TableCell>
                   </TableRow>
                 ))
-              : rowData.map((row, index) => (
+              : rowData?.map((row, index) => (
                   <TableRow key={index}>
                     <TableCell>
                       {format(new Date(row.updated_at), "yyyy-MM-dd")}
@@ -178,7 +178,7 @@ const Page = () => {
                     <TableCell>{row.cash_balance}</TableCell>
                   </TableRow>
                 ))}
-          </TableBody>
+          </TableBody> */}
         </Table>
       </TableContainer>
 

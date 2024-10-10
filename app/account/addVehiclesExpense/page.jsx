@@ -50,8 +50,6 @@ const Page = () => {
   
   const [allVehicleNameList, setVehicleNameList] = useState([]);
   const [selectedVehicleId, setSelectedVehicleId] = useState("");
-
-  console.log(selectedVehicleId);
   
 
   const [fetchingData, setFetchingData] = useState(false);

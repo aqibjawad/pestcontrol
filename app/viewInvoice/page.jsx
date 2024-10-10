@@ -31,7 +31,7 @@ const Page = () => {
   const handleDateChange = (start, end) => {
     setStartDate(start);
     setEndDate(end);
-  };
+  }; 
 
   useEffect(() => {
     getAllQuotes();
@@ -72,6 +72,7 @@ const Page = () => {
               <TableCell>Customer</TableCell>
               <TableCell>Invoice Issue Date</TableCell>
               <TableCell>Total Amount</TableCell>
+              <TableCell>Service Invoice Status</TableCell>
               <TableCell>Actions</TableCell>
               <TableCell>Add Payment</TableCell>
             </TableRow>
@@ -89,6 +90,7 @@ const Page = () => {
                   <TableCell>{row?.user?.name}</TableCell>
                   <TableCell>{row.issued_date}</TableCell>
                   <TableCell>{row.total_amt}</TableCell>
+                  <TableCell>{row.status}</TableCell>
                   <TableCell>
                     {" "}
                     <Link href={`/quotePdf?id=${row.id}`}>
@@ -99,7 +101,7 @@ const Page = () => {
                   </TableCell>
                   <TableCell>
                     {" "}
-                    <Link href={`/servicePayment?id=${row.id}`}>
+                    <Link href={`/serviceInvoices/add?id=${row.id}`}>
                       <span className="text-blue-600 hover:text-blue-800">
                         Add Payments
                       </span>
