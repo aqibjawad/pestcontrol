@@ -130,10 +130,14 @@ const Page = () => {
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 View Ledger
               </th>
+
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Add Payment
+              </th>
             </tr>
           </thead>
           <tbody>
-            {allClientsList.map((row, index) => (
+            {allClientsList?.map((row, index) => (
               <tr key={index} className="border-b border-gray-200">
                 <td className="py-5 px-4">{row.name}</td>
                 <td className="py-2 px-4">{row?.client?.phone_number}</td>
@@ -165,6 +169,16 @@ const Page = () => {
                   >
                     <span className="text-blue-600 hover:text-blue-800">
                       View Ledger
+                    </span>
+                  </Link>
+                </td>
+
+                <td>
+                  <Link
+                    href={`/serviceInvoices/add?id=${row.id}`}
+                  >
+                    <span className="text-blue-600 hover:text-blue-800">
+                      Add Payment
                     </span>
                   </Link>
                 </td>

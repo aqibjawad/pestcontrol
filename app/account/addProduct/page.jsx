@@ -14,6 +14,7 @@ import GreenButton from "@/components/generic/GreenButton";
 
 import { useRouter } from "next/navigation";
 
+import CircularProgress from "@mui/material/CircularProgress";
 
 const Page = () => {
   const api = new APICall();
@@ -70,7 +71,7 @@ const Page = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    // if (!validateForm()) return;
 
     setLoadingSubmit(true);
 
@@ -121,30 +122,30 @@ const Page = () => {
     // }
   };
 
-  const validateForm = () => {
-    const requiredFields = [
-      product_name,
-      batch_number,
-      selectedBrandId,
-      mfg_date,
-      exp_date,
-      active_ingredients,
-      product_type,
-      unit,
-      per_item_qty,
-      price,
-    ];
+  // const validateForm = () => {
+  //   const requiredFields = [
+  //     product_name,
+  //     batch_number,
+  //     selectedBrandId,
+  //     mfg_date,
+  //     exp_date,
+  //     active_ingredients,
+  //     product_type,
+  //     unit,
+  //     per_item_qty,
+  //     price,
+  //   ];
 
-    if (requiredFields.some((field) => !field)) {
-      Swal.fire({
-        icon: "error",
-        title: "Validation Error",
-        text: "Please fill in all required fields.",
-      });
-      return false;
-    }
-    return true;
-  };
+  //   if (requiredFields.some((field) => !field)) {
+  //     Swal.fire({
+  //       icon: "error",
+  //       title: "Validation Error",
+  //       text: "Please fill in all required fields.",
+  //     });
+  //     return false;
+  //   }
+  //   return true;
+  // };
 
   const handleBrandChange = (name, index) => {
     const idAtIndex = allBrandsList[index].id;
@@ -371,7 +372,13 @@ const Page = () => {
       <div className="mt-10">
         <GreenButton
           onClick={handleSubmit}
-          title={loadingSubmit ? "Submitting..." : "Submit"}
+          title={
+            loadingSubmit ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              "Submit"
+            )
+          }
           disabled={loadingSubmit}
         />
       </div>

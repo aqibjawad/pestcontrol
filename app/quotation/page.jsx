@@ -13,6 +13,8 @@ import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import GreenButton from "@/components/generic/GreenButton";
 
+import CircularProgress from "@mui/material/CircularProgress";
+
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
   if (parts.length > 1) {
@@ -28,7 +30,6 @@ const getIdFromUrl = (url) => {
 };
 
 const Page = () => {
-
   const api = new APICall();
   const router = useRouter();
   const [id, setId] = useState(null);
@@ -52,7 +53,7 @@ const Page = () => {
 
   const [loading, setLoading] = useState(false);
   const [fetchingData, setFetchingData] = useState(false);
- 
+
   const handleSubmit = async () => {
     setLoading(true);
     try {
@@ -103,7 +104,6 @@ const Page = () => {
     }
   }, [id]);
 
-
   const getAllQuotes = async () => {
     setFetchingData(true);
     try {
@@ -131,7 +131,11 @@ const Page = () => {
       </div>
 
       <BasicQuote setFormData={setFormData} formData={formData} />
-      <ServiceAgreement duration_in_months={formData.duration_in_months} setFormData={setFormData} formData={formData} />
+      <ServiceAgreement
+        duration_in_months={formData.duration_in_months}
+        setFormData={setFormData}
+        formData={formData}
+      />
       <Method setFormData={setFormData} formData={formData} />
       <Invoice setFormData={setFormData} formData={formData} />
       <Scope setFormData={setFormData} formData={formData} />
@@ -139,7 +143,15 @@ const Page = () => {
       <div className="mt-10">
         <GreenButton
           onClick={handleSubmit}
-          title={loading ? "Submitting..." : id ? "Update" : "Submit"}
+          title={
+            loading ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : id ? (
+              "Update"
+            ) : (
+              "Submit"
+            )
+          }
           disabled={loading}
         />
       </div>

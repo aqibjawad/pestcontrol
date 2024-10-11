@@ -6,10 +6,12 @@ import { Grid } from "@mui/material";
 import InputWithTitle from "../../components/generic/InputWithTitle";
 import { job } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
+
 import { useRouter } from "next/navigation";
 
 const RescheduleTreatment = ({ jobId, jobList }) => {
   const api = new APICall();
+
   const router = useRouter();
 
   const [job_date, setJobDate] = useState("");
@@ -20,12 +22,6 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
   useEffect(() => {
     setJobStatus(jobList?.is_completed || "0");
   }, [jobList]);
-
-  const refreshPageAfterDelay = () => {
-    setTimeout(() => {
-      window.location.reload();
-    }, 500);
-  };
 
   const handleFormSubmit = async () => {
     if (!job_date || !reason) {
@@ -48,10 +44,9 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
       if (response.error) {
         alert(response.error.error);
       } else {
-        alert("Rescheduled Job successfully!");
+        alert("Treatment rescheduled successfully!");
         setJobDate("");
         setReason("");
-        refreshPageAfterDelay();
       }
     } catch (error) {
       console.error("Error rescheduling treatment:", error);
@@ -64,23 +59,23 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
   const handleJobAction = async () => {
     setLoading(true);
     try {
-      if (jobStatus === "2") {
+      if (jobStatus === 2) {
         const response = await api.getDataWithToken(
           `${job}/move/complete/${jobId}`
         );
         if (response.success) {
           alert("Job completed successfully!");
-          refreshPageAfterDelay();
+          setJobStatus("3");
         } else {
           alert(
             response.message || "Failed to complete job. Please try again."
           );
         }
-      } else if (jobStatus === "0") {
+      } else if (jobStatus === 0) {
         const response = await api.getDataWithToken(`${job}/start/${jobId}`);
         if (response.success) {
           alert("Job started successfully!");
-          refreshPageAfterDelay();
+          setJobStatus("2");
         } else {
           alert(response.message || "Failed to start job. Please try again.");
         }
@@ -94,7 +89,7 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
   };
 
   const handleServiceReport = () => {
-    router.push(`/serviceReport?id=${jobId}`);
+    router.push(`/serviceReport?=${jobId}`);
   };
 
   const renderActionButton = () => {
@@ -103,7 +98,7 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
       opacity: isLoading ? 0.5 : 1,
     };
 
-    if (jobStatus === "0") {
+    if (jobStatus === 0) {
       return (
         <>
           <Grid item lg={6} sm={12} xs={12} md={4}>
@@ -113,7 +108,11 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
                 className={styles.addText}
                 style={buttonStyle}
               >
-                {isLoading ? "Rescheduling..." : "Reschedule"}
+                {isLoading ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : (
+                  "Reschedule"
+                )}
               </div>
             </div>
           </Grid>
@@ -124,13 +123,17 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
                 className={styles.addText}
                 style={buttonStyle}
               >
-                {isLoading ? "Starting..." : "Start Job"}
+                {isLoading ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : (
+                  "Reschedule"
+                )}
               </div>
             </div>
           </Grid>
         </>
       );
-    } else if (jobStatus === "2") {
+    } else if (jobStatus === 2) {
       return (
         <Grid item lg={12} sm={12} xs={12} md={8}>
           <div className={styles.reschBtn}>
@@ -139,12 +142,16 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
               className={styles.addText}
               style={buttonStyle}
             >
-              {isLoading ? "Completing..." : "Complete Job"}
+              {isLoading ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : (
+                "Reschedule"
+              )}
             </div>
           </div>
         </Grid>
       );
-    } else if (jobStatus === "1") {
+    } else if (jobStatus === 1) {
       return (
         <Grid item lg={12} sm={12} xs={12} md={8}>
           <div className={styles.reschBtn}>

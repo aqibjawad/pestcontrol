@@ -37,49 +37,58 @@ const JobsList = ({
   const generateDates = (initialDates) => {
     if (!initialDates || initialDates.length === 0) return [];
 
-    const allDates = [...initialDates];
-    const startDate = new Date(initialDates[0]);
+    const result = [...initialDates];
 
-    for (let i = 1; i < duration_in_months * 30; i++) {
-      const newDate = new Date(startDate);
-      newDate.setDate(newDate.getDate() + i);
-      allDates.push(newDate.toISOString().slice(0, 10));
+    if (selectedJobType === "monthly") {
+      // For each selected date, add corresponding dates for subsequent months
+      initialDates.forEach((initialDate) => {
+        const date = new Date(initialDate);
+
+        for (let i = 1; i < duration_in_months; i++) {
+          const newDate = new Date(date);
+          newDate.setMonth(newDate.getMonth() + i);
+
+          // Check if the day exists in the target month
+          // For example, March 31 doesn't exist in April
+          const targetMonth = newDate.getMonth();
+          newDate.setDate(1); // Reset to first of month
+          newDate.setMonth(targetMonth + 1); // Go to first of next month
+          newDate.setDate(0); // Back up one day to last of target month
+
+          const lastDayOfMonth = newDate.getDate();
+          const originalDay = date.getDate();
+
+          newDate.setMonth(targetMonth);
+          newDate.setDate(Math.min(originalDay, lastDayOfMonth));
+
+          result.push(newDate.toISOString().slice(0, 10));
+        }
+      });
     }
 
-    return allDates.sort();
+    return result.sort();
   };
 
   useEffect(() => {
     let allDates = selectedDates ? [...selectedDates] : [];
-    let selectedSubTotal = allDates.length * parseFloat(rate || 0);
+    let finalDates = allDates;
 
-    let generatedSubTotal = 0;
-    if (
-      (selectedJobType === "monthly" || selectedJobType === "daily") &&
-      allDates.length > 0
-    ) {
-      const generatedDates = generateDates(allDates);
-      setAllGeneratedDates(generatedDates);
-      generatedSubTotal = generatedDates.length * parseFloat(rate || 0);
-    } else {
-      setAllGeneratedDates(allDates);
+    if (selectedJobType === "monthly" && allDates.length > 0) {
+      finalDates = generateDates(allDates);
     }
 
-    setSubTotal(selectedSubTotal);
-    setGeneratedSubTotal(generatedSubTotal);
+    const calculatedSubTotal = finalDates.length * parseFloat(rate || 0);
+
+    setAllGeneratedDates(finalDates);
+    setSubTotal(calculatedSubTotal);
+    setGeneratedSubTotal(calculatedSubTotal);
 
     updateJobList({
       jobType: selectedJobType,
       rate: rate,
-      dates:
-        selectedJobType === "monthly" || selectedJobType === "daily"
-          ? allGeneratedDates
-          : allDates,
+      dates: finalDates,
       displayDates: selectedDates,
-      subTotal:
-        selectedJobType === "monthly" || selectedJobType === "daily"
-          ? generatedSubTotal
-          : selectedSubTotal,
+      subTotal: calculatedSubTotal,
       service_id: jobData.service_id,
       serviceName: jobData.serviceName,
     });

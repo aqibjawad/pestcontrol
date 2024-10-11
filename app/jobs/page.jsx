@@ -45,6 +45,7 @@ const Page = () => {
         <Table>
           <TableHead>
             <TableRow>
+            <TableCell>id</TableCell>
               <TableCell>Customer</TableCell>
               <TableCell>Job Date</TableCell>
               <TableCell>Description</TableCell>
@@ -65,6 +66,7 @@ const Page = () => {
             ) : (
               quoteList?.map((row, index) => (
                 <TableRow key={index}>
+                  <TableCell>{row.id}</TableCell>
                   <TableCell>{row?.user?.name}</TableCell>
                   <TableCell>{row.job_date}</TableCell>
                   <TableCell>{row.description.slice(0, 20)}</TableCell>
