@@ -19,6 +19,8 @@ import { useRouter } from "next/navigation";
 
 import GreenButton from "@/components/generic/GreenButton";
 
+import { CircularProgress } from "@mui/material";
+
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
   if (parts.length > 1) {
@@ -42,8 +44,8 @@ const Page = () => {
 
   const [fetchingData, setFetchingData] = useState(false);
   const [serviceReportList, setQuoteList] = useState(null);
-  const [isApproved, setIsApproved] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(true);
+
   const [formData, setFormData] = useState({
     used_products: "",
     addresses: "",
@@ -54,7 +56,7 @@ const Page = () => {
     job_id: null,
   });
 
-  const [id, setId] = useState("");
+  const [id, setId] = useState("");  
 
   useEffect(() => {
     // Get the current URL
@@ -93,7 +95,7 @@ const Page = () => {
       const response = await api.postDataWithTokn(endpoint, formData);
       if (response.status === "success") {
         const newId = response.data.id;
-        
+
         Swal.fire({
           icon: "success",
           title: "Success",
@@ -135,7 +137,9 @@ const Page = () => {
       <div className="mt-10">
         <GreenButton
           onClick={handleSubmit}
-          title={loading ? "Submitting..." : "Submit"}
+          title={
+            loading ? <CircularProgress size={20} color="inherit" /> : "Submit"
+          }
           disabled={loading}
         />
       </div>

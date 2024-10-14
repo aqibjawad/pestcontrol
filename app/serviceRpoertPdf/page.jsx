@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 
 import ClientDetails from "./clientDetails";
 import ClientRecords from "./clientRecords";
@@ -14,6 +14,8 @@ import styles from "../../styles/viewQuote.module.css";
 import APICall from "@/networkUtil/APICall";
 
 import { job } from "@/networkUtil/Constants";
+
+import Layout from "../../components/layout";
 
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
@@ -56,7 +58,9 @@ const Page = () => {
     setFetchingData(true);
 
     try {
-      const response = await api.getDataWithToken(`${job}/service_report/${id}`);
+      const response = await api.getDataWithToken(
+        `${job}/service_report/${id}`
+      );
       setQuoteList(response.data);
     } catch (error) {
       console.error("Error fetching quotes:", error);
@@ -72,39 +76,18 @@ const Page = () => {
 
   return (
     <div>
-      <img
+      {/* <img
         style={{ width: "100%" }}
         src="/service_pdf1.png"
         alt="Service PDF"
-      />
+      /> */}
 
-      <div>
-        <Grid container spacing={3}>
-          <Grid item lg={6} xs={12} sm={6} md={4}>
-            <img src="/logo-black.png" />
-          </Grid>
-
-          <Grid item lg={6} xs={12} sm={6} md={4}>
-            <div className="flex">
-              <div className="flex-grow"></div>
-              <div>
-                <div className={styles.heading}>Pest control REPORT</div>
-              </div>
-            </div>
-          </Grid>
-        </Grid>
-      </div>
-
-      <ClientDetails serviceReportList={serviceReportList} />
-      <ClientRecords serviceReportList={serviceReportList} />
-      <VisitRecords serviceReportList={serviceReportList} />
-      <Terms serviceReportList={serviceReportList} />
-
-      <img
-        style={{ width: "100%", marginTop: "1rem" }}
-        src="/service_pdf2.png"
-        alt="Service PDF"
-      />
+      <Layout>
+        <ClientDetails serviceReportList={serviceReportList} />
+        <ClientRecords serviceReportList={serviceReportList} />
+        {/* <VisitRecords serviceReportList={serviceReportList} /> */}
+        {/* <Terms serviceReportList={serviceReportList} /> */}
+      </Layout>
 
       <div onClick={handlePrint}>print</div>
     </div>

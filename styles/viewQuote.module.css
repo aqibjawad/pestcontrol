@@ -56,12 +56,10 @@
   width: 100%;
   height: auto;
   top: -1123px;
-  left: 7482px;
   padding: 14px 12px 14px 12px;
   border-radius: 8px;
   border: 1px;
   border: 1px solid #68cc5838;
-  margin-top: 2rem;
 }
 
 .clientHead {
@@ -70,16 +68,26 @@
   font-weight: 600;
   line-height: 24.38px;
   color: #32a92e;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
   display: flex;
   text-align: center;
   justify-content: center;
 }
 
+.areaHead{
+  font-family: "regular";
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 24.38px;
+  color: #32a92e;
+  display: flex;
+  text-align: left;
+  justify-content: left;
+  margin-bottom: 1rem;
+}
+
 .tableHead {
   background-color: #32a92e;
-  color: white;
+  color: white!important;
   text-align: center;
 }
 

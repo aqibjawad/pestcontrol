@@ -27,7 +27,7 @@ import {
   Button,
 } from "@mui/material";
 
-import { GoogleMap, LoadScript } from "@react-google-maps/api";
+import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
@@ -193,6 +193,12 @@ const Page = () => {
     }
   };
 
+
+  const mapContainerStyle = {
+    height: "400px",
+    width: "100%"
+  };
+
   // Extract latitude and longitude from the locationData
   const lat = parseFloat(jobList?.client_address?.lat);
   const lng = parseFloat(jobList?.client_address?.lang);
@@ -337,12 +343,14 @@ const Page = () => {
           <Grid item lg={12} xs={12} md={4}>
             <div className="mr-10">
               <div className="pageTitle">Job Location</div>
-              <LoadScript googleMapsApiKey="AIzaSyBBHNqsXFQqg_-f6BkI5UH7X7nXK2KQzk8">
+              <LoadScript googleMapsApiKey="AIzaSyBHNqsXFQqg_-f6BkI5UH7X7nXK2KQzk8">
                 <GoogleMap
-                  mapContainerStyle={{ height: "400px", width: "100%" }}
+                  mapContainerStyle={mapContainerStyle}
                   center={center}
-                  zoom={10}
-                />
+                  zoom={15} // Increased zoom for better visibility of the marker
+                >
+                  <Marker position={center} />
+                </GoogleMap>
               </LoadScript>
             </div>
           </Grid>

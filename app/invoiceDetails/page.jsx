@@ -126,25 +126,31 @@ const Page = () => {
             Tax Invoice
           </Typography>
           <TableContainer component={Paper}>
-  <Table>
-    <TableHead style={{ backgroundColor: "lightgreen" }}>
-      <TableRow>
-        <TableCell align="left" style={{ color: "white" }}>Tax Invoice</TableCell>
-        <TableCell align="left" style={{ color: "white" }}>Date</TableCell>
-        <TableCell align="left" style={{ color: "white" }}>Due</TableCell>
-      </TableRow>
-    </TableHead>
-    <TableBody>
-      {invoiceData.items.map((item, index) => (
-        <TableRow key={index}>
-          <TableCell align="right">{item.description}</TableCell>
-          <TableCell align="right">{item.rate.toFixed(2)}</TableCell>
-          <TableCell align="right">{item.tax.toFixed(2)}</TableCell>
-        </TableRow>
-      ))}
-    </TableBody>
-  </Table>
-</TableContainer>
+            <Table>
+              <TableHead style={{ backgroundColor: "lightgreen" }}>
+                <TableRow>
+                  <TableCell align="left" style={{ color: "white" }}>
+                    Tax Invoice
+                  </TableCell>
+                  <TableCell align="left" style={{ color: "white" }}>
+                    Date
+                  </TableCell>
+                  <TableCell align="left" style={{ color: "white" }}>
+                    Due
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {invoiceData.items.map((item, index) => (
+                  <TableRow key={index}>
+                    <TableCell align="right">{item.description}</TableCell>
+                    <TableCell align="right">{item.rate.toFixed(2)}</TableCell>
+                    <TableCell align="right">{item.tax.toFixed(2)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </Grid>
       </Grid>
 

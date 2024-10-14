@@ -27,7 +27,7 @@ const Page =()=>{
 
   useEffect(() => {
     getAllQuotes();
-  }, []);
+  }, [startDate, endDate]);
  
   const getAllQuotes = async () => {
     setFetchingData(true);
@@ -54,9 +54,9 @@ const Page =()=>{
 
   return(
     <div>
-        <UpcomingJobs jobsList={jobsList} handleDateChange={handleDateChange} />
+        <UpcomingJobs jobsList={jobsList} onDateChange={handleDateChange} />
     </div>
   )
-}
+} 
 
 export default Page;

@@ -13,6 +13,10 @@ import Swal from "sweetalert2";
 
 import { clients } from "@/networkUtil/Constants";
 
+import { CircularProgress } from "@mui/material";
+
+import { useRouter } from "next/navigation";
+
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
   if (parts.length > 1) {
@@ -28,7 +32,10 @@ const getIdFromUrl = (url) => {
 };
 
 const Page = () => {
+
   const api = new APICall();
+  const router = useRouter();
+
   const [id, setId] = useState(null);
   const [sections, setSections] = useState([1]);
   const [formData, setFormData] = useState({
@@ -61,11 +68,14 @@ const Page = () => {
     }));
   };
 
+
+  const [buttonLoading, setButtonLoading] = useState(false);
+
   const handleSubmit = async () => {
-    // setLoading(true);
+    setButtonLoading(true);
     try {
       const submissionData = {
-        user_id: formData.user_id,
+        user_id: formData.user_id, 
         address: formData.address,
         city: formData.city,
         lat: formData.lat,
@@ -74,8 +84,6 @@ const Page = () => {
         state: formData.state
       };
 
-      console.log("Submitting data:", submissionData);
-
       const response = await api.postDataWithTokn(`${clients}/address/create`, submissionData);
       if (response.status === "success") {
         Swal.fire({
@@ -83,6 +91,7 @@ const Page = () => {
           title: "Success",
           text: `Data has been ${id ? "updated" : "added"} successfully!`,
         });
+        router.back();
       } else {
         Swal.fire({
           icon: "error",
@@ -98,8 +107,7 @@ const Page = () => {
       });
       console.error("Error submitting data:", error);
     } finally {
-      // setLoading(false);
-      console.log("test");
+       setButtonLoading(false);
     }
   };
 
@@ -122,8 +130,20 @@ const Page = () => {
       </Grid>
 
       <div className="mt-5">
-        <GreenButton title={"Submit"} onClick={handleSubmit} />
+        {/* <GreenButton title={"Submit"} onClick={handleSubmit} /> */}
+        <GreenButton
+              onClick={handleSubmit}
+              title={
+                buttonLoading ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : (
+                  "Submit"
+                )
+              }
+              disabled={buttonLoading}
+            />
       </div>
+
     </>
   );
 };

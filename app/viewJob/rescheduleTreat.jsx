@@ -19,10 +19,10 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
   const [job_date, setJobDate] = useState("");
   const [reason, setReason] = useState("");
   const [isLoading, setLoading] = useState(false);
-  const [jobStatus, setJobStatus] = useState(jobList?.is_completed || "0");
+  const [jobStatus, setJobStatus] = useState(jobList?.is_completed || 0);
 
   useEffect(() => {
-    setJobStatus(jobList?.is_completed || "0");
+    setJobStatus(jobList?.is_completed || 0);
   }, [jobList]);
 
   const handleFormSubmit = async () => {
@@ -91,7 +91,7 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
   };
 
   const handleServiceReport = () => {
-    router.push(`/serviceReport?=${jobId}`);
+    router.push(`/serviceReport?id=${jobId}`);
   };
 
   const renderActionButton = () => {
