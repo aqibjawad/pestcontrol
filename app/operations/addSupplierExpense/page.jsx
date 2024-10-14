@@ -45,7 +45,7 @@ const Page = () => {
   const [allBankNameList, setBankNameList] = useState([]);
 
   const [selectedBankId, setSelectedBankId] = useState("");
-  
+
   const [loading, setLoading] = useState(true);
 
   const [loadingSubmit, setLoadingSubmit] = useState(false);
@@ -160,7 +160,7 @@ const Page = () => {
       //   alerts.errorAlert(response.message);
       // }
     } finally {
-      setLoading(false);
+      setLoadingSubmit(false);
     }
   };
 
@@ -330,15 +330,22 @@ const Page = () => {
       <div className="mt-10"></div>
       <div className="p-4">{expenseForm()}</div>
       <div className="mt-10">
-        <GreenButton
+        {/* <GreenButton
           onClick={handleSubmit}
-          title={loadingSubmit ? "Saving..." : "Save"}
+          title={"Save"}
           disabled={loadingSubmit}
           startIcon={
             loadingSubmit ? (
               <CircularProgress size={20} color="inherit" />
             ) : null
           }
+        /> */}
+        <GreenButton
+          onClick={handleSubmit}
+          title={
+            loadingSubmit ? <CircularProgress size={20} color="inherit" /> : "Submit"
+          }
+          disabled={loadingSubmit}
         />
       </div>
       {/* <div>

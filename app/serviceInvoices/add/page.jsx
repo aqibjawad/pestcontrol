@@ -24,6 +24,8 @@ import Dropdown2 from "@/components/generic/Dropdown2";
 
 import { useRouter } from "next/navigation";
 
+import { CircularProgress } from "@mui/material";
+
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
   if (parts.length > 1) {
@@ -39,7 +41,6 @@ const getIdFromUrl = (url) => {
 };
 
 const Page = () => {
-
   const api = new APICall();
   const router = useRouter();
 
@@ -238,7 +239,7 @@ const Page = () => {
         alert("Service Invoice Payment Added Successfully");
         clearFormState();
         getAllServices(id);
-        router.push(`/paymentInvoice?id=${selectedInvoice.id}`)
+        router.push(`/paymentInvoice?id=${selectedInvoice.id}`);
       } else {
         alert(`${response.error.message}`);
       }
@@ -446,9 +447,21 @@ const Page = () => {
           </Grid>
 
           <div className="mt-10">
-            <GreenButton
+            {/* <GreenButton
               onClick={handleSubmit}
               title={buttonLoading ? "Submitting..." : "Submit"}
+              disabled={buttonLoading}
+            /> */}
+
+            <GreenButton
+              onClick={handleSubmit}
+              title={
+                buttonLoading ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : (
+                  "Submit"
+                )
+              }
               disabled={buttonLoading}
             />
           </div>
