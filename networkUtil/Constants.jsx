@@ -67,3 +67,6 @@ export const addSupplierBankInfo = apiPrefix + "/supplier/bank_info/add";
 export const customers = apiPrefix + "/customer";
 
 export const saleOrder = apiPrefix + "/sale_order";
+
+export const supplierPayment = apiPrefix + "/add_payment";
+

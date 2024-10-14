@@ -1,73 +1,71 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import styles from "../../../styles/superAdmin/addExpensesStyles.module.css";
-import UploadImagePlaceholder from "../../../components/generic/uploadImage";
+import styles from "../../styles/superAdmin/addExpensesStyles.module.css";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import MultilineInput from "@/components/generic/MultilineInput";
 import Dropdown from "@/components/generic/Dropdown";
 import GreenButton from "@/components/generic/GreenButton";
+
 import { CircularProgress } from "@mui/material";
 import Tabs from "./tabs";
 
-import { expense_category, bank, expense } from "@/networkUtil/Constants";
+import { bank, customers } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
 
-import { AppAlerts } from "../../../Helper/AppAlerts";
+import { AppAlerts } from "../../Helper/AppAlerts";
+
+import { useRouter } from "next/navigation";
 
 const Page = () => {
   const api = new APICall();
   const alerts = new AppAlerts();
+  const router = useRouter();
 
   const [activeTab, setActiveTab] = useState("cash");
 
-  const [expense_name, setExpName] = useState();
   const [vat, setVat] = useState();
   const [total, setTotal] = useState();
   const [description, setDesc] = useState();
-  const [expense_file, setExpenseFile] = useState();
 
   const [amount, setAmount] = useState();
 
-  const [cheque_amount, setChequeAmount] = useState();
+  const [cheque_no, setChequeNumber] = useState();
   const [cheque_date, setChequeDate] = useState();
   const [transection_id, setTransactionId] = useState();
 
   const [fetchingData, setFetchingData] = useState(false);
 
   // All Expenses States
-  const [allExpensesList, setAllEpensesList] = useState([]);
-  const [allExpenseNameList, setExpenseNameList] = useState([]);
-  const [selectedExpenseId, setSelectedExpenseId] = useState("");
+  const [allSupplierList, setAllSuppliersList] = useState([]);
+  const [allSupplierNameList, setSupplierNameList] = useState([]);
+  const [selectedSupplierId, setSelectedSupplierId] = useState("");
 
   // All Banks States
   const [allBanksList, setAllBankList] = useState([]);
   const [allBankNameList, setBankNameList] = useState([]);
+
   const [selectedBankId, setSelectedBankId] = useState("");
-
-  const [sendingData, setSendingData] = useState(false);
-
+  
   const [loading, setLoading] = useState(true);
+
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
-    // setFormData((prevState) => ({
-    //   ...prevState,
-    //   payment_type: tab,
-    // }));
   };
 
   useEffect(() => {
-    getAllExpenses();
+    getAllCustomers();
     getAllBanks();
   }, []);
 
-  const getAllExpenses = async () => {
+  const getAllCustomers = async () => {
     setFetchingData(true);
     try {
-      const response = await api.getDataWithToken(`${expense_category}`);
-      setAllEpensesList(response.data);
-      const expenseNames = response.data.map((item) => item.expense_category);
-      setExpenseNameList(expenseNames);
+      const response = await api.getDataWithToken(`${customers}`);
+      setAllSuppliersList(response.data);
+      const expenseNames = response.data.map((item) => item.person_name);
+      setSupplierNameList(expenseNames);
     } catch (error) {
       console.error("Error fetching expenses:", error);
     } finally {
@@ -90,28 +88,22 @@ const Page = () => {
     }
   };
 
-  const handleFileSelect = (file) => {
-    setExpenseFile(file);
-  };
-
   const handleExpenseChange = (name, index) => {
-    const idAtIndex = allExpensesList[index].id;
-    setSelectedExpenseId(idAtIndex);
+    const idAtIndex = allSupplierList[index].id;
+    setSelectedSupplierId(idAtIndex);
   };
 
   const handleBankChange = (name, index) => {
-    const idAtIndex = allBankNameList[index].id;
+    const idAtIndex = allBanksList[index].id;
     setSelectedBankId(idAtIndex);
   };
 
   const createExpenseObject = () => {
     let expenseObj = {
-      expense_name,
-      expense_category_id: selectedExpenseId,
+      customer_id: selectedSupplierId,
       vat,
       total,
       description,
-      expense_file,
       payment_type: activeTab,
     };
 
@@ -125,7 +117,8 @@ const Page = () => {
       expenseObj = {
         ...expenseObj,
         bank_id: selectedBankId,
-        cheque_amount,
+        amount,
+        cheque_no,
         cheque_date,
       };
     } else if (activeTab === "online") {
@@ -141,51 +134,40 @@ const Page = () => {
   };
 
   const handleSubmit = async () => {
-    setLoading(true); // Start loading
+    setLoadingSubmit(true);
+
+    const expenseData = createExpenseObject();
     try {
-      const expenseData = createExpenseObject();
       const response = await api.postFormDataWithToken(
-        `${expense}/create`,
+        `${customers}/add_payment`,
         expenseData
       );
+
       if (response.status === "success") {
         alerts.successAlert("Expense has been updated");
+        // router.push(`/account/supplier_ledger/?id=${selectedSupplierId}`);
       } else {
         alerts.errorAlert(response.error.message);
       }
-    } catch (error) {
-      console.error("Error submitting expense:", error);
-      alerts.errorAlert("An error occurred while submitting the expense");
-    } finally {
-      setLoading(false); // Stop loading regardless of outcome
-    }
-  };
 
-  const imageContainer = () => {
-    return (
-      <div>
-        <div className={styles.expenseTitle}>Expense</div>
-        <div style={{ cursor: "pointer" }} className={styles.imageContainer}>
-          <UploadImagePlaceholder onFileSelect={handleFileSelect} />
-        </div>
-      </div>
-    );
+      // if (response.status === "success") {
+      //   alerts.successAlert("Expense has been updated");
+      // } else {
+      //   alerts.errorAlert(response.message);
+      // }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const expenseForm = () => {
     return (
       <div>
-        <InputWithTitle
-          title={"Expense Name"}
-          type={"text"}
-          placeholder={"Please enter expense name"}
-          onChange={setExpName}
-        />
         <div className="mt-5">
           <Dropdown
             onChange={(name, index) => handleExpenseChange(name, index)}
-            title={"Category"}
-            options={allExpenseNameList}
+            title={"Customers List"}
+            options={allSupplierNameList}
           />
         </div>
 
@@ -244,7 +226,7 @@ const Page = () => {
             <div className="mt-5">
               <InputWithTitle
                 title={"Cheque Date"}
-                type={"text"}
+                type={"date"}
                 placeholder={"Cheque Date"}
                 onChange={setChequeDate}
               />
@@ -254,7 +236,16 @@ const Page = () => {
                 title={"Cheque Amount"}
                 type={"text"}
                 placeholder={"Cheque Amount"}
-                onChange={setChequeAmount}
+                onChange={setAmount}
+              />
+            </div>
+
+            <div className="mt-5">
+              <InputWithTitle
+                title={"Cheque Number"}
+                type={"text"}
+                placeholder={"Cheque Number"}
+                onChange={setChequeNumber}
               />
             </div>
 
@@ -331,11 +322,20 @@ const Page = () => {
 
   return (
     <div>
-      <div className="pageTitle">Add Expenses</div>
+      <div className="pageTitle">Add Supplier Payments</div>
       <div className="mt-10"></div>
-      <div className="grid grid-cols-2 gap-4">
-        <div className="p-4">{imageContainer()}</div>
-        <div className="p-4">{expenseForm()}</div>
+      <div className="p-4">{expenseForm()}</div>
+      <div className="mt-10">
+        <GreenButton
+          onClick={handleSubmit}
+          title={loadingSubmit ? "Saving..." : "Save"}
+          disabled={loadingSubmit}
+          startIcon={
+            loadingSubmit ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : null
+          }
+        />
       </div>
       {/* <div>
         {loading ? (
@@ -344,13 +344,6 @@ const Page = () => {
           <GreenButton onClick={handleSubmit} title={"Save"} />
         )}
       </div> */}
-      <GreenButton
-        onClick={handleSubmit}
-        title={
-          loading ? <CircularProgress size={20} color="inherit" /> : "Submit"
-        }
-        disabled={loading}
-      />
       {/* <GreenButton
         sendingData={sendingData}
         onClick={handleSubmit}

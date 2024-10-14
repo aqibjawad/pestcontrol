@@ -322,7 +322,7 @@ const Page = () => {
 
   return (
     <div>
-      <div className="pageTitle">Add Supplier Payments</div>
+      <div className="pageTitle">Add Customer Payments</div>
       <div className="mt-10"></div>
       <div className="p-4">{expenseForm()}</div>
       <div className="mt-10">

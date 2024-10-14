@@ -39,13 +39,12 @@ const getIdFromUrl = (url) => {
 };
 
 const Page = () => {
+
   const api = new APICall();
   const router = useRouter();
 
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [allInvoiceList, setAllInvoiceList] = useState([]);
-
-  console.log(allInvoiceList);
 
   const [selectedInvoices, setSelectedInvoices] = useState([]);
   const [serviceInvoiceId, setServiceInvoiceId] = useState(null);
@@ -239,6 +238,7 @@ const Page = () => {
         alert("Service Invoice Payment Added Successfully");
         clearFormState();
         getAllServices(id);
+        router.push(`/paymentInvoice?id=${selectedInvoice.id}`)
       } else {
         alert(`${response.error.message}`);
       }

@@ -1,0 +1,44 @@
+.logo{
+    width: 270px;
+    height: 135px;
+    padding-left: 2rem;
+    padding-top: 1rem;
+}
+
+.customSize{
+    width: 10in;
+    height: 5.6in;
+    border: 1px solid black;
+}
+
+.infoInvoice{
+    font-family: "regular";
+    font-weight: 800;
+    font-size: 14px;
+    margin-left: 1rem;
+}
+
+.infoAddress{
+    font-family: "regular";
+    font-weight: 800;
+    font-size: 14px;
+    margin-left: 1rem;
+}
+
+.color {
+    background-color: var(--appGreen);
+}
+
+.qrImage{
+    height: 100px;
+}
+
+.payment{
+    font-weight: 800;
+    font-size: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1rem;
+    margin-left: 5rem;
+}

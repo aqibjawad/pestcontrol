@@ -9,6 +9,8 @@ import APICall from "@/networkUtil/APICall";
 
 import { useRouter } from "next/navigation";
 
+import CircularProgress from "@mui/material/CircularProgress";
+
 const RescheduleTreatment = ({ jobId, jobList }) => {
   const api = new APICall();
 
@@ -126,7 +128,7 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
                 {isLoading ? (
                   <CircularProgress size={20} color="inherit" />
                 ) : (
-                  "Reschedule"
+                  "Start Job"
                 )}
               </div>
             </div>
@@ -145,7 +147,7 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
               {isLoading ? (
                 <CircularProgress size={20} color="inherit" />
               ) : (
-                "Reschedule"
+                "Complete Job"
               )}
             </div>
           </div>
