@@ -1,3 +1,4 @@
+"use client";
 import { useRef, useState } from "react";
 import styles from "../../styles/superAdmin/uploadImageStyles.module.css";
 import Image from "next/image";
