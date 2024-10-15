@@ -38,13 +38,13 @@ const Page = () => {
   const [moccae_approval, setMoccaeApproved] = useState("");
   const [moccae_start_date, setMocaStartDate] = useState("");
   const [moccae_exp_date, setMocaExpiryDate] = useState("");
-  const [vat, setVat] = useState("");
   const [description, setDescription] = useState("");
   const [per_item_qty, setPerItemQuantity] = useState("");
   const [price, setPrice] = useState("");
 
   const [product_picture, setProductPicture] = useState(null);
-  const [attachments, setAttachments] = useState(null);
+
+  const [attachments, setAttachments] = useState([]);  
 
   useEffect(() => {
     getAllBrands();
@@ -69,6 +69,11 @@ const Page = () => {
     }
   };
 
+  const handleAttachmentSelect = (file) => {
+    console.log("Selected Attachment:", file);
+    setAttachments(file);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     // if (!validateForm()) return;
@@ -88,13 +93,20 @@ const Page = () => {
       moccae_approval,
       moccae_start_date,
       moccae_exp_date,
-      vat,
       description,
       per_item_qty,
       price,
       product_picture,
-      attachments: [],
+
     };
+    attachments.forEach((file, index) => {
+      obj[`attachments[${index}]`] = file;
+    });
+
+
+
+    console.log(JSON.stringify(obj));
+    
 
     const response = await api.postFormDataWithToken(`${product}/create`, obj);
 
@@ -109,7 +121,7 @@ const Page = () => {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Failed to submit data. Please try again.",
+        text: `${response.error.message}`,
       });
     }
 
@@ -155,11 +167,6 @@ const Page = () => {
   const handleProductPictureSelect = (file) => {
     console.log("Selected Product Picture:", file);
     setProductPicture(file);
-  };
-
-  const handleAttachmentSelect = (file) => {
-    console.log("Selected Attachment:", file);
-    setAttachments(file);
   };
 
   const firstSection = () => {
@@ -324,30 +331,6 @@ const Page = () => {
             </div>
           </div>
         </div>
-
-        {/* <div className="mt-10">
-          <div className="flex gap-4">
-            <div className="flex-grow">
-              <InputWithTitle
-                title={"VAT"}
-                type={"text"}
-                placeholder={"VAT"}
-                onChange={setVat}
-                value={vat}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-10">
-          <InputWithTitle
-            title={"Price"}
-            type={"text"}
-            placeholder={"Price"}
-            onChange={setPrice}
-            value={price}
-          />
-        </div> */}
 
         <div className="mt-10">
           <MultilineInput

@@ -47,11 +47,13 @@ const Inventory = () => {
 
     const urlId = getIdFromUrl(currentUrl);
     setId(urlId);
-
-    if (urlId) {
-      getAllEmployees(urlId);
-    }
   }, []);
+
+  useEffect(() => {
+    if (id !== undefined && id !== null) {
+      getAllEmployees(id);
+    }
+  }, [id]);
 
   const getAllEmployees = async () => {
     setFetchingData(true);

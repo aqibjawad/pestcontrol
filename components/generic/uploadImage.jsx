@@ -70,7 +70,7 @@ const UploadImagePlaceholder = ({ title, onFileSelect, multiple = false }) => {
         <input
           type="file"
           ref={fileInputRef}
-          accept=".png, .jpg, .jpeg"
+          accept=".png, .jpg, .jpeg, .pdf"
           onChange={handleFileChange}
           style={{ display: "none" }}
           multiple={multiple}
