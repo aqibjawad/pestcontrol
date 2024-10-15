@@ -325,7 +325,7 @@ const Page = () => {
             <div
               className={`${styles.color} text-white p-1 text-sm flex justify-between items-center`}
             >
-              <span>Receiver's Sign</span>
+              <span>Receivers Sign</span>
               <span style={{ fontFamily: "Arial, sans-serif" }}>
                 توقيع المستلم
               </span>
@@ -339,7 +339,7 @@ const Page = () => {
             <div
               className={`${styles.color} text-white p-1 text-sm flex justify-between items-center`}
             >
-              <span>Receiver's Sign</span>
+              <span>Receivers Sign</span>
               <span style={{ fontFamily: "Arial, sans-serif" }}>
                 أمين الصندوق
               </span>
