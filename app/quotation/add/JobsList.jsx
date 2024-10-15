@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import InputWithTitle from "@/components/generic/InputWithTitle";
-import Dropdown2 from "@/components/generic/Dropdown2";
+import InputWithTitle from "../../../components/generic/InputWithTitle";
+import Dropdown2 from "../../../components/generic/dropDown2";
 import CalendarComponent from "./calender.component";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";

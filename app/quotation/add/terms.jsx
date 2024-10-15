@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import APICall from "@/networkUtil/APICall";
 import { termsCond } from "../../../networkUtil/Constants";
-import Dropdown2 from "@/components/generic/Dropdown2";
+import Dropdown2 from "../../../components/generic/dropDown2";
 
 const TermsConditions = ({ setFormData }) => {
   const api = new APICall();

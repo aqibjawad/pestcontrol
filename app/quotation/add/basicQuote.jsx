@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import styles from "../../../styles/loginStyles.module.css";
-import InputWithTitle from "@/components/generic/InputWithTitle";
-import Dropdown2 from "@/components/generic/Dropdown2";
+import InputWithTitle from "../../..//components/generic/InputWithTitle";
+import Dropdown2 from "../../../components/generic/dropDown2";
 import { clients } from "../../../networkUtil/Constants";
 import APICall from "../../../networkUtil/APICall";
 import { Grid, Skeleton } from "@mui/material";
-import MultilineInput from "@/components/generic/MultilineInput";
+import MultilineInput from "../../../components/generic/MultilineInput";
 
 const BasicQuote = ({ setFormData, formData }) => {
   
