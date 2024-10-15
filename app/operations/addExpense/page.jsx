@@ -14,9 +14,13 @@ import APICall from "@/networkUtil/APICall";
 
 import { AppAlerts } from "../../../Helper/AppAlerts";
 
+import { useRouter } from "next/navigation";
+
 const Page = () => {
+
   const api = new APICall();
   const alerts = new AppAlerts();
+  const router = useRouter();
 
   const [activeTab, setActiveTab] = useState("cash");
 
@@ -46,7 +50,7 @@ const Page = () => {
 
   const [sendingData, setSendingData] = useState(false);
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -150,6 +154,7 @@ const Page = () => {
       );
       if (response.status === "success") {
         alerts.successAlert("Expense has been updated");
+        router.push("/operations/viewAllExpenses")
       } else {
         alerts.errorAlert(response.error.message);
       }
