@@ -16,7 +16,7 @@ import Dropdown from "@/components/generic/Dropdown";
 
 import { useRouter } from "next/navigation";
 
-import { vehciles, bank, vehicleExpense } from "@/networkUtil/Constants";
+import { vehciles, bank, vehicleExpense, expense } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
 
 const Page = () => {
@@ -27,6 +27,7 @@ const Page = () => {
   const [activeTab, setActiveTab] = useState("cash");
 
   const [fuel_amount, setFuelAmount] = useState();
+  const [expense_date, setExpDate] = useState();
   const [maintenance_amount, setMainAmount] = useState();
   const [oil_amount, setOilAmount] = useState();
 
@@ -121,6 +122,7 @@ const Page = () => {
   const createVehicleObject = () => {
     let vehicleObj = {
       fuel_amount,
+      expense_date,
       vehicle_id: selectedVehicleId,
       vat_per,
       total,
@@ -219,6 +221,15 @@ const Page = () => {
             )}
           />
         </Grid>
+        <Grid item lg={4} xs={12} sm={6} md={6}>
+          <InputWithTitle
+            value={expense_date}
+            onChange={setExpDate}
+            title={"date"}
+            type={"date"}
+          />
+        </Grid>
+        
 
         <Grid item lg={4} xs={12} sm={6} md={6}>
           <InputWithTitle

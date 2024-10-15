@@ -17,7 +17,6 @@ import { AppAlerts } from "../../../Helper/AppAlerts";
 import { useRouter } from "next/navigation";
 
 const Page = () => {
-
   const api = new APICall();
   const alerts = new AppAlerts();
   const router = useRouter();
@@ -25,6 +24,7 @@ const Page = () => {
   const [activeTab, setActiveTab] = useState("cash");
 
   const [expense_name, setExpName] = useState();
+  const [expense_date, setExpDate] = useState();
   const [vat, setVat] = useState();
   const [total, setTotal] = useState();
   const [description, setDesc] = useState();
@@ -110,6 +110,7 @@ const Page = () => {
   const createExpenseObject = () => {
     let expenseObj = {
       expense_name,
+      expense_date,
       expense_category_id: selectedExpenseId,
       vat,
       total,
@@ -153,7 +154,7 @@ const Page = () => {
       );
       if (response.status === "success") {
         alerts.successAlert("Expense has been updated");
-        router.push("/operations/viewAllExpenses")
+        router.push("/operations/viewAllExpenses");
       } else {
         alerts.errorAlert(response.error.message);
       }
@@ -185,6 +186,14 @@ const Page = () => {
           placeholder={"Please enter expense name"}
           onChange={setExpName}
         />
+        <div className="mt-5">
+          <InputWithTitle
+            title={"Expense Date"}
+            type={"date"}
+            placeholder={"Please enter expense Date"}
+            onChange={setExpDate}
+          />
+        </div>
         <div className="mt-5">
           <Dropdown
             onChange={(name, index) => handleExpenseChange(name, index)}

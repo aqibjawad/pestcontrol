@@ -38,7 +38,7 @@ const Page = () => {
               <Grid item xs={12} sm={6} md={4} lg={3}>
                 <div className={styles.addProd}>
                   <Link href="/operations/addSupplierExpense">
-                    Add Supplier Expense
+                    Add Supplier Payments
                   </Link>
                 </div>
               </Grid>
