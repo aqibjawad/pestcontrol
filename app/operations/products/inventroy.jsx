@@ -17,6 +17,8 @@ import {
   Skeleton,
 } from "@mui/material";
 
+import { format } from 'date-fns';
+
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
   if (parts.length > 1) {
@@ -31,7 +33,6 @@ const getIdFromUrl = (url) => {
   return null;
 };
 
- 
 const Inventory = () => {
 
   const api = new APICall();
@@ -40,6 +41,8 @@ const Inventory = () => {
 
   const [fetchingData, setFetchingData] = useState(false);
   const [employeeList, setEmployeeList] = useState(null);
+
+  const [stockList, setStockList] = useState(null);
 
   useEffect(() => {
     // Get the current URL
@@ -60,20 +63,13 @@ const Inventory = () => {
     try {
       const response = await api.getDataWithToken(`${product}/${id}`);
       setEmployeeList(response.data);
+      setStockList(response.data.stock_history || []);
     } catch (error) {
       console.error("Error fetching vehicles:", error);
     } finally {
       setFetchingData(false);
     }
   };
-
-  const rows = Array.from({ length: 5 }, (_, index) => ({
-    clientName: "Olivia Rhye",
-    clientContact: "10",
-    quoteSend: "10",
-    quoteApproved: "50",
-    cashAdvance: "$50,000",
-  }));
 
   const listTable = () => {
     return (
@@ -83,19 +79,23 @@ const Inventory = () => {
             <tr>
               <th className="py-5 px-4 border-b border-gray-200 text-left">
                 {" "}
-                Serial Number{" "}
+                Person Name{" "}
+              </th>
+              <th className="py-5 px-4 border-b border-gray-200 text-left">
+                {" "}
+                Total Stock{" "}
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 {" "}
-                Job Title{" "}
+                Remaining{" "}
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 {" "}
-                Customer{" "}
+                Stock In{" "}
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 {" "}
-                Uses{" "}
+                Stock Out{" "}
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 {" "}
@@ -124,27 +124,32 @@ const Inventory = () => {
                     </td>
                   </tr>
                 ))
-              : rows.map((row, index) => (
+              : stockList?.map((row, index) => (
                   <tr key={index} className="border-b border-gray-200">
-                    <td className="py-5 px-4">{row.clientName}</td>
                     <td className="py-2 px-4">
                       <div className={tableStyles.clientContact}>
-                        {row.clientContact}
+                        {row?.person?.name}
+                      </div>
+                    </td>
+                    <td className="py-5 px-4">{row.total_qty}</td>
+                    <td className="py-2 px-4">
+                      <div className={tableStyles.clientContact}>
+                        {row.remaining_qty}
                       </div>
                     </td>
                     <td className="py-2 px-4">
                       <div className={tableStyles.clientContact}>
-                        {row.clientContact}
+                        {row.stock_in}
                       </div>
                     </td>
                     <td className="py-2 px-4">
                       <div className={tableStyles.clientContact}>
-                        {row.clientContact}
+                        {row.stock_out}
                       </div>
                     </td>
                     <td className="py-2 px-4">
                       <div className={tableStyles.clientContact}>
-                        {row.clientContact}
+                        {new Date(row?.updated_at).toLocaleDateString()}
                       </div>
                     </td>
                   </tr>
