@@ -128,7 +128,7 @@ const Page = () => {
                 </td>
                 <td className="py-5 px-4">
                   <img
-                    style={{ width: "100px", height: "100px" }}
+                    style={{ width: "100px", height: "50px" }}
                     alt={row?.expense_name}
                     src={row?.expense_file}
                   />
