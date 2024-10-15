@@ -32,7 +32,6 @@ const Page = () => {
 
   const [amount, setAmount] = useState();
 
-  const [cheque_amount, setChequeAmount] = useState();
   const [cheque_date, setChequeDate] = useState();
   const [transection_id, setTransactionId] = useState();
 
@@ -129,7 +128,7 @@ const Page = () => {
       expenseObj = {
         ...expenseObj,
         bank_id: selectedBankId,
-        cheque_amount,
+        amount,
         cheque_date,
       };
     } else if (activeTab === "online") {
@@ -259,7 +258,7 @@ const Page = () => {
                 title={"Cheque Amount"}
                 type={"text"}
                 placeholder={"Cheque Amount"}
-                onChange={setChequeAmount}
+                onChange={setAmount}
               />
             </div>
 

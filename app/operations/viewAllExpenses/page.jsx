@@ -65,6 +65,9 @@ const Page = () => {
                 Expense Category
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Amount
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Action
               </th>
             </tr>
@@ -76,6 +79,11 @@ const Page = () => {
                 <td className="py-2 px-4">
                   <div className={tableStyles.clientContact}>
                     {row.expense_category}
+                  </div>
+                </td>
+                <td className="py-2 px-4">
+                  <div className={tableStyles.clientContact}>
+                    {row.total_amount}
                   </div>
                 </td>
                 <td className="py-2 px-4">
