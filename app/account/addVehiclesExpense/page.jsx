@@ -255,6 +255,14 @@ const Page = () => {
           />
         </Grid>
 
+        <Grid item lg={4} xs={12} sm={6} md={6}>
+          <InputWithTitle
+            value={maintenance_amount}
+            onChange={setMainAmount}
+            title={"Next Oil Change Limit"}
+          />
+        </Grid>
+
         <Grid item lg={6} xs={12} sm={6} md={6}>
           <Tabs activeTab={activeTab} setActiveTab={handleTabChange} />
         </Grid>
