@@ -44,7 +44,7 @@ const Page = () => {
 
   const [product_picture, setProductPicture] = useState(null);
 
-  const [attachments, setAttachments] = useState([]);  
+  const [attachments, setAttachments] = useState([]);
 
   useEffect(() => {
     getAllBrands();
@@ -66,6 +66,44 @@ const Page = () => {
       });
     } finally {
       setFetchingData(false);
+    }
+  };
+
+  const handleManufactureDateChange = (date) => {
+    setManufactureDate(date);
+    if (exp_date && new Date(exp_date) <= new Date(date)) {
+      setExpiryDate("");
+    }
+  };
+
+  const handleMocaStartDateChange = (date) => {
+    setMocaStartDate(date);
+    if (moccae_exp_date && new Date(moccae_exp_date) <= new Date(date)) {
+      setMocaExpiryDate("");
+    }
+  };
+
+  const handleMocaExpiryDateChange = (date) => {
+    if (new Date(date) > new Date(moccae_start_date)) {
+      setMocaExpiryDate(date);
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Date",
+        text: "MOCCAE expiry date must be after the MOCCAE start date.",
+      });
+    }
+  };
+
+  const handleExpiryDateChange = (date) => {
+    if (new Date(date) > new Date(mfg_date)) {
+      setExpiryDate(date);
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Date",
+        text: "Expiry date must be after the manufacture date.",
+      });
     }
   };
 
@@ -97,16 +135,10 @@ const Page = () => {
       per_item_qty,
       price,
       product_picture,
-
     };
     attachments.forEach((file, index) => {
       obj[`attachments[${index}]`] = file;
     });
-
-
-
-    console.log(JSON.stringify(obj));
-    
 
     const response = await api.postFormDataWithToken(`${product}/create`, obj);
 
@@ -216,7 +248,7 @@ const Page = () => {
         </div>
         <div className="mt-5">
           <InputWithTitle
-            onChange={setManufactureDate}
+            onChange={handleManufactureDateChange}
             title={"Manufacture Date"}
             type={"date"}
             value={mfg_date}
@@ -224,10 +256,11 @@ const Page = () => {
         </div>
         <div className="mt-5">
           <InputWithTitle
-            onChange={setExpiryDate}
+            onChange={handleExpiryDateChange}
             title={"Expiry Date"}
             type={"date"}
             value={exp_date}
+            min={mfg_date}
           />
         </div>
         <div className="mt-5">
@@ -317,7 +350,7 @@ const Page = () => {
               <InputWithTitle
                 title={"MOCCAE Start Date"}
                 type={"date"}
-                onChange={setMocaStartDate}
+                onChange={handleMocaStartDateChange}
                 value={moccae_start_date}
               />
             </div>
@@ -325,8 +358,9 @@ const Page = () => {
               <InputWithTitle
                 title={"MOCCAE Expiry Date"}
                 type={"date"}
-                onChange={setMocaExpiryDate}
+                onChange={handleMocaExpiryDateChange}
                 value={moccae_exp_date}
+                min={moccae_start_date}
               />
             </div>
           </div>

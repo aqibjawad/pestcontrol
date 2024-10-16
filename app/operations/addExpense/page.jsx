@@ -115,9 +115,11 @@ const Page = () => {
       vat,
       total,
       description,
-      expense_file,
       payment_type: activeTab,
     };
+    if (expense_file) {
+      expenseObj.expense_file = expense_file;
+    }
 
     // Add fields based on the active payment type
     if (activeTab === "cash") {
@@ -177,6 +179,23 @@ const Page = () => {
     );
   };
 
+  const calculateTotal = (amount, vat) => {
+    const amountValue = parseFloat(amount) || 0;
+    const vatPercentage = parseFloat(vat) || 0;
+    const vatAmount = (amountValue * vatPercentage) / 100;
+    return (amountValue + vatAmount).toFixed(2);
+  };
+
+  const handleAmountChange = (value) => {
+    setAmount(value);
+    setTotal(calculateTotal(value, vat));
+  };
+
+  const handleVatChange = (value) => {
+    setVat(value);
+    setTotal(calculateTotal(amount, value));
+  };
+
   const expenseForm = () => {
     return (
       <div>
@@ -220,7 +239,8 @@ const Page = () => {
                 title={"Cash Amount"}
                 type={"text"}
                 placeholder={"Cash Amount"}
-                onChange={setAmount}
+                onChange={handleAmountChange}
+                value={amount}
               />
             </div>
 
@@ -229,7 +249,8 @@ const Page = () => {
                 title={"VAT"}
                 type={"text"}
                 placeholder={"VAT"}
-                onChange={setVat}
+                onChange={handleVatChange}
+                value={vat}
               />
             </div>
 
@@ -238,7 +259,8 @@ const Page = () => {
                 title={"Total "}
                 type={"text"}
                 placeholder={"Total"}
-                onChange={setTotal}
+                value={total}
+                readOnly
               />
             </div>
           </div>
@@ -267,7 +289,8 @@ const Page = () => {
                 title={"Cheque Amount"}
                 type={"text"}
                 placeholder={"Cheque Amount"}
-                onChange={setAmount}
+                onChange={handleAmountChange}
+                value={amount}
               />
             </div>
 
@@ -276,7 +299,8 @@ const Page = () => {
                 title={"VAT"}
                 type={"text"}
                 placeholder={"VAT"}
-                onChange={setVat}
+                onChange={handleVatChange}
+                value={vat}
               />
             </div>
 
@@ -285,7 +309,8 @@ const Page = () => {
                 title={"Total "}
                 type={"text"}
                 placeholder={"Total"}
-                onChange={setTotal}
+                value={total}
+                readOnly
               />
             </div>
           </div>
@@ -306,7 +331,8 @@ const Page = () => {
                 title={"Transaction Amount"}
                 type={"text"}
                 placeholder={"Transaction Amount"}
-                onChange={setAmount}
+                onChange={handleAmountChange}
+                value={amount}
               />
             </div>
 
@@ -324,7 +350,8 @@ const Page = () => {
                 title={"VAT"}
                 type={"text"}
                 placeholder={"VAT"}
-                onChange={setVat}
+                onChange={handleVatChange}
+                value={vat}
               />
             </div>
 
@@ -333,7 +360,8 @@ const Page = () => {
                 title={"Total "}
                 type={"text"}
                 placeholder={"Total"}
-                onChange={setTotal}
+                value={total}
+                readOnly
               />
             </div>
           </div>
