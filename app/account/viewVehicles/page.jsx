@@ -8,19 +8,43 @@ import APICall from "@/networkUtil/APICall";
 import { vehicleExpense } from "@/networkUtil/Constants";
 import { Skeleton } from "@mui/material"; // Import MUI Skeleton
 
+import { format } from "date-fns";
+
 const Page = () => {
   const api = new APICall();
   const [fetchingData, setFetchingData] = useState(false);
   const [expenseList, setExpenseList] = useState([]);
 
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+
+  const handleDateChange = (start, end) => {
+    setStartDate(start);
+    setEndDate(end);
+  };
+
   useEffect(() => {
     getAllExpenses();
-  }, []);
+  }, [startDate, endDate]);
 
   const getAllExpenses = async () => {
     setFetchingData(true);
+
+    const queryParams = [];
+
+    if (startDate && endDate) {
+      queryParams.push(`start_date=${startDate}`);
+      queryParams.push(`end_date=${endDate}`);
+    } else {
+      const currentDate = format(new Date(), "yyyy-MM-dd");
+      queryParams.push(`start_date=${currentDate}`);
+      queryParams.push(`end_date=${currentDate}`);
+    }
+
     try {
-      const response = await api.getDataWithToken(`${vehicleExpense}`);
+      const response = await api.getDataWithToken(
+        `${vehicleExpense}?${queryParams.join("&")}`
+      );
       setExpenseList(response.data);
     } catch (error) {
       console.error("Error fetching vehicle expenses:", error);
@@ -55,6 +79,9 @@ const Page = () => {
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Amount
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Oil Change Limit
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Payment Type
@@ -100,12 +127,21 @@ const Page = () => {
                 </td>
                 <td className="py-2 px-4">
                   <div className={tableStyles.clientContact}>
+                    {row.oil_change_limit}
+                  </div>
+                </td>
+                <td className="py-2 px-4">
+                  <div className={tableStyles.clientContact}>
                     {row.payment_type}
                   </div>
                 </td>
                 <td className="py-2 px-4">
                   <div className={tableStyles.clientContact}>
-                    <Link href="/">View</Link>
+                    <Link href={`/account/getVehicle?id=${row.id}`}>
+                      <span className="text-blue-600 hover:text-blue-800">
+                        View Details
+                      </span>
+                    </Link>
                   </div>
                 </td>
               </tr>
@@ -142,6 +178,9 @@ const Page = () => {
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Amount
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Oil Change Limit
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Payment Type
@@ -181,6 +220,9 @@ const Page = () => {
                 <td className="py-2 px-4">
                   <Skeleton variant="text" />
                 </td>
+                <td className="py-2 px-4">
+                  <Skeleton variant="text" />
+                </td>
               </tr>
             ))}
           </tbody>
@@ -195,11 +237,25 @@ const Page = () => {
         <div className="flex flex-grow">
           <div className="pageTitle">{"Vehicle Expenses"}</div>
         </div>
-        <div className="flex">
-          <div className="mr-10">
-            <SearchInput />
-          </div>
-          <DateFilters />
+        <div
+          style={{
+            marginTop: "2rem",
+            border: "1px solid #38A73B",
+            borderRadius: "8px",
+            height: "40px",
+            width: "150px",
+            alignItems: "center",
+            display: "flex",
+            marginLeft: "2rem",
+          }}
+        >
+          <img
+            src="/Filters lines.svg"
+            height={20}
+            width={20}
+            className="ml-2 mr-2"
+          />
+          <DateFilters onDateChange={handleDateChange} />
         </div>
       </div>
 

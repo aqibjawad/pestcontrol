@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 
-import { Grid } from "@mui/material";
+import { Grid, CircularProgress } from "@mui/material";
 
 import InputWithTitle from "../../../components/generic/InputWithTitle";
 
@@ -10,13 +10,16 @@ import styles from "../../../styles/stock.module.css";
 
 import GreenButton from "@/components/generic/GreenButton";
 
-import Tabs from "./tabs";
-
-import Dropdown from "@/components/generic/Dropdown";
+import Dropdown2 from "@/components/generic/Dropdown2";
 
 import { useRouter } from "next/navigation";
 
-import { vehciles, bank, vehicleExpense, expense } from "@/networkUtil/Constants";
+import {
+  vehciles,
+  bank,
+  vehicleExpense,
+  expense,
+} from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
 
 const Page = () => {
@@ -24,18 +27,20 @@ const Page = () => {
 
   const router = useRouter();
 
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
+
   const [activeTab, setActiveTab] = useState("cash");
 
   const [fuel_amount, setFuelAmount] = useState();
   const [expense_date, setExpDate] = useState();
   const [maintenance_amount, setMainAmount] = useState();
   const [oil_amount, setOilAmount] = useState();
+  const [oil_change_limit, setOilChangeLimit] = useState();
 
   const [vat_per, setVat] = useState();
   const [total, setTotal] = useState();
   const [amount, setAmount] = useState();
 
-  const [bank_id, setBankId] = useState();
   const [cheque_amount, setChequeAmount] = useState();
   const [cheque_no, setChequeNo] = useState();
   const [cheque_date, setChequeDate] = useState();
@@ -48,19 +53,18 @@ const Page = () => {
 
   // All Banks States
   const [allVehiclesList, setAllVehicleList] = useState([]);
-  
+
   const [allVehicleNameList, setVehicleNameList] = useState([]);
+
   const [selectedVehicleId, setSelectedVehicleId] = useState("");
-  
 
   const [fetchingData, setFetchingData] = useState(false);
 
-  const [selectedVehicle, setSelectedVehicle] = useState({ id: "", name: "" });
   const [selectedBank, setSelectedBank] = useState({ id: "", name: "" });
 
   useEffect(() => {
     getAllBanks();
-    getAllVehicles();
+    getAllVehciles();
   }, []);
 
   const getAllBanks = async () => {
@@ -78,16 +82,13 @@ const Page = () => {
     }
   };
 
-  const getAllVehicles = async () => {
-    true;
+  const getAllVehciles = async () => {
+    setFetchingData(true);
     try {
       const response = await api.getDataWithToken(`${vehciles}`);
       setAllVehicleList(response.data);
-
-      const vehicleNames = response.data.map((item) => item.vehicle_number);
-      setVehicleNameList(vehicleNames);
     } catch (error) {
-      console.error("Error fetching brands:", error);
+      console.error("Error fetching Banks:", error);
     } finally {
       setFetchingData(false);
     }
@@ -98,26 +99,13 @@ const Page = () => {
     setSelectedBankId(selectedValue);
   };
 
-  // const handleVehicleChange = (selectedValue) => {
-  //   setSelectedVehicleId(selectedValue);
+  const handleVehcileChange = (selectedValue) => {
+    setSelectedVehicleId(selectedValue);
+  };
+
+  // const handleTabChange = (tab) => {
+  //   setActiveTab(tab);
   // };
-
-  const handleVehicleChange = (value) => {
-    const selectedClient = allVehicleNameList.find((vehcile) => vehcile.id === value);
-    
-    if (selectedClient) {
-      setSelectedVehicleId(selectedClient);
-      // setFormData((prev) => ({
-      //   ...prev,
-      //   vehicle_id: selectedClient.id,
-      // })); // Set user ID
-
-    }
-  };
-
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-  };
 
   const createVehicleObject = () => {
     let vehicleObj = {
@@ -128,51 +116,49 @@ const Page = () => {
       total,
       oil_amount,
       maintenance_amount,
-      payment_type: activeTab,
+      payment_type: "cash",
+      oil_change_limit,
     };
 
     // Add fields based on the active payment type
-    if (activeTab === "cash") {
-      vehicleObj = {
-        ...vehicleObj,
-        amount,
-      };
-    } else if (activeTab === "cheque") {
-      vehicleObj = {
-        ...vehicleObj,
-        bank_id: selectedBankId,
-        cheque_amount,
-        cheque_no,
-        cheque_date,
-      };
-    } else if (activeTab === "online") {
-      vehicleObj = {
-        ...vehicleObj,
-        bank_id: selectedBankId,
-        amount,
-        transection_id,
-      };
-    }
+    // if (activeTab === "cash") {
+    //   vehicleObj = {
+    //     ...vehicleObj,
+    //     amount,
+    //   };
+    // } else if (activeTab === "cheque") {
+    //   vehicleObj = {
+    //     ...vehicleObj,
+    //     bank_id: selectedBankId,
+    //     cheque_amount,
+    //     cheque_no,
+    //     cheque_date,
+    //   };
+    // } else if (activeTab === "online") {
+    //   vehicleObj = {
+    //     ...vehicleObj,
+    //     bank_id: selectedBankId,
+    //     amount,
+    //     transection_id,
+    //   };
+    // }
 
     return vehicleObj;
   };
 
   const handleSubmit = async () => {
     const vehicleData = createVehicleObject();
-    try {
-      const response = await api.postFormDataWithToken(
-        `${vehicleExpense}/create`,
-        vehicleData
-      );
-      if (response.status === 200) {
-        alert("Vehicle Expense Added Successfully");
-        router.push("/account/viewVehicles");
-      }
-      // Handle successful response
-      console.log("Expense created successfully:", response);
-    } catch (error) {
-      // Handle error
-      console.error("Error creating vehciles:", error);
+    setLoadingSubmit(true);
+    const response = await api.postFormDataWithToken(
+      `${vehicleExpense}/create`,
+      vehicleData
+    );
+    if (response.status === "success") {
+      alert("Vehicle Expense Added Successfully");
+      router.push("/account/viewVehicles");
+      setLoadingSubmit(false);
+    } else{
+      alert("Vehicle Expense Not Added Successfully");
     }
   };
 
@@ -200,6 +186,11 @@ const Page = () => {
     setTotal(finalTotal);
   }, [fuel_amount, oil_amount, maintenance_amount, vat_per]);
 
+  const bankOptions = allVehiclesList.map((vehcilees) => ({
+    value: vehcilees.id,
+    label: vehcilees.vehicle_number,
+  }));
+
   return (
     <div>
       <div className={styles.stockHead}>vehicles</div>
@@ -212,13 +203,19 @@ const Page = () => {
       {/* Form section */}
       <Grid className={styles.fromGrid} container spacing={3}>
         <Grid item lg={4} xs={12}>
-          <Dropdown
+          {/* <Dropdown2
             title={"select Vehcile"}
             options={allVehiclesList}
             onChange={handleVehicleChange}
             value={allVehiclesList.find(
               (option) => option.value === selectedVehicleId
             )}
+          /> */}
+          <Dropdown2
+            onChange={handleVehcileChange}
+            title="Select Vehciles"
+            options={bankOptions}
+            value={selectedVehicleId}
           />
         </Grid>
         <Grid item lg={4} xs={12} sm={6} md={6}>
@@ -229,7 +226,6 @@ const Page = () => {
             type={"date"}
           />
         </Grid>
-        
 
         <Grid item lg={4} xs={12} sm={6} md={6}>
           <InputWithTitle
@@ -257,13 +253,32 @@ const Page = () => {
 
         <Grid item lg={4} xs={12} sm={6} md={6}>
           <InputWithTitle
-            value={maintenance_amount}
-            onChange={setMainAmount}
+            value={oil_change_limit}
+            onChange={setOilChangeLimit}
             title={"Next Oil Change Limit"}
           />
         </Grid>
 
-        <Grid item lg={6} xs={12} sm={6} md={6}>
+        <Grid item lg={4} xs={12} sm={6} md={4}>
+          <InputWithTitle
+            title={"VAT"}
+            type={"text"}
+            placeholder={"VAT"}
+            onChange={setVat}
+          />
+        </Grid>
+
+        <Grid item lg={4} xs={12} sm={6} md={4}>
+          <InputWithTitle
+            value={total}
+            title={"Total"}
+            type="text"
+            placeholder={"Total"}
+            readOnly
+          />
+        </Grid>
+
+        {/* <Grid item lg={6} xs={12} sm={6} md={6}>
           <Tabs activeTab={activeTab} setActiveTab={handleTabChange} />
         </Grid>
 
@@ -295,7 +310,7 @@ const Page = () => {
         {activeTab === "cheque" && (
           <Grid className={styles.fromGrid} container spacing={3}>
             <Grid item lg={6} xs={12}>
-              <Dropdown
+              <Dropdown2
                 onChange={handleBankChange}
                 title={"Banks"}
                 options={allBankNameList}
@@ -344,7 +359,7 @@ const Page = () => {
         {activeTab === "online" && (
           <Grid className={styles.fromGrid} container spacing={3}>
             <Grid item xs={12}>
-              <Dropdown
+              <Dropdown2
                 onChange={handleBankChange}
                 title={"Banks"}
                 options={allBankNameList}
@@ -378,11 +393,21 @@ const Page = () => {
               />
             </Grid>
           </Grid>
-        )}
+        )} */}
       </Grid>
 
       <div className={styles.btnSubmitt}>
-        <GreenButton onClick={handleSubmit} title={"Submit"} />
+        <GreenButton
+          title={
+            loadingSubmit ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              "Submit"
+            )
+          }
+          disabled={loadingSubmit}
+          onClick={handleSubmit}
+        />
       </div>
     </div>
   );

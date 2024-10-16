@@ -101,7 +101,7 @@ const Page = () => {
           <>
             <Grid item xs={12} sm={6} md={4}>
               <img
-                style={{ width: "100px", height: "100px" }}
+                style={{ width: "100px", height: "100px", objectFit:"contain" }}
                 src={stock?.product?.product_picture}
                 alt={stock?.product?.product_name}
               />
@@ -118,7 +118,7 @@ const Page = () => {
             <Grid item xs={12} sm={6} md={4}></Grid>
             <Grid item xs={12} sm={6} md={4}>
               <img
-                style={{ width: "100px", height: "100px" }}
+                style={{ width: "100px", height: "100px", objectFit:"contain" }}
                 src={stock?.user?.employee?.profile_image}
                 alt={stock?.user?.name}
               />

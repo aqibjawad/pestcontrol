@@ -174,7 +174,7 @@ const Inventory = () => {
           ) : (
             <img
               src={employeeList?.product_picture}
-              style={{ width: "269px", height: "493px", left: "315px" }}
+              style={{ width: "200px", height: "200px", left: "315px", objectFit:"contain" }}
             />
           )}
         </div>
