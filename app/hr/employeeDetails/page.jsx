@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Contact from "./contact";
 import styles from "../../../styles/personalDetails.module.css";
 import APICall from "@/networkUtil/APICall";
 import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
+import { Skeleton } from "@mui/material"; // Import Skeleton from MUI
+import Link from "next/link";
 
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
@@ -28,10 +29,8 @@ const Page = () => {
   const [employeeList, setEmployeeList] = useState([]);
 
   useEffect(() => {
-    // Get the current URL
     const currentUrl = window.location.href;
 
-    // Extract id from URL
     const urlId = getIdFromUrl(currentUrl);
     setId(urlId);
 
@@ -59,13 +58,19 @@ const Page = () => {
       {/* Personal Information */}
       <div className={styles.personalDetailsContainer}>
         <div className={styles.imageContainer}>
-          <img
-            className={styles.personalImage}
-            src={employeeList?.employee?.profile_image}
-            alt="Person"
-          />
+          {fetchingData ? (
+            <Skeleton variant="circular" width={100} height={100} />
+          ) : (
+            <img
+              className={styles.personalImage}
+              src={employeeList?.employee?.profile_image}
+              alt="Person"
+            />
+          )}
         </div>
-        <div className={styles.personalName}> {employeeList.name} </div>
+        <div className={styles.personalName}>
+          {fetchingData ? <Skeleton width="60%" /> : employeeList.name}
+        </div>
 
         <div className={styles.personalContainer}>
           <div className={styles.personalHead}>Personal Information</div>
@@ -80,8 +85,20 @@ const Page = () => {
               </thead>
               <tbody>
                 <tr>
-                  <td> {employeeList.email} </td>
-                  <td> {employeeList?.employee?.phone_number} </td>
+                  <td>
+                    {fetchingData ? (
+                      <Skeleton width="80%" />
+                    ) : (
+                      employeeList.email
+                    )}
+                  </td>
+                  <td>
+                    {fetchingData ? (
+                      <Skeleton width="80%" />
+                    ) : (
+                      employeeList?.employee?.phone_number
+                    )}
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -105,9 +122,27 @@ const Page = () => {
               </thead>
               <tbody>
                 <tr>
-                  <td> {employeeList?.employee?.eid_no} </td>
-                  <td> {employeeList?.employee?.eid_start} </td>
-                  <td> {employeeList?.employee?.eid_expiry} </td>
+                  <td>
+                    {fetchingData ? (
+                      <Skeleton width="80%" />
+                    ) : (
+                      employeeList?.employee?.eid_no
+                    )}
+                  </td>
+                  <td>
+                    {fetchingData ? (
+                      <Skeleton width="80%" />
+                    ) : (
+                      employeeList?.employee?.eid_start
+                    )}
+                  </td>
+                  <td>
+                    {fetchingData ? (
+                      <Skeleton width="80%" />
+                    ) : (
+                      employeeList?.employee?.eid_expiry
+                    )}
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -128,9 +163,27 @@ const Page = () => {
               </thead>
               <tbody>
                 <tr>
-                  <td> {employeeList?.employee?.passport_no} </td>
-                  <td> {employeeList?.employee?.passport_start} </td>
-                  <td> {employeeList?.employee?.passport_expiry} </td>
+                  <td>
+                    {fetchingData ? (
+                      <Skeleton width="80%" />
+                    ) : (
+                      employeeList?.employee?.passport_no
+                    )}
+                  </td>
+                  <td>
+                    {fetchingData ? (
+                      <Skeleton width="80%" />
+                    ) : (
+                      employeeList?.employee?.passport_start
+                    )}
+                  </td>
+                  <td>
+                    {fetchingData ? (
+                      <Skeleton width="80%" />
+                    ) : (
+                      employeeList?.employee?.passport_expiry
+                    )}
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -157,12 +210,48 @@ const Page = () => {
               </thead>
               <tbody>
                 <tr>
-                  <td> {employeeList?.employee?.hi_status} </td>
-                  <td> {employeeList?.employee?.hi_start} </td>
-                  <td> {employeeList?.employee?.hi_expiry} </td>
-                  <td> {employeeList?.employee?.dm_card} </td>
-                  <td> {employeeList?.employee?.dm_start} </td>
-                  <td> {employeeList?.employee?.hi_expiry} </td>
+                  <td>
+                    {fetchingData ? (
+                      <Skeleton width="80%" />
+                    ) : (
+                      employeeList?.employee?.hi_status
+                    )}
+                  </td>
+                  <td>
+                    {fetchingData ? (
+                      <Skeleton width="80%" />
+                    ) : (
+                      employeeList?.employee?.hi_start
+                    )}
+                  </td>
+                  <td>
+                    {fetchingData ? (
+                      <Skeleton width="80%" />
+                    ) : (
+                      employeeList?.employee?.hi_expiry
+                    )}
+                  </td>
+                  <td>
+                    {fetchingData ? (
+                      <Skeleton width="80%" />
+                    ) : (
+                      employeeList?.employee?.dm_card
+                    )}
+                  </td>
+                  <td>
+                    {fetchingData ? (
+                      <Skeleton width="80%" />
+                    ) : (
+                      employeeList?.employee?.dm_start
+                    )}
+                  </td>
+                  <td>
+                    {fetchingData ? (
+                      <Skeleton width="80%" />
+                    ) : (
+                      employeeList?.employee?.hi_expiry
+                    )}
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -183,9 +272,27 @@ const Page = () => {
               </thead>
               <tbody>
                 <tr>
-                  <td> {employeeList?.employee?.ui_status} </td>
-                  <td> {employeeList?.employee?.ui_start} </td>
-                  <td> {employeeList?.employee?.ui_expiry} </td>
+                  <td>
+                    {fetchingData ? (
+                      <Skeleton width="80%" />
+                    ) : (
+                      employeeList?.employee?.ui_status
+                    )}
+                  </td>
+                  <td>
+                    {fetchingData ? (
+                      <Skeleton width="80%" />
+                    ) : (
+                      employeeList?.employee?.ui_start
+                    )}
+                  </td>
+                  <td>
+                    {fetchingData ? (
+                      <Skeleton width="80%" />
+                    ) : (
+                      employeeList?.employee?.ui_expiry
+                    )}
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -209,9 +316,27 @@ const Page = () => {
               </thead>
               <tbody>
                 <tr>
-                  <td> {employeeList?.employee?.relative_name} </td>
-                  <td> {employeeList?.employee?.relation} </td>
-                  <td> {employeeList?.employee?.emergency_contact} </td>
+                  <td>
+                    {fetchingData ? (
+                      <Skeleton width="80%" />
+                    ) : (
+                      employeeList?.employee?.relative_name
+                    )}
+                  </td>
+                  <td>
+                    {fetchingData ? (
+                      <Skeleton width="80%" />
+                    ) : (
+                      employeeList?.employee?.relation
+                    )}
+                  </td>
+                  <td>
+                    {fetchingData ? (
+                      <Skeleton width="80%" />
+                    ) : (
+                      employeeList?.employee?.emergency_contact
+                    )}
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -232,9 +357,27 @@ const Page = () => {
               </thead>
               <tbody>
                 <tr>
-                  <td> {employeeList?.employee?.basic_salary} </td>
-                  <td> {employeeList?.employee?.allowance} </td>
-                  <td> {employeeList?.employee?.total_salary} </td>
+                  <td>
+                    {fetchingData ? (
+                      <Skeleton width="80%" />
+                    ) : (
+                      employeeList?.employee?.basic_salary
+                    )}
+                  </td>
+                  <td>
+                    {fetchingData ? (
+                      <Skeleton width="80%" />
+                    ) : (
+                      employeeList?.employee?.allowance
+                    )}
+                  </td>
+                  <td>
+                    {fetchingData ? (
+                      <Skeleton width="80%" />
+                    ) : (
+                      employeeList?.employee?.total_salary
+                    )}
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -253,31 +396,39 @@ const Page = () => {
                   <th> Product Name </th>
                   <th> Total Quantity </th>
                   <th> Remaining Quantity </th>
+                  <th> View Details </th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>
-                    {employeeList.stocks?.map((stock) => (
-                      <div key={stock.id}>{stock?.product?.product_name}</div>
-                    ))}
-                  </td>
-                  <td>
-                    {employeeList.stocks?.map((stock) => (
-                      <div key={stock.id}>{stock.total_qty}</div>
-                    ))}
-                  </td>
-                  <td>
-                    {employeeList.stocks?.map((stock) => (
-                      <div key={stock.id}>{stock.remaining_qty}</div>
-                    ))}
-                  </td>
-                </tr>
+                {employeeList.stocks?.map((stock) => (
+                  <tr key={stock.id}>
+                    <td>{stock?.product?.product_name}</td>
+                    <td>{stock.total_qty}</td>
+                    <td>{stock.remaining_qty}</td>
+                    <td>
+                      <Link
+                        href={`/stock?id=${encodeURIComponent(
+                          employeeList.id
+                        )}&product_id=${encodeURIComponent(stock.product_id)}`}
+                      >
+                        <span className="text-blue-600 hover:text-blue-800">
+                          View Details
+                        </span>
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
         </div>
       </div>
+
+      {/* <div className={styles.buttonContainer}>
+        <Link href={`/dashboard/personalDetails/edit?id=${id}`}>
+          <button className={styles.editButton}>Edit</button>
+        </Link>
+      </div> */}
     </div>
   );
 };
