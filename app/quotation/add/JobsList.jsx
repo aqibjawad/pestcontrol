@@ -240,27 +240,62 @@ const JobsList = ({
     return result.sort();
   };
 
+  const handleServiceChange = (value) => {
+    console.log("handleServiceChange called with value:", value);
+    const selectedService = allServices.find((service) => service.id === value);
+    console.log("selectedService:", selectedService);
+    if (selectedService) {
+      updateJobList((prevJobData) => {
+        console.log("Updating jobData:", prevJobData);
+        return {
+          ...prevJobData,
+          service_id: value,
+          service_name: selectedService.pest_name,
+        };
+      });
+    }
+  };
+
+  useEffect(() => {
+    // This will run after jobData has been updated
+    console.log("Updated jobData:", jobData);
+  }, [jobData]);
+
+  // const serviceOptions = allServices.map((service) => ({
+  //   label: service.service_title,
+  //   value: service.id,
+  // }));
+  
+  const getUniqueServiceOptions = (allServices) => {
+    const uniqueTitles = new Set();
+    const uniqueOptions = [];
+  
+    allServices.forEach((service) => {
+      if (!uniqueTitles.has(service.service_title)) {
+        uniqueTitles.add(service.service_title);
+        uniqueOptions.push({
+          label: service.service_title,
+          value: service.id
+        });
+      }
+    });
+  
+    return uniqueOptions;
+  };
+
+  const serviceOptions = getUniqueServiceOptions(allServices);
+
+
   return (
     <div style={{ marginBottom: "2rem" }}>
       <Grid container spacing={2}>
         <Grid item lg={3} xs={4}>
           <Dropdown2
             title="Selected Products"
-            options={allServices.map((service) => ({
-              label: service.service_title,
-              value: service.id,
-            }))}
+            options={serviceOptions}
             value={jobData.service_id}
-            onChange={(value) => {
-              const selectedService = allServices.find(
-                (service) => service.id === value
-              );
-              updateJobList({
-                ...jobData,
-                service_id: value,
-                serviceName: selectedService.service_title,
-              });
-            }}
+            onChange={handleServiceChange}
+            fullWidth
           />
         </Grid>
 
