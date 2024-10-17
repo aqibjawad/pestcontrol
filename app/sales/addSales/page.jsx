@@ -9,7 +9,6 @@ import { product, customers, saleOrder } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
 import { AppAlerts } from "../../../Helper/AppAlerts";
 import { useRouter } from "next/navigation";
-// import { Plus, Trash2 } from "lucide-react";
 import { FaTrash } from "react-icons/fa";
 import { CiSquarePlus } from "react-icons/ci";
 
@@ -18,22 +17,26 @@ const Page = () => {
   const alerts = new AppAlerts();
   const router = useRouter();
 
+  // Single customer state
+  const [selectedCustomerId, setSelectedCustomerId] = useState("");
+
   const [salesEntries, setSalesEntries] = useState([
     {
-      customer_id: "",
       product_id: "",
       vat_per: "",
       price: "",
       quantity: "",
-      dis_per: "",
     },
   ]);
 
+  const [totalAmount, setTotalAmount] = useState(0);
+  const [totalDiscount, setTotalDiscount] = useState("");
+  const [finalAmount, setFinalAmount] = useState(0);
   const [fetchingData, setFetchingData] = useState(false);
-  const [allSupplierList, setAllSuppliersList] = useState([]);
-  const [allSupplierNameList, setSupplierNameList] = useState([]);
-  const [allBanksList, setAllBankList] = useState([]);
-  const [allBankNameList, setBankNameList] = useState([]);
+  const [allCustomersList, setAllCustomersList] = useState([]);
+  const [allCustomerNameList, setCustomerNameList] = useState([]);
+  const [allProductsList, setAllProductsList] = useState([]);
+  const [allProductNameList, setProductNameList] = useState([]);
   const [loadingSubmit, setLoadingSubmit] = useState(false);
 
   useEffect(() => {
@@ -41,13 +44,35 @@ const Page = () => {
     getAllProducts();
   }, []);
 
+  useEffect(() => {
+    calculateTotalAmount();
+  }, [salesEntries, totalDiscount]);
+
+  const calculateTotalAmount = () => {
+    const total = salesEntries.reduce((sum, entry) => {
+      const price = parseFloat(entry.price) || 0;
+      const quantity = parseFloat(entry.quantity) || 0;
+      const vat = parseFloat(entry.vat_per) || 0;
+
+      const subTotal = price * quantity;
+      const vatAmount = (subTotal * vat) / 100;
+      return sum + subTotal + vatAmount;
+    }, 0);
+
+    setTotalAmount(total);
+
+    // Calculate final amount after discount
+    const discountAmount = (total * (parseFloat(totalDiscount) || 0)) / 100;
+    setFinalAmount(total - discountAmount);
+  };
+
   const getAllCustomers = async () => {
     setFetchingData(true);
     try {
       const response = await api.getDataWithToken(`${customers}`);
-      setAllSuppliersList(response.data);
+      setAllCustomersList(response.data);
       const customerNames = response.data.map((item) => item.person_name);
-      setSupplierNameList(customerNames);
+      setCustomerNameList(customerNames);
     } catch (error) {
       console.error("Error fetching customers:", error);
     } finally {
@@ -59,9 +84,9 @@ const Page = () => {
     setFetchingData(true);
     try {
       const response = await api.getDataWithToken(`${product}`);
-      setAllBankList(response.data);
+      setAllProductsList(response.data);
       const productNames = response.data.map((item) => item.product_name);
-      setBankNameList(productNames);
+      setProductNameList(productNames);
     } catch (error) {
       console.error("Error fetching products:", error);
     } finally {
@@ -75,13 +100,13 @@ const Page = () => {
     setSalesEntries(updatedEntries);
   };
 
-  const handleCustomerChange = (index, name, customerIndex) => {
-    const customerId = allSupplierList[customerIndex].id;
-    handleEntryChange(index, "customer_id", customerId);
+  const handleCustomerChange = (name, customerIndex) => {
+    const customerId = allCustomersList[customerIndex].id;
+    setSelectedCustomerId(customerId);
   };
 
   const handleProductChange = (index, name, productIndex) => {
-    const productId = allBanksList[productIndex].id;
+    const productId = allProductsList[productIndex].id;
     handleEntryChange(index, "product_id", productId);
   };
 
@@ -89,12 +114,10 @@ const Page = () => {
     setSalesEntries([
       ...salesEntries,
       {
-        customer_id: "",
         product_id: "",
         vat_per: "",
         price: "",
         quantity: "",
-        dis_per: "",
       },
     ]);
   };
@@ -106,16 +129,23 @@ const Page = () => {
 
   const createSalesObject = () => {
     return {
-      customer_id: salesEntries.map((entry) => entry.customer_id).join(","),
+      customer_id: selectedCustomerId,
       product_id: salesEntries.map((entry) => entry.product_id).join(","),
       vat_per: salesEntries.map((entry) => entry.vat_per).join(","),
       price: salesEntries.map((entry) => entry.price).join(","),
       quantity: salesEntries.map((entry) => entry.quantity).join(","),
-      dis_per: salesEntries.map((entry) => entry.dis_per).join(","),
+      dis_per: totalDiscount,
+      total_amount: totalAmount.toFixed(2),
+      final_amount: finalAmount.toFixed(2),
     };
   };
 
   const handleSubmit = async () => {
+    if (!selectedCustomerId) {
+      alerts.errorAlert("Please select a customer");
+      return;
+    }
+
     setLoadingSubmit(true);
     const salesData = createSalesObject();
     try {
@@ -125,7 +155,6 @@ const Page = () => {
       );
       if (response.status === "success") {
         alerts.successAlert("Sale orders have been created");
-        // router.push('/some-route');
       } else {
         alerts.errorAlert(response.error.message);
       }
@@ -142,35 +171,17 @@ const Page = () => {
       <Grid container spacing={3} className="mt-5" key={index}>
         <Grid item xs={12} sm={6}>
           <Dropdown
-            onChange={(name, customerIndex) =>
-              handleCustomerChange(index, name, customerIndex)
-            }
-            title="Customers List"
-            options={allSupplierNameList}
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <Dropdown
             onChange={(name, productIndex) =>
               handleProductChange(index, name, productIndex)
             }
             title="Product List"
-            options={allBankNameList}
-          />
-        </Grid>
-        <Grid item lg={6} xs={12} sm={6}>
-          <InputWithTitle
-            title="Discount"
-            type="text"
-            placeholder="Enter Discount"
-            onChange={(value) => handleEntryChange(index, "dis_per", value)}
-            value={entry.dis_per}
+            options={allProductNameList}
           />
         </Grid>
         <Grid item lg={6} xs={12} sm={6}>
           <InputWithTitle
             title="Quantity"
-            type="text"
+            type="number"
             placeholder="Enter Quantity"
             onChange={(value) => handleEntryChange(index, "quantity", value)}
             value={entry.quantity}
@@ -178,8 +189,8 @@ const Page = () => {
         </Grid>
         <Grid item lg={6} xs={12} sm={6}>
           <InputWithTitle
-            title="Vat"
-            type="text"
+            title="Vat %"
+            type="number"
             placeholder="Enter Vat"
             onChange={(value) => handleEntryChange(index, "vat_per", value)}
             value={entry.vat_per}
@@ -188,7 +199,7 @@ const Page = () => {
         <Grid item lg={6} xs={12} sm={6}>
           <InputWithTitle
             title="Price"
-            type="text"
+            type="number"
             placeholder="Enter Price"
             onChange={(value) => handleEntryChange(index, "price", value)}
             value={entry.price}
@@ -208,10 +219,52 @@ const Page = () => {
       <div className="pageTitle">Add Sales</div>
       <div className="mt-10"></div>
       <div className="p-4">
+        {/* Single Customer Dropdown at the top */}
+        <Grid container spacing={3}>
+          <Grid item xs={12} sm={6}>
+            <Dropdown
+              onChange={handleCustomerChange}
+              title="Select Customer"
+              options={allCustomerNameList}
+            />
+          </Grid>
+        </Grid>
+
+        {/* Multiple Product Entries */}
         {salesEntries.map((entry, index) => renderSalesForm(entry, index))}
+
         <IconButton onClick={addSalesEntry} color="primary" className="mt-4">
           <CiSquarePlus />
         </IconButton>
+
+        {/* Totals Section */}
+        <Grid container spacing={3} className="mt-5">
+          <Grid item xs={12} sm={4}>
+            <InputWithTitle
+              title="Total Amount"
+              type="text"
+              value={totalAmount.toFixed(2)}
+              disabled
+            />
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <InputWithTitle
+              title="Discount %"
+              type="number"
+              placeholder="Enter Discount"
+              onChange={(value) => setTotalDiscount(value)}
+              value={totalDiscount}
+            />
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <InputWithTitle
+              title="Final Amount"
+              type="text"
+              value={finalAmount.toFixed(2)}
+              disabled
+            />
+          </Grid>
+        </Grid>
       </div>
       <div className="mt-10">
         <GreenButton
