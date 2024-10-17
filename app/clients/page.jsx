@@ -21,8 +21,13 @@ import Link from "next/link";
 
 import Swal from "sweetalert2";
 
+import { useRouter } from "next/navigation";
+import { Router } from "next/router";
+
 const Page = () => {
+
   const api = new APICall();
+  const router = useRouter();
   const [fetchingData, setFetchingData] = useState(false);
 
   const [brandsList, setBrandsList] = useState([]);
@@ -32,8 +37,6 @@ const Page = () => {
   const [open, setOpen] = useState(false);
   const [dropdownOptions, setDropdownOptions] = useState([]);
   const [selectedOption, setSelectedOption] = useState(null);
-
-  console.log(selectedOption);
 
   const [name, setName] = useState("");
   const [firm_name, setFirmName] = useState("");
@@ -261,13 +264,15 @@ const Page = () => {
     const response = await api.postFormDataWithToken(`${clients}/create`, obj);
 
     if (response.status === "success") {
+      const clientId = response.data.id;
       Swal.fire({
         icon: "success",
         title: "Success",
         text: "Data has been added successfully!",
       });
-      await getAllClients();
+      // await getAllClients();
       handleClose();
+      router.push(`/address?id=${clientId}`)
     } else {
       Swal.fire({
         icon: "error",

@@ -6,14 +6,11 @@ import { Grid } from "@mui/material";
 import InputWithTitle from "../../components/generic/InputWithTitle";
 import { job } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
-
 import { useRouter } from "next/navigation";
-
 import CircularProgress from "@mui/material/CircularProgress";
 
 const RescheduleTreatment = ({ jobId, jobList }) => {
   const api = new APICall();
-
   const router = useRouter();
 
   const [job_date, setJobDate] = useState("");
@@ -76,8 +73,10 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
       } else if (jobStatus === 0) {
         const response = await api.getDataWithToken(`${job}/start/${jobId}`);
         if (response.success) {
-          alert("Job started successfully!");
+          alert("Job Moved to Started Successfully");
           setJobStatus("2");
+          // Refresh page after starting job
+          window.location.reload();
         } else {
           alert(response.message || "Failed to start job. Please try again.");
         }
@@ -173,34 +172,53 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
 
   return (
     <div style={{ marginTop: "2rem" }} className={styles.mainDivTreat}>
-      <Grid container spacing={2}>
-        <Grid item lg={10} sm={12} xs={12} md={4}>
-          <div className={styles.leftSection}>
-            <div className={styles.treatHead}>Reschedule treatment</div>
+      {jobStatus === 0 && ( // Conditionally render the form only if jobStatus is 0
+        <div>
+          <Grid container spacing={2}>
+            <Grid item lg={10} sm={12} xs={12} md={4}>
+              <div className={styles.leftSection}>
+                <div className={styles.treatHead}>Reschedule treatment</div>
+              </div>
+            </Grid>
+          </Grid>
+          <div className={styles.formReschedule}>
+            <InputWithTitle
+              onChange={(value) => setJobDate(value)}
+              value={job_date}
+              type={"date"}
+              title={"Date"}
+            />
+
+            <div className="mt-5">
+              <InputWithTitle
+                onChange={(value) => setReason(value)}
+                value={reason}
+                title={"Reason"}
+              />
+            </div>
           </div>
-        </Grid>
-      </Grid>
-
-      <div className={styles.formReschedule}>
-        <InputWithTitle
-          onChange={(value) => setJobDate(value)}
-          value={job_date}
-          type={"date"}
-          title={"Date"}
-        />
-
-        <div className="mt-5">
-          <InputWithTitle
-            onChange={(value) => setReason(value)}
-            value={reason}
-            title={"Reason"}
-          />
         </div>
+      )}
 
-        <Grid container spacing={2}>
-          {renderActionButton()}
-        </Grid>
-      </div>
+      {jobStatus === 2 && (
+        <div>
+          <div className={styles.leftSection}>
+            <div className={styles.treatHead}> Complete Your Job </div>
+          </div>
+        </div>
+      )}
+
+      {jobStatus === 1 && (
+        <div>
+          <div className={styles.leftSection}>
+            <div className={styles.treatHead}> Create Report </div>
+          </div>
+        </div>
+      )}
+
+      <Grid container spacing={2}>
+        {renderActionButton()}
+      </Grid>
     </div>
   );
 };

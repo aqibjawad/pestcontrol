@@ -30,7 +30,7 @@ const Remarks = ({ formData, setFormData }) => {
         onChange={handleRemarksChange}
       />
 
-      <div className="mt-5">
+      {/* <div className="mt-5">
         <MultilineInput
           title={"For Office use"}
           type={"text"}
@@ -38,7 +38,7 @@ const Remarks = ({ formData, setFormData }) => {
           value={formData.for_office_use || ""}
           onChange={handleOfficeChange}
         />
-      </div>
+      </div> */}
     </div>
   );
 };

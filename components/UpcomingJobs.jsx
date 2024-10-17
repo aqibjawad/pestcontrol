@@ -116,12 +116,16 @@ const UpcomingJobs = ({ jobsList, handleDateChange }) => {
                     </td>
                     <td className="py-2 px-4">
                       <div className={styles.teamCaptainName}>
-                        <Link href={`/operations/assignJob?id=${row.id}`}>
-                          <GreenButton
-                            onClick={assignedJob}
-                            title="Assign Job"
-                          />
-                        </Link>
+                        {row.captain_id === null ? (
+                          <Link href={`/operations/assignJob?id=${row.id}`}>
+                            <GreenButton
+                              onClick={assignedJob}
+                              title="Assign Job"
+                            />
+                          </Link>
+                        ) : (
+                          <span>{row?.captain?.name}</span>
+                        )}
                       </div>
                     </td>
                     <td className="py-2 px-4">

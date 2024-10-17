@@ -1,40 +1,33 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import styles from "../../styles/serviceReport.module.css";
 import AddExtraChemicals from "../../components/addExtraChemicals";
 
 const Extra = ({ formData, setFormData }) => {
   const [openChemicals, setOpenChemicals] = useState(false);
-  const [used_products, setExtraChemicals] = useState([]);
+  const [extraChemicals, setExtraChemicals] = useState([]);
 
   const handleOpenChemicals = () => setOpenChemicals(true);
   const handleCloseChemicals = () => setOpenChemicals(false);
 
   const handleAddExtraChemical = (newChemical) => {
-    // First, update the local state
-    const updatedChemicals = [
-      ...used_products,
+    // Update the local state for extra chemicals
+    const updatedExtraChemicals = [
+      ...extraChemicals,
       { ...newChemical, id: Date.now() },
     ];
-    setExtraChemicals(updatedChemicals);
+    setExtraChemicals(updatedExtraChemicals);
 
-    // Then, update the parent formData
+    // Update the parent formData
     setFormData((prevFormData) => ({
       ...prevFormData,
       used_products: [
         ...(prevFormData.used_products || []),
-        { ...newChemical, id: Date.now() },
+        { ...newChemical, id: Date.now(), is_extra: 1 },
       ],
     }));
   };
-
-  // Initialize local state with existing chemicals when component mounts
-  useEffect(() => {
-    if (formData.used_products && Array.isArray(formData.used_products)) {
-      setExtraChemicals(formData.used_products);
-    }
-  }, [formData.used_products]);
 
   return (
     <div>
@@ -62,7 +55,7 @@ const Extra = ({ formData, setFormData }) => {
             </tr>
           </thead>
           <tbody>
-            {used_products.map((chemical, index) => (
+            {extraChemicals.map((chemical, index) => (
               <tr key={chemical.id}>
                 <td>{index + 1}</td>
                 <td>{chemical.name}</td>
