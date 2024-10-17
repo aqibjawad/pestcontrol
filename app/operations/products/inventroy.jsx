@@ -17,7 +17,7 @@ import {
   Skeleton,
 } from "@mui/material";
 
-import { format } from 'date-fns';
+import { format } from "date-fns";
 
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
@@ -34,7 +34,6 @@ const getIdFromUrl = (url) => {
 };
 
 const Inventory = () => {
-
   const api = new APICall();
 
   const [id, setId] = useState(null);
@@ -43,6 +42,8 @@ const Inventory = () => {
   const [employeeList, setEmployeeList] = useState(null);
 
   const [stockList, setStockList] = useState(null);
+
+  console.log(stockList);
 
   useEffect(() => {
     // Get the current URL
@@ -63,7 +64,7 @@ const Inventory = () => {
     try {
       const response = await api.getDataWithToken(`${product}/${id}`);
       setEmployeeList(response.data);
-      setStockList(response.data.stock_history || []);
+      setStockList(response.data.assigned_stock_history || []);
     } catch (error) {
       console.error("Error fetching vehicles:", error);
     } finally {
@@ -78,28 +79,18 @@ const Inventory = () => {
           <thead>
             <tr>
               <th className="py-5 px-4 border-b border-gray-200 text-left">
+                Sr No
+              </th>
+              <th className="py-5 px-4 border-b border-gray-200 text-left">
+                Date
+              </th>
+              <th className="py-5 px-4 border-b border-gray-200 text-left">
                 {" "}
                 Person Name{" "}
               </th>
               <th className="py-5 px-4 border-b border-gray-200 text-left">
                 {" "}
                 Total Stock{" "}
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                {" "}
-                Remaining{" "}
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                {" "}
-                Stock In{" "}
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                {" "}
-                Stock Out{" "}
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                {" "}
-                Date{" "}
               </th>
             </tr>
           </thead>
@@ -119,37 +110,26 @@ const Inventory = () => {
                     <td className="py-2 px-4">
                       <Skeleton width="100%" height={30} />
                     </td>
-                    <td className="py-2 px-4">
-                      <Skeleton width="100%" height={30} />
-                    </td>
                   </tr>
                 ))
               : stockList?.map((row, index) => (
                   <tr key={index} className="border-b border-gray-200">
                     <td className="py-2 px-4">
                       <div className={tableStyles.clientContact}>
+                        {index + 1}
+                      </div>
+                    </td>
+                    <td className="py-5 px-4">
+                      {format(new Date(row.updated_at), "MMMM d, yyyy")}
+                    </td>
+                    <td className="py-2 px-4">
+                      <div className={tableStyles.clientContact}>
                         {row?.person?.name}
                       </div>
                     </td>
-                    <td className="py-5 px-4">{row.total_qty}</td>
                     <td className="py-2 px-4">
                       <div className={tableStyles.clientContact}>
-                        {row.remaining_qty}
-                      </div>
-                    </td>
-                    <td className="py-2 px-4">
-                      <div className={tableStyles.clientContact}>
-                        {row.stock_in}
-                      </div>
-                    </td>
-                    <td className="py-2 px-4">
-                      <div className={tableStyles.clientContact}>
-                        {row.stock_out}
-                      </div>
-                    </td>
-                    <td className="py-2 px-4">
-                      <div className={tableStyles.clientContact}>
-                        {new Date(row?.updated_at).toLocaleDateString()}
+                        {row.total_qty}
                       </div>
                     </td>
                   </tr>
@@ -174,7 +154,12 @@ const Inventory = () => {
           ) : (
             <img
               src={employeeList?.product_picture}
-              style={{ width: "200px", height: "200px", left: "315px", objectFit:"contain" }}
+              style={{
+                width: "200px",
+                height: "200px",
+                left: "315px",
+                objectFit: "contain",
+              }}
             />
           )}
         </div>
@@ -218,6 +203,12 @@ const Inventory = () => {
                         <strong>Unit:</strong>
                       </TableCell>
                       <TableCell>{employeeList?.unit}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>
+                        <strong>Total Quantity:</strong>
+                      </TableCell>
+                      <TableCell>{employeeList?.stocks?.total_qty}</TableCell>
                     </TableRow>
                   </>
                 )}

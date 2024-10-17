@@ -13,7 +13,6 @@ import { format } from "date-fns";
 import DateFilters from "../../../components/generic/DateFilters";
 
 const Page = () => {
-
   const apiCall = new APICall();
   const router = new useRouter();
   const [fetchingData, setFetchingData] = useState(true);
@@ -83,6 +82,9 @@ const Page = () => {
                 Remaining
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
+                View Attachements
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Actions
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
@@ -93,6 +95,7 @@ const Page = () => {
           <tbody>
             {suppliersList?.map((row, index) => {
               const stock = row.stocks[0] || {}; // Get the first stock object
+              const attachments = row.attachments || [];
               return (
                 <tr className="border-b border-gray-200" key={index}>
                   <td className="py-5 px-4">
@@ -122,6 +125,23 @@ const Page = () => {
                     <div className={tableStyles.clientContact}>
                       {stock.remaining_qty || 0}
                     </div>
+                  </td>
+                  <td className="py-2 px-4">
+                    {attachments.length > 0 ? (
+                      attachments.map((attachment, i) => (
+                        <div key={i} className="mb-2">
+                          <a
+                            href={attachment.file_path}
+                            download={attachment.file_name}
+                            className="text-blue-600 hover:text-blue-800"
+                          >
+                            View Attachements
+                          </a>
+                        </div>
+                      ))
+                    ) : (
+                      <span>No Attachments</span>
+                    )}
                   </td>
                   <td className="py-2 px-4">
                     <div className={tableStyles.clientContact}>
