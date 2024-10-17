@@ -5,15 +5,11 @@ import InputWithTitle from "@/components/generic/InputWithTitle";
 import MultilineInput from "@/components/generic/MultilineInput";
 import Dropdown from "@/components/generic/Dropdown";
 import GreenButton from "@/components/generic/GreenButton";
-
 import { CircularProgress } from "@mui/material";
 import Tabs from "./tabs";
-
 import { getAllSuppliers, bank, expense } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
-
 import { AppAlerts } from "../../../Helper/AppAlerts";
-
 import { useRouter } from "next/navigation";
 
 const Page = () => {
@@ -22,40 +18,50 @@ const Page = () => {
   const router = useRouter();
 
   const [activeTab, setActiveTab] = useState("cash");
-
-  const [vat, setVat] = useState();
-  const [total, setTotal] = useState();
-  const [description, setDesc] = useState();
-
-  const [amount, setAmount] = useState();
-
-  const [cheque_no, setChequeNumber] = useState();
-  const [cheque_date, setChequeDate] = useState();
-  const [transection_id, setTransactionId] = useState();
-
+  const [vat, setVat] = useState("");
+  const [total, setTotal] = useState("");
+  const [description, setDesc] = useState("");
+  const [amount, setAmount] = useState("");
+  const [cheque_no, setChequeNumber] = useState("");
+  const [cheque_date, setChequeDate] = useState("");
+  const [transection_id, setTransactionId] = useState("");
   const [fetchingData, setFetchingData] = useState(false);
-
-  // All Expenses States
   const [allSupplierList, setAllSuppliersList] = useState([]);
   const [allSupplierNameList, setSupplierNameList] = useState([]);
   const [selectedSupplierId, setSelectedSupplierId] = useState("");
-
-  // All Banks States
   const [allBanksList, setAllBankList] = useState([]);
   const [allBankNameList, setBankNameList] = useState([]);
-
   const [selectedBankId, setSelectedBankId] = useState("");
-
   const [loading, setLoading] = useState(true);
-
   const [loadingSubmit, setLoadingSubmit] = useState(false);
+  const [selectedSupplier, setSelectedSupplier] = useState(null);
+
+  // Calculate total whenever amount or VAT changes
+  useEffect(() => {
+    calculateTotal();
+  }, [amount, vat]);
+
+  const calculateTotal = () => {
+    const amountValue = parseFloat(amount) || 0;
+    const vatValue = parseFloat(vat) || 0;
+    const calculatedTotal = amountValue + vatValue;
+    setTotal(calculatedTotal.toFixed(2));
+  };
+
+  const handleAmountChange = (value) => {
+    setAmount(value);
+  };
+
+  const handleVatChange = (value) => {
+    setVat(value);
+  };
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
-    // setFormData((prevState) => ({
-    //   ...prevState,
-    //   payment_type: tab,
-    // }));
+    // Reset values when changing tabs
+    setAmount("");
+    setVat("");
+    setTotal("");
   };
 
   useEffect(() => {
@@ -78,24 +84,28 @@ const Page = () => {
   };
 
   const getAllBanks = async () => {
-    true;
+    setFetchingData(true);
     try {
       const response = await api.getDataWithToken(`${bank}`);
       setAllBankList(response.data);
-
       const expenseNames = response.data.map((item) => item.bank_name);
       setBankNameList(expenseNames);
     } catch (error) {
-      console.error("Error fetching brands:", error);
+      console.error("Error fetching banks:", error);
     } finally {
       setFetchingData(false);
     }
   };
 
   const handleExpenseChange = (name, index) => {
-    const idAtIndex = allSupplierList[index].id;
-    setSelectedSupplierId(idAtIndex);
+    const selectedSupplier = allSupplierList[index];
+    setSelectedSupplier(selectedSupplier);
   };
+
+  const supplierOptions = allSupplierList.map(
+    (supplier) =>
+      `${supplier.supplier_name} - ${supplier.company_name} (${supplier.number})`
+  );
 
   const handleBankChange = (name, index) => {
     const idAtIndex = allBanksList[index].id;
@@ -104,14 +114,13 @@ const Page = () => {
 
   const createExpenseObject = () => {
     let expenseObj = {
-      supplier_id: selectedSupplierId,
+      supplier_id: selectedSupplier.id,
       vat,
       total,
       description,
       payment_type: activeTab,
     };
 
-    // Add fields based on the active payment type
     if (activeTab === "cash") {
       expenseObj = {
         ...expenseObj,
@@ -149,16 +158,16 @@ const Page = () => {
 
       if (response.status === "success") {
         alerts.successAlert("Expense has been updated");
-        router.push(`/account/supplier_ledger/?id=${selectedSupplierId}`);
+        router.push(
+          `/account/supplier_ledger/?id=${selectedSupplier.id}&supplier_name=${
+            selectedSupplier.supplier_name
+          }&company_name=${encodeURIComponent(
+            selectedSupplier.company_name
+          )}&number=${selectedSupplier.number}`
+        );
       } else {
         alerts.errorAlert(response.error.message);
       }
-
-      // if (response.status === "success") {
-      //   alerts.successAlert("Expense has been updated");
-      // } else {
-      //   alerts.errorAlert(response.message);
-      // }
     } finally {
       setLoadingSubmit(false);
     }
@@ -191,27 +200,30 @@ const Page = () => {
             <div className="mt-5">
               <InputWithTitle
                 title={"Cash Amount"}
-                type={"text"}
+                type={"number"}
                 placeholder={"Cash Amount"}
-                onChange={setAmount}
+                onChange={handleAmountChange}
+                value={amount}
               />
             </div>
 
             <div className="mt-5">
               <InputWithTitle
                 title={"VAT"}
-                type={"text"}
+                type={"number"}
                 placeholder={"VAT"}
-                onChange={setVat}
+                onChange={handleVatChange}
+                value={vat}
               />
             </div>
 
             <div className="mt-5">
               <InputWithTitle
-                title={"Total "}
+                title={"Total"}
                 type={"text"}
                 placeholder={"Total"}
-                onChange={setTotal}
+                value={total}
+                disabled={true}
               />
             </div>
           </div>
@@ -238,9 +250,10 @@ const Page = () => {
             <div className="mt-5">
               <InputWithTitle
                 title={"Cheque Amount"}
-                type={"text"}
+                type={"number"}
                 placeholder={"Cheque Amount"}
-                onChange={setAmount}
+                onChange={handleAmountChange}
+                value={amount}
               />
             </div>
 
@@ -256,18 +269,20 @@ const Page = () => {
             <div className="mt-5">
               <InputWithTitle
                 title={"VAT"}
-                type={"text"}
+                type={"number"}
                 placeholder={"VAT"}
-                onChange={setVat}
+                onChange={handleVatChange}
+                value={vat}
               />
             </div>
 
             <div className="mt-5">
               <InputWithTitle
-                title={"Total "}
+                title={"Total"}
                 type={"text"}
                 placeholder={"Total"}
-                onChange={setTotal}
+                value={total}
+                disabled={true}
               />
             </div>
           </div>
@@ -286,17 +301,18 @@ const Page = () => {
             <div className="mt-5">
               <InputWithTitle
                 title={"Transaction Amount"}
-                type={"text"}
+                type={"number"}
                 placeholder={"Transaction Amount"}
-                onChange={setAmount}
+                onChange={handleAmountChange}
+                value={amount}
               />
             </div>
 
             <div className="mt-5">
               <InputWithTitle
-                title={"Transactoin Id"}
+                title={"Transaction Id"}
                 type={"text"}
-                placeholder={"Transactoin Id"}
+                placeholder={"Transaction Id"}
                 onChange={setTransactionId}
               />
             </div>
@@ -304,18 +320,20 @@ const Page = () => {
             <div className="mt-5">
               <InputWithTitle
                 title={"VAT"}
-                type={"text"}
+                type={"number"}
                 placeholder={"VAT"}
-                onChange={setVat}
+                onChange={handleVatChange}
+                value={vat}
               />
             </div>
 
             <div className="mt-5">
               <InputWithTitle
-                title={"Total "}
+                title={"Total"}
                 type={"text"}
                 placeholder={"Total"}
-                onChange={setTotal}
+                value={total}
+                disabled={true}
               />
             </div>
           </div>
@@ -330,36 +348,18 @@ const Page = () => {
       <div className="mt-10"></div>
       <div className="p-4">{expenseForm()}</div>
       <div className="mt-10">
-        {/* <GreenButton
-          onClick={handleSubmit}
-          title={"Save"}
-          disabled={loadingSubmit}
-          startIcon={
-            loadingSubmit ? (
-              <CircularProgress size={20} color="inherit" />
-            ) : null
-          }
-        /> */}
         <GreenButton
           onClick={handleSubmit}
           title={
-            loadingSubmit ? <CircularProgress size={20} color="inherit" /> : "Submit"
+            loadingSubmit ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              "Submit"
+            )
           }
           disabled={loadingSubmit}
         />
       </div>
-      {/* <div>
-        {loading ? (
-          <CircularProgress color="inherit" size={24} />
-        ) : (
-          <GreenButton onClick={handleSubmit} title={"Save"} />
-        )}
-      </div> */}
-      {/* <GreenButton
-        sendingData={sendingData}
-        onClick={handleSubmit}
-        title={"Add Expense"}
-      /> */}
     </div>
   );
 };
