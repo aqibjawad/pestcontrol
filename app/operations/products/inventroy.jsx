@@ -29,7 +29,6 @@ const getIdFromUrl = (url) => {
 };
 
 const Inventory = () => {
-
   const api = new APICall();
   const [id, setId] = useState(null);
 
@@ -64,7 +63,6 @@ const Inventory = () => {
 
       setStockBuy(response.data.purchased_stock_history || []);
       setStocks(response.data.stocks || []);
-
     } catch (error) {
       console.error("Error fetching vehicles:", error);
     } finally {
@@ -273,7 +271,21 @@ const Inventory = () => {
                       <TableCell>
                         <strong>Total Quantity:</strong>
                       </TableCell>
-                      <TableCell>{stocks?.total_qty}</TableCell>
+                      <TableCell>
+                        {stocks && stocks.length > 0
+                          ? stocks[0].total_qty
+                          : "N/A"}
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>
+                        <strong>Remaining Quantity:</strong>
+                      </TableCell>
+                      <TableCell>
+                        {stocks && stocks.length > 0
+                          ? stocks[0].remaining_qty
+                          : "N/A"}
+                      </TableCell>
                     </TableRow>
                   </>
                 )}
