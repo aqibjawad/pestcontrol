@@ -251,11 +251,11 @@ const Page = () => {
                 </div>
               </Grid>
 
-              <Grid className="" item xs={12} sm={6} md={4} lg={3}>
+              {/* <Grid className="" item xs={12} sm={6} md={4} lg={3}>
                 <div className={styles.addProd}>
                   <Link href="/allJobs">View Contracts</Link>
                 </div>
-              </Grid>
+              </Grid> */}
 
               <Grid className="" item xs={12} sm={6} md={4} lg={3}>
                 <div className={styles.addProd}>

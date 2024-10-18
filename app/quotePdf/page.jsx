@@ -77,7 +77,7 @@ const Page = () => {
       const response = await api.getDataWithToken(
         `${quotation}/move/contract/${id}`
       );
-      router.push("/viewQuote");
+      // router.push("/viewQuote");
       setIsApproved(true);
     } catch (error) {
       console.error("Error sending data:", error);

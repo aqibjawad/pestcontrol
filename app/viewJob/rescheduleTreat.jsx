@@ -8,6 +8,7 @@ import { job } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
 import { useRouter } from "next/navigation";
 import CircularProgress from "@mui/material/CircularProgress";
+import Swal from "sweetalert2";
 
 const RescheduleTreatment = ({ jobId, jobList }) => {
   const api = new APICall();
@@ -22,9 +23,26 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
     setJobStatus(jobList?.is_completed || 0);
   }, [jobList]);
 
+  const showAlertAndRefresh = (message) => {
+    Swal.fire({
+      title: "Success!",
+      text: message,
+      icon: "success",
+      timer: 2000,
+      showConfirmButton: false,
+    }).then(() => {
+      window.location.reload();
+    });
+  };
+
   const handleFormSubmit = async () => {
     if (!job_date || !reason) {
-      alert("Please fill in both date and reason fields");
+      Swal.fire({
+        title: "Error!",
+        text: "Please fill in both date and reason fields",
+        icon: "error",
+        confirmButtonText: "Ok",
+      });
       return;
     }
 
@@ -41,15 +59,23 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
         formData
       );
       if (response.error) {
-        alert(response.error.error);
+        Swal.fire({
+          title: "Error!",
+          text: response.error.error,
+          icon: "error",
+          confirmButtonText: "Ok",
+        });
       } else {
-        alert("Treatment rescheduled successfully!");
-        setJobDate("");
-        setReason("");
+        showAlertAndRefresh("Treatment rescheduled successfully!");
       }
     } catch (error) {
       console.error("Error rescheduling treatment:", error);
-      alert("An error occurred. Please try again.");
+      Swal.fire({
+        title: "Error!",
+        text: "An error occurred. Please try again.",
+        icon: "error",
+        confirmButtonText: "Ok",
+      });
     } finally {
       setLoading(false);
     }
@@ -63,27 +89,37 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
           `${job}/move/complete/${jobId}`
         );
         if (response.success) {
-          alert("Job completed successfully!");
-          setJobStatus("3");
+          showAlertAndRefresh("Job completed successfully!");
         } else {
-          alert(
-            response.message || "Failed to complete job. Please try again."
-          );
+          Swal.fire({
+            title: "Error!",
+            text:
+              response.message || "Failed to complete job. Please try again.",
+            icon: "error",
+            confirmButtonText: "Ok",
+          });
         }
       } else if (jobStatus === 0) {
         const response = await api.getDataWithToken(`${job}/start/${jobId}`);
         if (response.success) {
-          alert("Job Moved to Started Successfully");
-          setJobStatus("2");
-          // Refresh page after starting job
-          window.location.reload();
+          showAlertAndRefresh("Job Moved to Started Successfully");
         } else {
-          alert(response.message || "Failed to start job. Please try again.");
+          Swal.fire({
+            title: "Error!",
+            text: response.message || "Failed to start job. Please try again.",
+            icon: "error",
+            confirmButtonText: "Ok",
+          });
         }
       }
     } catch (error) {
       console.error("Error with job action:", error);
-      alert("An error occurred. Please try again.");
+      Swal.fire({
+        title: "Error!",
+        text: "An error occurred. Please try again.",
+        icon: "error",
+        confirmButtonText: "Ok",
+      });
     } finally {
       setLoading(false);
     }
@@ -172,7 +208,7 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
 
   return (
     <div style={{ marginTop: "2rem" }} className={styles.mainDivTreat}>
-      {jobStatus === 0 && ( // Conditionally render the form only if jobStatus is 0
+      {jobStatus === 0 && (
         <div>
           <Grid container spacing={2}>
             <Grid item lg={10} sm={12} xs={12} md={4}>

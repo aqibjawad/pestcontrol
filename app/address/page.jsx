@@ -1,21 +1,22 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Grid } from "@mui/material";
+import { Grid, CircularProgress, Skeleton } from "@mui/material";
 import FirstSection from "./add/firstSection";
-import SecondSection from "./add/secondSection";
-import styles from "../../styles/addresses.module.css";
 import APICall from "@/networkUtil/APICall";
-
 import GreenButton from "@/components/generic/GreenButton";
-
 import Swal from "sweetalert2";
-
 import { clients } from "@/networkUtil/Constants";
-
-import { CircularProgress } from "@mui/material";
-
 import { useRouter } from "next/navigation";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+} from "@mui/material";
 
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
@@ -36,9 +37,7 @@ const Page = () => {
   const router = useRouter();
 
   const [id, setId] = useState(null);
-
   const [sections, setSections] = useState([1]);
-
   const [formData, setFormData] = useState({
     user_id: null,
     address: "",
@@ -115,6 +114,7 @@ const Page = () => {
   };
 
   const [allClientsList, setAllClientsList] = useState([]);
+  const [allClientsAdd, setAllClientsAdd] = useState([]);
   const [fetchingData, setFetchingData] = useState(false);
 
   useEffect(() => {
@@ -128,6 +128,7 @@ const Page = () => {
     try {
       const response = await api.getDataWithToken(`${clients}/${id}`);
       setAllClientsList(response.data);
+      setAllClientsAdd(response?.data?.client?.addresses);
     } catch (error) {
       console.error(error.message);
     } finally {
@@ -137,16 +138,16 @@ const Page = () => {
 
   return (
     <>
-    <div>
-      <div style={{fontSize:"20px", fontWeight:"500"}}>
-        {allClientsList.name}
+      <div>
+        <div style={{ fontSize: "20px", fontWeight: "500" }}>
+          {allClientsList.name}
+        </div>
+        <div style={{ fontSize: "15px", fontWeight: "500" }}>
+          {allClientsList.email}
+        </div>
       </div>
-      <div style={{fontSize:"15px", fontWeight:"500"}}>
-        {allClientsList.email}
-      </div>
-    </div>
       <Grid className="mt-10" container spacing={3}>
-        <Grid lg={6} item xs={12} sm={6} md={4}>
+        <Grid lg={5} item xs={12} sm={6} md={4}>
           {sections.map((sectionId, index) => (
             <div key={sectionId} className="mt-5">
               <FirstSection
@@ -156,13 +157,66 @@ const Page = () => {
             </div>
           ))}
         </Grid>
-        <Grid lg={6} item xs={12} sm={6} md={4}>
-          <SecondSection onClick={handleAddSection} />
+        <Grid lg={7} item xs={12} sm={6} md={4}>
+          <TableContainer component={Paper}>
+            <Table aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Id</TableCell>
+                  <TableCell>Addresses</TableCell>
+                  <TableCell>Latitude</TableCell>
+                  <TableCell>Langitude</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {fetchingData ? (
+                  <>
+                    <TableRow>
+                      <TableCell>
+                        <Skeleton variant="text" width={40} />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton variant="text" width={200} />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton variant="text" width={100} />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton variant="text" width={100} />
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>
+                        <Skeleton variant="text" width={40} />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton variant="text" width={200} />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton variant="text" width={100} />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton variant="text" width={100} />
+                      </TableCell>
+                    </TableRow>
+                  </>
+                ) : (
+                  allClientsAdd.map((row, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>{row.address}</TableCell>
+                      <TableCell>{row.lat}</TableCell>
+                      <TableCell>{row.lang}</TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </Grid>
       </Grid>
 
       <div className="mt-5">
-        {/* <GreenButton title={"Submit"} onClick={handleSubmit} /> */}
         <GreenButton
           onClick={handleSubmit}
           title={
