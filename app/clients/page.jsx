@@ -25,7 +25,6 @@ import { useRouter } from "next/navigation";
 import { Router } from "next/router";
 
 const Page = () => {
-
   const api = new APICall();
   const router = useRouter();
   const [fetchingData, setFetchingData] = useState(false);
@@ -105,6 +104,23 @@ const Page = () => {
               ))}
             </tbody>
           </table>
+
+          {/* Skeleton for Pagination */}
+          <div className="flex justify-center py-4">
+            <Skeleton variant="rectangular" width={40} height={40} />
+            <Skeleton
+              variant="rectangular"
+              width={40}
+              height={40}
+              style={{ marginLeft: "8px" }}
+            />
+            <Skeleton
+              variant="rectangular"
+              width={40}
+              height={40}
+              style={{ marginLeft: "8px" }}
+            />
+          </div>
         </div>
       );
     }
@@ -164,7 +180,9 @@ const Page = () => {
 
                 <td>
                   <Link
-                    href={`/client/clientLedger/?id=${row.id}&name=${encodeURIComponent(
+                    href={`/client/clientLedger/?id=${
+                      row.id
+                    }&name=${encodeURIComponent(
                       row.name
                     )}&phone_number=${encodeURIComponent(
                       row?.client?.phone_number
@@ -177,9 +195,7 @@ const Page = () => {
                 </td>
 
                 <td>
-                  <Link
-                    href={`/serviceInvoices/add?id=${row.id}`}
-                  >
+                  <Link href={`/serviceInvoices/add?id=${row.id}`}>
                     <span className="text-blue-600 hover:text-blue-800">
                       Add Payment
                     </span>
@@ -189,6 +205,13 @@ const Page = () => {
             ))}
           </tbody>
         </table>
+
+        {/* Pagination Component */}
+        {/* <div className="flex justify-center py-4">
+          <button className="px-3 py-1 bg-gray-200 rounded-full">1</button>
+          <button className="px-3 py-1 bg-gray-200 rounded-full ml-2">2</button>
+          <button className="px-3 py-1 bg-gray-200 rounded-full ml-2">3</button>
+        </div> */}
       </div>
     );
   };
@@ -272,7 +295,7 @@ const Page = () => {
       });
       // await getAllClients();
       handleClose();
-      router.push(`/address?id=${clientId}`)
+      router.push(`/address?id=${clientId}`);
     } else {
       Swal.fire({
         icon: "error",
@@ -305,78 +328,55 @@ const Page = () => {
         >
           Clients
         </div>
+
         <div className="flex">
           <div className="flex-grow"></div>
           <div
             className="flex"
             style={{ display: "flex", alignItems: "center" }}
           >
-            <div style={{ marginTop: "2rem", marginRight: "2rem" }}>
-              <SearchInput />
-            </div>
-            <div
-              style={{
-                marginTop: "2rem",
-                border: "1px solid #38A73B",
-                borderRadius: "8px",
-                height: "40px",
-                width: "100px",
-                alignItems: "center",
-                display: "flex",
-              }}
-            >
-              <img
-                src="/Filters lines.svg"
-                height={20}
-                width={20}
-                className="ml-2 mr-2"
-              />
-              Filters
-            </div>
             <div
               onClick={handleClickOpen}
               style={{
-                marginTop: "2rem",
                 backgroundColor: "#32A92E",
                 color: "white",
                 fontWeight: "600",
                 fontSize: "16px",
-                marginLeft: "1rem",
-                cursor: "pointer",
-                height: "48px",
-                width: "150px",
+                height: "44px",
+                width: "202px",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
+                borderRadius: "10px",
               }}
             >
               + Clients
             </div>
           </div>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            marginTop: "2rem",
-          }}
-        >
+
           <div
             style={{
-              backgroundColor: "#32A92E",
-              color: "white",
-              fontWeight: "600",
-              fontSize: "16px",
-              height: "44px",
-              width: "202px",
               display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              marginLeft: "1rem",
-              borderRadius: "10px",
+              justifyContent: "flex-end",
             }}
           >
-            Download all
+            <div
+              style={{
+                backgroundColor: "#32A92E",
+                color: "white",
+                fontWeight: "600",
+                fontSize: "16px",
+                height: "44px",
+                width: "202px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                marginLeft: "1rem",
+                borderRadius: "10px",
+              }}
+            >
+              Download all
+            </div>
           </div>
         </div>
       </div>

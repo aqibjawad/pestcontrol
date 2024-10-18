@@ -176,7 +176,7 @@ const UpcomingJobs = ({ jobsList, handleDateChange }) => {
                 width={20}
                 className="ml-2 mr-2"
               />
-              <DateFilters handleDateChange={handleDateChange} />
+              <DateFilters onDateChange={handleDateChange} />
             </div>
           </div>
         </div>

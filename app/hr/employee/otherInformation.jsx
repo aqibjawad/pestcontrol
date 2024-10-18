@@ -96,6 +96,26 @@ const OtherInfo = ({ data, onChange, handleSubmit, sendingData }) => {
             onChange={(name, value) => onChange("total_salary", value)}
           />
         </Grid>
+
+        <Grid item xs={12} md={6}>
+          <InputWithTitle2
+            title="Comission"
+            type="text"
+            placeholder="Comission"
+            value={data.total_salary}
+            onChange={(name, value) => onChange("commission_per", value)}
+          />
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <InputWithTitle2
+            title="Labour Card Expiry"
+            type="date"
+            placeholder="Comission"
+            value={data.total_salary}
+            onChange={(name, value) => onChange("labour_card_expiry", value)}
+          />
+        </Grid>
       </Grid>
 
       <div className="mb-10"></div>

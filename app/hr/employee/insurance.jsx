@@ -36,7 +36,7 @@ const Insurance = ({ data, onChange }) => {
         <Grid item xs={12}>
           <Dropdown
             options={["Active", "Inactive"]}
-            title={"Unemployment Insurance Status"}
+            title={"Health Insurance Status"}
             onChange={handleHealthIsuredState}
           />
         </Grid>

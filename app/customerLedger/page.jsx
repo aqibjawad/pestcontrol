@@ -34,9 +34,8 @@ const Page = () => {
   const [id, setId] = useState(null);
   const [supplierName, setSupplierName] = useState("");
   const [companyName, setCompanyName] = useState("");
-  const [number, setNumber] = useState("");
+  const [number, setNumber] = useState("");  
 
-  const [tableData, setTableData] = useState([]);
   const [rowData, setRowData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -46,10 +45,8 @@ const Page = () => {
   const tableRef = useRef(null);
 
   useEffect(() => {
-    // Get the current URL
     const currentUrl = window.location.href;
 
-    // Extract parameters from URL
     const urlId = getParamFromUrl(currentUrl, "id");
     const urlSupplierName = getParamFromUrl(currentUrl, "supplier_name");
     const urlCompanyName = getParamFromUrl(currentUrl, "company_name");
@@ -69,7 +66,7 @@ const Page = () => {
     setLoading(true);
     try {
       const response = await api.getDataWithToken(
-        `${customers}/${supplierId}`
+        `${customers}/ledger/get/${supplierId}`
       );
 
       const data = response.data;
@@ -146,7 +143,7 @@ const Page = () => {
               <TableCell>Balance</TableCell>
             </TableRow>
           </TableHead>
-          {/* <TableBody>
+          <TableBody>
             {loading
               ? Array.from(new Array(5)).map((_, index) => (
                   <TableRow key={index}>
@@ -178,7 +175,7 @@ const Page = () => {
                     <TableCell>{row.cash_balance}</TableCell>
                   </TableRow>
                 ))}
-          </TableBody> */}
+          </TableBody>
         </Table>
       </TableContainer>
 

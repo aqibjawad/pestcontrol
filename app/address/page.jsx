@@ -32,42 +32,42 @@ const getIdFromUrl = (url) => {
 };
 
 const Page = () => {
-
   const api = new APICall();
   const router = useRouter();
 
   const [id, setId] = useState(null);
+
   const [sections, setSections] = useState([1]);
+
   const [formData, setFormData] = useState({
     user_id: null,
-    address: "",      
-    city: "Dubai",         
-    lat: "",     
-    lang: "",    
-    country: "Dubai",      
-    state: "Dubai"         
+    address: "",
+    city: "Dubai",
+    lat: "",
+    lang: "",
+    country: "Dubai",
+    state: "Dubai",
   });
 
   useEffect(() => {
     const currentUrl = window.location.href;
     const urlId = getIdFromUrl(currentUrl);
     setId(urlId);
-    setFormData(prev => ({ ...prev, user_id: urlId }));
+    setFormData((prev) => ({ ...prev, user_id: urlId }));
   }, []);
 
   const handleAddSection = () => {
-    setSections(prevSections => [...prevSections, prevSections.length + 1]);
+    setSections((prevSections) => [...prevSections, prevSections.length + 1]);
   };
 
   const handleAddressChange = (newAddressData) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       address: newAddressData.address || "",
       lat: newAddressData.lat || "",
-      lang: newAddressData.lang || ""
+      lang: newAddressData.lang || "",
     }));
   };
-
 
   const [buttonLoading, setButtonLoading] = useState(false);
 
@@ -75,16 +75,19 @@ const Page = () => {
     setButtonLoading(true);
     try {
       const submissionData = {
-        user_id: formData.user_id, 
+        user_id: formData.user_id,
         address: formData.address,
         city: formData.city,
         lat: formData.lat,
         lang: formData.lang,
         country: formData.country,
-        state: formData.state
+        state: formData.state,
       };
 
-      const response = await api.postDataWithTokn(`${clients}/address/create`, submissionData);
+      const response = await api.postDataWithTokn(
+        `${clients}/address/create`,
+        submissionData
+      );
       if (response.status === "success") {
         Swal.fire({
           icon: "success",
@@ -107,12 +110,41 @@ const Page = () => {
       });
       console.error("Error submitting data:", error);
     } finally {
-       setButtonLoading(false);
+      setButtonLoading(false);
+    }
+  };
+
+  const [allClientsList, setAllClientsList] = useState([]);
+  const [fetchingData, setFetchingData] = useState(false);
+
+  useEffect(() => {
+    if (id !== undefined && id !== null) {
+      getAllClients(id);
+    }
+  }, [id]);
+
+  const getAllClients = async () => {
+    setFetchingData(true);
+    try {
+      const response = await api.getDataWithToken(`${clients}/${id}`);
+      setAllClientsList(response.data);
+    } catch (error) {
+      console.error(error.message);
+    } finally {
+      setFetchingData(false);
     }
   };
 
   return (
     <>
+    <div>
+      <div style={{fontSize:"20px", fontWeight:"500"}}>
+        {allClientsList.name}
+      </div>
+      <div style={{fontSize:"15px", fontWeight:"500"}}>
+        {allClientsList.email}
+      </div>
+    </div>
       <Grid className="mt-10" container spacing={3}>
         <Grid lg={6} item xs={12} sm={6} md={4}>
           {sections.map((sectionId, index) => (
@@ -132,18 +164,17 @@ const Page = () => {
       <div className="mt-5">
         {/* <GreenButton title={"Submit"} onClick={handleSubmit} /> */}
         <GreenButton
-              onClick={handleSubmit}
-              title={
-                buttonLoading ? (
-                  <CircularProgress size={20} color="inherit" />
-                ) : (
-                  "Submit"
-                )
-              }
-              disabled={buttonLoading}
-            />
+          onClick={handleSubmit}
+          title={
+            buttonLoading ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              "Submit"
+            )
+          }
+          disabled={buttonLoading}
+        />
       </div>
-
     </>
   );
 };

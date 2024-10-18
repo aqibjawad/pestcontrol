@@ -12,9 +12,9 @@ const Page = () => {
           <div style={{ border: "1px solid black", padding: "10px" }}>
             <div
               style={{
-                fontSize: "16px",
+                fontSize: "20px",
                 fontWeight: "800",
-                textAlign: "center",
+                marginBottom: "1rem",
               }}
             >
               Supplier
@@ -78,9 +78,9 @@ const Page = () => {
           <div style={{ border: "1px solid black", padding: "10px" }}>
             <div
               style={{
-                fontSize: "16px",
+                fontSize: "20px",
                 fontWeight: "800",
-                textAlign: "center",
+                marginBottom: "1rem",
               }}
             >
               Expenses
@@ -116,9 +116,9 @@ const Page = () => {
           <div style={{ border: "1px solid black", padding: "10px" }}>
             <div
               style={{
-                fontSize: "16px",
+                fontSize: "20px",
                 fontWeight: "800",
-                textAlign: "center",
+                marginBottom: "1rem",
               }}
             >
               Vehciles
@@ -153,9 +153,9 @@ const Page = () => {
           <div style={{ border: "1px solid black", padding: "10px" }}>
             <div
               style={{
-                fontSize: "16px",
+                fontSize: "20px",
                 fontWeight: "800",
-                textAlign: "center",
+                marginBottom: "1rem",
               }}
             >
               Customer
@@ -199,9 +199,9 @@ const Page = () => {
           <div style={{ border: "1px solid black", padding: "10px" }}>
             <div
               style={{
-                fontSize: "16px",
+                fontSize: "20px",
                 fontWeight: "800",
-                textAlign: "center",
+                marginBottom: "1rem",
               }}
             >
               Clients
@@ -250,6 +250,18 @@ const Page = () => {
                   <Link href="/allJobs">View Jobs</Link>
                 </div>
               </Grid>
+
+              <Grid className="" item xs={12} sm={6} md={4} lg={3}>
+                <div className={styles.addProd}>
+                  <Link href="/allJobs">View Contracts</Link>
+                </div>
+              </Grid>
+
+              <Grid className="" item xs={12} sm={6} md={4} lg={3}>
+                <div className={styles.addProd}>
+                  <Link href="/allServiceReports">View Service Reports</Link>
+                </div>
+              </Grid>
             </Grid>
           </div>
         </Grid>
@@ -259,9 +271,9 @@ const Page = () => {
           <div style={{ border: "1px solid black", padding: "10px" }}>
             <div
               style={{
-                fontSize: "16px",
+                fontSize: "20px",
                 fontWeight: "800",
-                textAlign: "center",
+                marginBottom: "1rem",
               }}
             >
               Employee
@@ -287,9 +299,9 @@ const Page = () => {
           <div style={{ border: "1px solid black", padding: "10px" }}>
             <div
               style={{
-                fontSize: "16px",
+                fontSize: "20px",
                 fontWeight: "800",
-                textAlign: "center",
+                marginBottom: "1rem",
               }}
             >
               Vendors
@@ -306,25 +318,19 @@ const Page = () => {
                   <Link href="/allVendors">View Vendors</Link>
                 </div>
               </Grid>
+
+              <Grid item xs={12} sm={6} md={4} lg={3}>
+                <div className={styles.addProd}>
+                  <Link href="/terms&conditions">Terms and Conditions</Link>
+                </div>
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={4} lg={3}>
+                <div className={styles.addProd}>
+                  <Link href="/operations/banks">Add Banks</Link>
+                </div>
+              </Grid>
             </Grid>
-          </div>
-        </Grid>
-
-        <Grid item xs={12} sm={6} md={4} lg={3}>
-          <div className={styles.addProd}>
-            <Link href="/terms&conditions">Terms and Conditions</Link>
-          </div>
-        </Grid>
-
-        <Grid item xs={12} sm={6} md={4} lg={3}>
-          <div className={styles.addProd}>
-            <Link href="/operations/banks">Add Banks</Link>
-          </div>
-        </Grid>
-
-        <Grid className="" item xs={12} sm={6} md={4} lg={3}>
-          <div className={styles.addProd}>
-            <Link href="/allServiceReports">View Service Reports</Link>
           </div>
         </Grid>
       </Grid>

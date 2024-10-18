@@ -15,7 +15,7 @@ const PersonalInformation = ({ data, onChange }) => {
     { label: "HR-Manager", value: 2 },
     { label: "Operation-Manager", value: 3 },
     { label: "Sales-Manger", value: 4 },
-    { label: "Operation Team", value: 6 },
+    { label: "Operation Team", value: 4 },
   ];
   const handleFileSelect = (file) => {
     setProductForImage(file);

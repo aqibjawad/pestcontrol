@@ -54,7 +54,7 @@ const Page =()=>{
 
   return(
     <div>
-        <UpcomingJobs jobsList={jobsList} onDateChange={handleDateChange} />
+        <UpcomingJobs jobsList={jobsList} handleDateChange={handleDateChange} />
     </div>
   )
 } 
