@@ -22,7 +22,7 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
   useEffect(() => {
     setJobStatus(jobList?.is_completed || 0);
   }, [jobList]);
-  
+
   const handleFormSubmit = async () => {
     if (!job_date || !reason) {
       Swal.fire({
@@ -77,44 +77,43 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
   const handleJobAction = async () => {
     setLoading(true);
     try {
+      let response;
       if (jobStatus === 2) {
-        const response = await api.getDataWithToken(
-          `${job}/move/complete/${jobId}`
-        );
-        if (response.status === "success") {
-          Swal.fire({
-            title: "Success!",
-            text: response.message,
-            icon: "success",
-            confirmButtonText: "Ok",
-          });
-        } else {
-          Swal.fire({
-            title: "Error!",
-            text:
-              response.message || "Failed to complete job. Please try again.",
-            icon: "error",
-            confirmButtonText: "Ok",
-          });
-        }
+        response = await api.getDataWithToken(`${job}/move/complete/${jobId}`);
+        const title = response.status === "success" ? "Success!" : "Error!";
+        const text =
+          response.status === "success"
+            ? response.message
+            : response.message || "Failed to complete job. Please try again.";
+
+        Swal.fire({
+          title,
+          text,
+          icon: response.status === "success" ? "success" : "error",
+          confirmButtonText: "Ok",
+        }).then(() => {
+          if (response.status === "success") {
+            window.location.reload(); // Reload the page on success
+          }
+        });
       } else if (jobStatus === 0) {
-        const response = await api.getDataWithToken(`${job}/start/${jobId}`);
-        if (response.status === "success") {
-          Swal.fire({
-            title: "Success!",
-            text:
-              response.message || "Failed to complete job. Please try again.",
-            icon: "success",
-            confirmButtonText: "Ok",
-          });
-        } else {
-          Swal.fire({
-            title: "Error!",
-            text: response.message || "Failed to start job. Please try again.",
-            icon: "error",
-            confirmButtonText: "Ok",
-          });
-        }
+        response = await api.getDataWithToken(`${job}/start/${jobId}`);
+        const title = response.status === "success" ? "Success!" : "Error!";
+        const text =
+          response.status === "success"
+            ? response.message
+            : response.message || "Failed to start job. Please try again.";
+
+        Swal.fire({
+          title,
+          text,
+          icon: response.status === "success" ? "success" : "error",
+          confirmButtonText: "Ok",
+        }).then(() => {
+          if (response.status === "success") {
+            window.location.reload(); // Reload the page on success
+          }
+        });
       }
     } catch (error) {
       console.error("Error with job action:", error);
