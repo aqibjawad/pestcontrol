@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Dropdown2 from "../../../components/generic/dropDown2";
+import Dropdown2 from "../../../components/generic/DropDown2";
 import MultilineInput from "../../../components/generic/MultilineInput";
 import GreenButton from "@/components/generic/GreenButton";
 import { useRouter } from "next/navigation";

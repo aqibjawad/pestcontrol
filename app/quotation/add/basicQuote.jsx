@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
 import styles from "../../../styles/loginStyles.module.css";
 import InputWithTitle from "../../..//components/generic/InputWithTitle";
-import Dropdown2 from "../../../components/generic/dropDown2";
+import Dropdown2 from "../../../components/generic/DropDown2";
 import { clients } from "../../../networkUtil/Constants";
 import APICall from "../../../networkUtil/APICall";
 import { Grid, Skeleton } from "@mui/material";
 import MultilineInput from "../../../components/generic/MultilineInput";
 
 const BasicQuote = ({ setFormData, formData }) => {
-  
   const api = new APICall();
 
   const [allBrandsList, setAllBrandsList] = useState([]);
@@ -103,7 +102,10 @@ const BasicQuote = ({ setFormData, formData }) => {
               //   (option) => option.value === selectedBrand
               // )}
               value={
-                selectedBrand || allBrandsList.find((option) => option.value === formData?.user?.name)
+                selectedBrand ||
+                allBrandsList.find(
+                  (option) => option.value === formData?.user?.name
+                )
               }
               defaultValue={formData?.user?.name}
             />

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import InputWithTitle from "../../../components/generic/InputWithTitle";
-import Dropdown2 from "../../../components/generic/dropDown2";
+import Dropdown2 from "../../../components/generic/DropDown2";
 import CalendarComponent from "./calender.component";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -265,26 +265,25 @@ const JobsList = ({
   //   label: service.service_title,
   //   value: service.id,
   // }));
-  
+
   const getUniqueServiceOptions = (allServices) => {
     const uniqueTitles = new Set();
     const uniqueOptions = [];
-  
+
     allServices.forEach((service) => {
       if (!uniqueTitles.has(service.service_title)) {
         uniqueTitles.add(service.service_title);
         uniqueOptions.push({
           label: service.service_title,
-          value: service.id
+          value: service.id,
         });
       }
     });
-  
+
     return uniqueOptions;
   };
 
   const serviceOptions = getUniqueServiceOptions(allServices);
-
 
   return (
     <div style={{ marginBottom: "2rem" }}>

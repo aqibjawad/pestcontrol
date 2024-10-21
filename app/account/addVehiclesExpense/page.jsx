@@ -10,7 +10,7 @@ import styles from "../../../styles/stock.module.css";
 
 import GreenButton from "@/components/generic/GreenButton";
 
-import Dropdown2 from "@/components/generic/Dropdown2";
+import Dropdown2 from "@/components/generic/DropDown2";
 
 import { useRouter } from "next/navigation";
 
@@ -157,7 +157,7 @@ const Page = () => {
       alert("Vehicle Expense Added Successfully");
       router.push("/account/viewVehicles");
       setLoadingSubmit(false);
-    } else{
+    } else {
       alert("Vehicle Expense Not Added Successfully");
     }
   };

@@ -20,7 +20,7 @@ import GreenButton from "@/components/generic/GreenButton";
 import APICall from "@/networkUtil/APICall";
 import Tabs from "./tabs";
 import styles from "../../../styles/stock.module.css";
-import Dropdown2 from "../../../components/generic/dropDown2";
+import Dropdown2 from "../../../components/generic/DropDown2";
 
 import { useRouter } from "next/navigation";
 

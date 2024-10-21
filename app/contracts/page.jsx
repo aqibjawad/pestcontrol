@@ -2,15 +2,13 @@
 
 import React from "react";
 
-import Contracts from "../../components/Contracts"
-const Page =({quoteList})=>{
-
-
-  return(
+import Contracts from "../../components/Contracts";
+const Page = () => {
+  return (
     <div>
-        <Contracts quoteList={quoteList} />
+      <Contracts />
     </div>
-  )
-} 
+  );
+};
 
 export default Page;

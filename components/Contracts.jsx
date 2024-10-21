@@ -51,7 +51,9 @@ const Contracts = () => {
 
     try {
       const [contactsResponse] = await Promise.all([
-        api.getDataWithToken(`${quotation}/contracted?${queryParams.join("&")}`),
+        api.getDataWithToken(
+          `${quotation}/contracted?${queryParams.join("&")}`
+        ),
       ]);
 
       const mergedData = [...contactsResponse.data];
