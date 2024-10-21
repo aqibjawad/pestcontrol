@@ -49,6 +49,9 @@ const UpcomingJobs = ({ jobsList, handleDateChange, isLoading }) => {
           <thead>
             <tr>
               <th className="py-5 px-4 border-b border-gray-200 text-left">
+                Sr No
+              </th>
+              <th className="py-5 px-4 border-b border-gray-200 text-left">
                 Client Name
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
@@ -96,6 +99,9 @@ const UpcomingJobs = ({ jobsList, handleDateChange, isLoading }) => {
                 ))
               : filteredJobs?.map((row, index) => (
                   <tr key={index} className="border-b border-gray-200">
+                    <td>
+                      <div className={styles.clientName}>{row.id}</div>
+                    </td>
                     <td className="py-5 px-4">
                       <div className={styles.clientName}>{row?.user?.name}</div>
                       <div className={styles.clientEmail}>{row.job_date}</div>
@@ -139,7 +145,9 @@ const UpcomingJobs = ({ jobsList, handleDateChange, isLoading }) => {
                               />
                             </Link>
                           ) : (
-                            <Link href={`/serviceRpoertPdf?id=${row?.report?.id}`}>
+                            <Link
+                              href={`/serviceRpoertPdf?id=${row?.report?.id}`}
+                            >
                               <GreenButton
                                 onClick={assignedJob}
                                 title="View Report"
