@@ -41,6 +41,9 @@ const Page = () => {
                 Sr.
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Picture
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Employee Name
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
@@ -63,8 +66,15 @@ const Page = () => {
                 <tr key={index} className="border-b border-gray-200">
                   <td className="py-5 px-4">{index + 1}</td>
                   <td className="py-2 px-4">
+                    <img
+                      style={{ width: "50px", height: "50px", borderRadius:"50%" }}
+                      src={row?.employee?.profile_image}
+                    />
+                  </td>
+                  <td className="py-2 px-4">
                     <div className={tableStyles.clientContact}>{row.name}</div>
                   </td>
+
                   <td className="py-2 px-4">
                     <div className={tableStyles.clientContact}>{row.email}</div>
                   </td>

@@ -250,7 +250,7 @@ const Page = () => {
 
       <div className="mt-5">
         <Grid container spacing={3}>
-          <Grid item lg={6} xs={12} md={4}>
+          <Grid item lg={8} xs={12} md={4}>
             <div className="mt-5">
               {loadingManagers ? (
                 <Skeleton variant="rect" width="100%" height={56} />
@@ -300,7 +300,7 @@ const Page = () => {
             />
           </Grid>
 
-          <Grid item lg={6} xs={12} md={4}>
+          {/* <Grid item lg={6} xs={12} md={4}>
             <TableContainer
               component={Paper}
               style={{ marginTop: "20px", marginBottom: "20px" }}
@@ -339,7 +339,7 @@ const Page = () => {
                 </TableBody>
               </Table>
             </TableContainer>
-          </Grid>
+          </Grid> */}
 
           <Grid item lg={12} xs={12} md={4}>
             <div className="mr-10">

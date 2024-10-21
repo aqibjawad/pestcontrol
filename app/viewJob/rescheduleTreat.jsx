@@ -24,16 +24,6 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
   }, [jobList]);
 
   const handleFormSubmit = async () => {
-    if (!job_date || !reason) {
-      Swal.fire({
-        title: "Error!",
-        text: "Please fill in both date and reason fields",
-        icon: "error",
-        confirmButtonText: "Ok",
-      });
-      return;
-    }
-
     setLoading(true);
     const formData = {
       job_id: jobId,

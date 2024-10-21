@@ -19,7 +19,7 @@ const UpcomingJobs = ({ jobsList, handleDateChange }) => {
   // Check if we're on the dashboard route
   const isDashboard = pathname.includes("/superadmin/dashboard");
 
-  useEffect(() => { 
+  useEffect(() => {
     // Simulate data loading delay
     setTimeout(() => {
       const filtered = jobsList?.filter((job) =>
@@ -130,12 +130,21 @@ const UpcomingJobs = ({ jobsList, handleDateChange }) => {
                     </td>
                     <td className="py-2 px-4">
                       <div className={styles.teamCaptainName}>
-                        <Link href={`/viewJob?id=${row.id}`}>
-                          <GreenButton
-                            onClick={assignedJob}
-                            title="View Details"
-                          />
-                        </Link>
+                        {row.is_completed === 1 ? (
+                          <Link href={`/serviceRpoertPdf?id=${row.id}`}>
+                            <GreenButton
+                              onClick={assignedJob}
+                              title="View Service Report"
+                            />
+                          </Link>
+                        ) : (
+                          <Link href={`/viewJob?id=${row.id}`}>
+                            <GreenButton
+                              onClick={assignedJob}
+                              title="View Details"
+                            />
+                          </Link>
+                        )}
                       </div>
                     </td>
                   </tr>
