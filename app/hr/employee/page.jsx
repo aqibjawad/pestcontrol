@@ -162,7 +162,7 @@ const Page = () => {
         console.log(response);
         if (response.status === "success") {
           alert.successAlert(response.message);
-          router.replace("/hr/hr");
+          router.replace("/operations/viewEmployees");
         } else {
           alert.errorAlert(response.error.message);
         }

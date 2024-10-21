@@ -173,7 +173,7 @@ const Page = () => {
           title: "Success",
           text: "Data has been added successfully!",
         });
-        router.push(`/viewJob?=${id}`);
+        router.back();
       } else {
         Swal.fire({
           icon: "error",
@@ -193,10 +193,9 @@ const Page = () => {
     }
   };
 
-
   const mapContainerStyle = {
     height: "400px",
-    width: "100%"
+    width: "100%",
   };
 
   // Extract latitude and longitude from the locationData
@@ -273,7 +272,9 @@ const Page = () => {
               ) : (
                 <Grid container spacing={2}>
                   {salesManagers.map((manager) => (
-                    <Grid item key={manager.id} xs={12}>
+                    <Grid item key={manager.id} xs={6} sm={4} md={3}>
+                      {" "}
+                      {/* Adjust these values as needed */}
                       <FormControlLabel
                         control={
                           <Checkbox

@@ -99,10 +99,10 @@ const OtherInfo = ({ data, onChange, handleSubmit, sendingData }) => {
 
         <Grid item xs={12} md={6}>
           <InputWithTitle2
-            title="Comission"
+            title="Comission %"
             type="text"
             placeholder="Comission"
-            value={data.total_salary}
+            value={data.commission_per}
             onChange={(name, value) => onChange("commission_per", value)}
           />
         </Grid>
@@ -112,7 +112,7 @@ const OtherInfo = ({ data, onChange, handleSubmit, sendingData }) => {
             title="Labour Card Expiry"
             type="date"
             placeholder="Comission"
-            value={data.total_salary}
+            value={data.labour_card_expiry}
             onChange={(name, value) => onChange("labour_card_expiry", value)}
           />
         </Grid>

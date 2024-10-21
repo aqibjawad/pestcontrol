@@ -22,19 +22,7 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
   useEffect(() => {
     setJobStatus(jobList?.is_completed || 0);
   }, [jobList]);
-
-  const showAlertAndRefresh = (message) => {
-    Swal.fire({
-      title: "Success!",
-      text: message,
-      icon: "success",
-      timer: 2000,
-      showConfirmButton: false,
-    }).then(() => {
-      window.location.reload();
-    });
-  };
-
+  
   const handleFormSubmit = async () => {
     if (!job_date || !reason) {
       Swal.fire({
@@ -58,15 +46,20 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
         `${job}/reschedule`,
         formData
       );
-      if (response.error) {
+      if (response.error.message) {
         Swal.fire({
           title: "Error!",
-          text: response.error.error,
+          text: response.error.message,
           icon: "error",
           confirmButtonText: "Ok",
         });
       } else {
-        showAlertAndRefresh("Treatment rescheduled successfully!");
+        Swal.fire({
+          title: "Success!",
+          text: response.message,
+          icon: "success",
+          confirmButtonText: "Ok",
+        });
       }
     } catch (error) {
       console.error("Error rescheduling treatment:", error);
@@ -88,8 +81,13 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
         const response = await api.getDataWithToken(
           `${job}/move/complete/${jobId}`
         );
-        if (response.success) {
-          showAlertAndRefresh("Job completed successfully!");
+        if (response.status === "success") {
+          Swal.fire({
+            title: "Success!",
+            text: response.message,
+            icon: "success",
+            confirmButtonText: "Ok",
+          });
         } else {
           Swal.fire({
             title: "Error!",
@@ -101,8 +99,14 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
         }
       } else if (jobStatus === 0) {
         const response = await api.getDataWithToken(`${job}/start/${jobId}`);
-        if (response.success) {
-          showAlertAndRefresh("Job Moved to Started Successfully");
+        if (response.status === "success") {
+          Swal.fire({
+            title: "Success!",
+            text:
+              response.message || "Failed to complete job. Please try again.",
+            icon: "success",
+            confirmButtonText: "Ok",
+          });
         } else {
           Swal.fire({
             title: "Error!",

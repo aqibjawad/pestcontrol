@@ -19,7 +19,7 @@ const UpcomingJobs = ({ jobsList, handleDateChange }) => {
   // Check if we're on the dashboard route
   const isDashboard = pathname.includes("/superadmin/dashboard");
 
-  useEffect(() => {
+  useEffect(() => { 
     // Simulate data loading delay
     setTimeout(() => {
       const filtered = jobsList?.filter((job) =>
@@ -103,10 +103,10 @@ const UpcomingJobs = ({ jobsList, handleDateChange }) => {
                         {row?.user?.client?.phone_number}
                       </div>
                     </td>
-                    <td className="py-2 px-4">{row?.quote_services?.quote_title}</td>
+                    <td className="py-2 px-4">{row.job_title}</td>
                     <td className="py-2 px-4">
                       <div className={styles.statusContainer}>
-                        {row.is_completed === 0 && "Not"}
+                        {row.is_completed === 0 && "Not Started"}
                         {row.is_completed === 1 && "Completed"}
                         {row.is_completed === 2 && "In Progress"}
                       </div>
@@ -115,7 +115,7 @@ const UpcomingJobs = ({ jobsList, handleDateChange }) => {
                       <div className={styles.statusContainer}>High</div>
                     </td>
                     <td className="py-2 px-4">
-                      {/* <div className={styles.teamCaptainName}>
+                      <div className={styles.teamCaptainName}>
                         {row.captain_id === null ? (
                           <Link href={`/operations/assignJob?id=${row.id}`}>
                             <GreenButton
@@ -126,14 +126,6 @@ const UpcomingJobs = ({ jobsList, handleDateChange }) => {
                         ) : (
                           <span>{row?.captain?.name}</span>
                         )}
-                      </div> */}
-                      <div className={styles.teamCaptainName}>
-                        <Link href={`/operations/assignJob?id=${row.id}`}>
-                          <GreenButton
-                            onClick={assignedJob}
-                            title="Assign Job"
-                          />
-                        </Link>
                       </div>
                     </td>
                     <td className="py-2 px-4">
