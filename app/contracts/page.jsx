@@ -1,22 +1,16 @@
+"use client";
+
 import React from "react";
 
-import ContractDetails from "./contractDetails";
-import ContractSummery from "./contractSummery";
-import ContractJob from "./job";
-import ContractInvoices from "./contractInvoices";
-import Contracts from "@/components/Contracts";
+import Contracts from "../../components/Contracts"
+const Page =({quoteList})=>{
 
-const Page = () => {
-  return (
+
+  return(
     <div>
-      {/* <ContractDetails />
-      <ContractSummery />
-      <ContractJob />
-      <ContractInvoices /> */}
-
-      <Contracts />
+        <Contracts quoteList={quoteList} />
     </div>
-  );
-};
+  )
+} 
 
 export default Page;

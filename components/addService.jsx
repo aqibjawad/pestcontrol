@@ -4,7 +4,15 @@ import styles from "../styles/serviceReport.module.css";
 import InputWithTitle from "./generic/InputWithTitle";
 import GreenButton from "../components/generic/GreenButton";
 
-const AddService = ({ open, handleClose, onAddService, fromData, setFormData }) => {
+import Dropdown from "./generic/Dropdown";
+
+const AddService = ({
+  open,
+  handleClose,
+  onAddService,
+  fromData,
+  setFormData,
+}) => {
   const [serviceData, setServiceData] = useState({
     inspected_areas: "",
     pestFound: "",
@@ -77,10 +85,18 @@ const AddService = ({ open, handleClose, onAddService, fromData, setFormData }) 
           </div>
 
           <div className="mt-5">
-            <InputWithTitle
+            {/* <InputWithTitle
               title={"Infestation level"}
               value={serviceData.infestation_level}
-              onChange={(value) => handleInputChange("infestation_level", value)}
+              onChange={(value) =>
+                handleInputChange("infestation_level", value)
+              }
+            /> */}
+            <Dropdown
+              title={"Manifested level"}
+              value={serviceData.infestation_level}
+              options={["High", "Medium", "Low"]}
+              onChange={(value) => handleInputChange(value)}
             />
           </div>
 
@@ -96,7 +112,9 @@ const AddService = ({ open, handleClose, onAddService, fromData, setFormData }) 
             <InputWithTitle
               title={"Report and follow up detail"}
               value={serviceData.report_and_follow_up_detail}
-              onChange={(value) => handleInputChange("report_and_follow_up_detail", value)}
+              onChange={(value) =>
+                handleInputChange("report_and_follow_up_detail", value)
+              }
             />
           </div>
 

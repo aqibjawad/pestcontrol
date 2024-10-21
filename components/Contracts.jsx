@@ -24,7 +24,7 @@ const Contracts = () => {
 
   useEffect(() => {
     getAllQuotes();
-  }, []);
+  }, []); 
 
   const getAllQuotes = async () => {
     setFetchingData(true);
@@ -109,7 +109,7 @@ const Contracts = () => {
         >
           Contractss
         </div>
-        <div
+        {/* <div
           style={{
             display: "flex",
             justifyContent: "flex-end",
@@ -134,7 +134,7 @@ const Contracts = () => {
           >
             Download all
           </div>
-        </div>
+        </div> */}
       </div>
 
       <div className="grid grid-cols-12 gap-4">

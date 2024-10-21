@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation"; // Import useRouter
-import { Grid, Skeleton } from "@mui/material"; // Import Skeleton
+import { useRouter } from "next/navigation";
+import { Grid, Skeleton, CircularProgress } from "@mui/material"; // Import CircularProgress
 import styles from "../../styles/viewQuote.module.css";
 import APICall from "@/networkUtil/APICall";
 import { quotation } from "@/networkUtil/Constants";
@@ -38,12 +38,10 @@ const Page = () => {
   const [quoteList, setQuoteList] = useState(null);
   const [isApproved, setIsApproved] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(true);
-  const [isApproving, setIsApproving] = useState(false); // Add isApproving state
+  const [isApproving, setIsApproving] = useState(false);
 
   useEffect(() => {
-    // Get the current URL
     const currentUrl = window.location.href;
-
     const urlId = getIdFromUrl(currentUrl);
     setId(urlId);
   }, []);
@@ -54,35 +52,34 @@ const Page = () => {
     }
   }, [id]);
 
-  const getAllQuotes = async () => {
-    setFetchingData(true);
-    console.log(`${quotation}/${id}`);
-    try {
-      const response = await api.getDataWithToken(`${quotation}/${id}`);
-      setQuoteList(response.data);
-      if (response.data.type === "contracted") {
-        setIsApproved(true);
-      }
-    } catch (error) {
-      console.error("Error fetching quotes:", error);
-    } finally {
-      setFetchingData(false);
-      setLoadingDetails(false);
+const getAllQuotes = async () => {
+  setFetchingData(true);
+  try {
+    const response = await api.getDataWithToken(`${quotation}/${id}`);
+    setQuoteList(response.data);
+
+    // Check if the quote is contracted or if it's already approved
+    if (response.data.type === "contracted" || response.data.is_contracted === 1) {
+      setIsApproved(true);
     }
-  };
+  } catch (error) {
+    console.error("Error fetching quotes:", error);
+  } finally {
+    setFetchingData(false);
+    setLoadingDetails(false);
+  }
+};
 
   const handleSubmit = async () => {
-    setIsApproving(true); // Start loader on click
+    setIsApproving(true);
     try {
-      const response = await api.getDataWithToken(
-        `${quotation}/move/contract/${id}`
-      );
-      // router.push("/viewQuote");
+      await api.getDataWithToken(`${quotation}/move/contract/${id}`);
+      router.push("/contracts");
       setIsApproved(true);
     } catch (error) {
       console.error("Error sending data:", error);
     } finally {
-      setIsApproving(false); // Stop loader after completion
+      setIsApproving(false);
     }
   };
 
@@ -110,18 +107,13 @@ const Page = () => {
 
   return (
     <div>
-      <img
-        style={{ width: "100%" }}
-        src="/service_pdf1.png"
-        alt="Service PDF"
-      />
+      <img style={{ width: "100%" }} src="/service_pdf1.png" alt="Service PDF" />
 
       <div>
         <Grid container spacing={3}>
           <Grid item lg={6} xs={12} sm={6} md={4}>
             <img src="/logo-black.png" alt="Logo" />
           </Grid>
-
           <Grid item lg={6} xs={12} sm={6} md={4}>
             <div className="flex">
               <div className="flex-grow"></div>
@@ -158,23 +150,10 @@ const Page = () => {
         )}
       </div>
 
-      <img
-        style={{ width: "100%", marginTop: "1rem" }}
-        src="/service_pdf2.png"
-        alt="Service PDF"
-      />
+      <img style={{ width: "100%", marginTop: "1rem" }} src="/service_pdf2.png" alt="Service PDF" />
 
       <Grid container spacing={3}>
         <Grid item lg={6} xs={12} sm={6} md={4}>
-          {/* {!isApproved && (
-            <div
-              style={{ cursor: "pointer" }}
-              onClick={handleEditQuote}
-              className={styles.approveDiv}
-            >
-              Edit Quote
-            </div>
-          )} */}
           {isApproved && (
             <div
               style={{ cursor: "pointer" }}
@@ -197,7 +176,7 @@ const Page = () => {
                   className={styles.approveDiv}
                 >
                   {isApproving ? (
-                    <div>Loading...</div> // Show loading text when approving
+                    <CircularProgress size={24} /> // Show CircularProgress when approving
                   ) : (
                     "Approve"
                   )}
