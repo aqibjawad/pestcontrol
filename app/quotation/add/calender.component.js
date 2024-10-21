@@ -31,16 +31,25 @@ const CalendarComponent = ({
   };
 
   const handleDateChange = (date) => {
-    if (date) {
-      const normalizedDate = normalizeDate(date);
-      const dateStr = formatDate(normalizedDate);
-      const newDates = dates.includes(dateStr)
-        ? dates.filter((d) => d !== dateStr)
-        : [...dates, dateStr];
+    if (!date) return;
 
-      setDates(newDates);
-      onDateChange(newDates);
+    const normalizedDate = normalizeDate(date);
+    const dateStr = formatDate(normalizedDate);
+
+    // Check if the date is already selected
+    const dateIndex = dates.indexOf(dateStr);
+    let newDates;
+
+    if (dateIndex === -1) {
+      // Date is not selected, add it
+      newDates = [...dates, dateStr];
+    } else {
+      // Date is already selected, remove it
+      newDates = dates.filter((d) => d !== dateStr);
     }
+
+    setDates(newDates);
+    onDateChange(newDates);
   };
 
   const formattedDates = dates.map((dateStr) =>

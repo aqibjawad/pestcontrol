@@ -1,21 +1,15 @@
 "use client";
 
-import React, {useState, useEffect} from "react";
-
-import UpcomingJobs from "../../components/UpcomingJobs"
-
+import React, { useState, useEffect } from "react";
+import UpcomingJobs from "../../components/UpcomingJobs";
 import APICall from "@/networkUtil/APICall";
 import { job } from "@/networkUtil/Constants";
-
 import { format } from "date-fns";
 
-const Page =()=>{
-
+const Page = () => {
   const api = new APICall();
-
   const [fetchingData, setFetchingData] = useState(false);
   const [jobsList, setJobsList] = useState([]);
-
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
@@ -24,11 +18,10 @@ const Page =()=>{
     setEndDate(end);
   };
 
-
   useEffect(() => {
     getAllQuotes();
   }, [startDate, endDate]);
- 
+
   const getAllQuotes = async () => {
     setFetchingData(true);
     const queryParams = [];
@@ -43,7 +36,9 @@ const Page =()=>{
     }
 
     try {
-      const response = await api.getDataWithToken(`${job}/all?${queryParams.join("&")}`);
+      const response = await api.getDataWithToken(
+        `${job}/all?${queryParams.join("&")}`
+      );
       setJobsList(response.data);
     } catch (error) {
       console.error("Error fetching quotes:", error);
@@ -52,11 +47,15 @@ const Page =()=>{
     }
   };
 
-  return(
+  return (
     <div>
-        <UpcomingJobs jobsList={jobsList} handleDateChange={handleDateChange} />
+      <UpcomingJobs 
+        jobsList={jobsList} 
+        handleDateChange={handleDateChange} 
+        isLoading={fetchingData} 
+      />
     </div>
-  )
-} 
+  );
+};
 
 export default Page;

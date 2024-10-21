@@ -5,33 +5,34 @@ import SearchInput from "../components/generic/SearchInput";
 import GreenButton from "../components/generic/GreenButton";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import Skeleton from "@mui/material/Skeleton"; // Import Skeleton from MUI
-
+import Skeleton from "@mui/material/Skeleton";
 import DateFilters from "./generic/DateFilters";
 
-const UpcomingJobs = ({ jobsList, handleDateChange }) => {
+const UpcomingJobs = ({ jobsList, handleDateChange, isLoading }) => {
   const pathname = usePathname();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredJobs, setFilteredJobs] = useState([]);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
 
-  // Check if we're on the dashboard route
   const isDashboard = pathname.includes("/superadmin/dashboard");
 
   useEffect(() => {
-    // Simulate data loading delay
-    setTimeout(() => {
-      const filtered = jobsList?.filter((job) =>
-        job?.user?.name?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+    // Update loading state based on both internal loading and API loading
+    const filtered = jobsList?.filter((job) =>
+      job?.user?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    const limitedJobs = isDashboard ? filtered?.slice(0, 10) : filtered;
+    setFilteredJobs(limitedJobs);
 
-      // If on dashboard, only show first 10 items
-      const limitedJobs = isDashboard ? filtered?.slice(0, 10) : filtered;
-      setFilteredJobs(limitedJobs);
-      setLoading(false); // Set loading to false after data is loaded
-    }, 1500); // Simulating 1.5s loading time
+    // Short timeout to prevent flash of content
+    setTimeout(() => {
+      setLoading(false);
+    }, 300);
   }, [searchTerm, jobsList, isDashboard]);
+
+  // Show loading state if either internal loading or API loading is true
+  const showLoading = loading || isLoading;
 
   const assignedJob = () => {
     router.push("/operations/assignJob");
@@ -68,9 +69,8 @@ const UpcomingJobs = ({ jobsList, handleDateChange }) => {
             </tr>
           </thead>
           <tbody>
-            {loading
-              ? // Display skeleton loader while loading
-                [...Array(5)].map((_, index) => (
+            {showLoading
+              ? [...Array(5)].map((_, index) => (
                   <tr key={index} className="border-b border-gray-200">
                     <td className="py-5 px-4">
                       <Skeleton width={150} height={25} />
@@ -131,12 +131,21 @@ const UpcomingJobs = ({ jobsList, handleDateChange }) => {
                     <td className="py-2 px-4">
                       <div className={styles.teamCaptainName}>
                         {row.is_completed === 1 ? (
-                          <Link href={`/serviceRpoertPdf?id=${row.id}`}>
-                            <GreenButton
-                              onClick={assignedJob}
-                              title="View Service Report"
-                            />
-                          </Link>
+                          row.report === null ? (
+                            <Link href={`/serviceReport?id=${row.id}`}>
+                              <GreenButton
+                                onClick={assignedJob}
+                                title="Create Service Report"
+                              />
+                            </Link>
+                          ) : (
+                            <Link href={`/serviceRpoertPdf?id=${row?.report?.id}`}>
+                              <GreenButton
+                                onClick={assignedJob}
+                                title="View Report"
+                              />
+                            </Link>
+                          )
                         ) : (
                           <Link href={`/viewJob?id=${row.id}`}>
                             <GreenButton
@@ -168,7 +177,6 @@ const UpcomingJobs = ({ jobsList, handleDateChange }) => {
             <div className={isDashboard ? "" : "mr-5"}>
               <SearchInput onSearch={handleSearch} />
             </div>
-
             <div
               style={{
                 border: "1px solid #38A73B",
