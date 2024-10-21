@@ -11,10 +11,12 @@ import {
   Paper,
   Skeleton,
 } from "@mui/material";
-import SearchInput from "@/components/generic/SearchInput";
 import APICall from "@/networkUtil/APICall";
 import { quotation } from "@/networkUtil/Constants";
 import Link from "next/link";
+
+import DateFilters from "./generic/DateFilters";
+import { format } from "date-fns";
 
 const Contracts = () => {
   const api = new APICall();
@@ -22,18 +24,36 @@ const Contracts = () => {
   const [fetchingData, setFetchingData] = useState(false);
   const [quoteList, setQuoteList] = useState([]);
 
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+
+  const handleDateChange = (start, end) => {
+    setStartDate(start);
+    setEndDate(end);
+  };
+
   useEffect(() => {
     getAllQuotes();
-  }, []); 
+  }, [startDate, endDate]);
 
   const getAllQuotes = async () => {
     setFetchingData(true);
+    const queryParams = [];
+
+    if (startDate && endDate) {
+      queryParams.push(`start_date=${startDate}`);
+      queryParams.push(`end_date=${endDate}`);
+    } else {
+      const currentDate = format(new Date(), "yyyy-MM-dd");
+      queryParams.push(`start_date=${currentDate}`);
+      queryParams.push(`end_date=${currentDate}`);
+    }
+
     try {
       const [contactsResponse] = await Promise.all([
-        api.getDataWithToken(`${quotation}/contracted`), // Replace 'contacts' with your actual endpoint
+        api.getDataWithToken(`${quotation}/contracted?${queryParams.join("&")}`),
       ]);
 
-      // Assuming both responses have a `data` property that is an array
       const mergedData = [...contactsResponse.data];
       setQuoteList(mergedData);
     } catch (error) {
@@ -109,7 +129,7 @@ const Contracts = () => {
         >
           Contracts
         </div>
-        {/* <div
+        <div
           style={{
             display: "flex",
             justifyContent: "flex-end",
@@ -132,9 +152,9 @@ const Contracts = () => {
               borderRadius: "10px",
             }}
           >
-            Download all
+            <DateFilters onDateChange={handleDateChange} />
           </div>
-        </div> */}
+        </div>
       </div>
 
       <div className="grid grid-cols-12 gap-4">

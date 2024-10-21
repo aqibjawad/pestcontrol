@@ -11,10 +11,13 @@ import {
   Paper,
   Skeleton,
 } from "@mui/material";
-import SearchInput from "@/components/generic/SearchInput";
 import APICall from "@/networkUtil/APICall";
 import { quotation } from "@/networkUtil/Constants";
 import Link from "next/link";
+
+import DateFilters from "@/components/generic/DateFilters";
+
+import { format } from "date-fns";
 
 const Quotation = () => {
   const api = new APICall();
@@ -22,20 +25,38 @@ const Quotation = () => {
   const [fetchingData, setFetchingData] = useState(false);
   const [quoteList, setQuoteList] = useState([]);
 
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+
+  const handleDateChange = (start, end) => {
+    setStartDate(start);
+    setEndDate(end);
+  };
+
   useEffect(() => {
     getAllQuotes();
-  }, []);
+  }, [startDate, endDate]);
 
   const getAllQuotes = async () => {
     setFetchingData(true);
+    const queryParams = [];
+
+    if (startDate && endDate) {
+      queryParams.push(`start_date=${startDate}`);
+      queryParams.push(`end_date=${endDate}`);
+    } else {
+      const currentDate = format(new Date(), "yyyy-MM-dd");
+      queryParams.push(`start_date=${currentDate}`);
+      queryParams.push(`end_date=${currentDate}`);
+    }
+
     try {
-      const [quotesResponse, contactsResponse] = await Promise.all([
-        api.getDataWithToken(`${quotation}/all`),
-        api.getDataWithToken(`${quotation}/contracted`), // Replace 'contacts' with your actual endpoint
+      const [quotesResponse] = await Promise.all([
+        api.getDataWithToken(`${quotation}/all?${queryParams.join("&")}`),
       ]);
 
       // Assuming both responses have a `data` property that is an array
-      const mergedData = [...quotesResponse.data, ...contactsResponse.data];
+      const mergedData = [...quotesResponse.data];
       setQuoteList(mergedData);
     } catch (error) {
       console.error("Error fetching quotes and contacts:", error);
@@ -140,7 +161,7 @@ const Quotation = () => {
               borderRadius: "10px",
             }}
           >
-            Download all
+            <DateFilters onDateChange={handleDateChange} />
           </div>
         </div>
       </div>
