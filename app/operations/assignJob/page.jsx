@@ -58,6 +58,7 @@ const Page = () => {
   const [loadingManagers, setLoadingManagers] = useState(true);
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [jobStatus, setJobStatus] = useState("not_started");
+  const [selectedCaptainId, setSelectedCaptainId] = useState(null);
 
   useEffect(() => {
     const currentUrl = window.location.href;
@@ -115,21 +116,32 @@ const Page = () => {
   };
 
   const handleCaptainChange = (value) => {
-    if (!value) return;
+    if (!value) {
+      setSelectedCaptainId(null);
+      return;
+    }
 
     const selectedCaptain = salesManagers.find(
       (manager) => manager.name === value
     );
 
     if (selectedCaptain) {
+      setSelectedCaptainId(selectedCaptain.id);
       setFormData((prev) => ({
         ...prev,
         captain_id: selectedCaptain.id,
+        // Remove the captain from team members if they were previously selected
+        team_member_ids: prev.team_member_ids.filter(
+          (id) => id !== selectedCaptain.id
+        ),
       }));
     }
   };
 
   const handleTeamMemberChange = (managerId) => {
+    // Don't allow selection if this manager is the captain
+    if (managerId === selectedCaptainId) return;
+
     setFormData((prev) => {
       const updatedTeamMembers = prev.team_member_ids.includes(managerId)
         ? prev.team_member_ids.filter((id) => id !== managerId)
@@ -198,13 +210,12 @@ const Page = () => {
     width: "100%",
   };
 
-  // Extract latitude and longitude from the locationData
   const lat = parseFloat(jobList?.client_address?.lat);
   const lng = parseFloat(jobList?.client_address?.lang);
 
   const center = {
-    lat: lat, // Use the extracted latitude
-    lng: lng, // Use the extracted longitude
+    lat: lat,
+    lng: lng,
   };
 
   return (
@@ -271,23 +282,27 @@ const Page = () => {
                 <CircularProgress />
               ) : (
                 <Grid container spacing={2}>
-                  {salesManagers.map((manager) => (
-                    <Grid item key={manager.id} xs={6} sm={4} md={3}>
-                      {" "}
-                      {/* Adjust these values as needed */}
-                      <FormControlLabel
-                        control={
-                          <Checkbox
-                            checked={formData.team_member_ids.includes(
-                              manager.id
-                            )}
-                            onChange={() => handleTeamMemberChange(manager.id)}
+                  {salesManagers.map(
+                    (manager) =>
+                      // Only render checkbox if manager is not the selected captain
+                      manager.id !== selectedCaptainId && (
+                        <Grid item key={manager.id} xs={6} sm={4} md={3}>
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={formData.team_member_ids.includes(
+                                  manager.id
+                                )}
+                                onChange={() =>
+                                  handleTeamMemberChange(manager.id)
+                                }
+                              />
+                            }
+                            label={manager.name}
                           />
-                        }
-                        label={manager.name}
-                      />
-                    </Grid>
-                  ))}
+                        </Grid>
+                      )
+                  )}
                 </Grid>
               )}
             </div>
@@ -300,47 +315,6 @@ const Page = () => {
             />
           </Grid>
 
-          {/* <Grid item lg={6} xs={12} md={4}>
-            <TableContainer
-              component={Paper}
-              style={{ marginTop: "20px", marginBottom: "20px" }}
-            >
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>ID</TableCell>
-                    <TableCell>Members</TableCell>
-                    <TableCell>Role</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {loadingDetails ? (
-                    <TableRow>
-                      <TableCell colSpan={3} style={{ textAlign: "center" }}>
-                        Loading...
-                      </TableCell>
-                    </TableRow>
-                  ) : jobList.crew_members &&
-                    jobList.crew_members.length > 0 ? (
-                    jobList.crew_members.map((member) => (
-                      <TableRow key={member.id}>
-                        <TableCell>{member.id}</TableCell>
-                        <TableCell>{member.name}</TableCell>
-                        <TableCell>{member.role}</TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={3} style={{ textAlign: "center" }}>
-                        No crew members assigned
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Grid> */}
-
           <Grid item lg={12} xs={12} md={4}>
             <div className="mr-10">
               <div className="pageTitle">Job Location</div>
@@ -348,7 +322,7 @@ const Page = () => {
                 <GoogleMap
                   mapContainerStyle={mapContainerStyle}
                   center={center}
-                  zoom={15} // Increased zoom for better visibility of the marker
+                  zoom={15}
                 >
                   <Marker position={center} />
                 </GoogleMap>
