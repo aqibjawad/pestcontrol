@@ -6,6 +6,7 @@ import tableStyles from "../../../../styles/upcomingJobsStyles.module.css";
 import APICall from "@/networkUtil/APICall";
 import { job } from "@/networkUtil/Constants";
 
+
 const serviceReport = (serviceList) => {
   return (
     <div style={{ padding: "30px" }}>
@@ -104,7 +105,9 @@ const FeedBack = (serviceReportList) => {
 };
 
 const listSaleTable = () => {
-  return "";
+  return (
+    ""
+  );
 };
 
 const listeedBackTable = (serviceReportList) => {
@@ -113,13 +116,6 @@ const listeedBackTable = (serviceReportList) => {
       <table className="min-w-full bg-white">
         <thead>
           <tr>
-            <th className="py-5 px-4 border-b border-gray-200 text-left">
-              {" "}
-              Name{" "}
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Report
-            </th>
             <th className="py-2 px-4 border-b border-gray-200 text-left">
               Recommendations
             </th>
@@ -132,8 +128,6 @@ const listeedBackTable = (serviceReportList) => {
           {serviceReportList && serviceReportList.length > 0 ? (
             serviceReportList.map((row, index) => (
               <tr key={index} className="border-b border-gray-200">
-                <td className="py-5 px-4">{row.clientName}</td>
-                <td className="py-2 px-4">{row.clientContact}</td>
                 <td className="py-2 px-4">{row.recommendations_and_remarks}</td>
                 <td className="py-2 px-4">{row.for_office_use}</td>
               </tr>
