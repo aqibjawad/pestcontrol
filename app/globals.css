@@ -55,3 +55,37 @@ body {
   font-family: Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
     Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 }
+
+.pendingContrant {
+  background-color: rgba(255, 0, 0, 0.7);
+  padding: 5px;
+  font-family: "regular";
+  font-size: 10px;
+  color: white;
+  border-radius: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.approvedContrant {
+  background-color: var(--appGreen);
+  padding: 5px;
+  font-family: "regular";
+  font-size: 10px;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 20px;
+}
+
+.contractHeader {
+  font-family: "semibold";
+  font-size: 15px;
+}
+
+.contractTable {
+  font-family: "regular";
+  font-size: 12px;
+}

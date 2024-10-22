@@ -103,11 +103,11 @@ const UpcomingJobs = ({
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Service Report
               </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
+              <th className="py-2 px-4 border-b border-gray-200 text-center">
                 Assign Job
               </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                View Details
+              <th className="py-2 px-4 border-b border-gray-200 text-center">
+                Action
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Assigned Employee
