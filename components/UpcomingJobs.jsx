@@ -23,15 +23,12 @@ const UpcomingJobs = ({
   const isDashboard = pathname.includes("/superadmin/dashboard");
 
   useEffect(() => {
-    // Debug logs
-    console.log("JobsList received:", jobsList);
-    console.log("EmployeeList received:", employeeList);
 
     if (!jobsList || !employeeList) {
-      console.log("Warning: Missing data", {
-        hasJobsList: !!jobsList,
-        hasEmployeeList: !!employeeList,
-      });
+      // console.log("Warning: Missing data", {
+      //   hasJobsList: !!jobsList,
+      //   hasEmployeeList: !!employeeList,
+      // });
       return;
     }
 
@@ -66,12 +63,12 @@ const UpcomingJobs = ({
     setSearchTerm(value);
   };
 
-  // Debug rendering
-  console.log("Current render state:", {
-    showLoading,
-    filteredJobsLength: filteredJobs?.length,
-    filteredEmployeesLength: filteredEmployees?.length,
-  });
+  // // Debug rendering
+  // console.log("Current render state:", {
+  //   showLoading,
+  //   filteredJobsLength: filteredJobs?.length,
+  //   filteredEmployeesLength: filteredEmployees?.length,
+  // });
 
   const jobTable = () => {
     // Add debug check

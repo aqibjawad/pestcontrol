@@ -3,6 +3,7 @@ class User {
     this.userData = userData.userData;
     this.token = userData.token;
     this.name = userData.data.name;
+    this.roleId = userData.data.role_id; // Save role_id
     this.permissions = userData.permission.permission;
     this.saveToLocalStorage();
   }
@@ -29,6 +30,11 @@ class User {
   static getUserName() {
     const data = User.getFromLocalStorage();
     return data ? data.name : null;
+  }
+
+  static getUserRoleId() {
+    const data = User.getFromLocalStorage();
+    return data ? data.roleId : null; // Get role_id from local storage
   }
 
   static getUserPersmissions() {

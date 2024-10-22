@@ -10,9 +10,9 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { styled } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
 import styles from "../styles/sideMenu.module.css";
 import { useRouter } from "next/navigation";
+import User from "../networkUtil/user";
 
 const drawerWidth = 240;
 
@@ -64,9 +64,10 @@ const MyAppBar = styled(AppBar, {
 export default function SideMenu({ children }) {
   const router = useRouter();
   const [open, setOpen] = useState(true);
+  const [roleId, setRoleId] = useState(null);
 
-  // Hardcoded permissions
-  const [permissions, setPermissions] = useState([
+  // All possible menu items
+  const allPermissions = [
     {
       name: "Home",
       url: "superadmin/dashboard",
@@ -127,15 +128,46 @@ export default function SideMenu({ children }) {
       url: "setting",
       icon: "/setting-2.png",
     },
-  ]);
+  ];
 
-  const [userName, setUserName] = useState("John Doe"); // Default user name
+  const [permissions, setPermissions] = useState([]);
+  const [userName, setUserName] = useState("");
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  useEffect(() => {
+    // Use the User class methods to get data
+    const userRoleId = User.getUserRoleId();
+    const userPerms = User.getUserPersmissions();
+    const name = User.getUserName();
+
+    console.log("User Role ID:", userRoleId);
+    console.log("User Permissions:", userPerms);
+
+    setRoleId(userRoleId);
+    setUserName(name || "User");
+
+    // Set permissions based on roleId
+    if (userRoleId === 1) {
+      // Show all menu items for roleId 1
+      setPermissions(allPermissions);
+    } else if (userRoleId === 2) {
+      // Show only Jobs for roleId 2
+      setPermissions([
+        {
+          name: "Jobs",
+          url: "jobs",
+          icon: "/jobs.png",
+        },
+      ]);
+    } else {
+      // Default case or invalid roleId
+      setPermissions([]);
+    }
+  }, []);
 
   const toggleDrawer = () => {
     setOpen(!open);
   };
-
-  const [selectedIndex, setSelectedIndex] = useState(0);
 
   const handleNext = (item, index) => {
     setSelectedIndex(index);
@@ -191,13 +223,13 @@ export default function SideMenu({ children }) {
         </DrawerHeader>
 
         <div className="flex justify-center mb-10">
-          <img src="/whiteLogo.png" height={130} width={130} />
+          <img src="/whiteLogo.png" height={130} width={130} alt="Logo" />
         </div>
         <div className={styles.separator}>&nbsp;</div>
 
         <List>
           {Array.isArray(permissions) && permissions.length > 0 ? (
-            permissions.map((text, index) => ( 
+            permissions.map((text, index) => (
               <div
                 onClick={() => handleNext(text, index)}
                 key={index}
@@ -212,7 +244,7 @@ export default function SideMenu({ children }) {
               </div>
             ))
           ) : (
-            <div>No permissions available</div>
+            <div className={styles.sideMenuNames}>No permissions available</div>
           )}
         </List>
       </Drawer>
