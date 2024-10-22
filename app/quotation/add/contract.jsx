@@ -2,17 +2,26 @@ import React, { useState, useEffect } from "react";
 import { Grid, Box, Typography } from "@mui/material";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 
-const ContractSummary = ({ grandTotal, setFormData }) => {
-  const [discount, setDiscount] = useState(0); // Discount in percentage
-  const [vat, setVAT] = useState(0); // VAT in percentage
-  const [finalTotal, setFinalTotal] = useState(grandTotal); // Final grand total after discount and VAT
+const ContractSummary = ({ grandTotal, setFormData, formData }) => {
+  const [discount, setDiscount] = useState(0);
+  const [vat, setVAT] = useState(0);
+  const [finalTotal, setFinalTotal] = useState(grandTotal);
 
-  // Calculate the final total whenever the discount, VAT, or grandTotal changes
   useEffect(() => {
     const discountAmount = (grandTotal * discount) / 100;
     const vatAmount = ((grandTotal - discountAmount) * vat) / 100;
     const totalWithVAT = grandTotal - discountAmount + vatAmount;
     setFinalTotal(totalWithVAT);
+
+    // Update formData with calculated values
+    setFormData(prev => ({
+      ...prev,
+      discount,
+      vat,
+      discountAmount,
+      vatAmount,
+      finalTotal: totalWithVAT
+    }));
   }, [discount, vat, grandTotal]);
 
   return (
@@ -36,7 +45,6 @@ const ContractSummary = ({ grandTotal, setFormData }) => {
       </Typography>
 
       <Grid container spacing={3}>
-        {/* Left Side (Labels) */}
         <Grid item lg={6} xs={12}>
           <Box
             sx={{ display: "flex", alignItems: "center", marginBottom: "1rem" }}
@@ -55,12 +63,12 @@ const ContractSummary = ({ grandTotal, setFormData }) => {
             </Typography>
             <InputWithTitle
               title=""
-              type="number"
+              type="text"
               name="discount"
               placeholder="Enter Discount"
               value={discount}
               onChange={(value) => setDiscount(parseFloat(value) || 0)}
-              inputStyle={{ width: "100px" }} // Add a custom width for input
+              inputStyle={{ width: "100px" }}
             />
           </Box>
 
@@ -68,16 +76,16 @@ const ContractSummary = ({ grandTotal, setFormData }) => {
             sx={{ display: "flex", alignItems: "center", marginBottom: "1rem" }}
           >
             <Typography sx={{ fontWeight: "500", width: "100px" }}>
-              VAT:
+              VAT %:
             </Typography>
             <InputWithTitle
               title=""
-              type="number"
+              type="text"
               name="vat"
               placeholder="Enter VAT"
               value={vat}
               onChange={(value) => setVAT(parseFloat(value) || 0)}
-              inputStyle={{ width: "100px" }} // Add a custom width for input
+              inputStyle={{ width: "100px" }}
             />
           </Box>
 

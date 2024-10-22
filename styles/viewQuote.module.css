@@ -19,6 +19,14 @@
   margin-top: -6rem;
 }
 
+.serviceQuoteMain {
+  width: 100%;
+  height: Fixed (451px) px;
+  border-radius: 8px;
+  border: 1px;
+}
+
+
 .quoteheadMain {
   font-family: "regular";
   font-size: 16px;
@@ -123,13 +131,13 @@
 }
 
 .approveDiv {
-  width: 325px;
-  height: 68px;
+  width: 250px;
+  height: 40px;
   border: 1px;
   background: #32a92e;
   border: 1px solid #32a92e;
-  margin-top: 2rem;
   border-radius: 10px;
+  margin-top: 0.5rem;
   font-family: "regular";
   font-size: 20px;
   font-weight: 600;
@@ -163,7 +171,5 @@
   padding: 12px 16px 12px 16px;
   gap: 8px;
   border-radius: 8px;
-  border: 1px;
   border: 1px solid #D0D5DD;
-  margin-top: 2rem;
 }

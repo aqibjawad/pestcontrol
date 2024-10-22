@@ -1,58 +1,37 @@
+"use client";
 import React, { useState, useEffect } from "react";
+import styles from "../styles/upcomingJobsStyles.module.css";
+import SearchInput from "../components/generic/SearchInput";
+import GreenButton from "../components/generic/GreenButton";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import Skeleton from "@mui/material/Skeleton";
-import SearchInput from "../components/generic/SearchInput";
-import GreenButton from "../components/generic/GreenButton";
 import DateFilters from "./generic/DateFilters";
 
-const UpcomingJobs = ({
-  jobsList,
-  employeeList,
-  handleDateChange,
-  isLoading,
-  employeeCompany,
-}) => {
+const UpcomingJobs = ({ jobsList, handleDateChange, isLoading }) => {
   const pathname = usePathname();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredJobs, setFilteredJobs] = useState([]);
-  const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const isDashboard = pathname.includes("/superadmin/dashboard");
 
   useEffect(() => {
-
-    if (!jobsList || !employeeList) {
-      // console.log("Warning: Missing data", {
-      //   hasJobsList: !!jobsList,
-      //   hasEmployeeList: !!employeeList,
-      // });
-      return;
-    }
-
-    // Filter jobs based on search
-    const filtered = jobsList.filter((job) =>
+    // Update loading state based on both internal loading and API loading
+    const filtered = jobsList?.filter((job) =>
       job?.user?.name?.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    console.log("Filtered jobs:", filtered);
-
     const limitedJobs = isDashboard ? filtered?.slice(0, 10) : filtered;
     setFilteredJobs(limitedJobs);
 
-    // Filter employees
-    const filteredEmps = employeeList.filter((emp) =>
-      emp?.name?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    console.log("Filtered employees:", filteredEmps);
-    setFilteredEmployees(filteredEmps);
-
+    // Short timeout to prevent flash of content
     setTimeout(() => {
       setLoading(false);
     }, 300);
-  }, [searchTerm, jobsList, employeeList, isDashboard]);
+  }, [searchTerm, jobsList, isDashboard]);
 
+  // Show loading state if either internal loading or API loading is true
   const showLoading = loading || isLoading;
 
   const assignedJob = () => {
@@ -63,25 +42,9 @@ const UpcomingJobs = ({
     setSearchTerm(value);
   };
 
-  // // Debug rendering
-  // console.log("Current render state:", {
-  //   showLoading,
-  //   filteredJobsLength: filteredJobs?.length,
-  //   filteredEmployeesLength: filteredEmployees?.length,
-  // });
-
   const jobTable = () => {
-    // Add debug check
-    if (!filteredJobs?.length) {
-      return (
-        <div className="p-4 text-center text-gray-500">
-          No jobs data available to display
-        </div>
-      );
-    }
-
     return (
-      <div className="overflow-x-auto">
+      <div className={styles.tableContainer}>
         <table className="min-w-full bg-white">
           <thead>
             <tr>
@@ -100,30 +63,22 @@ const UpcomingJobs = ({
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Service Report
               </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-center">
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Assign Job
               </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-center">
-                Action
-              </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Assigned Employee
+                View Details
               </th>
             </tr>
           </thead>
           <tbody>
             {showLoading
               ? [...Array(5)].map((_, index) => (
-                  <tr
-                    key={`loading-${index}`}
-                    className="border-b border-gray-200"
-                  >
-                    <td className="py-5 px-4">
-                      <Skeleton width={50} height={20} />
-                    </td>
+                  <tr key={index} className="border-b border-gray-200">
                     <td className="py-5 px-4">
                       <Skeleton width={150} height={25} />
                       <Skeleton width={120} height={20} />
+                      <Skeleton width={100} height={20} />
                     </td>
                     <td className="py-2 px-4">
                       <Skeleton width={120} height={20} />
@@ -139,74 +94,41 @@ const UpcomingJobs = ({
                     </td>
                     <td className="py-2 px-4">
                       <Skeleton width={100} height={40} />
-                    </td>
-                    <td className="py-2 px-4">
-                      <Skeleton width={120} height={20} />
                     </td>
                   </tr>
                 ))
-              : filteredJobs.map((row, index) => {
-                  console.log("Rendering row:", row); // Debug log for each row
-                  const assignedEmployee = filteredEmployees.find(
-                    (emp) => emp.id === row.captain_id
-                  );
-                  console.log("Assigned employee for row:", assignedEmployee);
-
-                  return (
-                    <tr
-                      key={`job-${row.id}`}
-                      className="border-b border-gray-200"
-                    >
-                      <td className="py-2 px-4">{row.id}</td>
-                      <td className="py-5 px-4">
-                        <div className="font-medium">
-                          {row?.user?.name || "N/A"}
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          {row.job_date
-                            ? new Date(row.job_date).toLocaleString("en-US", {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                              })
-                            : "N/A"}
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          {row?.user?.client?.phone_number || "N/A"}
-                        </div>
-                      </td>
-                      <td className="py-2 px-4">{row.job_title || "N/A"}</td>
-                      <td className="py-2 px-4">
-                        <div
-                          className={`px-3 py-1 rounded-full text-sm inline-block
-                        ${
-                          row.is_completed === 0
-                            ? "bg-yellow-100 text-yellow-800"
-                            : ""
-                        }
-                        ${
-                          row.is_completed === 1
-                            ? "bg-green-100 text-green-800"
-                            : ""
-                        }
-                        ${
-                          row.is_completed === 2
-                            ? "bg-blue-100 text-blue-800"
-                            : ""
-                        }`}
-                        >
-                          {row.is_completed === 0 && "Not Started"}
-                          {row.is_completed === 1 && "Completed"}
-                          {row.is_completed === 2 && "In Progress"}
-                        </div>
-                      </td>
-                      <td className="py-2 px-4">
-                        <div className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm inline-block">
-                          High
-                        </div>
-                      </td>
-                      <td className="py-2 px-4">
-                        {!row.captain_id ? (
+              : filteredJobs?.map((row, index) => (
+                  <tr key={index} className="border-b border-gray-200">
+                    <td>
+                      <div className={styles.clientName}>{row.id}</div>
+                    </td>
+                    <td className="py-5 px-4">
+                      <div className={styles.clientName}>{row?.user?.name}</div>
+                      <div className={styles.clientEmail}>
+                        {`${new Date(row.job_date).toLocaleString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}`}
+                      </div>
+                      <div className={styles.clientPhone}>
+                        {row?.user?.client?.phone_number}
+                      </div>
+                    </td>
+                    <td className="py-2 px-4">{row.job_title}</td>
+                    <td className="py-2 px-4">
+                      <div className={styles.statusContainer}>
+                        {row.is_completed === 0 && "Not Started"}
+                        {row.is_completed === 1 && "Completed"}
+                        {row.is_completed === 2 && "In Progress"}
+                      </div>
+                    </td>
+                    <td className="py-2 px-4">
+                      <div className={styles.statusContainer}>High</div>
+                    </td>
+                    <td className="py-2 px-4">
+                      <div className={styles.teamCaptainName}>
+                        {row.captain_id === null ? (
                           <Link href={`/operations/assignJob?id=${row.id}`}>
                             <GreenButton
                               onClick={assignedJob}
@@ -214,45 +136,42 @@ const UpcomingJobs = ({
                             />
                           </Link>
                         ) : (
-                          <span>{assignedEmployee?.name || "N/A"}</span>
+                          <span>{row?.captain?.name}</span>
                         )}
-                      </td>
-                      <td className="py-2 px-4">
+                      </div>
+                    </td>
+                    <td className="py-2 px-4">
+                      <div className={styles.teamCaptainName}>
                         {row.is_completed === 1 ? (
-                          !row.report ? (
+                          row.report === null ? (
                             <Link href={`/serviceReport?id=${row.id}`}>
-                              <GreenButton title="Create Service Report" />
+                              <GreenButton
+                                onClick={assignedJob}
+                                title="Create Service Report"
+                              />
                             </Link>
                           ) : (
                             <Link
                               href={`/serviceRpoertPdf?id=${row?.report?.id}`}
                             >
-                              <GreenButton title="View Report" />
+                              <GreenButton
+                                onClick={assignedJob}
+                                title="View Report"
+                              />
                             </Link>
                           )
                         ) : (
                           <Link href={`/viewJob?id=${row.id}`}>
-                            <GreenButton title="View Details" />
+                            <GreenButton
+                              onClick={assignedJob}
+                              title="View Details"
+                            />
                           </Link>
                         )}
-                      </td>
-                      <td className="py-2 px-4">
-                        {assignedEmployee ? (
-                          <div>
-                            <div className="font-medium">
-                              {assignedEmployee.name}
-                            </div>
-                            <div className="text-sm text-gray-600">
-                              {assignedEmployee.email}
-                            </div>
-                          </div>
-                        ) : (
-                          <span className="text-gray-500">Not Assigned</span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
           </tbody>
         </table>
       </div>
@@ -261,24 +180,32 @@ const UpcomingJobs = ({
 
   return (
     <div>
-      <div className="p-6">
+      <div className={styles.parentContainer}>
         <div className="flex justify-between items-center mb-4">
           {!isDashboard && (
             <div className="flex-grow">
-              <h1 className="text-2xl font-bold">Upcoming Jobs</h1>
+              <div className="pageTitle">Upcoming Jobs</div>
             </div>
           )}
           <div className="flex">
             <div className={isDashboard ? "" : "mr-5"}>
               <SearchInput onSearch={handleSearch} />
             </div>
-            <div className="border border-green-600 rounded-lg h-10 w-[150px] flex items-center">
+            <div
+              style={{
+                border: "1px solid #38A73B",
+                borderRadius: "8px",
+                height: "40px",
+                width: "150px",
+                alignItems: "center",
+                display: "flex",
+              }}
+            >
               <img
                 src="/Filters lines.svg"
                 height={20}
                 width={20}
                 className="ml-2 mr-2"
-                alt="filter"
               />
               <DateFilters onDateChange={handleDateChange} />
             </div>
