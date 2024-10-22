@@ -7,6 +7,8 @@ import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
 import { Skeleton } from "@mui/material"; // Import Skeleton from MUI
 import Link from "next/link";
 
+import UpcomingJobs from "../../../components/UpcomingJobs"; 
+
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
   if (parts.length > 1) {
@@ -28,6 +30,8 @@ const Page = () => {
   const [fetchingData, setFetchingData] = useState(false);
   const [employeeList, setEmployeeList] = useState([]);
 
+  const [employeeCompany, setEmployeeCompany] = useState([]);
+
   useEffect(() => {
     const currentUrl = window.location.href;
 
@@ -46,6 +50,9 @@ const Page = () => {
         `${getAllEmpoyesUrl}/${employeeId}`
       );
       setEmployeeList(response.data);
+
+      setEmployeeCompany(response.data.captain_jobs);
+
     } catch (error) {
       console.error("Error fetching employees:", error);
     } finally {
@@ -59,7 +66,7 @@ const Page = () => {
       <div className={styles.personalDetailsContainer}>
         <div className={styles.imageContainer}>
           {fetchingData ? (
-            <Skeleton variant="circular" width={100} height={100} />
+            <Skeleton variant="circular" width={50} height={50} />
           ) : (
             <img
               className={styles.personalImage}
@@ -424,11 +431,12 @@ const Page = () => {
         </div>
       </div>
 
-      {/* <div className={styles.buttonContainer}>
-        <Link href={`/dashboard/personalDetails/edit?id=${id}`}>
-          <button className={styles.editButton}>Edit</button>
-        </Link>
-      </div> */}
+      <div className={styles.personalDetailsContainer}>
+        <div className={styles.personalContainer}>
+          <div className={styles.personalHead}>Jobs</div>
+            <UpcomingJobs employeeCompany={employeeCompany} />
+        </div>
+      </div>
     </div>
   );
 };

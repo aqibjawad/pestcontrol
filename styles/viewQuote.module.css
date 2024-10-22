@@ -14,9 +14,9 @@
 .quoteMain {
   width: 100%;
   height: Fixed (451px) px;
-  padding: 4px;
   border-radius: 8px;
   border: 1px;
+  margin-top: -6rem;
 }
 
 .quoteheadMain {
@@ -68,9 +68,9 @@
   font-weight: 600;
   line-height: 24.38px;
   color: #32a92e;
-  display: flex;
+  /* display: flex;
   text-align: center;
-  justify-content: center;
+  justify-content: center; */
 }
 
 .areaHead{
@@ -142,15 +142,10 @@
 
 .billingRecord {
   width: 100%;
-  height: auto;
-  top: -1123px;
-  left: 7482px;
-  padding: 14px 12px 14px 12px;
   border-radius: 8px;
   border: 1px;
   border: 1px solid #68cc5838;
-  margin-top: 2rem;
-  padding: 30px;
+  padding-left: 30px;
 }
 
 .billingHead {

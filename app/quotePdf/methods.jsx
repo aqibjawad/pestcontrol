@@ -19,7 +19,7 @@ const Treatment = ({ quote }) => {
         padding: "16px",
       }}
     >
-      <Typography variant="h6" style={{ marginBottom: "16px" }}>
+      <Typography variant="h6">
         Treatment Methods
       </Typography>
       <Grid container spacing={2}>
@@ -29,7 +29,7 @@ const Treatment = ({ quote }) => {
               disabled
               checked
               control={<CustomCheckbox />}
-              label={<Typography variant="body1">{row?.name}</Typography>}
+              label={<Typography style={{ fontSize: '12px' }} variant="body1">{row?.name}</Typography>}
             />
           </Grid>
         ))}

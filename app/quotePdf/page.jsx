@@ -15,6 +15,8 @@ import Terms from "./terms";
 import Treatment from "./methods";
 import QuoteServiceDates from "./QuoteServiceDates";
 
+import Layout from "../../components/layout"
+
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
   if (parts.length > 1) {
@@ -106,10 +108,9 @@ const getAllQuotes = async () => {
   if (!quoteList) return <div>No data available</div>;
 
   return (
-    <div>
-      <img style={{ width: "100%" }} src="/service_pdf1.png" alt="Service PDF" />
+    <Layout>
 
-      <div>
+      {/* <div>
         <Grid container spacing={3}>
           <Grid item lg={6} xs={12} sm={6} md={4}>
             <img src="/logo-black.png" alt="Logo" />
@@ -125,9 +126,9 @@ const getAllQuotes = async () => {
             </div>
           </Grid>
         </Grid>
-      </div>
+      </div> */}
 
-      <div className="my-4">
+      <div className="">
         {loadingDetails ? (
           <div className="space-y-4">
             <div className="h-4 bg-gray-200 rounded animate-pulse w-full"></div>
@@ -145,14 +146,13 @@ const getAllQuotes = async () => {
             <Treatment quote={quoteList} />
             <Invoice quote={quoteList} />
             <ContractSummary quote={quoteList} />
-            <Terms quote={quoteList} />
+            {/* <Terms quote={quoteList} /> */}
           </>
         )}
       </div>
 
-      <img style={{ width: "100%", marginTop: "1rem" }} src="/service_pdf2.png" alt="Service PDF" />
 
-      <Grid container spacing={3}>
+      {/* <Grid container spacing={3}>
         <Grid item lg={6} xs={12} sm={6} md={4}>
           {isApproved && (
             <div
@@ -194,8 +194,8 @@ const getAllQuotes = async () => {
             </div>
           </div>
         </Grid>
-      </Grid>
-    </div>
+      </Grid> */}
+    </Layout>
   );
 };
 

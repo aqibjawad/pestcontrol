@@ -3,13 +3,16 @@
 import React, { useState, useEffect } from "react";
 
 import JobDetails from "./jobDetails";
-import SchedulePlan from "./schedulePlan";
 import Members from "./members";
 import Instruction from "./instruction";
 import ResheduleTreatment from "./rescheduleTreat";
 
 import APICall from "@/networkUtil/APICall";
 import { job } from "@/networkUtil/Constants";
+
+import GreenButton from "@/components/generic/GreenButton";
+
+import { useRouter } from "next/navigation";
 
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
@@ -27,6 +30,8 @@ const getIdFromUrl = (url) => {
 
 const Page = () => {
   const api = new APICall();
+
+  const router = useRouter();
 
   const [id, setId] = useState(null);
 
@@ -60,13 +65,28 @@ const Page = () => {
     }
   };
 
+  const handleAssignJob =()=>{
+    router.push(`/operations/assignJob?id${jobList.id}`)
+  }
+
   return (
     <div>
       <JobDetails jobList={jobList} />
-      <Members jobList={jobList} />
-      <Instruction jobList={jobList} />
-      <ResheduleTreatment jobList={jobList} jobId={id} />
-      {/* <SchedulePlan /> */}
+
+      {/* Conditionally render Members and Instruction if caption_id is not null */}
+      {jobList?.captain_id !== null && (
+        <>
+          <Members jobList={jobList} />
+          <Instruction jobList={jobList} />
+          <ResheduleTreatment jobList={jobList} jobId={id} />
+        </>
+      )}
+
+      {jobList?.captain_id === null && (
+        <>
+          <GreenButton onClick={handleAssignJob} title={"Assign job"} />
+        </>
+      )}
     </div>
   );
 };

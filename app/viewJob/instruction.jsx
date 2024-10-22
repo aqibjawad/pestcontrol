@@ -57,8 +57,8 @@ const Instruction = ({ jobList, loading }) => {
                 {reschedule.length > 0 ? (
                   reschedule.map((item, index) => (
                     <TableRow key={index}>
-                      <TableCell>{formatDate(item.created_at)}</TableCell>
-                      <TableCell>{formatDate(item.updated_at)}</TableCell>
+                      <TableCell>{formatDate(item.job_date)}</TableCell>
+                      <TableCell>{formatDate(item.job_date)}</TableCell>
                       <TableCell>{item.reason}</TableCell>
                     </TableRow>
                   ))

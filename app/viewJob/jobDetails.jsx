@@ -33,7 +33,7 @@ const JobDetails = ({ jobList }) => {
 
                 <TableRow sx={{ border: "none" }}>
                   <TableCell>
-                    <strong> Reference : </strong>
+                    <strong> Reference </strong>
                   </TableCell>
                   <TableCell>
                     {" "}
@@ -63,12 +63,25 @@ const JobDetails = ({ jobList }) => {
 
                 <TableRow sx={{ border: "none" }}>
                   <TableCell>
-                    <strong> Treatment Methods : </strong>
+                    <strong> Treatment Methods </strong>
                   </TableCell>
                   <TableCell>
                     {jobList?.treatment_methods
                       ?.map((method) => method.name)
                       .join(", ") || "N/A"}
+                  </TableCell>
+                </TableRow>
+
+                <TableRow sx={{ border: "none" }}>
+                  <TableCell>
+                    <strong> Job Date </strong>
+                  </TableCell>
+                  <TableCell>
+                    {`${new Date(jobList?.job_date).toLocaleString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}`}
                   </TableCell>
                 </TableRow>
               </TableBody>

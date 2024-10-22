@@ -48,7 +48,7 @@ const QuoteServiceDates = ({ quote }) => {
         padding: "16px",
       }}
     >
-      <Typography variant="h6" style={{ marginBottom: "16px" }}>
+      <Typography variant="h6">
         Service Dates
       </Typography>
       <Grid container spacing={2}>
@@ -57,7 +57,7 @@ const QuoteServiceDates = ({ quote }) => {
             <FormControlLabel
               control={<CustomCheckbox checked={true} disabled={true} />}
               label={
-                <Typography variant="body2">
+                <Typography variant="body2" style={{ fontSize: '12px' }}>
                   {formatDate(dateObj.service_date)}
                 </Typography>
               }

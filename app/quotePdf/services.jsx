@@ -25,7 +25,7 @@ const ServiceProduct = ({ quote }) => {
           <TableHead className={styles.tableHead}>
             <TableRow>
               <TableCell align="center">Service Product</TableCell>
-              <TableCell align="center">No. of Months</TableCell>
+              <TableCell align="center">No. of Services</TableCell>
               <TableCell align="center">Job Type</TableCell>
               <TableCell align="center">Rate</TableCell>
               <TableCell align="center">Sub Total</TableCell>

@@ -36,18 +36,18 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
         `${job}/reschedule`,
         formData
       );
-      if (response.error.message) {
+      if (response.status === "success") {
         Swal.fire({
-          title: "Error!",
-          text: response.error.message,
-          icon: "error",
+          title: "Success!",
+          text: `${response.message}`,
+          icon: "success",
           confirmButtonText: "Ok",
         });
       } else {
         Swal.fire({
-          title: "Success!",
-          text: response.message,
-          icon: "success",
+          title: "Error!",
+          text: `${response.error.message}`,
+          icon: "error",
           confirmButtonText: "Ok",
         });
       }
