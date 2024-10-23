@@ -65,28 +65,29 @@ const Page = () => {
     }
   };
 
-  const handleAssignJob =()=>{
-    router.push(`/operations/assignJob?id${jobList.id}`)
-  }
+  const handleAssignJob = () => {
+    router.push(`/operations/assignJob?id=${jobList.id}`);
+  };
 
   return (
     <div>
       <JobDetails jobList={jobList} />
 
       {/* Conditionally render Members and Instruction if caption_id is not null */}
-      {jobList?.captain_id !== null && (
+      {/* {jobList?.captain_id !== null && (
         <>
-          <Members jobList={jobList} />
-          <Instruction jobList={jobList} />
-          <ResheduleTreatment jobList={jobList} jobId={id} />
+     
         </>
-      )}
+      )} */}
+      <Members jobList={jobList} />
+      <Instruction jobList={jobList} />
+      <ResheduleTreatment jobList={jobList} jobId={id} />
 
-      {jobList?.captain_id === null && (
+      {/* {jobList?.captain_id === null && (
         <>
           <GreenButton onClick={handleAssignJob} title={"Assign job"} />
         </>
-      )}
+      )} */}
     </div>
   );
 };

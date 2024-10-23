@@ -14,26 +14,23 @@ const DateFilters = ({ onOptionChange, onDateChange }) => {
   const handleOptionClick = (option) => {
     setSelectedOption(option);
     let start, end;
+    const today = new Date();
 
     switch (option) {
       case "today":
-        start = end = new Date().toISOString().split("T")[0];
+        start = end = formatDateForInput(today);
         break;
       case "This Month":
-        start = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
-          .toISOString()
-          .split("T")[0];
-        end = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
-          .toISOString()
-          .split("T")[0];
+        start = formatDateForInput(
+          new Date(today.getFullYear(), today.getMonth(), 1)
+        );
+        end = formatDateForInput(
+          new Date(today.getFullYear(), today.getMonth() + 1, 0)
+        );
         break;
       case "This Year":
-        start = new Date(new Date().getFullYear(), 0, 1)
-          .toISOString()
-          .split("T")[0];
-        end = new Date(new Date().getFullYear(), 11, 31)
-          .toISOString()
-          .split("T")[0];
+        start = formatDateForInput(new Date(today.getFullYear(), 0, 1));
+        end = formatDateForInput(new Date(today.getFullYear(), 11, 31));
         break;
       case "dateRange":
         // Don't set dates here, let the user pick them
@@ -45,40 +42,56 @@ const DateFilters = ({ onOptionChange, onDateChange }) => {
 
     setStartDate(start);
     setEndDate(end);
-    setTitle(option);
+    setTitle(option === "dateRange" ? "Select Date Range" : option);
 
     if (option !== "dateRange") {
       handleClose();
       if (typeof onDateChange === "function") {
         onDateChange(start, end);
-      } else {
-        console.error("onDateChange is not a function");
-      }
-    }
-  };
-  const handleStartDateChange = (event) => {
-    const date = event.target.value;
-    setStartDate(date);
-    if (startDate !== undefined || endDate !== undefined) {
-      if (typeof onDateChange === "function") {
-        onDateChange(startDate, endDate);
-      } else {
-        console.error("onDateChange is not a function");
       }
     }
   };
 
-  const handleEndDateChange = (event) => {
-    const date = event.target.value;
-    setEndDate(date);
-    if (startDate !== undefined || endDate !== undefined) {
-      setTitle(formatDate(startDate) + " - " + formatDate(endDate));
-      if (typeof onDateChange === "function") {
-        onDateChange(startDate, endDate);
-      } else {
-        console.error("onDateChange is not a function");
-      }
+  const formatDateForInput = (date) => {
+    return date.toISOString().split("T")[0];
+  };
+
+  const handleStartDateChange = (event) => {
+    const newDate = event.target.value;
+    setStartDate(newDate);
+
+    if (endDate && newDate) {
+      updateDateRange(newDate, endDate);
     }
+  };
+
+  const handleEndDateChange = (event) => {
+    const newDate = event.target.value;
+    setEndDate(newDate);
+
+    if (startDate && newDate) {
+      updateDateRange(startDate, newDate);
+    }
+  };
+
+  const updateDateRange = (start, end) => {
+    const startFormatted = formatDisplayDate(start);
+    const endFormatted = formatDisplayDate(end);
+    setTitle(`${startFormatted} - ${endFormatted}`);
+
+    if (typeof onDateChange === "function") {
+      onDateChange(start, end);
+    }
+  };
+
+  const formatDisplayDate = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-GB", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
   };
 
   const handleClick = (event) => {
@@ -91,13 +104,6 @@ const DateFilters = ({ onOptionChange, onDateChange }) => {
 
   const open = Boolean(anchorEl);
   const id = open ? "date-filters-popover" : undefined;
-
-  const formatDate = (dateString) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    const options = { month: "long", year: "numeric", day: "2-digit" };
-    return date.toLocaleDateString("en-GB", options);
-  };
 
   return (
     <div>
@@ -183,13 +189,11 @@ const DateFilters = ({ onOptionChange, onDateChange }) => {
   );
 };
 
-// Define prop types for DateFilters
 DateFilters.propTypes = {
   onOptionChange: PropTypes.func.isRequired,
   onDateChange: PropTypes.func.isRequired,
 };
 
-// Default props if necessary
 DateFilters.defaultProps = {
   onOptionChange: () => {},
   onDateChange: () => {},

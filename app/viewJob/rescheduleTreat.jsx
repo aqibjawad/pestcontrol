@@ -43,6 +43,7 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
           icon: "success",
           confirmButtonText: "Ok",
         });
+        router.push("/allJobs");
       } else {
         Swal.fire({
           title: "Error!",
