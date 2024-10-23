@@ -6,6 +6,8 @@ import tableStyles from "../../../../styles/upcomingJobsStyles.module.css";
 import APICall from "@/networkUtil/APICall";
 import { job } from "@/networkUtil/Constants";
 
+import ServiceReport from "@/app/allServiceReports/serviceReport";
+
 
 const serviceReport = (serviceList) => {
   return (
@@ -19,7 +21,7 @@ const serviceReport = (serviceList) => {
       >
         Services report
       </div>
-      {listServiceTable(serviceList)}
+      <ServiceReport />
     </div>
   );
 };

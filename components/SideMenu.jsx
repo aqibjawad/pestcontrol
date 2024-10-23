@@ -135,34 +135,50 @@ export default function SideMenu({ children }) {
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   useEffect(() => {
-    // Use the User class methods to get data
     const userRoleId = User.getUserRoleId();
+    const userId = User.getUserId();
     const userPerms = User.getUserPersmissions();
     const name = User.getUserName();
-
-    console.log("User Role ID:", userRoleId);
-    console.log("User Permissions:", userPerms);
 
     setRoleId(userRoleId);
     setUserName(name || "User");
 
-    // Set permissions based on roleId
+    // Set permissions based on role
+    let userPermissions = [];
     if (userRoleId === 1) {
-      // Show all menu items for roleId 1
-      setPermissions(allPermissions);
+      userPermissions = allPermissions;
     } else if (userRoleId === 2) {
-      // Show only Jobs for roleId 2
-      setPermissions([
+      userPermissions = [
         {
           name: "Jobs",
           url: "jobs",
           icon: "/jobs.png",
         },
-      ]);
-    } else {
-      // Default case or invalid roleId
-      setPermissions([]);
+      ];
+    } else if (userRoleId === 4) {
+      userPermissions = [
+        {
+          name: "Jobs",
+          url: "jobs",
+          icon: "/jobs.png",
+        },
+        {
+          name: "Profile",
+          url: `hr/employeeDetails?id=${userId}`,
+          icon: "/clients.png",
+        },
+      ];
     }
+
+    // Add logout to all permission sets
+    userPermissions.push({
+      name: "Logout",
+      url: "/",
+      icon: "/logout.png",
+      isLogout: true,
+    });
+
+    setPermissions(userPermissions);
   }, []);
 
   const toggleDrawer = () => {

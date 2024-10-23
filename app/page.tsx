@@ -132,14 +132,28 @@ export default function Home() {
         setShowAlert(true);
       } else {
         const user = new User(response);
-        if (response.data.role_id === 1) {
-          router.replace("/superadmin/dashboard");
+        // Get role ID from response
+        const roleId = response.data.role_id;
+
+        // Route based on role ID
+        switch (roleId) {
+          case 1:
+            router.replace("/superadmin/dashboard");
+            break;
+          case 2:
+            router.replace("/superadmin/dashboard");
+            break;
+          case 4:
+            router.replace("/jobs/");
+            break;
+          default:
+            // Handle unknown role or redirect to default page
+            router.replace("/dashboard");
         }
       }
       setSendingData(false);
     }
   };
-
   function isValidEmail(email: string) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
