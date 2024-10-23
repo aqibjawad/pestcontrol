@@ -33,14 +33,8 @@ const Instruction = ({ jobList, loading }) => {
 
   return (
     <div>
-      <div className={styles.mainText}>Job instructions</div>
-
-      <div>
-        <MultiInput value={jobList?.job_instructions} readonly />
-      </div>
-
       <div style={{ marginTop: "20px" }}>
-        <div className={styles.treatHead}>Reschedule treatment</div>
+        <div className={styles.treatHead}>Schedules Dates</div>
         {loading ? (
           <CircularProgress />
         ) : (
@@ -93,6 +87,12 @@ const Instruction = ({ jobList, loading }) => {
             </Table>
           </TableContainer>
         )}
+      </div>
+
+      <div className={styles.mainText}>Job instructions</div>
+
+      <div>
+        <MultiInput value={jobList?.job_instructions} readonly />
       </div>
     </div>
   );

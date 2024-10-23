@@ -72,22 +72,21 @@ const Page = () => {
   return (
     <div>
       <JobDetails jobList={jobList} />
+      <Instruction jobList={jobList} />
 
       {/* Conditionally render Members and Instruction if caption_id is not null */}
-      {/* {jobList?.captain_id !== null && (
+      {jobList?.captain_id !== null && (
         <>
-     
+          <Members jobList={jobList} />
+          <ResheduleTreatment jobList={jobList} jobId={id} />
         </>
-      )} */}
-      <Members jobList={jobList} />
-      <Instruction jobList={jobList} />
-      <ResheduleTreatment jobList={jobList} jobId={id} />
+      )}
 
-      {/* {jobList?.captain_id === null && (
-        <>
+      {jobList?.captain_id === null && (
+        <div className="mt-5">
           <GreenButton onClick={handleAssignJob} title={"Assign job"} />
-        </>
-      )} */}
+        </div>
+      )}
     </div>
   );
 };

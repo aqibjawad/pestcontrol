@@ -14,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const noLayoutPages = [
-    "/serviceReportPdf",
+    "/serviceRpoertPdf/",
     "/quotePdf/",
     "/account/supplier_ledger",
   ];
