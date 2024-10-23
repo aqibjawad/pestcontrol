@@ -141,7 +141,7 @@ export default function Home() {
             router.replace("/superadmin/dashboard");
             break;
           case 2:
-            router.replace("/superadmin/dashboard");
+            router.replace("/hr/hr");
             break;
           case 4:
             router.replace("/jobs/");

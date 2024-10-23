@@ -1,18 +1,18 @@
-.modalHeader {
-  font-family: "regular";
-  font-size: 20px;
-  font-weight: 600;
-  line-height: 24.38px;
-  text-align: center;
-  color: "#101828";
+.modalBox {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 1000px;
+  margin: auto;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  position: absolute;
 }
 
-.modalDescrp {
-  font-family: "regular";
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 28.16px;
+.modalHead{
   text-align: center;
-  color:"#667085";
-  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 500;
+  font-size: 20px;
 }

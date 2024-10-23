@@ -150,9 +150,19 @@ export default function SideMenu({ children }) {
     } else if (userRoleId === 2) {
       userPermissions = [
         {
-          name: "Jobs",
-          url: "jobs",
-          icon: "/jobs.png",
+          name: "Dashbaord",
+          url: "hr/hr",
+          icon: "/home.png",
+        },
+        {
+          name: "Employees",
+          url: `operations/viewEmployees`,
+          icon: "/hr.png",
+        },
+        {
+          name: "Profile",
+          url: `hr/employeeDetails?id=${userId}`,
+          icon: "/clients.png",
         },
       ];
     } else if (userRoleId === 4) {

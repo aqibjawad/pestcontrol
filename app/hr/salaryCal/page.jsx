@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
-import SearchInput from "@/components/generic/SearchInput";
 import { Modal, Box, Typography, Button } from "@mui/material";
+
+import APICall from "@/networkUtil/APICall";
+import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
 
 import InputWithTitle from "@/components/generic/InputWithTitle";
 
@@ -11,211 +13,177 @@ import styles from "../../../styles/salaryModal.module.css";
 
 import GreenButton from "@/components/generic/GreenButton";
 
-const Page = () => {
-  const [employeeId, setEmployeeId] = useState("");
+import Swal from "sweetalert2";
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+import CircularProgress from "@mui/material/CircularProgress";
 
-  const handleOpenModal = () => {
-    setIsModalOpen(true);
+const SalarCal = () => {
+  const api = new APICall();
+  const [fetchingData, setFetchingData] = useState(false);
+  const [employeeList, setEmployeeList] = useState([]);
+  const [employeeCompany, setEmployeeCompany] = useState([]);
+
+  const [attendance_per, setAttendence] = useState("");
+
+  // Modal state
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
+
+  useEffect(() => {
+    getAllEmployees();
+  }, []);
+
+  const getAllEmployees = async () => {
+    setFetchingData(true);
+    try {
+      const response = await api.getDataWithToken(
+        `${getAllEmpoyesUrl}/salary/get`
+      );
+      setEmployeeList(response.data);
+      setEmployeeCompany(response.data.captain_jobs);
+    } catch (error) {
+      console.error("Error fetching employees:", error);
+    } finally {
+      setFetchingData(false);
+    }
+  };
+
+  // Modal open/close handlers
+  const handleOpenModal = (employee) => {
+    setSelectedEmployee(employee);
+    setOpenModal(true);
   };
 
   const handleCloseModal = () => {
-    setIsModalOpen(false);
+    setOpenModal(false);
+    setSelectedEmployee(null);
   };
 
-  const salaryCal = () => {
-    return (
-      <div>
-        <div className="flex items-center justify-between">
-          <div className="pageTitle">Salary Calculations</div>
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    // if (!validateForm()) return;
 
-          <div className="flex items-center">
-            <div className="mr-5">
-              <SearchInput />
-            </div>
+    setLoadingSubmit(true);
 
-            <div
-              style={{
-                border: "1px solid #D0D5DD",
-                borderRadius: "8px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                height: "50px",
-                width: "63px",
-                marginRight: "2rem",
-              }}
-            >
-              Filter
-            </div>
+    const obj = {
+      employee_salary_id: selectedEmployee.id,
+      attendance_per,
+    };
 
-            <GreenButton title={"+ Calculate"} onClick={handleOpenModal} />
-          </div>
-        </div>
-
-        {salaryTable()}
-      </div>
+    const response = await api.postFormDataWithToken(
+      `${getAllEmpoyesUrl}/salary/paid`,
+      obj
     );
-  };
 
-  const rows = Array.from({ length: 5 }, (_, index) => ({
-    clientName: "Olivia Rhye",
-    clientEmail: "ali@gmail.com",
-    clientPhone: "0900 78601",
-    service: "Pest Control",
-    date: "5 May 2024",
-    priority: "High",
-    status: "Completed",
-    teamCaptain: "Babar Azam",
-    imageUrl: "/person.png",
-  }));
-
-  const salaryTable = () => {
-    return (
-      <div className={tableStyles.tableContainer}>
-        <table className="min-w-full bg-white ">
-          <thead>
-            <tr>
-              <th className="py-5 px-4 border-b border-gray-200 text-left">
-                Sr.
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Employee Name
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Designation
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Attendance
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Commission
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Salary
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Receipt
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, index) => (
-              <tr key={index} className="border-b border-gray-200">
-                <td className="py-5 px-4">{index + 1}</td>
-                <td className="py-2 px-4">
-                  <div className={tableStyles.clientName}>{row.clientName}</div>
-                  <div className={tableStyles.clientEmail}>
-                    {row.clientEmail}
-                  </div>
-                  <div className={tableStyles.clientPhone}>
-                    {row.clientPhone}
-                  </div>
-                </td>
-                <td className="py-2 px-4">{row.service}</td>
-                <td className="py-2 px-4">{row.date}</td>
-                <td className="py-2 px-4">{row.priority}</td>
-                <td className="py-2 px-4">{row.status}</td>
-                <td className="py-2 px-4">{row.teamCaptain}</td>
-                <td className="py-2 px-4">{"View Statement"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    );
+    if (response.status === "success") {
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Data has been added successfully!",
+      });
+      handleCloseModal();
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: `${response.error.message}`,
+      });
+    }
   };
 
   return (
     <div>
-      <div className="mt-10 mb-10">{salaryCal()}</div>
+      <div className="mt-10 mb-10">
+        <div className="pageTitle">Salary Calculations</div>
 
-      <Modal
-        open={isModalOpen}
-        onClose={handleCloseModal}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 700,
-            maxHeight: "90vh", // Adjust height as per your requirement
-            overflowY: "auto", // Enable vertical scrolling
-            bgcolor: "background.paper",
-            boxShadow: 24,
-            p: 4,
-          }}
-        >
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            <div className={styles.modalHeader}>Salary Calculation</div>
+        <div className={tableStyles.tableContainer}>
+          <table className="min-w-full bg-white ">
+            <thead>
+              <tr>
+                <th className="py-5 px-4 border-b border-gray-200 text-left">
+                  Sr.
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 text-left">
+                  Employee Name
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 text-left">
+                  Allowance
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 text-left">
+                  Attendance
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 text-left">
+                  Basic salary
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 text-left">
+                  Paid total Salary
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 text-left">
+                  Status
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 text-left">
+                  Total Salary
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 text-left">
+                  Update Attendence
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {employeeList.map((row, index) => (
+                <tr key={index} className="border-b border-gray-200">
+                  <td className="py-5 px-4">{index + 1}</td>
+                  <td className="py-5 px-4">{row.employee_id}</td>
+                  <td className="py-5 px-4">{row.allowance}</td>
+                  <td className="py-5 px-4">{row.attendance_per}</td>
+                  <td className="py-5 px-4">{row.basic_salary}</td>
+                  <td className="py-5 px-4">{row.paid_total_salary}</td>
+                  <td className="py-5 px-4">{row.status}</td>
+                  <td className="py-5 px-4">{row.total_salary}</td>
+                  <td className="py-5 px-4">
+                    <Button
+                      variant="outlined"
+                      onClick={() => handleOpenModal(row)}
+                    >
+                      Update Attendence
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-            <div className={styles.modalDescrp}>Enter data here</div>
-          </Typography>
-          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            <div className="mt-10" style={{ width: "100%" }}>
-              <InputWithTitle
-                title={"Employee Id"}
-                type={"text"}
-                name="name"
-                placeholder={"Employee Id"}
-                value={employeeId}
-                onChange={setEmployeeId}
-              />
-            </div>
-
-            <div className="mt-10" style={{ width: "100%" }}>
-              <InputWithTitle
-                title={"Designation"}
-                type={"text"}
-                name="name"
-                placeholder={"Designation"}
-                value={employeeId}
-                onChange={setEmployeeId}
-              />
-            </div>
-
-            <div className="mt-10" style={{ width: "100%" }}>
-              <InputWithTitle
-                title={"Attendence"}
-                type={"text"}
-                name="name"
-                placeholder={"Attendence"}
-                value={employeeId}
-                onChange={setEmployeeId}
-              />
-            </div>
-
-            <div className="mt-10" style={{ width: "100%" }}>
-              <InputWithTitle
-                title={"Comission"}
-                type={"text"}
-                name="name"
-                placeholder={"Comission"}
-                value={employeeId}
-                onChange={setEmployeeId}
-              />
-            </div>
-
-            <div className="mt-10" style={{ width: "100%" }}>
-              <InputWithTitle
-                title={"Salary"}
-                type={"text"}
-                name="name"
-                placeholder={"Salary"}
-                value={employeeId}
-                onChange={setEmployeeId}
-              />
-            </div>
-          </Typography>
-          <div className="mt-5">
-            <GreenButton
-              title={"Save"}
+      {/* Modal for updating attendance */}
+      <Modal open={openModal} onClose={handleCloseModal}>
+        <Box className={styles.modalBox}>
+          <div className={styles.modalHead}>
+            Update Attendance for {selectedEmployee?.employee_id}
+          </div>
+          <div className={styles.modalContent}>
+            <InputWithTitle
+              type={"text"}
+              title="Attendance Percentage"
+              placeholder="Enter attendance percentage"
+              value={attendance_per}
+              onChange={setAttendence}
             />
+            <div className="mt-5">
+              <GreenButton
+                onClick={handleSubmit}
+                title={
+                  loadingSubmit ? (
+                    <CircularProgress size={20} color="inherit" />
+                  ) : (
+                    "Submit"
+                  )
+                }
+                disabled={loadingSubmit}
+              />
+            </div>
           </div>
         </Box>
       </Modal>
@@ -223,4 +191,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default SalarCal;
