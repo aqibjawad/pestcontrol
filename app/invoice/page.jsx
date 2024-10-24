@@ -3,29 +3,11 @@
 import React, { useState, useEffect } from "react";
 import tableStyles from "../../styles/upcomingJobsStyles.module.css";
 import SearchInput from "@/components/generic/SearchInput";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-} from "@mui/material";
-
 import { serviceInvoice } from "@/networkUtil/Constants";
-
 import APICall from "@/networkUtil/APICall";
 
-
-const rows = Array.from({ length: 10 }, (_, index) => ({
-  clientName: "Olivia Rhye",
-  clientContact: "10",
-  quoteSend: "10",
-  quoteApproved: "50",
-  cashAdvance: "$50,000",
-}));
-
-const listServiceTable = () => {
-
+// Renamed to PascalCase and made into a proper React component
+const ListServiceTable = () => {
   const api = new APICall();
 
   const [fetchingData, setFetchingData] = useState(false);
@@ -55,43 +37,35 @@ const listServiceTable = () => {
         <thead>
           <tr>
             <th className="py-5 px-4 border-b border-gray-200 text-left">
-              {" "}
-              Sr.{" "}
+              Sr.
             </th>
             <th className="py-2 px-4 border-b border-gray-200 text-left">
-              {" "}
-              Invoice Issue Date{" "}
+              Invoice Issue Date
             </th>
             <th className="py-2 px-4 border-b border-gray-200 text-left">
-              {" "}
-              Firm{" "}
+              Firm
             </th>
             <th className="py-2 px-4 border-b border-gray-200 text-left">
-              {" "}
-              Due Date{" "}
+              Due Date
             </th>
             <th className="py-2 px-4 border-b border-gray-200 text-left">
-              {" "}
-              Value{" "}
+              Value
             </th>
             <th className="py-2 px-4 border-b border-gray-200 text-left">
-              {" "}
-              Status{" "}
+              Status
             </th>
             <th className="py-2 px-4 border-b border-gray-200 text-left">
-              {" "}
-              Priority{" "}
+              Priority
             </th>
             <th className="py-2 px-4 border-b border-gray-200 text-left">
-              {" "}
-              Action{" "}
+              Action
             </th>
           </tr>
         </thead>
         <tbody>
           {invoiceList?.map((row, index) => (
             <tr key={index} className="border-b border-gray-200">
-              <td className="py-5 px-4">{index+1}</td>
+              <td className="py-5 px-4">{index + 1}</td>
               <td className="py-2 px-4">
                 <div className={tableStyles.clientContact}>
                   {row.issued_date}
@@ -126,8 +100,7 @@ const Page = () => {
             marginBottom: "-4rem",
           }}
         >
-          {" "}
-          Vendors{" "}
+          Vendors
         </div>
         <div className="flex">
           <div className="flex-grow"></div>
@@ -209,7 +182,9 @@ const Page = () => {
       </div>
 
       <div className="grid grid-cols-12 gap-4">
-        <div className="col-span-12">{listServiceTable()}</div>
+        <div className="col-span-12">
+          <ListServiceTable />
+        </div>
       </div>
     </div>
   );
