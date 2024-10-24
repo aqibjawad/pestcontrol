@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import tableStyles from "../../styles/upcomingJobsStyles.module.css";
 import SearchInput from "@/components/generic/SearchInput";
 import {
@@ -11,7 +11,10 @@ import {
   Button,
 } from "@mui/material";
 
-import styles from "../../styles/loginStyles.module.css";
+import { serviceInvoice } from "@/networkUtil/Constants";
+
+import APICall from "@/networkUtil/APICall";
+
 
 const rows = Array.from({ length: 10 }, (_, index) => ({
   clientName: "Olivia Rhye",
@@ -22,6 +25,30 @@ const rows = Array.from({ length: 10 }, (_, index) => ({
 }));
 
 const listServiceTable = () => {
+
+  const api = new APICall();
+
+  const [fetchingData, setFetchingData] = useState(false);
+  const [invoiceList, setQuoteList] = useState(null);
+  const [loadingDetails, setLoadingDetails] = useState(true);
+
+  useEffect(() => {
+    getAllQuotes();
+  }, []);
+
+  const getAllQuotes = async () => {
+    setFetchingData(true);
+    try {
+      const response = await api.getDataWithToken(`${serviceInvoice}`);
+      setQuoteList(response.data);
+    } catch (error) {
+      console.error("Error fetching quotes:", error);
+    } finally {
+      setFetchingData(false);
+      setLoadingDetails(false);
+    }
+  };
+
   return (
     <div className={tableStyles.tableContainer}>
       <table className="min-w-full bg-white">
@@ -33,7 +60,7 @@ const listServiceTable = () => {
             </th>
             <th className="py-2 px-4 border-b border-gray-200 text-left">
               {" "}
-              Customer{" "}
+              Invoice Issue Date{" "}
             </th>
             <th className="py-2 px-4 border-b border-gray-200 text-left">
               {" "}
@@ -62,53 +89,12 @@ const listServiceTable = () => {
           </tr>
         </thead>
         <tbody>
-          {rows.map((row, index) => (
+          {invoiceList?.map((row, index) => (
             <tr key={index} className="border-b border-gray-200">
-              <td className="py-5 px-4">{row.clientName}</td>
+              <td className="py-5 px-4">{index+1}</td>
               <td className="py-2 px-4">
                 <div className={tableStyles.clientContact}>
-                  {row.clientContact}
-                </div>
-              </td>
-              <td className="py-2 px-4">
-                <div className={tableStyles.clientContact}>
-                  {row.clientContact}
-                </div>
-              </td>
-              <td className="py-2 px-4">
-                <div className={tableStyles.clientContact}>
-                  {row.clientContact}
-                </div>
-              </td>
-              <td className="py-2 px-4">
-                <div className={tableStyles.clientContact}>
-                  {row.clientContact}
-                </div>
-              </td>
-              <td className="py-2 px-4">
-                <div className={tableStyles.clientContact}>
-                  {row.clientContact}
-                </div>
-              </td>
-              <td className="py-2 px-4">
-                <div className={tableStyles.clientContact}>
-                  {row.clientContact}
-                </div>
-              </td>
-              <td className="py-2 px-4">
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <img
-                    src="/trash.png"
-                    alt="icon1"
-                    style={{ marginRight: "8px" }}
-                  />
-                  <img src="/view.png" alt="icon2" />
+                  {row.issued_date}
                 </div>
               </td>
             </tr>

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import styles from "../../../styles/loginStyles.module.css";
 import InputWithTitle from "../../..//components/generic/InputWithTitle";
-import Dropdown2 from "../../../components/generic/DropDown2";
 import { clients } from "../../../networkUtil/Constants";
 import APICall from "../../../networkUtil/APICall";
 import { Grid, Skeleton } from "@mui/material";
 import MultilineInput from "../../../components/generic/MultilineInput";
+import Dropdown2 from "@/components/generic/DropDown2";
 
 const BasicQuote = ({ setFormData, formData }) => {
   const api = new APICall();
@@ -17,58 +17,62 @@ const BasicQuote = ({ setFormData, formData }) => {
   const [firmName, setFirmName] = useState("");
   const [addresses, setAddresses] = useState([]);
   const [referenceName, setReferenceName] = useState("");
+  console.log(referenceName);
+  
   const [selectedAddress, setSelectedAddress] = useState("");
-  const [loadingClients, setLoadingClients] = useState(true); // Add loading state
+  const [loadingClients, setLoadingClients] = useState(true);
 
   useEffect(() => {
     getAllClients();
   }, []);
 
   const getAllClients = async () => {
-    setLoadingClients(true); // Set loading to true before fetching
+    setLoadingClients(true);
     try {
       const response = await api.getDataWithToken(clients);
       setAllClients(response.data);
       const transformedClients = response.data.map((client) => ({
         value: client.id,
         label: client.name || client.client?.firm_name || "Unknown Client",
-        data: client, // Save the entire client object for later use
+        data: client,
       }));
       setAllBrandsList(transformedClients);
     } catch (error) {
       console.error("Error fetching clients:", error);
     } finally {
-      setLoadingClients(false); // Stop loading after fetching
+      setLoadingClients(false);
     }
   };
 
   const handleClientChange = (value) => {
     const selectedClient = allClients.find((client) => client.id === value);
-    console.log(selectedClient);
 
     if (selectedClient) {
       setSelectedClientId(value);
       setFormData((prev) => ({
         ...prev,
         user_id: selectedClient.id,
-      })); // Set user ID
+      }));
 
-      // Update fields
-      const clientData = selectedClient.client;
-      if (clientData && clientData.referencable) {
-        const referenceData = clientData.referencable;
-        setReferenceName(referenceData.name);
-      } else {
-        setReferenceName(""); // Clear if not available
+      // Update firm name from client data
+      if (selectedClient.client) {
+        setFirmName(selectedClient.client.firm_name || "");
       }
 
-      setFirmName(clientData.firm_name || "");
-      setAddresses(
-        clientData.addresses.map((address) => ({
-          value: address.id,
-          label: address.address,
-        }))
-      );
+      // Update reference name from referencable
+      if (selectedClient.client?.referencable?.name) {
+        setReferenceName(selectedClient.client.referencable.name);
+      }
+
+      // Update addresses if available
+      if (selectedClient.client?.addresses) {
+        setAddresses(
+          selectedClient.client.addresses.map((address) => ({
+            value: address.id,
+            label: address.address,
+          }))
+        );
+      }
     }
   };
 
@@ -76,11 +80,11 @@ const BasicQuote = ({ setFormData, formData }) => {
     const selectedAddressObj = addresses.find(
       (address) => address.value === value
     );
-    setSelectedAddress(value); // Update the selected address state
+    setSelectedAddress(value);
     setFormData((prev) => ({
       ...prev,
-      client_address_id: selectedAddressObj ? selectedAddressObj.value : "", // Set client address ID
-      selectedAddress: selectedAddressObj ? selectedAddressObj.label : "", // Update formData with address
+      client_address_id: selectedAddressObj ? selectedAddressObj.value : "",
+      selectedAddress: selectedAddressObj ? selectedAddressObj.label : "",
     }));
   };
 
@@ -95,12 +99,9 @@ const BasicQuote = ({ setFormData, formData }) => {
             <Skeleton variant="rectangular" width="100%" height={50} />
           ) : (
             <Dropdown2
-              title={"select Client"}
+              title={"Select Client"}
               options={allBrandsList}
               onChange={handleClientChange}
-              // value={allBrandsList.find(
-              //   (option) => option.value === selectedBrand
-              // )}
               value={
                 selectedBrand ||
                 allBrandsList.find(
@@ -117,7 +118,7 @@ const BasicQuote = ({ setFormData, formData }) => {
             title={"Contract Reference"}
             type={"text"}
             placeholder={"Contract Reference"}
-            value={referenceName} // Use contract reference here
+            defaultValue={referenceName}
             disable
           />
         </Grid>
@@ -127,8 +128,8 @@ const BasicQuote = ({ setFormData, formData }) => {
             title={"Firm"}
             type={"text"}
             placeholder={"Firm"}
-            value={firmName} // Use the firm name from the selected client
-            defaultValue={formData?.user?.client?.firm_name}
+            value={firmName}
+            defaultValue={firmName}
             disable
           />
         </Grid>
@@ -138,7 +139,7 @@ const BasicQuote = ({ setFormData, formData }) => {
             title={"Select address"}
             options={addresses}
             onChange={handleAddressChange}
-            value={selectedAddress} // Bind the selected address
+            value={selectedAddress}
           />
         </Grid>
 
@@ -193,7 +194,7 @@ const BasicQuote = ({ setFormData, formData }) => {
         <Grid item lg={6} xs={12} md={6} mt={2}>
           <InputWithTitle
             title={"Duration in Month"}
-            type={"text"} // Use "number" to restrict non-numeric input
+            type={"number"}
             placeholder={"Duration in Month"}
             value={formData.duration_in_months}
             onChange={(value) => {

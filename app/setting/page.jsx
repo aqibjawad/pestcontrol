@@ -263,6 +263,12 @@ const Page = () => {
                   <Link href="/allServiceReports">View Service Reports</Link>
                 </div>
               </Grid>
+
+              <Grid className="" item xs={12} sm={6} md={4} lg={3}>
+                <div className={styles.addProd}>
+                  <Link href="/invoice">View Invoices</Link>
+                </div>
+              </Grid>
             </Grid>
           </div>
         </Grid>

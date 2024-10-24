@@ -113,7 +113,7 @@ const PersonalInformation = ({ data, onChange }) => {
           <InputWithTitle2
             title="EID Start"
             type="date"
-            placeholder="EID Start"
+            placeholder="EID Start" 
             name="eid_start"
             value={data.eid_start}
             onChange={(name, value) => onChange("eid_start", value)}

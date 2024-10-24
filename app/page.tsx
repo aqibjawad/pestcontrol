@@ -30,7 +30,7 @@ export default function Home() {
   const imgSection = () => {
     return (
       <div>
-        <img src="/logo.jpeg" height={100} width={100} />
+        <img src="/logo.webp" height={100} width={100} />
         <div className="flex justify-center items-center h-full">
           <img src="/loginImg.png" />
         </div>

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import InputWithTitle from "../../../components/generic/InputWithTitle";
-import Dropdown2 from "../../../components/generic/DropDown2";
 import CalendarComponent from "./calender.component";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import { Grid, Tabs, Tab, Box, Button } from "@mui/material";
+import Dropdown2 from "@/components/generic/DropDown2";
 
 const JobsList = ({
   jobData,
@@ -40,6 +40,7 @@ const JobsList = ({
     const result = [...initialDates];
 
     if (selectedJobType === "monthly") {
+      // For each selected date, add corresponding dates for subsequent months
       initialDates.forEach((initialDate) => {
         const date = new Date(initialDate);
 
@@ -47,10 +48,12 @@ const JobsList = ({
           const newDate = new Date(date);
           newDate.setMonth(newDate.getMonth() + i);
 
+          // Check if the day exists in the target month
+          // For example, March 31 doesn't exist in April
           const targetMonth = newDate.getMonth();
-          newDate.setDate(1);
-          newDate.setMonth(targetMonth + 1);
-          newDate.setDate(0);
+          newDate.setDate(1); // Reset to first of month
+          newDate.setMonth(targetMonth + 1); // Go to first of next month
+          newDate.setDate(0); // Back up one day to last of target month
 
           const lastDayOfMonth = newDate.getDate();
           const originalDay = date.getDate();
@@ -99,6 +102,7 @@ const JobsList = ({
       : [];
 
     if (selectedJobType === "daily") {
+      // For daily, only allow one date selection
       setSelectedDates(formattedDates.slice(-1));
     } else {
       setSelectedDates(formattedDates);
@@ -107,20 +111,15 @@ const JobsList = ({
 
   const handleJobTypeChange = (value) => {
     setSelectedJobType(value);
-    setActiveTab(0); // Reset to calendar tab by default
-    setDayWiseSelection([]); // Reset day-wise selection
-
     if (value === "monthly" || value === "daily") {
       setSelectedDates([]);
       setAllGeneratedDates([]);
     }
-
     if (value === "daily") {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       setSelectedDates([today.toISOString().slice(0, 10)]);
     }
-
     if (
       ["one_time", "yearly", "monthly", "weekly", "custom", "daily"].includes(
         value
@@ -167,6 +166,7 @@ const JobsList = ({
                       onClick={() => {
                         let newSelection = [];
                         if (selectedJobType === "daily") {
+                          // For daily, only allow one selection
                           newSelection = [{ week: weekIndex, day: dayIndex }];
                         } else {
                           newSelection = [...dayWiseSelection];
@@ -241,15 +241,30 @@ const JobsList = ({
   };
 
   const handleServiceChange = (value) => {
+    console.log("handleServiceChange called with value:", value);
     const selectedService = allServices.find((service) => service.id === value);
+    console.log("selectedService:", selectedService);
     if (selectedService) {
-      updateJobList({
-        ...jobData,
-        service_id: value,
-        service_name: selectedService.pest_name,
+      updateJobList((prevJobData) => {
+        console.log("Updating jobData:", prevJobData);
+        return {
+          ...prevJobData,
+          service_id: value,
+          service_name: selectedService.pest_name,
+        };
       });
     }
   };
+
+  useEffect(() => {
+    // This will run after jobData has been updated
+    console.log("Updated jobData:", jobData);
+  }, [jobData]);
+
+  // const serviceOptions = allServices.map((service) => ({
+  //   label: service.service_title,
+  //   value: service.id,
+  // }));
 
   const getUniqueServiceOptions = (allServices) => {
     const uniqueTitles = new Set();
@@ -269,8 +284,6 @@ const JobsList = ({
   };
 
   const serviceOptions = getUniqueServiceOptions(allServices);
-
-  const showDayWiseTab = selectedJobType === "daily";
 
   return (
     <div style={{ marginBottom: "2rem" }}>
@@ -393,7 +406,7 @@ const JobsList = ({
             : "Select Dates"}
         </DialogTitle>
         <DialogContent>
-          {showDayWiseTab && (
+          {(selectedJobType === "weekly" || selectedJobType === "daily") && (
             <Tabs value={activeTab} onChange={handleTabChange}>
               <Tab label="Date" />
               <Tab label="Day-wise" />
@@ -408,7 +421,7 @@ const JobsList = ({
                 maxSelectable={selectedJobType === "daily" ? 1 : undefined}
               />
             )}
-            {showDayWiseTab && activeTab === 1 && renderDayWiseSelection()}
+            {activeTab === 1 && renderDayWiseSelection()}
           </Box>
           {selectedJobType === "custom" && (
             <InputWithTitle

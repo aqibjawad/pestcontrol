@@ -18,7 +18,7 @@ const InputWithTitle2 = ({ title, type, value, placeholder, onChange, ...rest })
   const [open, setOpen] = useState(false);
 
   const handleDateChange = (date) => {
-    onChange(format(date, "yyyy-MM-dd"));
+    onChange("name",format(date, "yyyy-MM-dd"));
     setOpen(false);
   };
 
