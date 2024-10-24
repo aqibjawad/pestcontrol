@@ -68,12 +68,12 @@ export default function SideMenu({ children }) {
 
   const allPermissions = [
     { name: "Home", url: "superadmin/dashboard", icon: "/home.png" },
-    { name: "Jobs", url: "jobs", icon: "/jobs.png" },
+    { name: "Jobs", url: "allJobs", icon: "/jobs.png" },
     { name: "Contracts", url: "contracts", icon: "/contracts.png" },
-    { name: "Quotes", url: "quotes", icon: "/quotes.png" },
+    { name: "Quotes", url: "viewQuote", icon: "/quotes.png" },
     { name: "Calendar", url: "calendar", icon: "/calender.png" },
     { name: "Clients", url: "clients", icon: "/clients.png" },
-    { name: "Operations", url: "operations", icon: "/operations.png" },
+    { name: "Operations", url: "allJobs", icon: "/operations.png" },
     { name: "Sales", url: "sales", icon: "/sales.png" },
     { name: "HR", url: "hr", icon: "/hr.png" },
     { name: "Team Head", url: "teams", icon: "/teamhead.png" },
@@ -136,7 +136,7 @@ export default function SideMenu({ children }) {
     if (item.isLogout) {
       logOut();
     } else {
-      router.push(`/${item.url}`);
+      router.push(`/${item.url}`, undefined, { shallow: true });
     }
   };
 

@@ -43,22 +43,16 @@ const ListServiceTable = () => {
               Invoice Issue Date
             </th>
             <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Firm
+              Client
             </th>
             <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Due Date
+              Paid Amount
             </th>
             <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Value
+              Total Amount
             </th>
             <th className="py-2 px-4 border-b border-gray-200 text-left">
               Status
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Priority
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Action
             </th>
           </tr>
         </thead>
@@ -70,6 +64,21 @@ const ListServiceTable = () => {
                 <div className={tableStyles.clientContact}>
                   {row.issued_date}
                 </div>
+              </td>
+              <td className="py-2 px-4">
+                <div className={tableStyles.clientContact}>
+                  {row?.user?.name}
+                </div>
+              </td>
+              <td className="py-2 px-4">
+                <div className={tableStyles.clientContact}>{row.paid_amt}</div>
+              </td>
+              <td className="py-2 px-4">
+                <div className={tableStyles.clientContact}>{row.total_amt}</div>
+              </td>
+
+              <td className="py-2 px-4">
+                <div className={tableStyles.clientContact}>{row.status}</div>
               </td>
             </tr>
           ))}
@@ -100,84 +109,7 @@ const Page = () => {
             marginBottom: "-4rem",
           }}
         >
-          Vendors
-        </div>
-        <div className="flex">
-          <div className="flex-grow"></div>
-          <div
-            className="flex"
-            style={{ display: "flex", alignItems: "center" }}
-          >
-            <div style={{ marginTop: "2rem", marginRight: "2rem" }}>
-              <SearchInput />
-            </div>
-            <div
-              style={{
-                marginTop: "2rem",
-                border: "1px solid #38A73B",
-                borderRadius: "8px",
-                height: "40px",
-                width: "100px",
-                alignItems: "center",
-                display: "flex",
-              }}
-            >
-              <img
-                src="/Filters lines.svg"
-                height={20}
-                width={20}
-                className="ml-2 mr-2"
-              />
-              Filters
-            </div>
-            <div
-              onClick={handleClickOpen}
-              style={{
-                marginTop: "2rem",
-                backgroundColor: "#32A92E",
-                color: "white",
-                fontWeight: "600",
-                fontSize: "16px",
-                marginLeft: "auto",
-                marginRight: "auto",
-                height: "48px",
-                width: "150px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                marginLeft: "1rem",
-                cursor: "pointer",
-              }}
-            >
-              + Invoices
-            </div>
-          </div>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            marginTop: "2rem",
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "#32A92E",
-              color: "white",
-              fontWeight: "600",
-              fontSize: "16px",
-              height: "44px",
-              width: "202px",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              marginLeft: "1rem",
-              padding: "12px, 16px, 12px, 16px",
-              borderRadius: "10px",
-            }}
-          >
-            Download all
-          </div>
+          Invoices
         </div>
       </div>
 
