@@ -4,7 +4,7 @@ import { Box, Grid } from "@mui/material";
 const LayoutComponent = ({ children }) => {
   // A4 size in pixels (assuming 96 DPI)
   const a4Width = 750; // 210mm
-  const a4Height = 1123; // 297mm
+  const a4Height = 1070; // 297mm
 
   return (
     <Box
@@ -28,8 +28,8 @@ const LayoutComponent = ({ children }) => {
             src="/logo.jpeg"
             alt="Center"
             style={{
-              maxWidth: "200px",
-              maxHeight: "200px",
+              maxWidth: "100px",
+              maxHeight: "100px",
               objectFit: "contain",
               marginTop:"1rem"
             }}

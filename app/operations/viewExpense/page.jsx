@@ -124,7 +124,7 @@ const Page = () => {
               <tr key={index} className="border-b border-gray-200">
                 <td className="py-2 px-4">{index + 1}</td>
                 <td className="py-2 px-4">
-                  {new Date(row?.updated_at).toLocaleDateString()}
+                  {new Date(row?.expense_date).toLocaleDateString()}
                 </td>
                 <td className="py-5 px-4">
                   <img

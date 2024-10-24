@@ -211,6 +211,7 @@ const Page = () => {
             type={"date"}
             placeholder={"Please enter expense Date"}
             onChange={setExpDate}
+            value={expense_date}
           />
         </div>
         <div className="mt-5">

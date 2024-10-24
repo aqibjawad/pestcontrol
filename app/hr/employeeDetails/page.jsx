@@ -7,7 +7,7 @@ import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
 import { Skeleton } from "@mui/material"; // Import Skeleton from MUI
 import Link from "next/link";
 
-import UpcomingJobs from "../../../components/UpcomingJobs"; 
+import EmpUpcomingJobs from "../jobs/upComing"
 
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
@@ -51,7 +51,7 @@ const Page = () => {
       );
       setEmployeeList(response.data);
 
-      setEmployeeCompany(response.data.captain_jobs);
+      setEmployeeCompany(response.data.captain_all_jobs);
 
     } catch (error) {
       console.error("Error fetching employees:", error);
@@ -434,7 +434,7 @@ const Page = () => {
       <div className={styles.personalDetailsContainer}>
         <div className={styles.personalContainer}>
           <div className={styles.personalHead}>Jobs</div>
-            <UpcomingJobs employeeCompany={employeeCompany} />
+            <EmpUpcomingJobs employeeCompany={employeeCompany} />
         </div>
       </div>
     </div>

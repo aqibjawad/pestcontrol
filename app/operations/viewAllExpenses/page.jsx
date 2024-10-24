@@ -6,24 +6,26 @@ import DateFilters from "../../../components/generic/DateFilters";
 import APICall from "@/networkUtil/APICall";
 import { expense_category } from "@/networkUtil/Constants";
 import { Skeleton } from "@mui/material";
-
-import { format } from "date-fns";
+import { format, startOfMonth, endOfMonth } from "date-fns";
 
 const Page = () => {
-
   const api = new APICall();
 
   const [fetchingData, setFetchingData] = useState(false);
   const [expenseList, setExpenseList] = useState([]);
 
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  // Initialize with current month's start and end dates
+  const [startDate, setStartDate] = useState(
+    format(startOfMonth(new Date()), "yyyy-MM-dd")
+  );
+  const [endDate, setEndDate] = useState(
+    format(endOfMonth(new Date()), "yyyy-MM-dd")
+  );
 
   const handleDateChange = (start, end) => {
     setStartDate(start);
     setEndDate(end);
   };
-
 
   useEffect(() => {
     getAllExpenses();
@@ -33,17 +35,14 @@ const Page = () => {
     setFetchingData(true);
     const queryParams = [];
 
-    if (startDate && endDate) {
-      queryParams.push(`start_date=${startDate}`);
-      queryParams.push(`end_date=${endDate}`);
-    } else {
-      const currentDate = format(new Date(), "yyyy-MM-dd");
-      queryParams.push(`start_date=${currentDate}`);
-      queryParams.push(`end_date=${currentDate}`);
-    }
+    // Always use start_date and end_date in query params
+    queryParams.push(`start_date=${startDate}`);
+    queryParams.push(`end_date=${endDate}`);
 
     try {
-      const response = await api.getDataWithToken(`${expense_category}?${queryParams.join("&")}`);
+      const response = await api.getDataWithToken(
+        `${expense_category}?${queryParams.join("&")}`
+      );
       setExpenseList(response.data);
     } catch (error) {
       console.error("Error fetching expenses:", error);
@@ -163,7 +162,11 @@ const Page = () => {
               width={20}
               className="ml-2 mr-2"
             />
-            <DateFilters onDateChange={handleDateChange} />
+            <DateFilters
+              onDateChange={handleDateChange}
+              initialStartDate={startDate}
+              initialEndDate={endDate}
+            />
           </div>
         </div>
       </div>

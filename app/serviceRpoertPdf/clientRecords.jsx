@@ -25,11 +25,16 @@ import APICall from "../../networkUtil/APICall";
 const ClientRecords = ({ serviceReportList, loading }) => {
   const api = new APICall();
 
-  const CustomCheckbox = styled(Checkbox)(({ theme }) => ({
-    "&.Mui-checked": {
-      color: "#38A73B",
+  const CustomCheckbox = styled(Checkbox)({
+    padding: 0,
+    "& .MuiSvgIcon-root": {
+      width: 14,
+      height: 14,
     },
-  }));
+    "&.Mui-checked": {
+      color: "#31AB49", // MUI's default green color
+    },
+  });
 
   const rowsAreas = serviceReportList?.areas || [];
   const rowsPest = serviceReportList?.pest_found_services || [];
@@ -108,36 +113,46 @@ const ClientRecords = ({ serviceReportList, loading }) => {
     getAllPests();
   }, []);
 
-  if (pests.length > 0 && rowsPest.length > 0) {
-  }
-
   return (
     <div>
-      <div className="">
-        <Grid container spacing={2}>
-          <Grid item lg={6} xs={12} sm={6} md={4}>
-            <div
-              style={{
-                borderRadius: "4px",
-                padding: "16px",
-              }}
-            >
+      <div>
+        <Grid container spacing={0}>
+          <Grid item lg={6} xs={12} sm={6} md={6}>
+            <div>
               <div
-                style={{ fontSize: "13px", fontWeight: "bold", color: "black" }}
+                style={{
+                  fontSize: "13px",
+                  fontWeight: "bold",
+                  color: "black",
+                  marginBottom: "4px", // Reduced margin
+                }}
               >
                 Pest Found
               </div>
-              <Grid container spacing={2}>
+              <Grid container spacing={0}>
                 {pests.map((row, index) => {
                   const isChecked = rowsPest.some(
                     (pest) => pest.pest_name === row.pest_name
                   );
 
                   return (
-                    <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
+                    <Grid
+                      item
+                      xs={4}
+                      sm={4}
+                      md={4}
+                      lg={3}
+                      key={index}
+                      sx={{
+                        "@media print": {
+                          flexBasis: "33.333%",
+                          maxWidth: "33.333%",
+                        },
+                      }}
+                    >
                       <FormControlLabel
                         disabled
-                        checked={isChecked} // Set the checked value based on the match
+                        checked={isChecked}
                         control={<CustomCheckbox />}
                         label={
                           <div
@@ -150,6 +165,15 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                             {row?.pest_name}
                           </div>
                         }
+                        sx={{
+                          margin: 0,
+                          "& .MuiFormControlLabel-label": {
+                            marginLeft: "2px", // Reduced spacing between checkbox and label
+                          },
+                          "& .MuiCheckbox-root": {
+                            marginRight: 0, // Remove right margin of checkbox
+                          },
+                        }}
                       />
                     </Grid>
                   );
@@ -158,25 +182,42 @@ const ClientRecords = ({ serviceReportList, loading }) => {
             </div>
           </Grid>
 
-          <Grid item lg={6} xs={12} sm={6} md={4}>
+          <Grid item lg={6} xs={12} sm={6} md={6}>
             <div
               style={{
                 borderLeft: "1px solid #e0e0e0",
-                borderRadius: "4px",
-                padding: "10px",
+                paddingLeft: "8px", // Reduced padding
               }}
             >
               <div
-                style={{ fontSize: "13px", fontWeight: "bold", color: "black" }}
+                style={{
+                  fontSize: "13px",
+                  fontWeight: "bold",
+                  color: "black",
+                  marginBottom: "4px", // Reduced margin
+                }}
               >
                 Treatment Methods
               </div>
-              <Grid container spacing={2}>
+              <Grid container spacing={0}>
                 {service.map((row, index) => {
                   const isChecked = rows.some((item) => item.name === row.name);
 
                   return (
-                    <Grid item xs={12} sm={6} md={4} lg={4} key={index}>
+                    <Grid
+                      item
+                      xs={4}
+                      sm={4}
+                      md={4}
+                      lg={3}
+                      key={index}
+                      sx={{
+                        "@media print": {
+                          flexBasis: "33.333%",
+                          maxWidth: "33.333%",
+                        },
+                      }}
+                    >
                       <FormControlLabel
                         disabled
                         checked={isChecked}
@@ -192,6 +233,15 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                             {row?.name}
                           </div>
                         }
+                        sx={{
+                          margin: 0,
+                          "& .MuiFormControlLabel-label": {
+                            marginLeft: "2px", // Reduced spacing between checkbox and label
+                          },
+                          "& .MuiCheckbox-root": {
+                            marginRight: 0, // Remove right margin of checkbox
+                          },
+                        }}
                       />
                     </Grid>
                   );
@@ -208,10 +258,40 @@ const ClientRecords = ({ serviceReportList, loading }) => {
           <Table>
             <TableHead className={styles.tableHead}>
               <TableRow>
-                <TableCell sx={{ color: "white", height:"10px" }}>Inspected Area</TableCell>
-                <TableCell sx={{ color: "white", height:"10px" }}>Infection Level</TableCell>
-                <TableCell sx={{ color: "white", height:"10px" }}>Manifested Area</TableCell>
-                <TableCell sx={{ color: "white", height:"10px" }}>
+                <TableCell
+                  sx={{
+                    color: "white",
+                    padding: "4px 16px",
+                    lineHeight: "1rem",
+                  }}
+                >
+                  Inspected Area
+                </TableCell>
+                <TableCell
+                  sx={{
+                    color: "white",
+                    padding: "4px 16px",
+                    lineHeight: "1rem",
+                  }}
+                >
+                  Infection Level
+                </TableCell>
+                <TableCell
+                  sx={{
+                    color: "white",
+                    padding: "4px 16px",
+                    lineHeight: "1rem",
+                  }}
+                >
+                  Manifested Area
+                </TableCell>
+                <TableCell
+                  sx={{
+                    color: "white",
+                    padding: "4px 16px",
+                    lineHeight: "1rem",
+                  }}
+                >
                   Report and Follow Up
                 </TableCell>
               </TableRow>
@@ -221,10 +301,38 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                 ? skeletonAreaRows
                 : rowsAreas.map((row, index) => (
                     <TableRow key={index}>
-                      <TableCell>{row.inspected_areas}</TableCell>
-                      <TableCell>{row.infestation_level}</TableCell>
-                      <TableCell>{row.manifested_areas}</TableCell>
-                      <TableCell>{row.report_and_follow_up_detail}</TableCell>
+                      <TableCell
+                        sx={{
+                          padding: "4px 16px",
+                          lineHeight: "1rem",
+                        }}
+                      >
+                        {row.inspected_areas}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          padding: "4px 16px",
+                          lineHeight: "1rem",
+                        }}
+                      >
+                        {row.infestation_level}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          padding: "4px 16px",
+                          lineHeight: "1rem",
+                        }}
+                      >
+                        {row.manifested_areas}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          padding: "4px 16px",
+                          lineHeight: "1rem",
+                        }}
+                      >
+                        {row.report_and_follow_up_detail}
+                      </TableCell>
                     </TableRow>
                   ))}
             </TableBody>
@@ -238,10 +346,42 @@ const ClientRecords = ({ serviceReportList, loading }) => {
           <Table>
             <TableHead className={styles.tableHead}>
               <TableRow>
-                <TableCell sx={{ color: "white", height:"10px" }}>Product Name</TableCell>
-                <TableCell sx={{ color: "white", height:"10px" }}>Dose</TableCell>
-                <TableCell sx={{ color: "white", height:"10px" }}>Quantity</TableCell>
-                <TableCell sx={{ color: "white", height:"10px" }}>Total</TableCell>
+                <TableCell
+                  sx={{
+                    color: "white",
+                    padding: "4px 16px",
+                    lineHeight: "1rem",
+                  }}
+                >
+                  Product Name
+                </TableCell>
+                <TableCell
+                  sx={{
+                    color: "white",
+                    padding: "4px 16px",
+                    lineHeight: "1rem",
+                  }}
+                >
+                  Dose
+                </TableCell>
+                <TableCell
+                  sx={{
+                    color: "white",
+                    padding: "4px 16px",
+                    lineHeight: "1rem",
+                  }}
+                >
+                  Quantity
+                </TableCell>
+                <TableCell
+                  sx={{
+                    color: "white",
+                    padding: "4px 16px",
+                    lineHeight: "1rem",
+                  }}
+                >
+                  Total
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -249,10 +389,38 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                 ? skeletonProductRows
                 : rowsProducts.map((row, index) => (
                     <TableRow key={index}>
-                      <TableCell>{row?.product?.product_name}</TableCell>
-                      <TableCell>{row.dose}</TableCell>
-                      <TableCell>{row.qty}</TableCell>
-                      <TableCell>{row.total}</TableCell>
+                      <TableCell
+                        sx={{
+                          padding: "4px 16px",
+                          lineHeight: "1rem",
+                        }}
+                      >
+                        {row?.product?.product_name}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          padding: "4px 16px",
+                          lineHeight: "1rem",
+                        }}
+                      >
+                        {row.dose}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          padding: "4px 16px",
+                          lineHeight: "1rem",
+                        }}
+                      >
+                        {row.qty}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          padding: "4px 16px",
+                          lineHeight: "1rem",
+                        }}
+                      >
+                        {row.total}
+                      </TableCell>
                     </TableRow>
                   ))}
             </TableBody>

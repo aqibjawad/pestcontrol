@@ -66,68 +66,19 @@ export default function SideMenu({ children }) {
   const [open, setOpen] = useState(true);
   const [roleId, setRoleId] = useState(null);
 
-  // All possible menu items
   const allPermissions = [
-    {
-      name: "Home",
-      url: "superadmin/dashboard",
-      icon: "/home.png",
-    },
-    {
-      name: "Jobs",
-      url: "jobs",
-      icon: "/jobs.png",
-    },
-    {
-      name: "Contracts",
-      url: "contracts",
-      icon: "/contracts.png",
-    },
-    {
-      name: "Quotes",
-      url: "quotes",
-      icon: "/quotes.png",
-    },
-    {
-      name: "Calendar",
-      url: "calendar",
-      icon: "/calender.png",
-    },
-    {
-      name: "Clients",
-      url: "clients",
-      icon: "/clients.png",
-    },
-    {
-      name: "Operations",
-      url: "operations",
-      icon: "/operations.png",
-    },
-    {
-      name: "Sales",
-      url: "sales",
-      icon: "/sales.png",
-    },
-    {
-      name: "HR",
-      url: "hr",
-      icon: "/hr.png",
-    },
-    {
-      name: "Team Head",
-      url: "teams",
-      icon: "/teamhead.png",
-    },
-    {
-      name: "Company setup",
-      url: "company_setup",
-      icon: "/comnpany.png",
-    },
-    {
-      name: "Settings",
-      url: "setting",
-      icon: "/setting-2.png",
-    },
+    { name: "Home", url: "superadmin/dashboard", icon: "/home.png" },
+    { name: "Jobs", url: "jobs", icon: "/jobs.png" },
+    { name: "Contracts", url: "contracts", icon: "/contracts.png" },
+    { name: "Quotes", url: "quotes", icon: "/quotes.png" },
+    { name: "Calendar", url: "calendar", icon: "/calender.png" },
+    { name: "Clients", url: "clients", icon: "/clients.png" },
+    { name: "Operations", url: "operations", icon: "/operations.png" },
+    { name: "Sales", url: "sales", icon: "/sales.png" },
+    { name: "HR", url: "hr", icon: "/hr.png" },
+    { name: "Team Head", url: "teams", icon: "/teamhead.png" },
+    { name: "Company setup", url: "company_setup", icon: "/comnpany.png" },
+    { name: "Settings", url: "setting", icon: "/setting-2.png" },
   ];
 
   const [permissions, setPermissions] = useState([]);
@@ -137,28 +88,18 @@ export default function SideMenu({ children }) {
   useEffect(() => {
     const userRoleId = User.getUserRoleId();
     const userId = User.getUserId();
-    const userPerms = User.getUserPersmissions();
     const name = User.getUserName();
 
     setRoleId(userRoleId);
     setUserName(name || "User");
 
-    // Set permissions based on role
     let userPermissions = [];
     if (userRoleId === 1) {
       userPermissions = allPermissions;
     } else if (userRoleId === 2) {
       userPermissions = [
-        {
-          name: "Dashbaord",
-          url: "hr/hr",
-          icon: "/home.png",
-        },
-        {
-          name: "Employees",
-          url: `operations/viewEmployees`,
-          icon: "/hr.png",
-        },
+        { name: "Dashbaord", url: "hr/hr", icon: "/home.png" },
+        { name: "Employees", url: `operations/viewEmployees`, icon: "/hr.png" },
         {
           name: "Profile",
           url: `hr/employeeDetails?id=${userId}`,
@@ -167,11 +108,7 @@ export default function SideMenu({ children }) {
       ];
     } else if (userRoleId === 4) {
       userPermissions = [
-        {
-          name: "Jobs",
-          url: "jobs",
-          icon: "/jobs.png",
-        },
+        { name: "Jobs", url: "jobs", icon: "/jobs.png" },
         {
           name: "Profile",
           url: `hr/employeeDetails?id=${userId}`,
@@ -180,7 +117,6 @@ export default function SideMenu({ children }) {
       ];
     }
 
-    // Add logout to all permission sets
     userPermissions.push({
       name: "Logout",
       url: "/",
@@ -197,7 +133,17 @@ export default function SideMenu({ children }) {
 
   const handleNext = (item, index) => {
     setSelectedIndex(index);
-    router.push(`/${item.url}`);
+    if (item.isLogout) {
+      logOut();
+    } else {
+      router.push(`/${item.url}`);
+    }
+  };
+
+  const logOut = () => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("user");
+    window.location.href = "/";
   };
 
   return (
@@ -255,9 +201,9 @@ export default function SideMenu({ children }) {
 
         <List>
           {Array.isArray(permissions) && permissions.length > 0 ? (
-            permissions.map((text, index) => (
+            permissions.map((item, index) => (
               <div
-                onClick={() => handleNext(text, index)}
+                onClick={() => handleNext(item, index)}
                 key={index}
                 className={
                   index === selectedIndex
@@ -265,8 +211,8 @@ export default function SideMenu({ children }) {
                     : styles.menuItem
                 }
               >
-                <img src={text.icon} alt={text.name} height={20} width={20} />
-                <div className={styles.sideMenuNames}>{text.name}</div>
+                <img src={item.icon} alt={item.name} height={20} width={20} />
+                <div className={styles.sideMenuNames}>{item.name}</div>
               </div>
             ))
           ) : (

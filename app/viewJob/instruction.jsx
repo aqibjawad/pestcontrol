@@ -89,11 +89,11 @@ const Instruction = ({ jobList, loading }) => {
         )}
       </div>
 
-      <div className={styles.mainText}>Job instructions</div>
+      {/* <div className={styles.mainText}>Job instructions</div>
 
       <div>
         <MultiInput value={jobList?.job_instructions} readonly />
-      </div>
+      </div> */}
     </div>
   );
 };
