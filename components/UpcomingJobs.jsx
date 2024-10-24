@@ -61,7 +61,7 @@ const UpcomingJobs = ({ jobsList, handleDateChange, isLoading }) => {
                 Status
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Service Report
+                Priority
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Assign Job

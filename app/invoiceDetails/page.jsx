@@ -28,17 +28,6 @@ const invoiceData = {
     email: "accuratepestcontrolcl.ae",
     phone: "+971 52 449 6173",
   },
-  customerDetails: {
-    name: "Kohnook Restaurant LLC",
-    contactPerson: "Mr. Asif Ali",
-    email: "asif2965@yahoo.com",
-    phone: "+971 56 450 1663",
-  },
-  invoiceDetails: {
-    number: "#0001551129",
-    date: "03-Dec-2024",
-    total: "AED 1,134.00",
-  },
   items: [
     {
       description: "General Pest Control",
@@ -209,7 +198,7 @@ const Page = () => {
       <Grid className="mt-5" container spacing={2}>
         <Grid item xs={6}>
           <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-            {invoiceList?.user?.name}
+            {invoiceList?.user?.client?.firm_name}
           </Typography>
         </Grid>
 

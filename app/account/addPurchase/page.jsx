@@ -24,7 +24,6 @@ import GreenButton from "@/components/generic/GreenButton";
 import { useRouter } from "next/navigation";
 
 const Page = () => {
-
   const api = new APICall();
   const router = useRouter();
 
@@ -110,18 +109,18 @@ const Page = () => {
     setRows(newRows);
   };
 
-  const handleInputChange = (value, index, field) => {
-    const newRows = [...rows];
-    newRows[index][field] = value;
-    setRows(newRows);
-  };
+  // const handleInputChange = (value, index, field) => {
+  //   const newRows = [...rows];
+  //   newRows[index][field] = value;
+  //   setRows(newRows);
+  // };
 
-  const handleAddRow = () => {
-    setRows([
-      ...rows,
-      { id: Date.now(), product_id: "", quantity: "", price: "", vat_per: "" },
-    ]);
-  };
+  // const handleAddRow = () => {
+  //   setRows([
+  //     ...rows,
+  //     { id: Date.now(), product_id: "", quantity: "", price: "", vat_per: "" },
+  //   ]);
+  // };
 
   const deleteRow = (id) => {
     setRows(rows.filter((row) => row.id !== id));
@@ -195,6 +194,54 @@ const Page = () => {
   };
   const { subTotal, totalVat, grandTotal } = calculateTotals();
 
+  const calculateRowTotals = (quantity, price, vat) => {
+    const qty = parseFloat(quantity) || 0;
+    const prc = parseFloat(price) || 0;
+    const vatPercentage = parseFloat(vat) || 0;
+
+    const subTotal = qty * prc;
+    const vatAmount = subTotal * (vatPercentage / 100);
+    const totalAmount = subTotal + vatAmount;
+
+    return {
+      subTotal: subTotal.toFixed(2),
+      totalAmount: totalAmount.toFixed(2),
+    };
+  };
+
+  const handleInputChange = (value, index, field) => {
+    const newRows = [...rows];
+    newRows[index][field] = value;
+
+    // Calculate subtotal and total amount whenever quantity, price or VAT changes
+    if (field === "quantity" || field === "price" || field === "vat_per") {
+      const { subTotal, totalAmount } = calculateRowTotals(
+        newRows[index].quantity,
+        newRows[index].price,
+        newRows[index].vat_per
+      );
+      newRows[index].subTotal = subTotal;
+      newRows[index].totalAmount = totalAmount;
+    }
+
+    setRows(newRows);
+  };
+
+  const handleAddRow = () => {
+    setRows([
+      ...rows,
+      {
+        id: Date.now(),
+        product_id: "",
+        quantity: "",
+        price: "",
+        vat_per: "",
+        subTotal: "0.00",
+        totalAmount: "0.00",
+      },
+    ]);
+  };
+
   return (
     <div>
       <Grid container spacing={2}>
@@ -216,6 +263,7 @@ const Page = () => {
           <InputWithTitle
             title={"Order date"}
             type="date"
+            value={order_date}
             onChange={setOrderDate}
           />
         </Grid>
@@ -223,6 +271,7 @@ const Page = () => {
           <InputWithTitle
             title={"Delivery date"}
             type="date"
+            value={delivery_date}
             onChange={setDeliveryDate}
           />
         </Grid>
@@ -253,14 +302,17 @@ const Page = () => {
             <Grid item lg={3} xs={12} sm={6} md={4}>
               <InputWithTitle
                 title={"Quantity"}
+                value={row.quantity}
                 onChange={(value) =>
                   handleInputChange(value, index, "quantity")
                 }
               />
             </Grid>
+
             <Grid item lg={3} xs={12} sm={6} md={4}>
               <InputWithTitle
                 title={"Price"}
+                value={row.price}
                 onChange={(value) => handleInputChange(value, index, "price")}
               />
             </Grid>
@@ -268,7 +320,7 @@ const Page = () => {
             <Grid item lg={3} xs={12} sm={6} md={4}>
               <InputWithTitle
                 title={"Sub Total"}
-                value={(row.quantity * row.price).toFixed(2)}
+                value={row.rowSubTotal} // Link this to the subTotal value for the row
                 readOnly
               />
             </Grid>
@@ -276,6 +328,7 @@ const Page = () => {
             <Grid item lg={3} xs={12} sm={6} md={4}>
               <InputWithTitle
                 title={"Vat"}
+                value={row.vat_per}
                 onChange={(value) => handleInputChange(value, index, "vat_per")}
               />
             </Grid>
@@ -283,11 +336,7 @@ const Page = () => {
             <Grid item lg={3} xs={12} sm={6} md={4}>
               <InputWithTitle
                 title={"Total Amount"}
-                value={(
-                  row.quantity *
-                  row.price *
-                  (1 + row.vat_per / 100)
-                ).toFixed(2)}
+                value={row.totalAmount} // Link this to the totalAmount value for the row
                 readOnly
               />
             </Grid>
@@ -297,14 +346,6 @@ const Page = () => {
                 style={{ marginTop: "3rem", color: "red", cursor: "pointer" }}
                 onClick={() => deleteRow(row.id)}
               />
-              {/* <Button
-                variant="contained"
-                color="secondary"
-                
-                startIcon={}
-              >
-                Delete
-              </Button> */}
             </Grid>
           </Grid>
         ))}
@@ -341,7 +382,7 @@ const Page = () => {
 
         <Grid container spacing={2} className="mt-5">
           <Grid item lg={6} xs={12} sm={6} md={4}>
-            <div className={styles.subHead}>Vat</div>
+            <div className={styles.subHead}>Vat %</div>
           </Grid>
           <Grid item lg={6} xs={12} sm={6} md={4}>
             <div className={styles.subAmount}>{totalVat}</div>
