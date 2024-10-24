@@ -133,10 +133,10 @@ const Page = () => {
                     Tax Invoice
                   </TableCell>
                   <TableCell align="left" style={{ color: "white" }}>
-                    Date
+                    Rate
                   </TableCell>
                   <TableCell align="left" style={{ color: "white" }}>
-                    Due
+                    Tax
                   </TableCell>
                 </TableRow>
               </TableHead>
@@ -209,7 +209,7 @@ const Page = () => {
       <Grid className="mt-5" container spacing={2}>
         <Grid item xs={6}>
           <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-            Kishmish Restaurant LLC
+            {invoiceList?.user?.name}
           </Typography>
         </Grid>
 
@@ -230,7 +230,7 @@ const Page = () => {
           <Typography variant="body2">Date :</Typography>
 
           <Typography className="" variant="body2">
-            Mr. Adel Ali
+            {invoiceList?.user?.name}
           </Typography>
           <Typography variant="body1" sx={{ fontWeight: "bold" }}>
             Manager
