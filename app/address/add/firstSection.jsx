@@ -4,7 +4,6 @@ import InputWithTitle from "@/components/generic/InputWithTitle";
 import AddressPicker from "../../../components/AddressPicker";
 
 const FirstSection = ({ userId, onAddressChange }) => {
-
   const [address, setAddress] = useState("");
   const [lang, setLongitude] = useState("");
   const [lat, setLatitude] = useState("");
@@ -16,13 +15,26 @@ const FirstSection = ({ userId, onAddressChange }) => {
       lat: lat,
       lang: lang,
     });
-  }, [address, lang, lat]);
+  }, [address, lang, lat, onAddressChange]);
 
   const handlePlaceSelected = (place) => {
     if (place) {
-      setAddress(place.formatted_address || "");
-      setLongitude(place.geometry?.location.lng().toString() || "");
-      setLatitude(place.geometry?.location.lat().toString() || "");
+      // Set the formatted address
+      const formattedAddress = place.formatted_address || place.name || "";
+      setAddress(formattedAddress);
+
+      // Set coordinates if they exist
+      if (place.geometry?.location) {
+        setLongitude(place.geometry.location.lng().toString());
+        setLatitude(place.geometry.location.lat().toString());
+      }
+
+      // Log for debugging
+      console.log("Selected Place:", {
+        address: formattedAddress,
+        lat: place.geometry?.location.lat(),
+        lng: place.geometry?.location.lng(),
+      });
     }
   };
 

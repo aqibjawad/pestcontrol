@@ -1,11 +1,9 @@
 import React from "react";
 import Autocomplete from "react-google-autocomplete";
 
-import styles from "../styles/addresses.module.css";
-
 const AddressPicker = ({ onPlaceSelected }) => {
   return (
-    <div className={styles}>
+    <div>
       <Autocomplete
         style={{
           border: "1px solid #b7b7b7",
@@ -17,14 +15,18 @@ const AddressPicker = ({ onPlaceSelected }) => {
         }}
         apiKey="AIzaSyBBHNqsXFQqg_-f6BkI5UH7X7nXK2KQzk8"
         onPlaceSelected={(place) => {
-          if (onPlaceSelected) {
-            onPlaceSelected(place);
+          if (onPlaceSelected && place) {
+            // Include the formatted_address in the place object
+            onPlaceSelected({
+              ...place,
+              formatted_address: place.formatted_address || place.name || "",
+            });
           }
         }}
         options={{
-          componentRestrictions: { country: "ae" },
-          fields: ["address_components", "geometry", "name", "place_id"],
+          fields: ["formatted_address", "address_components", "geometry", "name", "place_id"],
           types: [],
+          componentRestrictions: { country: "ae" },
           bounds: {
             east: 55.6518,
             west: 54.8833,
