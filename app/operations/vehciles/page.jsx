@@ -5,6 +5,7 @@ import Loading from "../../../components/generic/Loading";
 import styles from "../../../styles/account/addBrandStyles.module.css";
 import { Delete, Edit, Check, Close } from "@mui/icons-material";
 import InputWithTitle from "@/components/generic/InputWithTitle";
+import InputWithTitle3 from "@/components/generic/InputWithTitle3";
 import GreenButton from "@/components/generic/GreenButton";
 import {
   Table,
@@ -168,7 +169,7 @@ const Page = () => {
             </div>
 
             <div className="mt-5">
-              <InputWithTitle
+              <InputWithTitle3
                 title={"Mulkia Expiry Date"}
                 placeholder={"Mulkia Expiry Date"}
                 value={expiry_date}

@@ -317,10 +317,10 @@ const Page = () => {
               />
             </Grid>
 
-            <Grid item lg={3} xs={12} sm={6} md={4}>
+            <Grid item lg={2} xs={12} sm={6} md={4}>
               <InputWithTitle
                 title={"Sub Total"}
-                value={row.rowSubTotal} // Link this to the subTotal value for the row
+                value={(row.quantity * row.price).toFixed(2)}
                 readOnly
               />
             </Grid>

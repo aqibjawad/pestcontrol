@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import InputWithTitle2 from "@/components/generic/InputWithTitle2";
+import InputWithTitle3 from "../../../components/generic/InputWithTitle3"
 
 import "./index.css";
 import UploadImagePlaceholder from "../../../components/generic/uploadImage";
@@ -110,7 +111,7 @@ const PersonalInformation = ({ data, onChange }) => {
           />
         </Grid>
         <Grid item lg={6} xs={12} md={6}>
-          <InputWithTitle2
+          <InputWithTitle3
             title="EID Start"
             type="date"
             placeholder="EID Start" 
@@ -120,7 +121,7 @@ const PersonalInformation = ({ data, onChange }) => {
           />
         </Grid>
         <Grid item lg={6} xs={12} md={6}>
-          <InputWithTitle2
+          <InputWithTitle3
             title="EID Expiry"
             type="date"
             placeholder="EID Expiry"
@@ -157,7 +158,7 @@ const PersonalInformation = ({ data, onChange }) => {
           />
         </Grid>
         <Grid item lg={6} xs={12} md={6}>
-          <InputWithTitle2
+          <InputWithTitle3
             title="Passport Start"
             type="date"
             placeholder="Passport Start"
@@ -167,7 +168,7 @@ const PersonalInformation = ({ data, onChange }) => {
           />
         </Grid>
         <Grid item xs={12}>
-          <InputWithTitle2
+          <InputWithTitle3
             title="Passport End"
             type="date"
             placeholder="Passport End"

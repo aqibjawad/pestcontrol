@@ -5,6 +5,7 @@ import React, { useState, useEffect } from "react";
 import { Grid, CircularProgress } from "@mui/material";
 
 import InputWithTitle from "../../../components/generic/InputWithTitle";
+import InputWithTitle3 from "../../../components/generic/InputWithTitle3";
 
 import styles from "../../../styles/stock.module.css";
 
@@ -41,11 +42,6 @@ const Page = () => {
   const [total, setTotal] = useState();
   const [amount, setAmount] = useState();
 
-  const [cheque_amount, setChequeAmount] = useState();
-  const [cheque_no, setChequeNo] = useState();
-  const [cheque_date, setChequeDate] = useState();
-  const [transection_id, setTransactionId] = useState();
-
   // All Banks States
   const [allBanksList, setAllBankList] = useState([]);
   const [allBankNameList, setBankNameList] = useState([]);
@@ -53,8 +49,6 @@ const Page = () => {
 
   // All Banks States
   const [allVehiclesList, setAllVehicleList] = useState([]);
-
-  const [allVehicleNameList, setVehicleNameList] = useState([]);
 
   const [selectedVehicleId, setSelectedVehicleId] = useState("");
 
@@ -219,7 +213,7 @@ const Page = () => {
           />
         </Grid>
         <Grid item lg={4} xs={12} sm={6} md={6}>
-          <InputWithTitle
+          <InputWithTitle3
             value={expense_date}
             onChange={setExpDate}
             title={"date"}

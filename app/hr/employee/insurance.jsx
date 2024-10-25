@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Grid, Typography } from "@mui/material";
 import InputWithTitle2 from "@/components/generic/InputWithTitle2";
+import InputWithTitle3 from "@/components/generic/InputWithTitle3";
 import "./index.css";
 import Dropdown from "../../../components/generic/Dropdown";
 
@@ -43,7 +44,7 @@ const Insurance = ({ data, onChange }) => {
         {healthInsured ? (
           <>
             <Grid item xs={12} md={6}>
-              <InputWithTitle2
+              <InputWithTitle3
                 title="Insurance Start"
                 type="date"
                 placeholder="Insurance Start"
@@ -52,7 +53,7 @@ const Insurance = ({ data, onChange }) => {
               />
             </Grid>
             <Grid item xs={12} md={6}>
-              <InputWithTitle2
+              <InputWithTitle3
                 title="Insurance Expiry"
                 type="date"
                 placeholder="Insurance Expiry"
@@ -87,7 +88,7 @@ const Insurance = ({ data, onChange }) => {
         {unemployed ? (
           <>
             <Grid item xs={12} md={6}>
-              <InputWithTitle2
+              <InputWithTitle3
                 title="Insurance Start"
                 type="date"
                 placeholder="Insurance Start"
@@ -96,7 +97,7 @@ const Insurance = ({ data, onChange }) => {
               />
             </Grid>
             <Grid item xs={12} md={6}>
-              <InputWithTitle2
+              <InputWithTitle3
                 title="Insurance Expiry"
                 type="date"
                 placeholder="Insurance Expiry"
@@ -119,7 +120,7 @@ const Insurance = ({ data, onChange }) => {
           />
         </Grid>
         <Grid item lg={6} xs={12} md={4}>
-          <InputWithTitle2
+          <InputWithTitle3
             title="Card Start"
             type="date"
             placeholder="Card Start"
@@ -128,7 +129,7 @@ const Insurance = ({ data, onChange }) => {
           />
         </Grid>
         <Grid item lg={6} xs={12} md={4}>
-          <InputWithTitle2
+          <InputWithTitle3
             title="Card Expiry"
             type="date"
             placeholder="Card Expiry"

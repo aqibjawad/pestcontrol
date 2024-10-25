@@ -1,6 +1,7 @@
 import React from "react";
 import { Grid, Typography, Button, CircularProgress } from "@mui/material";
 import InputWithTitle2 from "@/components/generic/InputWithTitle2";
+import InputWithTitle3 from "@/components/generic/InputWithTitle3";
 import "./index.css";
 import GreenButton from "@/components/generic/GreenButton";
 
@@ -108,7 +109,7 @@ const OtherInfo = ({ data, onChange, handleSubmit, sendingData }) => {
         </Grid>
 
         <Grid item xs={12} md={6}>
-          <InputWithTitle2
+          <InputWithTitle3
             title="Labour Card Expiry"
             type="date"
             placeholder="Comission"

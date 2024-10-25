@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import styles from "../../../styles/superAdmin/addExpensesStyles.module.css";
 import UploadImagePlaceholder from "../../../components/generic/uploadImage";
 import InputWithTitle from "@/components/generic/InputWithTitle";
+import InputWithTitle3 from "../../../components/generic/InputWithTitle3"
 import MultilineInput from "@/components/generic/MultilineInput";
 import Dropdown from "@/components/generic/Dropdown";
 import GreenButton from "@/components/generic/GreenButton";
@@ -206,7 +207,7 @@ const Page = () => {
           onChange={setExpName}
         />
         <div className="mt-5">
-          <InputWithTitle
+          <InputWithTitle3
             title={"Expense Date"}
             type={"date"}
             placeholder={"Please enter expense Date"}
