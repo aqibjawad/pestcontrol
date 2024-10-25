@@ -1,3 +1,4 @@
+// Page.js
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -12,15 +13,40 @@ const Page = () => {
   const [jobsList, setJobsList] = useState([]);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
+  const [filteredList, setFilteredList] = useState([]);
+  const [filterType, setFilterType] = useState('all'); // 'all', 'assigned', 'not-assigned'
 
   const handleDateChange = (start, end) => {
     setStartDate(start);
     setEndDate(end);
   };
 
+  const handleFilter = (type) => {
+    setFilterType(type);
+    let filtered;
+    
+    switch(type) {
+      case 'assigned':
+        filtered = jobsList.filter(job => job.captain?.name);
+        break;
+      case 'not-assigned':
+        filtered = jobsList.filter(job => !job.captain?.name);
+        break;
+      default:
+        filtered = jobsList;
+    }
+    
+    setFilteredList(filtered);
+  };
+
   useEffect(() => {
     getAllQuotes();
   }, [startDate, endDate]);
+
+  useEffect(() => {
+    // Apply initial filtering when jobsList changes
+    handleFilter(filterType);
+  }, [jobsList]);
 
   const getAllQuotes = async () => {
     setFetchingData(true);
@@ -50,8 +76,10 @@ const Page = () => {
   return (
     <div>
       <UpcomingJobs 
-        jobsList={jobsList} 
-        handleDateChange={handleDateChange} 
+        jobsList={filteredList.length > 0 ? filteredList : jobsList} 
+        handleDateChange={handleDateChange}
+        handleFilter={handleFilter}  // Changed from handleAssignmentFilter to handleFilter
+        currentFilter={filterType}
         isLoading={fetchingData} 
       />
     </div>

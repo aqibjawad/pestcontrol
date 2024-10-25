@@ -8,7 +8,13 @@ import Link from "next/link";
 import Skeleton from "@mui/material/Skeleton";
 import DateFilters from "./generic/DateFilters";
 
-const UpcomingJobs = ({ jobsList, handleDateChange, isLoading }) => {
+const UpcomingJobs = ({
+  jobsList,
+  handleDateChange,
+  isLoading,
+  handleFilter,
+  currentFilter,
+}) => {
   const pathname = usePathname();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
@@ -178,6 +184,36 @@ const UpcomingJobs = ({ jobsList, handleDateChange, isLoading }) => {
     );
   };
 
+  const isActiveFilter = (filterType) => currentFilter === filterType;
+
+  // Modified buttons with active state styling
+  const renderFilterButtons = () => (
+    <>
+      <div className="ml-3">
+        <GreenButton
+          title="Assigned"
+          onClick={() => handleFilter("assigned")} // Using handleFilter here
+          style={{
+            backgroundColor:
+              currentFilter === "assigned" ? "#2c852f" : "#38A73B",
+            color: "white",
+          }}
+        />
+      </div>
+      <div className="ml-5">
+        <GreenButton
+          title="Not Assigned"
+          onClick={() => handleFilter("not-assigned")} // Using handleFilter here
+          style={{
+            backgroundColor:
+              currentFilter === "not-assigned" ? "#2c852f" : "#38A73B",
+            color: "white",
+          }}
+        />
+      </div>
+    </>
+  );
+
   return (
     <div>
       <div className={styles.parentContainer}>
@@ -209,6 +245,8 @@ const UpcomingJobs = ({ jobsList, handleDateChange, isLoading }) => {
               />
               <DateFilters onDateChange={handleDateChange} />
             </div>
+
+            {renderFilterButtons()}
           </div>
         </div>
         {jobTable()}
