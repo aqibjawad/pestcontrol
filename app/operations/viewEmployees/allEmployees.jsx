@@ -143,9 +143,9 @@ const AllEmployees = () => {
                         size="small"
                         style={{ cursor: "pointer" }}
                       />
-                      <span style={{ marginLeft: "4px" }}>
+                      {/* <span style={{ marginLeft: "4px" }}>
                         {row.is_active === 1 ? "Inactive" : "Active"}
-                      </span>
+                      </span> */}
                     </div>
                   </td>
                   <td className="py-2 px-4">

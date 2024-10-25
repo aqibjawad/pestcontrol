@@ -61,35 +61,42 @@ const SalarCal = () => {
     setSelectedEmployee(null);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    // if (!validateForm()) return;
-
+  const handleSubmit = async (employee) => {
     setLoadingSubmit(true);
 
     const obj = {
-      employee_salary_id: selectedEmployee.id,
-      attendance_per,
+      employee_commission_id: employee?.referencable?.id, // Set referencable id directly
     };
 
-    const response = await api.postFormDataWithToken(
-      `${getAllEmpoyesUrl}/salary/paid`,
-      obj
-    );
+    try {
+      const response = await api.postFormDataWithToken(
+        `${getAllEmpoyesUrl}/commission/paid`,
+        obj
+      );
 
-    if (response.status === "success") {
-      Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: "Data has been added successfully!",
-      });
-      handleCloseModal();
-    } else {
+      if (response.status === "success") {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Commission has been paid successfully!",
+        }).then(() => {
+          window.location.reload(); // Reload to update the table if necessary
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: response.error.message || "Error processing payment",
+        });
+      }
+    } catch (error) {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: `${response.error.message}`,
+        text: error.message || "Unexpected error occurred",
       });
+    } finally {
+      setLoadingSubmit(false);
     }
   };
 
