@@ -7,6 +7,8 @@ import Link from "next/link";
 import APICall from "@/networkUtil/APICall";
 import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
 
+import Swal from "sweetalert2";
+
 const AllEmployees = () => {
   const api = new APICall();
 
@@ -30,42 +32,84 @@ const AllEmployees = () => {
     }
   };
 
-  const handleStatusToggle = async (event, employeeId, currentStatus) => {
-    // event.preventDefault(); // Prevent event bubbling
+  const handleStatusToggle = async (
+    event,
+    employeeId,
+    currentStatus,
+    firedAt,
+    employeeName
+  ) => {
+    event.preventDefault(); // Prevent event bubbling
 
-    // // If already loading, don't process again
-    // if (loading[employeeId]) return;
+    // If employee is fired (firedAt is not null), don't allow toggle
+    if (firedAt) return;
 
-    // // Set loading state for this specific switch
-    // setLoading((prev) => ({ ...prev, [employeeId]: true }));
+    // If already loading, don't process again
+    if (loading[employeeId]) return;
 
-    // try {
-    //   // Assuming you have an API endpoint to update employee status
-    //   const response = await api.updateDataWithToken(
-    //     `${getAllEmpoyesUrl}/${employeeId}/status`,
-    //     {
-    //       is_active: currentStatus === 1 ? 0 : 1,
-    //     }
-    //   );
+    // If making inactive (firing employee), show confirmation dialog
+    if (currentStatus === 1) {
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: `Do you want to fire ${employeeName}?`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, fire employee!",
+      });
 
-    //   if (response.success) {
-    //     // Update the local state to reflect the change
-    //     setExpenseList((prevList) =>
-    //       prevList.map((employee) =>
-    //         employee.id === employeeId
-    //           ? { ...employee, is_active: currentStatus === 1 ? 0 : 1 }
-    //           : employee
-    //       )
-    //     );
-    //   }
-    // } catch (error) {
-    //   console.error("Error updating status:", error);
-    // } finally {
-    //   // Clear loading state for this switch
-    //   setLoading((prev) => ({ ...prev, [employeeId]: false }));
-    // }
-    console.log("test done");
-    
+      if (!result.isConfirmed) {
+        return;
+      }
+    }
+
+    // Set loading state for this specific switch
+    setLoading((prev) => ({ ...prev, [employeeId]: true }));
+
+    try {
+      if (currentStatus === 1) {
+        // If currently active, making inactive - call fired_at API
+        const response = await api.getDataWithToken(
+          `${getAllEmpoyesUrl}/fired_at/${employeeId}`
+        );
+
+        if (response.status === "success") {
+          // Show success message
+          await Swal.fire({
+            title: "Employee Fired",
+            text: `${employeeName} has been fired successfully`,
+            icon: "success",
+            timer: 2000,
+            showConfirmButton: false,
+          });
+
+          // Refresh the page
+          window.location.reload();
+        }
+      } else {        
+        if (response.success) {
+          setExpenseList((prevList) =>
+            prevList.map((employee) =>
+              employee.id === employeeId
+                ? { ...employee, is_active: currentStatus === 1 ? 0 : 1 }
+                : employee
+            )
+          );
+        }
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+      // Show error message
+      await Swal.fire({
+        title: "Error",
+        text: "There was an error processing your request",
+        icon: "error",
+      });
+    } finally {
+      // Clear loading state for this switch
+      setLoading((prev) => ({ ...prev, [employeeId]: false }));
+    }
   };
 
   const listServiceTable = () => {
