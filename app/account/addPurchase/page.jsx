@@ -327,7 +327,7 @@ const Page = () => {
 
             <Grid item lg={3} xs={12} sm={6} md={4}>
               <InputWithTitle
-                title={"Vat"}
+                title={"Vat %"}
                 value={row.vat_per}
                 onChange={(value) => handleInputChange(value, index, "vat_per")}
               />

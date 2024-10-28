@@ -209,8 +209,8 @@ const Page = () => {
 
             <div className="mt-5">
               <InputWithTitle
-                title={"VAT"}
-                type={"number"}
+                title={"VAT %"}
+                type={"text"}
                 placeholder={"VAT"}
                 onChange={handleVatChange}
                 value={vat}
@@ -268,8 +268,8 @@ const Page = () => {
 
             <div className="mt-5">
               <InputWithTitle
-                title={"VAT"}
-                type={"number"}
+                title={"VAT %"}
+                type={"text"}
                 placeholder={"VAT"}
                 onChange={handleVatChange}
                 value={vat}
@@ -319,8 +319,8 @@ const Page = () => {
 
             <div className="mt-5">
               <InputWithTitle
-                title={"VAT"}
-                type={"number"}
+                title={"VAT %"}
+                type={"text"}
                 placeholder={"VAT"}
                 onChange={handleVatChange}
                 value={vat}

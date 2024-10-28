@@ -69,7 +69,6 @@ const Page = () => {
                   <Link href="/account/viewSuppliers">View Suppliers</Link>
                 </div>
               </Grid>
-              
             </Grid>
           </div>
         </Grid>
@@ -340,14 +339,28 @@ const Page = () => {
             </Grid>
           </div>
         </Grid>
-      </Grid>
 
-      <Grid container spacing={2}>
-        {/* <Grid className="mt-5" item xs={12} sm={6} md={4} lg={3}>
-          <div className={styles.addProd}>
-            <Link href="/viewInvoice">View Invoice</Link>
+        {/* Add Accountant */}
+        <Grid lg={12} item xs={12}>
+          <div style={{ border: "1px solid black", padding: "10px" }}>
+            <div
+              style={{
+                fontSize: "20px",
+                fontWeight: "800",
+                marginBottom: "1rem",
+              }}
+            >
+              Accountant
+            </div>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6} md={4} lg={3}>
+                <div className={styles.addProd}>
+                  <Link href="/accountant/viewAccountant">View</Link>
+                </div>
+              </Grid>
+            </Grid>
           </div>
-        </Grid> */}
+        </Grid>
       </Grid>
     </>
   );
