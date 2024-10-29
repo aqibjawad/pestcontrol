@@ -122,21 +122,15 @@ const Page = () => {
                     Tax Invoice
                   </TableCell>
                   <TableCell align="left" style={{ color: "white" }}>
-                    Rate
-                  </TableCell>
-                  <TableCell align="left" style={{ color: "white" }}>
-                    Tax
+                    TotaL Amount
                   </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {invoiceData.items.map((item, index) => (
-                  <TableRow key={index}>
-                    <TableCell align="right">{item.description}</TableCell>
-                    <TableCell align="right">{item.rate.toFixed(2)}</TableCell>
-                    <TableCell align="right">{item.tax.toFixed(2)}</TableCell>
-                  </TableRow>
-                ))}
+                <TableRow>
+                  <TableCell align="right"> General Pest Control </TableCell>
+                  <TableCell align="right">{invoiceList?.total_amt}</TableCell>
+                </TableRow>
               </TableBody>
             </Table>
           </TableContainer>
@@ -150,17 +144,15 @@ const Page = () => {
               <TableRow>
                 <TableCell>Description</TableCell>
                 <TableCell align="right">Rate (AED)</TableCell>
-                <TableCell align="right">Tax (AED)</TableCell>
                 <TableCell align="right">Total (AED)</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {invoiceData.items.map((item, index) => (
+              {invoiceList?.details?.map((item, index) => (
                 <TableRow key={index}>
-                  <TableCell>{item.description}</TableCell>
-                  <TableCell align="right">{item.rate.toFixed(2)}</TableCell>
-                  <TableCell align="right">{item.tax.toFixed(2)}</TableCell>
-                  <TableCell align="right">{item.total.toFixed(2)}</TableCell>
+                  <TableCell> General Pest Control </TableCell>
+                  <TableCell align="right">{item.rate}</TableCell>
+                  <TableCell align="right">{item.sub_total}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

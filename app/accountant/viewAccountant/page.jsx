@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState, useEffect } from "react";
 import {
   Table,
@@ -11,9 +10,8 @@ import {
   Paper,
   CircularProgress,
 } from "@mui/material";
-import SearchInput from "@/components/generic/SearchInput";
-import APICall from "@/networkUtil/APICall";
-import { clients } from "@/networkUtil/Constants";
+import APICall from "../../../networkUtil/APICall";
+import { clients } from "../../../networkUtil/Constants";
 
 import Link from "next/link";
 

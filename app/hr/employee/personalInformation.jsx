@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import InputWithTitle2 from "@/components/generic/InputWithTitle2";
-import InputWithTitle3 from "../../../components/generic/InputWithTitle3"
+import InputWithTitle3 from "../../../components/generic/InputWithTitle3";
 
 import "./index.css";
 import UploadImagePlaceholder from "../../../components/generic/uploadImage";
@@ -15,8 +15,9 @@ const PersonalInformation = ({ data, onChange }) => {
     { label: "Admin", value: 1 },
     { label: "HR-Manager", value: 2 },
     { label: "Operation-Manager", value: 3 },
-    { label: "Sales-Manger", value: 5 },
     { label: "Operation Team", value: 4 },
+    { label: "Sales-Manger", value: 5 },
+    { label: "Accountant", value: 6 },
   ];
   const handleFileSelect = (file) => {
     setProductForImage(file);
@@ -114,7 +115,7 @@ const PersonalInformation = ({ data, onChange }) => {
           <InputWithTitle3
             title="EID Start"
             type="date"
-            placeholder="EID Start" 
+            placeholder="EID Start"
             name="eid_start"
             value={data.eid_start}
             onChange={(name, value) => onChange("eid_start", value)}
@@ -147,7 +148,7 @@ const PersonalInformation = ({ data, onChange }) => {
       </Typography>
 
       <Grid container spacing={3}>
-        <Grid item lg={6} xs={12} md={6}>
+        <Grid item lg={4} xs={12} md={6}>
           <InputWithTitle2
             title="Passport Number"
             type="text"
@@ -157,7 +158,7 @@ const PersonalInformation = ({ data, onChange }) => {
             onChange={(name, value) => onChange("passport_no", value)}
           />
         </Grid>
-        <Grid item lg={6} xs={12} md={6}>
+        <Grid item lg={4} xs={12} md={6}>
           <InputWithTitle3
             title="Passport Start"
             type="date"
@@ -167,7 +168,7 @@ const PersonalInformation = ({ data, onChange }) => {
             onChange={(name, value) => onChange("passport_start", value)}
           />
         </Grid>
-        <Grid item xs={12}>
+        <Grid item lg={4} xs={12}>
           <InputWithTitle3
             title="Passport End"
             type="date"
