@@ -9,7 +9,7 @@ import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
 
 import Swal from "sweetalert2";
 
-const AllEmployees = ({ selectedMonth }) => {
+const AllEmployees = () => {
   const api = new APICall();
 
   const [fetchingData, setFetchingData] = useState(false);
@@ -18,13 +18,13 @@ const AllEmployees = ({ selectedMonth }) => {
 
   useEffect(() => {
     getAllExpenses();
-  }, [selectedMonth]);
+  }, []);
 
   const getAllExpenses = async () => {
     setFetchingData(true);
     try {
       const response = await api.getDataWithToken(
-        `${getAllEmpoyesUrl}?month=${selectedMonth}`
+        `${getAllEmpoyesUrl}`
       );
       setExpenseList(response.data);
     } catch (error) {

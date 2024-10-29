@@ -35,40 +35,21 @@ const JobsList = ({
   ];
 
   const generateDates = (initialDates) => {
-    if (!initialDates || initialDates.length === 0) return [];
+    if (!initialDates || !initialDates.length) return [];
 
-    const result = [...initialDates];
-
-    if (selectedJobType === "monthly") {
-      // For each selected date, add corresponding dates for subsequent months
-      initialDates.forEach((initialDate) => {
-        const date = new Date(initialDate);
-
-        for (let i = 1; i < duration_in_months; i++) {
-          const newDate = new Date(date);
-          newDate.setMonth(newDate.getMonth() + i);
-
-          // Check if the day exists in the target month
-          // For example, March 31 doesn't exist in April
-          const targetMonth = newDate.getMonth();
-          newDate.setDate(1); // Reset to first of month
-          newDate.setMonth(targetMonth + 1); // Go to first of next month
-          newDate.setDate(0); // Back up one day to last of target month
-
-          const lastDayOfMonth = newDate.getDate();
-          const originalDay = date.getDate();
-
-          newDate.setMonth(targetMonth);
-          newDate.setDate(Math.min(originalDay, lastDayOfMonth));
-
-          result.push(newDate.toISOString().slice(0, 10));
-        }
-      });
-    }
-
-    return result.sort();
+    return initialDates
+      .flatMap((initialDate) => {
+        const startDate = new Date(initialDate);
+        return Array.from({ length: duration_in_months - 1 }, (_, i) => {
+          const date = new Date(startDate);
+          date.setMonth(startDate.getMonth() + i + 1);
+          return date.getDate() === startDate.getDate() ? date : null;
+        })
+          .filter(Boolean)
+          .map((date) => date.toISOString().slice(0, 10));
+      })
+      .sort();
   };
-
   useEffect(() => {
     let allDates = selectedDates ? [...selectedDates] : [];
     let finalDates = allDates;
@@ -435,6 +416,14 @@ const JobsList = ({
           )}
         </DialogContent>
         <DialogActions>
+          <Button
+            onClick={() => {
+              setSelectedDates([]); // Clear selected dates
+              setDayWiseSelection([]); // Clear day-wise selection if applicable
+            }}
+          >
+            Clear
+          </Button>
           <Button onClick={() => setOpen(false)}>Cancel</Button>
           <Button onClick={() => setOpen(false)} color="primary">
             Save Dates

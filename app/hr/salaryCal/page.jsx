@@ -17,7 +17,7 @@ import Swal from "sweetalert2";
 
 import CircularProgress from "@mui/material/CircularProgress";
 
-const SalarCal = ({ selectedMonth }) => {
+const SalarCal = () => {
   const api = new APICall();
   const [fetchingData, setFetchingData] = useState(false);
   const [employeeList, setEmployeeList] = useState([]);
@@ -38,7 +38,7 @@ const SalarCal = ({ selectedMonth }) => {
     try {
       console.log("Fetching data for month:", selectedMonth);
       const response = await api.getDataWithToken(
-        `${getAllEmpoyesUrl}/salary/get?month=${selectedMonth}`
+        `${getAllEmpoyesUrl}/salary/get`
       );
       if (response?.data) {
         setEmployeeList(response.data);
@@ -59,7 +59,7 @@ const SalarCal = ({ selectedMonth }) => {
   useEffect(() => {
     console.log("Month changed to:", selectedMonth);
     getAllEmployees();
-  }, [selectedMonth]);
+  }, []);
 
   // Modal open/close handlers
   const handleOpenModal = (employee) => {
