@@ -1,12 +1,12 @@
 "use client";
 
 import React from "react";
-import Vehciles from "./vehciles";
+import Transactions from "./transactions";
 
 const Page = () => {
   return (
     <div>
-      <Vehciles />
+      <Transactions />
     </div>
   );
 };

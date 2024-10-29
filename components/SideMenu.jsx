@@ -14,6 +14,16 @@ import styles from "../styles/sideMenu.module.css";
 import { useRouter } from "next/navigation";
 import User from "../networkUtil/user";
 
+import {
+  MdOutlineProductionQuantityLimits,
+  MdInventory,
+  MdOutlineInventory,
+  MdOutlinePayments,
+} from "react-icons/md";
+import { AiFillProduct } from "react-icons/ai";
+import { IoIosPerson } from "react-icons/io";
+import { IoPersonCircle } from "react-icons/io5";
+
 const drawerWidth = 240;
 
 const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(
@@ -109,6 +119,78 @@ export default function SideMenu({ children }) {
     } else if (userRoleId === 4) {
       userPermissions = [
         { name: "Jobs", url: "jobs", icon: "/jobs.png" },
+        {
+          name: "Profile",
+          url: `hr/employeeDetails?id=${userId}`,
+          icon: "/clients.png",
+        },
+      ];
+    } else if (userRoleId === 6) {
+      userPermissions = [
+        { name: "Home", url: "accountant", icon: "/home.png" },
+
+        {
+          name: "Add Product",
+          url: "account/addProduct/",
+          icon: <MdOutlineProductionQuantityLimits />,
+        },
+        {
+          name: "View Product",
+          url: "operations/viewInventory/",
+          icon: <AiFillProduct />,
+        },
+        {
+          name: "Add Purchase",
+          url: "account/addPurchase/",
+          icon: <MdInventory />,
+        },
+        {
+          name: "View Purchase",
+          url: "account/purchaseOrders/",
+          icon: <MdOutlineInventory />,
+        },
+        {
+          name: "Add Suppliers",
+          url: "account/addSuppliers/",
+          icon: <IoIosPerson />,
+        },
+        {
+          name: "View Suppliers",
+          url: "account/viewSuppliers/",
+          icon: <IoPersonCircle />,
+        },
+        {
+          name: "Suppliers Payment",
+          url: "operations/addSupplierExpense/",
+          icon: <MdOutlinePayments />,
+        },
+
+        { name: "Add Customers", url: "customers", icon: "/jobs.png" },
+        { name: "View Customers", url: "allCustomers", icon: "/jobs.png" },
+
+        {
+          name: "Transactions",
+          url: "accountant/viewTransactions",
+          icon: "/jobs.png",
+        },
+        { name: "Invoices", url: "invoice", icon: "/jobs.png" },
+
+        {
+          name: "Extense Category",
+          url: "operations/expense_category",
+          icon: "/jobs.png",
+        },
+        {
+          name: "Add Expense",
+          url: "operations/addExpense",
+          icon: "/jobs.png",
+        },
+        {
+          name: "View Expense",
+          url: "operations/viewAllExpenses",
+          icon: "/jobs.png",
+        },
+
         {
           name: "Profile",
           url: `hr/employeeDetails?id=${userId}`,
@@ -211,7 +293,11 @@ export default function SideMenu({ children }) {
                     : styles.menuItem
                 }
               >
-                <img src={item.icon} alt={item.name} height={20} width={20} />
+                {typeof item.icon === "string" ? (
+                  <img src={item.icon} alt={item.name} height={20} width={20} />
+                ) : (
+                  item.icon // Directly render the React icon component
+                )}
                 <div className={styles.sideMenuNames}>{item.name}</div>
               </div>
             ))

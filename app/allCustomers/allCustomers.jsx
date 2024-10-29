@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState, useEffect } from "react";
 import {
   Table,
@@ -10,12 +11,13 @@ import {
   Paper,
   CircularProgress,
 } from "@mui/material";
-import APICall from "../../../networkUtil/APICall";
-import { clients } from "../../../networkUtil/Constants";
+import SearchInput from "@/components/generic/SearchInput";
+import APICall from "@/networkUtil/APICall";
+import { customers } from "@/networkUtil/Constants";
 
 import Link from "next/link";
 
-const Page = () => {
+const AllCustomers = () => {
   const api = new APICall();
 
   const [fetchingData, setFetchingData] = useState(false);
@@ -28,7 +30,7 @@ const Page = () => {
   const getAllQuotes = async () => {
     setFetchingData(true);
     try {
-      const response = await api.getDataWithToken(`${clients}`);
+      const response = await api.getDataWithToken(`${customers}`);
       setQuoteList(response.data);
     } catch (error) {
       console.error("Error fetching quotes:", error);
@@ -43,12 +45,10 @@ const Page = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Sr No</TableCell>
-              <TableCell>Date</TableCell>
-              <TableCell>Client Name</TableCell>
-              <TableCell>Recieved By</TableCell>
-              <TableCell>Amount</TableCell>
-              <TableCell>View Details</TableCell>
+              <TableCell>Customer Name</TableCell>
+              <TableCell>Address</TableCell>
+              <TableCell>Balance</TableCell>
+              <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -61,17 +61,9 @@ const Page = () => {
             ) : (
               quoteList.map((row, index) => (
                 <TableRow key={index}>
-                  <TableCell>{index + 1}</TableCell>
-                  <TableCell>
-                    {new Date(row.created_at).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </TableCell>
-                  <TableCell>{row?.name}</TableCell>
-                  <TableCell>{row?.client?.referencable?.name}</TableCell>
-                  <TableCell>{row?.received_amt}</TableCell>
+                  <TableCell>{row?.person_name}</TableCell>
+                  <TableCell>{row.address}</TableCell>
+                  <TableCell>{row.opening_balance.slice(0, 20)}</TableCell>
                   <TableCell>
                     <Link href={`/customerLedger?id=${row.id}`}>
                       <span className="text-blue-600 hover:text-blue-800">
@@ -94,7 +86,7 @@ const Page = () => {
         <div
           style={{ fontSize: "20px", fontWeight: "600", marginBottom: "-4rem" }}
         >
-          All Clients Ledger Details
+          All Customers
         </div>
         <div
           style={{
@@ -131,4 +123,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default AllCustomers;

@@ -148,7 +148,7 @@ export default function Home() {
             break;
           default:
             // Handle unknown role or redirect to default page
-            router.replace("/dashboard");
+            router.replace("/accountant");
         }
       }
       setSendingData(false);
