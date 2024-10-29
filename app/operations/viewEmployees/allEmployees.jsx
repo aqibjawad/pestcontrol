@@ -9,21 +9,23 @@ import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
 
 import Swal from "sweetalert2";
 
-const AllEmployees = () => {
+const AllEmployees = ({ selectedMonth }) => {
   const api = new APICall();
 
   const [fetchingData, setFetchingData] = useState(false);
   const [expenseList, setExpenseList] = useState([]);
-  const [loading, setLoading] = useState({}); // Track loading state for each switch
+  const [loading, setLoading] = useState({});
 
   useEffect(() => {
     getAllExpenses();
-  }, []);
+  }, [selectedMonth]);
 
   const getAllExpenses = async () => {
     setFetchingData(true);
     try {
-      const response = await api.getDataWithToken(`${getAllEmpoyesUrl}`);
+      const response = await api.getDataWithToken(
+        `${getAllEmpoyesUrl}?month=${selectedMonth}`
+      );
       setExpenseList(response.data);
     } catch (error) {
       console.error("Error fetching employees:", error);
@@ -39,15 +41,12 @@ const AllEmployees = () => {
     firedAt,
     employeeName
   ) => {
-    event.preventDefault(); // Prevent event bubbling
+    event.preventDefault();
 
-    // If employee is fired (firedAt is not null), don't allow toggle
     if (firedAt) return;
 
-    // If already loading, don't process again
     if (loading[employeeId]) return;
 
-    // If making inactive (firing employee), show confirmation dialog
     if (currentStatus === 1) {
       const result = await Swal.fire({
         title: "Are you sure?",
@@ -64,18 +63,15 @@ const AllEmployees = () => {
       }
     }
 
-    // Set loading state for this specific switch
     setLoading((prev) => ({ ...prev, [employeeId]: true }));
 
     try {
       if (currentStatus === 1) {
-        // If currently active, making inactive - call fired_at API
         const response = await api.getDataWithToken(
           `${getAllEmpoyesUrl}/fired_at/${employeeId}`
         );
 
         if (response.status === "success") {
-          // Show success message
           await Swal.fire({
             title: "Employee Fired",
             text: `${employeeName} has been fired successfully`,
@@ -84,10 +80,9 @@ const AllEmployees = () => {
             showConfirmButton: false,
           });
 
-          // Refresh the page
           window.location.reload();
         }
-      } else {        
+      } else {
         if (response.success) {
           setExpenseList((prevList) =>
             prevList.map((employee) =>
@@ -100,14 +95,12 @@ const AllEmployees = () => {
       }
     } catch (error) {
       console.error("Error updating status:", error);
-      // Show error message
       await Swal.fire({
         title: "Error",
         text: "There was an error processing your request",
         icon: "error",
       });
     } finally {
-      // Clear loading state for this switch
       setLoading((prev) => ({ ...prev, [employeeId]: false }));
     }
   };
@@ -178,7 +171,7 @@ const AllEmployees = () => {
                       }}
                     >
                       <Switch
-                        checked={row.is_active === 0} // Switched logic to match your data
+                        checked={row.is_active === 0}
                         onChange={(e) =>
                           handleStatusToggle(e, row.id, row.is_active)
                         }

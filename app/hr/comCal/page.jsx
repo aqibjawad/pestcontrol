@@ -2,27 +2,22 @@
 
 import React, { useState, useEffect } from "react";
 import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
-import { Button } from "@mui/material";
+import { Button, CircularProgress, Skeleton } from "@mui/material";
 import APICall from "@/networkUtil/APICall";
 import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
-import CircularProgress from "@mui/material/CircularProgress";
 import Swal from "sweetalert2";
 
-const CommissionCal = () => {
+const CommissionCal = ({ selectedMonth }) => {
   const api = new APICall();
   const [fetchingData, setFetchingData] = useState(false);
   const [employeeList, setEmployeeList] = useState([]);
   const [processingPayments, setProcessingPayments] = useState({});
 
-  useEffect(() => {
-    getAllEmployees();
-  }, []);
-
   const getAllEmployees = async () => {
     setFetchingData(true);
     try {
       const response = await api.getDataWithToken(
-        `${getAllEmpoyesUrl}/commission/get`
+        `${getAllEmpoyesUrl}/commission/get?month=${selectedMonth}`
       );
       setEmployeeList(response.data);
     } catch (error) {
@@ -37,15 +32,18 @@ const CommissionCal = () => {
     }
   };
 
+  useEffect(() => {
+    getAllEmployees();
+  }, [selectedMonth]);
+
   const handleSubmit = async (employee) => {
-    // Set loading state for specific employee
     setProcessingPayments((prev) => ({
       ...prev,
       [employee.id]: true,
     }));
 
     const obj = {
-      employee_commission_id: employee.id, // Use the correct employee commission ID
+      employee_commission_id: employee.id,
     };
 
     try {
@@ -60,7 +58,7 @@ const CommissionCal = () => {
           title: "Success",
           text: "Commission has been paid successfully!",
         }).then(() => {
-          getAllEmployees(); // Refresh the data instead of full page reload
+          getAllEmployees();
         });
       } else {
         Swal.fire({
@@ -82,14 +80,6 @@ const CommissionCal = () => {
       }));
     }
   };
-
-  if (fetchingData) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <CircularProgress />
-      </div>
-    );
-  }
 
   return (
     <div>
@@ -115,40 +105,38 @@ const CommissionCal = () => {
                 <th className="py-2 px-4 border-b border-gray-200 text-left">
                   Target
                 </th>
-                <th className="py-2 px-4 border-b border-gray-200 text-left">
-                  Status
-                </th>
-                <th className="py-2 px-4 border-b border-gray-200 text-left">
-                  Pay Commission
-                </th>
               </tr>
             </thead>
             <tbody>
-              {employeeList.map((row, index) => (
-                <tr key={row.id} className="border-b border-gray-200">
-                  <td className="py-5 px-4">{index + 1}</td>
-                  <td className="py-5 px-4">{row?.referencable?.name}</td>
-                  <td className="py-5 px-4">{row.commission_per}%</td>
-                  <td className="py-5 px-4">{row.sale}</td>
-                  <td className="py-5 px-4">{row.target}</td>
-                  <td className="py-5 px-4">{row.status}</td>
-                  <td className="py-5 px-4">
-                    <Button
-                      variant="outlined"
-                      onClick={() => handleSubmit(row)}
-                      disabled={
-                        processingPayments[row.id] || row.status === "paid"
-                      }
-                    >
-                      {processingPayments[row.id] ? (
-                        <CircularProgress size={20} color="inherit" />
-                      ) : (
-                        "Pay"
-                      )}
-                    </Button>
-                  </td>
-                </tr>
-              ))}
+              {fetchingData
+                ? Array.from({ length: 5 }).map((_, index) => (
+                    <tr key={index}>
+                      <td className="py-5 px-4">
+                        <Skeleton variant="text" width={30} />
+                      </td>
+                      <td className="py-5 px-4">
+                        <Skeleton variant="text" width={100} />
+                      </td>
+                      <td className="py-5 px-4">
+                        <Skeleton variant="text" width={70} />
+                      </td>
+                      <td className="py-5 px-4">
+                        <Skeleton variant="text" width={70} />
+                      </td>
+                      <td className="py-5 px-4">
+                        <Skeleton variant="text" width={70} />
+                      </td>
+                    </tr>
+                  ))
+                : employeeList.map((row, index) => (
+                    <tr key={row.id} className="border-b border-gray-200">
+                      <td className="py-5 px-4">{index + 1}</td>
+                      <td className="py-5 px-4">{row?.referencable?.name}</td>
+                      <td className="py-5 px-4">{row.commission_per}%</td>
+                      <td className="py-5 px-4">{row.sale}</td>
+                      <td className="py-5 px-4">{row.target}</td>
+                    </tr>
+                  ))}
             </tbody>
           </table>
         </div>
