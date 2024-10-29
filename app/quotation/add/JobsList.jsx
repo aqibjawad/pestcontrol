@@ -387,7 +387,7 @@ const JobsList = ({
             : "Select Dates"}
         </DialogTitle>
         <DialogContent>
-          {(selectedJobType === "weekly" || selectedJobType === "daily") && (
+          {(selectedJobType === "weekly" || selectedJobType === "daily" || selectedJobType === "monthly") && (
             <Tabs value={activeTab} onChange={handleTabChange}>
               <Tab label="Date" />
               <Tab label="Day-wise" />
