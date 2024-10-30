@@ -26,7 +26,6 @@ const Quotation = () => {
 
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("");
-
   const [fetchingData, setFetchingData] = useState(false);
   const [quoteList, setQuoteList] = useState([]);
   const [allQuoteList, setAllQuoteList] = useState([]);
@@ -44,17 +43,12 @@ const Quotation = () => {
     setIsApproving((prev) => ({ ...prev, [id]: true }));
     try {
       await api.getDataWithToken(`${quotation}/move/contract/${id}`);
-      // Update the local state to reflect the approval
-      setQuoteList((prevList) =>
+      const updateQuotes = (prevList) =>
         prevList.map((quote) =>
           quote.id === id ? { ...quote, is_contracted: 1 } : quote
-        )
-      );
-      setAllQuoteList((prevList) =>
-        prevList.map((quote) =>
-          quote.id === id ? { ...quote, is_contracted: 1 } : quote
-        )
-      );
+        );
+      setQuoteList(updateQuotes);
+      setAllQuoteList(updateQuotes);
       router.push("/contracts");
     } catch (error) {
       console.error("Error approving quote:", error);
@@ -62,10 +56,6 @@ const Quotation = () => {
       setIsApproving((prev) => ({ ...prev, [id]: false }));
     }
   };
-
-  useEffect(() => {
-    getAllQuotes();
-  }, [startDate, endDate]);
 
   const getAllQuotes = async () => {
     setFetchingData(true);
@@ -84,27 +74,42 @@ const Quotation = () => {
       const [quotesResponse] = await Promise.all([
         api.getDataWithToken(`${quotation}/all?${queryParams.join("&")}`),
       ]);
-      const mergedData = [...quotesResponse.data];
+      const mergedData = quotesResponse?.data || [];
       setQuoteList(mergedData);
       setAllQuoteList(mergedData);
     } catch (error) {
       console.error("Error fetching quotes and contacts:", error);
+      setQuoteList([]);
+      setAllQuoteList([]);
     } finally {
       setFetchingData(false);
     }
   };
 
+  useEffect(() => {
+    getAllQuotes();
+  }, [startDate, endDate]);
+
+  const getNestedValue = (obj, path) => {
+    try {
+      return path.split(".").reduce((acc, part) => acc?.[part], obj) ?? "";
+    } catch (error) {
+      return "";
+    }
+  };
+
   const handleRequestSort = (property) => {
     const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
+    const newOrder = isAsc ? "desc" : "asc";
+    setOrder(newOrder);
     setOrderBy(property);
 
     const sortedQuotes = [...quoteList].sort((a, b) => {
-      const aValue = a[property] ?? "";
-      const bValue = b[property] ?? "";
+      const aValue = getNestedValue(a, property);
+      const bValue = getNestedValue(b, property);
 
-      if (aValue < bValue) return order === "asc" ? -1 : 1;
-      if (aValue > bValue) return order === "asc" ? 1 : -1;
+      if (aValue < bValue) return newOrder === "asc" ? -1 : 1;
+      if (aValue > bValue) return newOrder === "asc" ? 1 : -1;
       return 0;
     });
 
@@ -119,9 +124,9 @@ const Quotation = () => {
             <TableRow>
               <TableCell className="contractHeader">
                 <TableSortLabel
-                  active={orderBy === "sr_no"}
-                  direction={orderBy === "sr_no" ? order : "asc"}
-                  onClick={() => handleRequestSort("sr_no")}
+                  active={orderBy === "id"}
+                  direction={orderBy === "id" ? order : "asc"}
+                  onClick={() => handleRequestSort("id")}
                 >
                   Sr No
                 </TableSortLabel>
@@ -144,21 +149,53 @@ const Quotation = () => {
                   Tag
                 </TableSortLabel>
               </TableCell>
-              <TableCell className="contractHeader">Billing Method</TableCell>
-              <TableCell className="contractHeader">Quote Title</TableCell>
+              <TableCell className="contractHeader">
+                <TableSortLabel
+                  active={orderBy === "billing_method"}
+                  direction={orderBy === "billing_method" ? order : "asc"}
+                  onClick={() => handleRequestSort("billing_method")}
+                >
+                  Billing Method
+                </TableSortLabel>
+              </TableCell>
+              <TableCell className="contractHeader">
+                <TableSortLabel
+                  active={orderBy === "quote_title"}
+                  direction={orderBy === "quote_title" ? order : "asc"}
+                  onClick={() => handleRequestSort("quote_title")}
+                >
+                  Quote Title
+                </TableSortLabel>
+              </TableCell>
               <TableCell className="contractHeader">
                 Treatment Method Name
               </TableCell>
               <TableCell className="contractHeader">Services</TableCell>
-              <TableCell className="contractHeader">Status</TableCell>
-              <TableCell className="contractHeader">Sub Total</TableCell>
+              <TableCell className="contractHeader">
+                <TableSortLabel
+                  active={orderBy === "is_contracted"}
+                  direction={orderBy === "is_contracted" ? order : "asc"}
+                  onClick={() => handleRequestSort("is_contracted")}
+                >
+                  Status
+                </TableSortLabel>
+              </TableCell>
+              <TableCell className="contractHeader">
+                <TableSortLabel
+                  active={orderBy === "sub_total"}
+                  direction={orderBy === "sub_total" ? order : "asc"}
+                  onClick={() => handleRequestSort("sub_total")}
+                >
+                  Sub Total
+                </TableSortLabel>
+              </TableCell>
               <TableCell className="contractHeader">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {fetchingData ? (
               <TableRow>
-                <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                <TableCell colSpan={10} style={{ textAlign: "center" }}>
                   {[...Array(5)].map((_, index) => (
                     <Skeleton
                       key={index}
@@ -171,50 +208,50 @@ const Quotation = () => {
               </TableRow>
             ) : (
               quoteList.map((row, index) => (
-                <TableRow key={row.id}>
-                  {" "}
-                  {/* Changed to use row.id as key */}
+                <TableRow key={row?.id || index}>
                   <TableCell className="contractTable">{index + 1}</TableCell>
                   <TableCell className="contractTable">
-                    {row?.user?.name}
+                    {row?.user?.name || "N/A"}
                   </TableCell>
                   <TableCell className="contractTable">
-                    <div className="approvedContrant">{row?.tag}</div>
+                    <div className="approvedContrant">{row?.tag || "N/A"}</div>
                   </TableCell>
                   <TableCell className="contractTable">
-                    {row.billing_method}
+                    {row?.billing_method || "N/A"}
                   </TableCell>
                   <TableCell className="contractTable">
-                    {row.quote_title}
+                    {row?.quote_title || "N/A"}
                   </TableCell>
                   <TableCell className="contractTable">
                     {row?.treatment_methods
-                      ?.map((method) => method.name)
-                      .join(", ") || "N/A"}
+                      ?.map((method) => method?.name)
+                      ?.filter(Boolean)
+                      ?.join(", ") || "N/A"}
                   </TableCell>
                   <TableCell className="contractTable">
                     {row?.quote_services
                       ?.map((service) => service?.service?.service_title)
-                      .join(", ") || "N/A"}
+                      ?.filter(Boolean)
+                      ?.join(", ") || "N/A"}
                   </TableCell>
                   <TableCell className="contractTable">
-                    {row.is_contracted === 0 ? (
+                    {row?.is_contracted === 0 ? (
                       <div className="pendingContrant">Pending</div>
                     ) : (
                       <div className="approvedContrant">Approved</div>
                     )}
                   </TableCell>
                   <TableCell className="contractTable">
-                    {row.sub_total}
+                    {row?.sub_total || 0}
                   </TableCell>
                   <TableCell className="contractTable">
                     <div className="flex space-x-2">
-                      <Link href={`/quotePdf?id=${row.id}`}>
+                      <Link href={`/quotePdf?id=${row?.id}`}>
                         <span className="text-blue-600 hover:text-blue-800">
                           View Details
                         </span>
                       </Link>
-                      {row.is_contracted === 0 && (
+                      {row?.is_contracted === 0 && (
                         <button
                           onClick={() => handleApprove(row.id)}
                           disabled={isApproving[row.id]}
@@ -238,14 +275,16 @@ const Quotation = () => {
     if (filterValue !== "") {
       const filteredData = allQuoteList.filter(
         (item) =>
-          item.tag.toLowerCase().includes(filterValue.toLowerCase()) ||
-          item.user.name.toLowerCase().includes(filterValue.toLowerCase())
+          (item?.tag || "").toLowerCase().includes(filterValue.toLowerCase()) ||
+          (item?.user?.name || "")
+            .toLowerCase()
+            .includes(filterValue.toLowerCase())
       );
       setQuoteList(filteredData);
     } else {
       setQuoteList(allQuoteList);
     }
-  }, [filterValue]);
+  }, [filterValue, allQuoteList]);
 
   return (
     <div>

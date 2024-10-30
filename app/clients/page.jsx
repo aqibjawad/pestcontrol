@@ -161,7 +161,7 @@ const Page = () => {
           <tbody>
             {allClientsList?.map((row, index) => (
               <tr key={index} className="border-b border-gray-200">
-                <td className="py-5 px-4">{index+1}</td>
+                <td className="py-5 px-4">{index + 1}</td>
                 <td className="py-5 px-4">{row.name}</td>
                 <td className="py-2 px-4">{row?.client?.phone_number}</td>
                 <td className="py-2 px-4">{row?.client?.firm_name}</td>
@@ -406,6 +406,7 @@ const Page = () => {
             <Grid item container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <InputWithTitle
+                  title={"Name"}
                   label="Full name"
                   name="name"
                   value={name}
@@ -415,8 +416,10 @@ const Page = () => {
                   placeholder="Manager name"
                 />
               </Grid>
+
               <Grid item xs={12} sm={6}>
                 <InputWithTitle
+                  title={"Firm Name"}
                   label="Firm Name"
                   name="firm_name"
                   value={firm_name}
@@ -426,43 +429,49 @@ const Page = () => {
                   placeholder="Firm Name"
                 />
               </Grid>
+
+              <Grid item lg={6}>
+                <InputWithTitle
+                  title={"Email"}
+                  label="Email"
+                  name="email"
+                  value={email}
+                  onChange={setEmail}
+                  variant="outlined"
+                  fullWidth
+                  placeholder="Please enter Email"
+                />
+              </Grid>
+              <Grid item lg={6}>
+                <InputWithTitle
+                  title={"Phone Number"}
+                  label="Phone Number"
+                  name="phone_number"
+                  value={phone_number}
+                  onChange={setPhoneNumber}
+                  variant="outlined"
+                  fullWidth
+                  placeholder="Please enter Phone Number"
+                />
+              </Grid>
+              <Grid item lg={12}>
+                <InputWithTitle
+                  title={"Mobile Number"}
+                  label="Mobile Number"
+                  name="mobile_number"
+                  value={mobile_number}
+                  onChange={setMobNumber}
+                  variant="outlined"
+                  fullWidth
+                  placeholder="Please enter Mobile Number"
+                />
+              </Grid>
             </Grid>
-            <Grid item>
-              <InputWithTitle
-                label="Email"
-                name="email"
-                value={email}
-                onChange={setEmail}
-                variant="outlined"
-                fullWidth
-                placeholder="Please enter Email"
-              />
-            </Grid>
-            <Grid item>
-              <InputWithTitle
-                label="Phone Number"
-                name="phone_number"
-                value={phone_number}
-                onChange={setPhoneNumber}
-                variant="outlined"
-                fullWidth
-                placeholder="Please enter Phone Number"
-              />
-            </Grid>
-            <Grid item>
-              <InputWithTitle
-                label="Mobile Number"
-                name="mobile_number"
-                value={mobile_number}
-                onChange={setMobNumber}
-                variant="outlined"
-                fullWidth
-                placeholder="Please enter Mobile Number"
-              />
-            </Grid>
+
             <Grid item container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <InputWithTitle
+                  title={"Opening Balance"}
                   label="Opening Balance"
                   name="opening_balance"
                   value={opening_balance}
@@ -473,16 +482,8 @@ const Page = () => {
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <Dropdown
-                  title="Select Reference"
-                  options={dropdownOptions.map((option) => option.name)}
-                  onChange={handleDropdownChange}
-                />
-              </Grid>
-            </Grid>
-            <Grid item container spacing={2}>
-              <Grid item xs={12} sm={6}>
                 <InputWithTitle
+                  title={"Industry Name"}
                   label="Industry Name"
                   name="industry_name"
                   value={industry_name}
@@ -492,7 +493,15 @@ const Page = () => {
                   placeholder="Industry Name"
                 />
               </Grid>
+              <Grid item lg={12} xs={12} sm={6}>
+                <Dropdown
+                  title="Select Reference"
+                  options={dropdownOptions.map((option) => option.name)}
+                  onChange={handleDropdownChange}
+                />
+              </Grid>
             </Grid>
+            <Grid item container spacing={2}></Grid>
           </Grid>
         </DialogContent>
         <DialogActions style={{ justifyContent: "center" }}>

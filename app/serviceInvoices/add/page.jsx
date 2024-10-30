@@ -329,7 +329,13 @@ const Page = () => {
                       <TableCell>{invoice.service_invoice_id}</TableCell>
                       <TableCell>{invoice.total_amt}</TableCell>
                       <TableCell>{remainingAmount.toFixed(2)}</TableCell>
-                      <TableCell>{invoice.updated_at}</TableCell>
+                      <TableCell>
+                        {new Date(invoice.updated_at).toLocaleString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </TableCell>
                       <TableCell>{invoice.status}</TableCell>
                     </TableRow>
                   );
