@@ -5,7 +5,7 @@ import BasicQuote from "./add/basicQuote";
 import ServiceAgreement from "./add/serviceagreement";
 import Method from "./add/method";
 import Invoice from "./add/invoice";
-import Scope from "./add/scope";
+// import Scope from "./add/scope";
 import TermConditions from "./add/terms";
 import APICall from "@/networkUtil/APICall";
 import { quotation } from "../../networkUtil/Constants";
@@ -138,7 +138,7 @@ const Page = () => {
       />
       <Method setFormData={setFormData} formData={formData} />
       <Invoice setFormData={setFormData} formData={formData} />
-      <Scope setFormData={setFormData} formData={formData} />
+      {/* <Scope setFormData={setFormData} formData={formData} /> */}
       <TermConditions setFormData={setFormData} formData={formData} />
       <div className="mt-10">
         <GreenButton

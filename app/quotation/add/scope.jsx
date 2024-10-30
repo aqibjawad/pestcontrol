@@ -1,46 +1,106 @@
 import React, { useState } from "react";
+import { Grid, Typography, Button, Box } from "@mui/material";
 import styles from "../../../styles/quotes.module.css";
 
-const Scope = () => {
-  // State to control the visibility of the scope section
-  const [isScopeVisible, setIsScopeVisible] = useState(false); // By default, it's hidden
+const Scope = ({ selectedServices }) => {
+  const [isScopeVisible, setIsScopeVisible] = useState(false);
 
   const handleEnable = () => {
-    setIsScopeVisible(true); // Show scope on enable
+    setIsScopeVisible(true);
   };
 
   const handleDisable = () => {
-    setIsScopeVisible(false); // Hide scope on disable
+    setIsScopeVisible(false);
   };
 
   return (
-    <div className="flex flex-col" style={{ marginTop: "2rem" }}>
-      <div className="flex justify-between">
-        <div className="flex flex-col">
-          <div className={styles.scopeHead}>Scope of Work</div>
-        </div>
+    <Box mt={4}>
+      <Grid container justifyContent="space-between" alignItems="center">
+        <Grid item>
+          <Typography variant="h6" className={styles.scopeHead}>
+            Scope of Work
+          </Typography>
+        </Grid>
 
-        <div className="flex flex-col">
-          <div className="flex justify-between gap-4">
-            <div style={{cursor:"pointer"}} className={styles.disableButton} onClick={handleDisable}>
-              Disable
-            </div>
+        <Grid item>
+          <Grid container spacing={2}>
+            <Grid item>
+              <Button
+                variant="contained"
+                onClick={handleDisable}
+                style={{
+                  backgroundColor: isScopeVisible ? "white" : "green",
+                  color: isScopeVisible ? "black" : "white",
+                }}
+                className={styles.disableButton}
+              >
+                Disable
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                variant="contained"
+                onClick={handleEnable}
+                style={{
+                  backgroundColor: isScopeVisible ? "green" : "white",
+                  color: isScopeVisible ? "white" : "black",
+                }}
+                className={styles.enableButton}
+              >
+                Enable
+              </Button>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
 
-            <div style={{cursor:"pointer"}} className={styles.enableButton} onClick={handleEnable}>
-              Enable
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Conditionally render the Scope section */}
       {isScopeVisible && (
-        <div className="mt-4">
-          {/* Content of the Scope of Work */}
-          <p>This is the scope of work. You can include any content here.</p>
-        </div>
+        <Box sx={{ flexGrow: 1 }}>
+
+          <Grid className="mt-3" container spacing={3}>
+            {selectedServices.length === 0 ? (
+              <Grid item xs={12}>
+                <Typography color="textSecondary">
+                  No services selected
+                </Typography>
+              </Grid>
+            ) : (
+              selectedServices.map((service, index) => (
+                <Grid
+                  item
+                  xs={12}
+                  md={6}
+                  lg={6}
+                  key={`${service.pest_name}-${index}`}
+                >
+                  <Box
+                    p={2}
+                    border={1}
+                    borderRadius={2}
+                    borderColor="divider"
+                    height="100%"
+                  >
+                    <Typography variant="h6" fontWeight="bold" gutterBottom>
+                      {service.pest_name}
+                    </Typography>
+
+                    <Typography variant="subtitle1" fontWeight="bold" mt={2}>
+                      Service Title:
+                    </Typography>
+                    <Typography>{service.service_title}</Typography>
+
+                    <Typography variant="subtitle1" fontWeight="bold" mt={2}>
+                      Terms and Conditions:
+                    </Typography>
+                    <Typography>{service.term_and_conditions}</Typography>
+                  </Box>
+                </Grid>
+              ))
+            )}
+          </Grid>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 };
 

@@ -5,14 +5,16 @@ import JobsList from "./JobsList";
 import ContractSummary from "./contract";
 import { Button } from "@mui/material";
 
-const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
+import Scope from "./scope";
 
-  console.log("line 10000",formData.quote_services);
-  
-
+const ServiceAgreement = ({ setFormData, formData }) => {
   const api = new APICall();
   const [allServices, setAllServices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const [selectedServiceDetails, setSelectedServiceDetails] = useState(
+    new Map()
+  );
 
   const getAllServices = async () => {
     setIsLoading(true);
@@ -36,11 +38,28 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
 
   const handleCheckboxChange = (serviceId) => {
     setAllServices((prevServices) =>
-      prevServices.map((service) =>
-        service.id === serviceId
-          ? { ...service, isChecked: !service.isChecked }
-          : service
-      )
+      prevServices.map((service) => {
+        if (service.id === serviceId) {
+          const newCheckedState = !service.isChecked;
+
+          setSelectedServiceDetails((prev) => {
+            const updatedMap = new Map(prev);
+            if (newCheckedState) {
+              updatedMap.set(service.id, {
+                service_title: service.service_title,
+                term_and_conditions: service.term_and_conditions,
+                pest_name: service.pest_name,
+              });
+            } else {
+              updatedMap.delete(service.id);
+            }
+            return updatedMap;
+          });
+
+          return { ...service, isChecked: newCheckedState };
+        }
+        return service;
+      })
     );
   };
 
@@ -57,14 +76,14 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
   };
 
   useEffect(() => {
-    if(formData.quote_services){
+    if (formData.quote_services) {
       setFormData((prev) => {
-        const prevServices = prev?.services || []
-        const newServices = [...formData.quote_services,...prevServices];
+        const prevServices = prev?.services || [];
+        const newServices = [...formData.quote_services, ...prevServices];
         return { ...prev, services: newServices };
-      })
+      });
     }
-  }, [formData.quote_services]);  
+  }, [formData.quote_services]);
 
   const addJobList = () => {
     // Create a default job using the selected services
@@ -198,7 +217,7 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
               Remove
             </Button>
           </div>
-        ))} 
+        ))}
       </div>
 
       <div className="flex">
@@ -211,6 +230,8 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
       </div>
 
       <ContractSummary setFormData={setFormData} grandTotal={grandTotal} />
+
+      <Scope selectedServices={Array.from(selectedServiceDetails.values())} />
     </div>
   );
 };
