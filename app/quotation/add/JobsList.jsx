@@ -50,7 +50,6 @@ const JobsList = ({
       })
       .sort();
   };
-  
   useEffect(() => {
     let allDates = selectedDates ? [...selectedDates] : [];
     let finalDates = allDates;
@@ -388,7 +387,9 @@ const JobsList = ({
             : "Select Dates"}
         </DialogTitle>
         <DialogContent>
-          {(selectedJobType === "weekly" || selectedJobType === "daily" || selectedJobType === "monthly") && (
+          {(selectedJobType === "weekly" ||
+            selectedJobType === "daily" ||
+            selectedJobType === "monthly") && (
             <Tabs value={activeTab} onChange={handleTabChange}>
               <Tab label="Date" />
               <Tab label="Day-wise" />
