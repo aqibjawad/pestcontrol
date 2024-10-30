@@ -8,19 +8,19 @@ const ContractSummary = ({ grandTotal, setFormData, formData }) => {
   const [finalTotal, setFinalTotal] = useState(grandTotal);
 
   useEffect(() => {
-    const discountAmount = (grandTotal * discount) / 100;
+    const discountAmount = discount; // Treat discount as a fixed amount
     const vatAmount = ((grandTotal - discountAmount) * vat) / 100;
     const totalWithVAT = grandTotal - discountAmount + vatAmount;
     setFinalTotal(totalWithVAT);
 
     // Update formData with calculated values
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       discount,
       vat,
       discountAmount,
       vatAmount,
-      finalTotal: totalWithVAT
+      finalTotal: totalWithVAT,
     }));
   }, [discount, vat, grandTotal]);
 

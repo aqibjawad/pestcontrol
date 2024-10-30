@@ -131,6 +131,9 @@ const Page = () => {
           <thead>
             <tr>
               <th className="py-5 px-4 border-b border-gray-200 text-left">
+                Sr No
+              </th>
+              <th className="py-5 px-4 border-b border-gray-200 text-left">
                 Customer
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
@@ -158,6 +161,7 @@ const Page = () => {
           <tbody>
             {allClientsList?.map((row, index) => (
               <tr key={index} className="border-b border-gray-200">
+                <td className="py-5 px-4">{index+1}</td>
                 <td className="py-5 px-4">{row.name}</td>
                 <td className="py-2 px-4">{row?.client?.phone_number}</td>
                 <td className="py-2 px-4">{row?.client?.firm_name}</td>
