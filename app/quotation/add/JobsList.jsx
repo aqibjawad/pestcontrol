@@ -50,6 +50,7 @@ const JobsList = ({
       })
       .sort();
   };
+  
   useEffect(() => {
     let allDates = selectedDates ? [...selectedDates] : [];
     let finalDates = allDates;

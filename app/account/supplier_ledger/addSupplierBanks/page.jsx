@@ -7,9 +7,13 @@ import { addSupplierBankInfo } from "@/networkUtil/Constants";
 import { CircularProgress } from "@mui/material";
 import APICall from "@/networkUtil/APICall";
 
+import ViewBanks from "./bank";
+
 const Index = () => {
+
   const api = new APICall();
-  const [supplierID, setSupplierID] = useState(0);
+  const [supplierID, setSupplierID] = useState();
+  
   const [bank_name, setBankName] = useState("");
   const [iban, setIban] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
@@ -22,6 +26,7 @@ const Index = () => {
     const urlId = getParamFromUrl(currentUrl, "id");
     setSupplierID(urlId);
   }, []);
+
   const getParamFromUrl = (url, param) => {
     const searchParams = new URLSearchParams(url.split("?")[1]);
     return searchParams.get(param);
@@ -78,7 +83,7 @@ const Index = () => {
               title="Account Number"
               onChange={setAccountNumber}
             />
-          </div>
+          </div> 
           <div className="">
             <InputWithTitle title="Bank Address" onChange={setBankAddress} />
           </div>
@@ -103,8 +108,8 @@ const Index = () => {
   return (
     <>
       <div className="grid grid-cols-2 gap-4">
-        <div>Column 1</div>
-        <div>{bankSection()}</div>
+        <div> <ViewBanks supplierID={supplierID} /> </div>
+        <div> {bankSection()} </div>
       </div>
     </>
   );
