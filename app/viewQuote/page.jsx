@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -10,23 +10,27 @@ import {
   TableRow,
   Paper,
   Skeleton,
+  TableSortLabel,
 } from "@mui/material";
 import APICall from "@/networkUtil/APICall";
 import { quotation } from "@/networkUtil/Constants";
 import Link from "next/link";
-
+import { useRouter } from "next/navigation";
 import DateFilters from "@/components/generic/DateFilters";
-
 import { format } from "date-fns";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 
 const Quotation = () => {
+  const router = useRouter();
   const api = new APICall();
+
+  const [order, setOrder] = useState("asc");
+  const [orderBy, setOrderBy] = useState("");
 
   const [fetchingData, setFetchingData] = useState(false);
   const [quoteList, setQuoteList] = useState([]);
   const [allQuoteList, setAllQuoteList] = useState([]);
-
+  const [isApproving, setIsApproving] = useState({});
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [filterValue, setFilterValue] = useState("");
@@ -34,6 +38,29 @@ const Quotation = () => {
   const handleDateChange = (start, end) => {
     setStartDate(start);
     setEndDate(end);
+  };
+
+  const handleApprove = async (id) => {
+    setIsApproving((prev) => ({ ...prev, [id]: true }));
+    try {
+      await api.getDataWithToken(`${quotation}/move/contract/${id}`);
+      // Update the local state to reflect the approval
+      setQuoteList((prevList) =>
+        prevList.map((quote) =>
+          quote.id === id ? { ...quote, is_contracted: 1 } : quote
+        )
+      );
+      setAllQuoteList((prevList) =>
+        prevList.map((quote) =>
+          quote.id === id ? { ...quote, is_contracted: 1 } : quote
+        )
+      );
+      router.push("/contracts");
+    } catch (error) {
+      console.error("Error approving quote:", error);
+    } finally {
+      setIsApproving((prev) => ({ ...prev, [id]: false }));
+    }
   };
 
   useEffect(() => {
@@ -67,22 +94,63 @@ const Quotation = () => {
     }
   };
 
+  const handleRequestSort = (property) => {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
+
+    const sortedQuotes = [...quoteList].sort((a, b) => {
+      const aValue = a[property] ?? "";
+      const bValue = b[property] ?? "";
+
+      if (aValue < bValue) return order === "asc" ? -1 : 1;
+      if (aValue > bValue) return order === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    setQuoteList(sortedQuotes);
+  };
+
   const listServiceTable = () => {
     return (
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell className="contractHeader">Sr No</TableCell>
-              <TableCell className="contractHeader">Customer</TableCell>
-              <TableCell className="contractHeader">Tag</TableCell>
+              <TableCell className="contractHeader">
+                <TableSortLabel
+                  active={orderBy === "sr_no"}
+                  direction={orderBy === "sr_no" ? order : "asc"}
+                  onClick={() => handleRequestSort("sr_no")}
+                >
+                  Sr No
+                </TableSortLabel>
+              </TableCell>
+              <TableCell className="contractHeader">
+                <TableSortLabel
+                  active={orderBy === "user.name"}
+                  direction={orderBy === "user.name" ? order : "asc"}
+                  onClick={() => handleRequestSort("user.name")}
+                >
+                  Customer
+                </TableSortLabel>
+              </TableCell>
+              <TableCell className="contractHeader">
+                <TableSortLabel
+                  active={orderBy === "tag"}
+                  direction={orderBy === "tag" ? order : "asc"}
+                  onClick={() => handleRequestSort("tag")}
+                >
+                  Tag
+                </TableSortLabel>
+              </TableCell>
               <TableCell className="contractHeader">Billing Method</TableCell>
               <TableCell className="contractHeader">Quote Title</TableCell>
               <TableCell className="contractHeader">
                 Treatment Method Name
               </TableCell>
-              <TableCell className="contractHeader"> Services </TableCell>
-              <TableCell className="contractHeader"> Status </TableCell>
+              <TableCell className="contractHeader">Services</TableCell>
+              <TableCell className="contractHeader">Status</TableCell>
               <TableCell className="contractHeader">Sub Total</TableCell>
               <TableCell className="contractHeader">Actions</TableCell>
             </TableRow>
@@ -103,7 +171,9 @@ const Quotation = () => {
               </TableRow>
             ) : (
               quoteList.map((row, index) => (
-                <TableRow key={index}>
+                <TableRow key={row.id}>
+                  {" "}
+                  {/* Changed to use row.id as key */}
                   <TableCell className="contractTable">{index + 1}</TableCell>
                   <TableCell className="contractTable">
                     {row?.user?.name}
@@ -122,7 +192,6 @@ const Quotation = () => {
                       ?.map((method) => method.name)
                       .join(", ") || "N/A"}
                   </TableCell>
-
                   <TableCell className="contractTable">
                     {row?.quote_services
                       ?.map((service) => service?.service?.service_title)
@@ -139,11 +208,22 @@ const Quotation = () => {
                     {row.sub_total}
                   </TableCell>
                   <TableCell className="contractTable">
-                    <Link href={`/quotePdf?id=${row.id}`}>
-                      <span className="text-blue-600 hover:text-blue-800">
-                        View Details
-                      </span>
-                    </Link>
+                    <div className="flex space-x-2">
+                      <Link href={`/quotePdf?id=${row.id}`}>
+                        <span className="text-blue-600 hover:text-blue-800">
+                          View Details
+                        </span>
+                      </Link>
+                      {row.is_contracted === 0 && (
+                        <button
+                          onClick={() => handleApprove(row.id)}
+                          disabled={isApproving[row.id]}
+                          className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50"
+                        >
+                          {isApproving[row.id] ? "Approving..." : "Approve"}
+                        </button>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
@@ -161,7 +241,6 @@ const Quotation = () => {
           item.tag.toLowerCase().includes(filterValue.toLowerCase()) ||
           item.user.name.toLowerCase().includes(filterValue.toLowerCase())
       );
-
       setQuoteList(filteredData);
     } else {
       setQuoteList(allQuoteList);
@@ -185,7 +264,7 @@ const Quotation = () => {
         >
           <div>
             <InputWithTitle
-              placeholder="Fitler By Name, Tag"
+              placeholder="Filter By Name, Tag"
               title={"Filter by Tag, Name"}
               onChange={setFilterValue}
             />
