@@ -28,6 +28,8 @@ const Quotation = () => {
   const [orderBy, setOrderBy] = useState("");
   const [fetchingData, setFetchingData] = useState(false);
   const [quoteList, setQuoteList] = useState([]);
+  console.log("quote",quoteList);
+  
   const [allQuoteList, setAllQuoteList] = useState([]);
   const [isApproving, setIsApproving] = useState({});
   const [startDate, setStartDate] = useState(null);
@@ -116,6 +118,10 @@ const Quotation = () => {
     setQuoteList(sortedQuotes);
   };
 
+  const handleEditQuote = () => {
+    router.push(`/quotation?id=${quoteList.id}`);
+  };
+
   const listServiceTable = () => {
     return (
       <TableContainer component={Paper}>
@@ -190,6 +196,7 @@ const Quotation = () => {
                 </TableSortLabel>
               </TableCell>
               <TableCell className="contractHeader">Actions</TableCell>
+              <TableCell className="contractHeader">Edit</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -261,6 +268,14 @@ const Quotation = () => {
                         </button>
                       )}
                     </div>
+                  </TableCell>
+                  <TableCell className="contractTable">
+                    <button
+                      onClick={() => handleEditQuote(row.id)}
+                      className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    >
+                      Edit
+                    </button>
                   </TableCell>
                 </TableRow>
               ))

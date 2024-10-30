@@ -6,7 +6,9 @@ import ContractSummary from "./contract";
 import { Button } from "@mui/material";
 
 const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
-  console.log("line 10000", formData.quote_services);
+
+  console.log("line 10000",formData.quote_services);
+  
 
   const api = new APICall();
   const [allServices, setAllServices] = useState([]);
@@ -55,14 +57,14 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
   };
 
   useEffect(() => {
-    if (formData.quote_services) {
+    if(formData.quote_services){
       setFormData((prev) => {
-        const prevServices = prev?.services || [];
-        const newServices = [...formData.quote_services, ...prevServices];
+        const prevServices = prev?.services || []
+        const newServices = [...formData.quote_services,...prevServices];
         return { ...prev, services: newServices };
-      });
+      })
     }
-  }, [formData.quote_services]);
+  }, [formData.quote_services]);  
 
   const addJobList = () => {
     // Create a default job using the selected services
@@ -196,7 +198,7 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
               Remove
             </Button>
           </div>
-        ))}
+        ))} 
       </div>
 
       <div className="flex">
