@@ -70,3 +70,5 @@ export const saleOrder = apiPrefix + "/sale_order";
 
 export const supplierPayment = apiPrefix + "/add_payment";
 
+export const payments = apiPrefix + "/received_cash_record";
+

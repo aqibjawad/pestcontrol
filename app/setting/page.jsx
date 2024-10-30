@@ -355,7 +355,15 @@ const Page = () => {
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6} md={4} lg={3}>
                 <div className={styles.addProd}>
-                  <Link href="/accountant/viewAccountant">View</Link>
+                  <Link href="/accountant/viewTransactions">
+                    View Transacions{" "}
+                  </Link>
+                </div>
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={4} lg={3}>
+                <div className={styles.addProd}>
+                  <Link href="/accountant/payments">Pending Payments</Link>
                 </div>
               </Grid>
             </Grid>
