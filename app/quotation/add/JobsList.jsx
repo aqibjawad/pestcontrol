@@ -14,6 +14,7 @@ const JobsList = ({
   updateJobList,
   duration_in_months,
 }) => {
+  
   const [rate, setRate] = useState(jobData.rate || 0);
   const [open, setOpen] = useState(false);
   const [selectedJobType, setSelectedJobType] = useState(jobData.jobType || "");
@@ -50,6 +51,7 @@ const JobsList = ({
       })
       .sort();
   };
+
   useEffect(() => {
     let allDates = selectedDates ? [...selectedDates] : [];
     let finalDates = allDates;
@@ -239,7 +241,7 @@ const JobsList = ({
 
   useEffect(() => {
     // This will run after jobData has been updated
-    console.log("Updated jobData:", jobData);
+    // console.log("Updated jobData:", jobData);
   }, [jobData]);
 
   // const serviceOptions = allServices.map((service) => ({
@@ -321,7 +323,7 @@ const JobsList = ({
           />
         </Grid>
 
-        {(selectedJobType === "monthly" || selectedJobType === "daily") && (
+        {selectedJobType === "monthly" && (
           <>
             <Grid item lg={3} xs={4}>
               <InputWithTitle
