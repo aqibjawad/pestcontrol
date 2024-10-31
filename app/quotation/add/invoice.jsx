@@ -1,16 +1,22 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "../../../styles/loginStyles.module.css";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import { FormGroup, FormControlLabel, Radio, RadioGroup } from "@mui/material";
 
 const Invoice = ({ setFormData, formData }) => {
   const [billingFrequency, setBillingFrequency] = useState(0);
-  const [selectedBillingMethod, setSelectedBillingMethod] = useState(""); // Track selected billing method
+  const [selectedBillingMethod, setSelectedBillingMethod] = useState(
+    formData.billing_method || ""
+  );
+
+  useEffect(() => {
+    // Update selectedBillingMethod whenever formData.billing_method changes
+    setSelectedBillingMethod(formData.billing_method || "");
+  }, [formData.billing_method]);
 
   const handleBillingFrequencyChange = (value) => {
-    // Clear radio selection if the user types in the input field
     setBillingFrequency(value);
     setSelectedBillingMethod(""); // Clear selected radio option
 
@@ -24,7 +30,6 @@ const Invoice = ({ setFormData, formData }) => {
   const handleRadioChange = (event) => {
     const { value } = event.target;
 
-    // Clear input field when a radio button is selected
     setBillingFrequency("");
     setSelectedBillingMethod(value);
 
@@ -55,7 +60,7 @@ const Invoice = ({ setFormData, formData }) => {
           <div className="w-1/2 ms-20">
             <div className="text-lg font-semibold mb-4">Billing Methods</div>
             <RadioGroup
-              row // Add this prop to display radio buttons in a row
+              row
               value={selectedBillingMethod}
               onChange={handleRadioChange}
             >

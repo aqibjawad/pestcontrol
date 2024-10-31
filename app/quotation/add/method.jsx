@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { treatmentMethod } from "../../../networkUtil/Constants";
 import APICall from "../../../networkUtil/APICall";
 
-const Method = ({ setFormData }) => {
+const Method = ({ setFormData, formData }) => {
   const api = new APICall();
   const [service, setServices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -38,7 +38,7 @@ const Method = ({ setFormData }) => {
     const servicesWithCheck = service.map((item) => ({
       id: item.id,
       name: item.name,
-      isChecked: false,
+      isChecked: formData.tm_ids?.includes(item.id) || false, // Initialize based on formData
     }));
     setMyServices(servicesWithCheck);
   };

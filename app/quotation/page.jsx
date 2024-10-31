@@ -5,14 +5,12 @@ import BasicQuote from "./add/basicQuote";
 import ServiceAgreement from "./add/serviceagreement";
 import Method from "./add/method";
 import Invoice from "./add/invoice";
-// import Scope from "./add/scope";
 import TermConditions from "./add/terms";
 import APICall from "@/networkUtil/APICall";
 import { quotation } from "../../networkUtil/Constants";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import GreenButton from "@/components/generic/GreenButton";
-
 import CircularProgress from "@mui/material/CircularProgress";
 
 const getIdFromUrl = (url) => {
@@ -34,9 +32,10 @@ const Page = () => {
   const router = useRouter();
   const [id, setId] = useState(null);
 
+  // Initial form state
   const [formData, setFormData] = useState({
     manage_type: id ? "update" : "create",
-    quote_id: id || null, // Initialize quote_id with id if it exists
+    quote_id: id || null,
     quote_title: "",
     user_id: "",
     client_address_id: null,
@@ -49,20 +48,45 @@ const Page = () => {
     is_food_watch_account: false,
     billing_method: "",
     services: [],
+    processedQuoteServices: false, // Flag to track if quote services have been processed
   });
 
   const [loading, setLoading] = useState(false);
   const [fetchingData, setFetchingData] = useState(false);
 
+  // Safe state update function
+  const safeSetFormData = (updates) => {
+    setFormData((prev) => {
+      // If updates is a function, call it with prev
+      if (typeof updates === "function") {
+        const newState = updates(prev);
+        console.log("New Form State:", newState); // Debug log
+        return newState;
+      }
+
+      // If updates is an object, merge it with prev
+      const newState = {
+        ...prev,
+        ...updates,
+        // Ensure services array is properly merged
+        services: Array.isArray(updates.services)
+          ? [...(prev.services || []), ...updates.services]
+          : prev.services,
+      };
+
+      console.log("New Form State:", newState); // Debug log
+      return newState;
+    });
+  };
+
   const handleSubmit = async () => {
     setLoading(true);
     try {
       const endpoint = `${quotation}/manage`;
-      // Ensure manage_type and quote_id are correct before submission
       const submissionData = {
         ...formData,
         manage_type: id ? "update" : "create",
-        quote_id: id || null, // Ensure quote_id is included for edit operations
+        quote_id: id || null,
       };
 
       const response = await api.postDataWithTokn(endpoint, submissionData);
@@ -92,24 +116,11 @@ const Page = () => {
     }
   };
 
-  useEffect(() => {
-    // Get the current URL
-    const currentUrl = window.location.href;
-
-    const urlId = getIdFromUrl(currentUrl);
-    setId(urlId);
-
-    if (urlId) {
-      getAllQuotes(urlId);
-    }
-  }, [id]);
-
   const getAllQuotes = async () => {
     setFetchingData(true);
     try {
       const response = await api.getDataWithToken(`${quotation}/${id}`);
-      // Ensure manage_type and quote_id are set when setting fetched data
-      setFormData({
+      safeSetFormData({
         ...response.data,
         manage_type: "update",
         quote_id: id,
@@ -121,6 +132,16 @@ const Page = () => {
     }
   };
 
+  useEffect(() => {
+    const currentUrl = window.location.href;
+    const urlId = getIdFromUrl(currentUrl);
+    setId(urlId);
+
+    if (urlId) {
+      getAllQuotes(urlId);
+    }
+  }, [id]);
+
   if (fetchingData) return <div>Loading...</div>;
 
   return (
@@ -130,16 +151,16 @@ const Page = () => {
         Us to meet your needs. We look forward to serving you with excellence.
       </div>
 
-      <BasicQuote setFormData={setFormData} formData={formData} />
+      <BasicQuote setFormData={safeSetFormData} formData={formData} />
       <ServiceAgreement
         duration_in_months={formData.duration_in_months}
-        setFormData={setFormData}
+        setFormData={safeSetFormData}
         formData={formData}
       />
-      <Method setFormData={setFormData} formData={formData} />
-      <Invoice setFormData={setFormData} formData={formData} />
-      {/* <Scope setFormData={setFormData} formData={formData} /> */}
-      <TermConditions setFormData={setFormData} formData={formData} />
+      <Method setFormData={safeSetFormData} formData={formData} />
+      <Invoice setFormData={safeSetFormData} formData={formData} />
+      <TermConditions setFormData={safeSetFormData} formData={formData} />
+
       <div className="mt-10">
         <GreenButton
           onClick={handleSubmit}

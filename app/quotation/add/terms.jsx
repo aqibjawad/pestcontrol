@@ -1,11 +1,9 @@
 "use client";
-
 import React, { useState, useEffect } from "react";
 import APICall from "@/networkUtil/APICall";
 import { termsCond } from "../../../networkUtil/Constants";
-import Dropdown2 from "../../../components/generic/DropDown2";
 
-const TermsConditions = ({ setFormData }) => {
+const TermsConditions = ({ setFormData, formData }) => {
   const api = new APICall();
   const [brands, setBrandList] = useState([]);
 
@@ -26,22 +24,31 @@ const TermsConditions = ({ setFormData }) => {
     }
   };
 
-  const handleBrandChange = (value) => {
-    if (value) {
-      setFormData((prev) => ({
-        ...prev,
-        term_and_condition_id: String(value),
-      }));
-    }
+  const handleChange = (e) => {
+    const value = e.target.value;
+    setFormData((prev) => ({
+      ...prev,
+      term_and_condition_id: value,
+    }));
   };
 
   return (
     <div className="mt-10">
-      <Dropdown2
-        title={"Select Terms and Conditions"}
-        options={brands}
-        onChange={handleBrandChange}
-      />
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        Select Terms and Conditions
+      </label>
+      <select
+        className="mt-1 block w-full px-3 py-2 text-base border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+        onChange={handleChange}
+        value={formData?.term_and_condition?.id || ""}
+      >
+        <option value="">Select an option</option>
+        {brands.map((item) => (
+          <option key={item.value} value={item.value}>
+            {item.label}
+          </option>
+        ))}
+      </select>
     </div>
   );
 };

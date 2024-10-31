@@ -8,15 +8,7 @@ import Select from "@mui/material/Select";
 
 import styles from "../../styles/generics/inputStyles.module.css";
 
-export default function Dropdown2({ title, options, onChange }) {
-  const [selectedValue, setSelectedValue] = React.useState("");
-
-  const handleChange = (event) => {
-    const value = event.target.value;
-    setSelectedValue(value);
-    onChange(value);
-  };
-
+export default function Dropdown2({ title, options, onChange, value }) {
   return (
     <Box sx={{ minWidth: 250 }}>
       <div className={styles.title}>{title}</div>
@@ -26,9 +18,9 @@ export default function Dropdown2({ title, options, onChange }) {
         <Select
           labelId="demo-simple-select-label"
           id="demo-simple-select"
-          value={selectedValue}
+          value={value || ""}
           label={title}
-          onChange={handleChange}
+          onChange={(e) => onChange(e.target.value)}
         >
           {options.map((item, index) => (
             <MenuItem key={index} value={item.value}>

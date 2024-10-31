@@ -6,10 +6,6 @@ import ContractSummary from "./contract";
 import { Button } from "@mui/material";
 
 const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
-
-  console.log("line 10000",formData.quote_services);
-  
-
   const api = new APICall();
   const [allServices, setAllServices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -18,17 +14,71 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
     setIsLoading(true);
     try {
       const response = await api.getDataWithToken(services);
+      // Initialize services with isChecked false
       const servicesWithChecked = response.data.map((service) => ({
         ...service,
         isChecked: false,
       }));
       setAllServices(servicesWithChecked);
+
+      // After setting initial services, update checkbox states based on quote_services
+      if (formData.quote_services && Array.isArray(formData.quote_services)) {
+        const updatedServices = servicesWithChecked.map((service) => ({
+          ...service,
+          isChecked: formData.quote_services.some(
+            (quoteService) => quoteService.service_id === service.id
+          ),
+        }));
+        setAllServices(updatedServices);
+      }
     } catch (error) {
       console.error("Error fetching services:", error);
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Watch for changes in formData.quote_services
+  useEffect(() => {
+    if (
+      formData.quote_services &&
+      Array.isArray(formData.quote_services) &&
+      allServices.length > 0
+    ) {
+      // Update checkbox states whenever quote_services changes
+      const updatedServices = allServices.map((service) => ({
+        ...service,
+        isChecked: formData.quote_services.some(
+          (quoteService) => quoteService.service_id === service.id
+        ),
+      }));
+      setAllServices(updatedServices);
+
+      // Transform quote_services data
+      const transformedServices = formData.quote_services.map(
+        (quoteService) => ({
+          service_id: quoteService.service_id,
+          service_name: quoteService.service.pest_name,
+          detail: [
+            {
+              job_type: quoteService.job_type,
+              rate: quoteService.rate,
+              dates: quoteService.quote_service_dates.map(
+                (date) => date.service_date
+              ),
+            },
+          ],
+          subTotal: parseFloat(quoteService.sub_total),
+          no_of_services: quoteService.no_of_services,
+        })
+      );
+
+      setFormData((prev) => ({
+        ...prev,
+        services: transformedServices,
+      }));
+    }
+  }, [formData.quote_services, allServices.length]);
 
   useEffect(() => {
     getAllServices();
@@ -44,30 +94,7 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
     );
   };
 
-  const convertDate = (dateString) => {
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) {
-      console.error("Invalid date:", dateString);
-      return dateString;
-    }
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
-
-  useEffect(() => {
-    if(formData.quote_services){
-      setFormData((prev) => {
-        const prevServices = prev?.services || []
-        const newServices = [...formData.quote_services,...prevServices];
-        return { ...prev, services: newServices };
-      })
-    }
-  }, [formData.quote_services]);  
-
   const addJobList = () => {
-    // Create a default job using the selected services
     const selectedServices = allServices.filter((service) => service.isChecked);
 
     if (selectedServices.length === 0) {
@@ -76,29 +103,23 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
     }
 
     const newJob = {
-      service_id: selectedServices[0].id, // Using the first selected service as an example
-      service_name: selectedServices[0].pest_name, // This can be updated as needed
+      service_id: selectedServices[0].id,
+      service_name: selectedServices[0].pest_name,
       detail: [
         {
           job_type: "",
           rate: "",
-          dates: [convertDate(new Date())],
+          dates: [],
+          no_of_services: 0,
         },
       ],
-      subTotal: 100,
+      subTotal: 0,
     };
 
     setFormData((prev) => ({
       ...prev,
       services: [...(prev.services || []), newJob],
     }));
-
-    // Only uncheck services that were not selected
-    setAllServices((prevServices) =>
-      prevServices.map((service) =>
-        service.isChecked ? service : { ...service, isChecked: false }
-      )
-    );
   };
 
   const removeJobList = (index) => {
@@ -106,6 +127,20 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
       const newServices = prev.services.filter((_, i) => i !== index);
       return { ...prev, services: newServices };
     });
+
+    // Update checkbox states when removing a job
+    const removedService = formData.services[index];
+    if (removedService) {
+      setAllServices((prevServices) =>
+        prevServices.map((service) => ({
+          ...service,
+          isChecked:
+            service.id === removedService.service_id
+              ? false
+              : service.isChecked,
+        }))
+      );
+    }
   };
 
   const updateJobList = (index, updatedJob) => {
@@ -119,18 +154,13 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
             job_type: updatedJob.jobType,
             rate: updatedJob.rate,
             dates: updatedJob.dates,
+            no_of_services: updatedJob.no_of_services,
           },
         ],
       };
       return { ...prev, services: newServices };
     });
   };
-
-  useEffect(() => {
-    if (!formData.services) {
-      setFormData((prev) => ({ ...prev, services: [] }));
-    }
-  }, [formData, setFormData]);
 
   const grandTotal = (formData.services || []).reduce(
     (total, job) => total + job.subTotal,
@@ -141,47 +171,33 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
     return <div>Loading...</div>;
   }
 
+  // Debug logging
+  console.log("Current allServices state:", allServices);
+  console.log("Current quote_services:", formData.quote_services);
+
   return (
-    <div
-      className="mt-10"
-      style={{ border: "1px solid #D0D5DD", padding: "20px" }}
-    >
-      <div className="mt-5" style={{ fontSize: "20px", fontWeight: "600" }}>
-        Service Agreement
-      </div>
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "1rem",
-          marginTop: "1rem",
-        }}
-      >
+    <div className="mt-10 p-5 border border-[#D0D5DD]">
+      <div className="text-xl font-semibold mt-5">Service Agreement</div>
+
+      <div className="flex flex-wrap gap-4 mt-4">
         {allServices.map((service) => (
-          <div
-            key={service.id}
-            style={{ display: "flex", alignItems: "center" }}
-          >
+          <div key={service.id} className="flex items-center">
             <input
               type="checkbox"
               checked={service.isChecked}
               onChange={() => handleCheckboxChange(service.id)}
+              className="mr-2"
             />
-            <label style={{ marginLeft: "0.5rem" }}>{service.pest_name}</label>
+            <label>{service.pest_name}</label>
           </div>
         ))}
       </div>
 
-      <div className="mt-10 mb-10">
+      <div className="mt-10 mb-10 space-y-4">
         {(formData.services || []).map((job, index) => (
           <div
             key={`${job.service_id}-${index}`}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginBottom: "10px",
-            }}
+            className="flex items-center justify-between"
           >
             <JobsList
               jobData={job}
@@ -193,21 +209,18 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
               variant="outlined"
               color="secondary"
               onClick={() => removeJobList(index)}
-              style={{ marginLeft: "10px" }}
+              className="ml-4"
             >
               Remove
             </Button>
           </div>
-        ))} 
+        ))}
       </div>
 
-      <div className="flex">
-        <div className="flex-grow"></div>
-        <div className="">
-          <Button variant="outlined" onClick={addJobList}>
-            Add
-          </Button>
-        </div>
+      <div className="flex justify-end">
+        <Button variant="outlined" onClick={addJobList}>
+          Add
+        </Button>
       </div>
 
       <ContractSummary setFormData={setFormData} grandTotal={grandTotal} />

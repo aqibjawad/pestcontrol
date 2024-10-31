@@ -18,7 +18,10 @@ const JobsList = ({
   const [rate, setRate] = useState(jobData.rate || 0);
   const [open, setOpen] = useState(false);
   const [selectedJobType, setSelectedJobType] = useState(jobData.jobType || "");
+  
   const [selectedDates, setSelectedDates] = useState(jobData.dates || []);
+  console.log("dates selected !!!!",selectedDates);
+  
   const [subTotal, setSubTotal] = useState(jobData.subTotal || 0);
   const [intervalDays, setIntervalDays] = useState(5);
   const [allGeneratedDates, setAllGeneratedDates] = useState([]);
@@ -243,11 +246,6 @@ const JobsList = ({
     // This will run after jobData has been updated
     // console.log("Updated jobData:", jobData);
   }, [jobData]);
-
-  // const serviceOptions = allServices.map((service) => ({
-  //   label: service.service_title,
-  //   value: service.id,
-  // }));
 
   const getUniqueServiceOptions = (allServices) => {
     const uniqueTitles = new Set();
