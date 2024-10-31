@@ -28,8 +28,8 @@ const Quotation = () => {
   const [orderBy, setOrderBy] = useState("");
   const [fetchingData, setFetchingData] = useState(false);
   const [quoteList, setQuoteList] = useState([]);
-  console.log("quote",quoteList);
-  
+  console.log("quote", quoteList);
+
   const [allQuoteList, setAllQuoteList] = useState([]);
   const [isApproving, setIsApproving] = useState({});
   const [startDate, setStartDate] = useState(null);
@@ -270,12 +270,13 @@ const Quotation = () => {
                     </div>
                   </TableCell>
                   <TableCell className="contractTable">
-                    <button
-                      onClick={() => handleEditQuote(row.id)}
-                      className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                    >
-                      Edit
-                    </button>
+                    {row?.is_contracted === 0 ? (
+                      <Link href={`/quotation?id=${row?.id}`}>Edit</Link>
+                    ) : (
+                      <span className="text-gray-400 cursor-not-allowed">
+                        Edit
+                      </span>
+                    )}
                   </TableCell>
                 </TableRow>
               ))

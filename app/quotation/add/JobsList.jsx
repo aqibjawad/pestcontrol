@@ -247,6 +247,11 @@ const JobsList = ({
     // console.log("Updated jobData:", jobData);
   }, [jobData]);
 
+  // const serviceOptions = allServices.map((service) => ({
+  //   label: service.service_title,
+  //   value: service.id,
+  // }));
+
   const getUniqueServiceOptions = (allServices) => {
     const uniqueTitles = new Set();
     const uniqueOptions = [];
@@ -271,7 +276,7 @@ const JobsList = ({
       <Grid container spacing={2}>
         <Grid item lg={3} xs={4}>
           <Dropdown2
-            title="Selected Products"
+            title="Select Services"
             options={serviceOptions}
             value={jobData.service_id}
             onChange={handleServiceChange}

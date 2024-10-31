@@ -1,24 +1,21 @@
+"use client";
 import React, { useEffect, useState } from "react";
 import styles from "../../../styles/loginStyles.module.css";
-import InputWithTitle from "../../..//components/generic/InputWithTitle";
+import InputWithTitle from "../../../components/generic/InputWithTitle";
+import MultilineInput from "../../../components/generic/MultilineInput";
 import { clients } from "../../../networkUtil/Constants";
 import APICall from "../../../networkUtil/APICall";
 import { Grid, Skeleton } from "@mui/material";
-import MultilineInput from "../../../components/generic/MultilineInput";
-import Dropdown2 from "@/components/generic/DropDown2";
 
 const BasicQuote = ({ setFormData, formData }) => {
   const api = new APICall();
 
   const [allBrandsList, setAllBrandsList] = useState([]);
   const [allClients, setAllClients] = useState([]);
-  const [selectedBrand, setSelectedClientId] = useState(null);
-  const [contractReference, setContractReference] = useState("");
+  const [selectedBrand, setSelectedClientId] = useState("");
   const [firmName, setFirmName] = useState("");
   const [addresses, setAddresses] = useState([]);
   const [referenceName, setReferenceName] = useState("");
-  console.log(referenceName);
-  
   const [selectedAddress, setSelectedAddress] = useState("");
   const [loadingClients, setLoadingClients] = useState(true);
 
@@ -26,17 +23,63 @@ const BasicQuote = ({ setFormData, formData }) => {
     getAllClients();
   }, []);
 
+  // Handle pre-selected client data
+  useEffect(() => {
+    if (formData?.user) {
+      const user = formData.user;
+      setSelectedClientId(user.id.toString());
+
+      if (user.client) {
+        setFirmName(user.client.firm_name || "");
+
+        // Set reference name from the nested referencable
+        if (user.client.referencable?.name) {
+          setReferenceName(user.client.referencable.name);
+        }
+      }
+
+      // Pre-select the address if client_address_id is provided
+      if (formData.client_address_id) {
+        setSelectedAddress(formData.client_address_id.toString());
+      }
+
+      // Update form data with the pre-selected user
+      setFormData((prev) => ({
+        ...prev,
+        user_id: user.id,
+      }));
+    }
+  }, [formData?.user]);
+
   const getAllClients = async () => {
     setLoadingClients(true);
     try {
       const response = await api.getDataWithToken(clients);
       setAllClients(response.data);
+
+      // Transform clients data
       const transformedClients = response.data.map((client) => ({
         value: client.id,
         label: client.name || client.client?.firm_name || "Unknown Client",
         data: client,
       }));
       setAllBrandsList(transformedClients);
+
+      // If we have a pre-selected client, set their addresses
+      if (formData?.user?.id) {
+        const selectedClient = response.data.find(
+          (client) => client.id === formData.user.id
+        );
+        if (selectedClient?.client?.addresses) {
+          const clientAddresses = selectedClient.client.addresses.map(
+            (address) => ({
+              value: address.id,
+              label: address.address,
+            })
+          );
+          setAddresses(clientAddresses);
+        }
+      }
     } catch (error) {
       console.error("Error fetching clients:", error);
     } finally {
@@ -44,8 +87,11 @@ const BasicQuote = ({ setFormData, formData }) => {
     }
   };
 
-  const handleClientChange = (value) => {
-    const selectedClient = allClients.find((client) => client.id === value);
+  const handleClientChange = (e) => {
+    const value = e.target.value;
+    const selectedClient = allClients.find(
+      (client) => client.id === Number(value)
+    );
 
     if (selectedClient) {
       setSelectedClientId(value);
@@ -54,31 +100,30 @@ const BasicQuote = ({ setFormData, formData }) => {
         user_id: selectedClient.id,
       }));
 
-      // Update firm name from client data
       if (selectedClient.client) {
         setFirmName(selectedClient.client.firm_name || "");
-      }
 
-      // Update reference name from referencable
-      if (selectedClient.client?.referencable?.name) {
-        setReferenceName(selectedClient.client.referencable.name);
-      }
+        if (selectedClient.client.referencable?.name) {
+          setReferenceName(selectedClient.client.referencable.name);
+        }
 
-      // Update addresses if available
-      if (selectedClient.client?.addresses) {
-        setAddresses(
-          selectedClient.client.addresses.map((address) => ({
-            value: address.id,
-            label: address.address,
-          }))
-        );
+        if (selectedClient.client.addresses) {
+          const clientAddresses = selectedClient.client.addresses.map(
+            (address) => ({
+              value: address.id,
+              label: address.address,
+            })
+          );
+          setAddresses(clientAddresses);
+        }
       }
     }
   };
 
-  const handleAddressChange = (value) => {
+  const handleAddressChange = (e) => {
+    const value = e.target.value;
     const selectedAddressObj = addresses.find(
-      (address) => address.value === value
+      (address) => address.value === Number(value)
     );
     setSelectedAddress(value);
     setFormData((prev) => ({
@@ -98,18 +143,23 @@ const BasicQuote = ({ setFormData, formData }) => {
           {loadingClients ? (
             <Skeleton variant="rectangular" width="100%" height={50} />
           ) : (
-            <Dropdown2
-              title={"Select Client"}
-              options={allBrandsList}
-              onChange={handleClientChange}
-              value={
-                selectedBrand ||
-                allBrandsList.find(
-                  (option) => option.value === formData?.user?.name
-                )
-              }
-              defaultValue={formData?.user?.name}
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Select Client
+              </label>
+              <select
+                className="mt-1 block w-full px-3 py-2 text-base border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                onChange={handleClientChange}
+                value={selectedBrand || ""}
+              >
+                <option value="">Select a client</option>
+                {allBrandsList.map((client) => (
+                  <option key={client.value} value={client.value}>
+                    {client.label}
+                  </option>
+                ))}
+              </select>
+            </div>
           )}
         </Grid>
 
@@ -118,6 +168,7 @@ const BasicQuote = ({ setFormData, formData }) => {
             title={"Contract Reference"}
             type={"text"}
             placeholder={"Contract Reference"}
+            value={referenceName}
             defaultValue={referenceName}
             disable
           />
@@ -135,12 +186,23 @@ const BasicQuote = ({ setFormData, formData }) => {
         </Grid>
 
         <Grid item lg={6} xs={12} md={6} mt={2}>
-          <Dropdown2
-            title={"Select address"}
-            options={addresses}
-            onChange={handleAddressChange}
-            value={selectedAddress}
-          />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Select Address
+            </label>
+            <select
+              className="mt-1 block w-full px-3 py-2 text-base border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              onChange={handleAddressChange}
+              value={selectedAddress || ""}
+            >
+              <option value="">Select an address</option>
+              {addresses.map((address) => (
+                <option key={address.value} value={address.value}>
+                  {address.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </Grid>
 
         <Grid item lg={6} xs={12} md={6} mt={2}>

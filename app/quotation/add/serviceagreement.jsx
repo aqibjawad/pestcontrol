@@ -14,14 +14,13 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
     setIsLoading(true);
     try {
       const response = await api.getDataWithToken(services);
-      // Initialize services with isChecked false
       const servicesWithChecked = response.data.map((service) => ({
         ...service,
         isChecked: false,
       }));
       setAllServices(servicesWithChecked);
 
-      // After setting initial services, update checkbox states based on quote_services
+      // Update checkbox states based on quote_services
       if (formData.quote_services && Array.isArray(formData.quote_services)) {
         const updatedServices = servicesWithChecked.map((service) => ({
           ...service,
@@ -38,14 +37,14 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
     }
   };
 
-  // Watch for changes in formData.quote_services
+  // Transform quote_services data for JobsList
   useEffect(() => {
     if (
       formData.quote_services &&
       Array.isArray(formData.quote_services) &&
       allServices.length > 0
     ) {
-      // Update checkbox states whenever quote_services changes
+      // Update checkbox states
       const updatedServices = allServices.map((service) => ({
         ...service,
         isChecked: formData.quote_services.some(
@@ -54,22 +53,28 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
       }));
       setAllServices(updatedServices);
 
-      // Transform quote_services data
+      // Transform quote_services to JobsList format
       const transformedServices = formData.quote_services.map(
         (quoteService) => ({
           service_id: quoteService.service_id,
           service_name: quoteService.service.pest_name,
+          jobType: quoteService.job_type,
+          rate: parseFloat(quoteService.rate),
+          dates: quoteService.quote_service_dates.map(
+            (date) => date.service_date
+          ),
+          no_of_services: quoteService.no_of_services,
+          subTotal: parseFloat(quoteService.sub_total),
           detail: [
             {
               job_type: quoteService.job_type,
-              rate: quoteService.rate,
+              rate: parseFloat(quoteService.rate),
               dates: quoteService.quote_service_dates.map(
                 (date) => date.service_date
               ),
+              no_of_services: quoteService.no_of_services,
             },
           ],
-          subTotal: parseFloat(quoteService.sub_total),
-          no_of_services: quoteService.no_of_services,
         })
       );
 
@@ -105,6 +110,11 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
     const newJob = {
       service_id: selectedServices[0].id,
       service_name: selectedServices[0].pest_name,
+      jobType: "",
+      rate: "",
+      dates: [],
+      no_of_services: 0,
+      subTotal: 0,
       detail: [
         {
           job_type: "",
@@ -113,7 +123,6 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
           no_of_services: 0,
         },
       ],
-      subTotal: 0,
     };
 
     setFormData((prev) => ({
@@ -170,10 +179,6 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
   if (isLoading) {
     return <div>Loading...</div>;
   }
-
-  // Debug logging
-  console.log("Current allServices state:", allServices);
-  console.log("Current quote_services:", formData.quote_services);
 
   return (
     <div className="mt-10 p-5 border border-[#D0D5DD]">

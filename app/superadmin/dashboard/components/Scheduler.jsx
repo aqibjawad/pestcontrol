@@ -97,8 +97,8 @@ const Scheduler = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {filteredJobs.length > 0 ? (
-                    filteredJobs.map((job) => (
+                  {filteredJobs?.length > 0 ? (
+                    filteredJobs?.map((job) => (
                       <TableRow key={job.id}>
                         <TableCell>{job.quote_title}</TableCell>
                         <TableCell>{job.billing_method}</TableCell>
