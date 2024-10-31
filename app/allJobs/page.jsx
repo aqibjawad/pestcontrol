@@ -65,7 +65,11 @@ const Page = () => {
       const response = await api.getDataWithToken(
         `${job}/all?${queryParams.join("&")}`
       );
-      setJobsList(response.data);
+
+      // Sort jobsList by date in descending order
+      const sortedData = response.data.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      setJobsList(sortedData);
     } catch (error) {
       console.error("Error fetching quotes:", error);
     } finally {
