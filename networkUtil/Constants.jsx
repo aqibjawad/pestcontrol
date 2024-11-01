@@ -9,7 +9,7 @@ export const addSupplier = apiPrefix + "/add-supplier";
 export const addServicesURL = apiPrefix + "/add_agreement";
 
 // admin Apis here
-export const admin = apiPrefix + "/admin/ledger/get";
+export const dashboard = apiPrefix + "/dashboard";
 
 // Brand Apis here
 export const brand = apiPrefix + "/brand";

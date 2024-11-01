@@ -81,7 +81,7 @@ const ServiceReport = () => {
                 </TableCell>
               </TableRow>
             ) : (
-              quoteList.map((row, index) => (
+              quoteList?.map((row, index) => (
                 <TableRow key={index}>
                   <TableCell>{index+1}</TableCell>
                   <TableCell>{row.type_of_visit}</TableCell>

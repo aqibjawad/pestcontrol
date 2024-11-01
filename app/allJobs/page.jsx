@@ -14,7 +14,7 @@ const Page = () => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [filteredList, setFilteredList] = useState([]);
-  const [filterType, setFilterType] = useState('all'); // 'all', 'assigned', 'not-assigned'
+  const [filterType, setFilterType] = useState('all');
 
   const handleDateChange = (start, end) => {
     setStartDate(start);
@@ -44,7 +44,6 @@ const Page = () => {
   }, [startDate, endDate]);
 
   useEffect(() => {
-    // Apply initial filtering when jobsList changes
     handleFilter(filterType);
   }, [jobsList]);
 
