@@ -133,17 +133,18 @@ const UpcomingJobs = ({
           marginLeft: "12px",
         }}
       />
-      <GreenButton
-        title="Not Assigned"
-        onClick={() => handleFilter("not-assigned")}
-        style={{
-          backgroundColor: isActiveFilter("not-assigned")
-            ? "#2c852f"
-            : "#38A73B",
-          color: "white",
-          marginLeft: "12px",
-        }}
-      />
+      <div className="ml-5">
+        <GreenButton
+          title="Not Assigned"
+          onClick={() => handleFilter("not-assigned")}
+          style={{
+            backgroundColor: isActiveFilter("not-assigned")
+              ? "#2c852f"
+              : "#38A73B",
+            color: "white",
+          }}
+        />
+      </div>
     </>
   );
 
@@ -153,7 +154,7 @@ const UpcomingJobs = ({
         {!isDashboard && <div className="pageTitle">Upcoming Jobs</div>}
         <div className="flex items-center">
           <SearchInput onSearch={handleSearch} />
-          <div className="flex items-center border border-green-500 rounded-lg h-10 w-36 ml-3 px-2">
+          <div className="flex items-center border border-green-500 rounded-lg h-10 w-36 ml-3 px-2 mr-3">
             <img
               src="/Filters lines.svg"
               alt="Filters"

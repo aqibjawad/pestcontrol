@@ -22,6 +22,7 @@ const Operations = () => {
   const [cashList, setCashList] = useState([]);
   const [posList, setPosList] = useState([]);
   const [expenseList, setExpenseList] = useState([]);
+  const [bankList, setBankList] = useState([]);
 
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -37,6 +38,7 @@ const Operations = () => {
     getCash();
     getPos();
     getExpense();
+    getBank();
   }, [startDate, endDate]);
 
   const getAllJobs = async () => {
@@ -161,6 +163,32 @@ const Operations = () => {
         `${dashboard}/expense_collection?${queryParams.join("&")}`
       );
       setExpenseList(response.data);
+    } catch (error) {
+      console.error(error.message);
+    } finally {
+      setFetchingData(false);
+    }
+  };
+
+  const getBank = async () => {
+    setFetchingData(true);
+
+    const queryParams = [];
+
+    if (startDate && endDate) {
+      queryParams.push(`start_date=${startDate}`);
+      queryParams.push(`end_date=${endDate}`);
+    } else {
+      const currentDate = format(new Date(), "yyyy-MM-dd");
+      queryParams.push(`start_date=${currentDate}`);
+      queryParams.push(`end_date=${currentDate}`);
+    }
+
+    try {
+      const response = await api.getDataWithToken(
+        `${dashboard}/bank_collection?${queryParams.join("&")}`
+      );
+      setBankList(response.data);
     } catch (error) {
       console.error(error.message);
     } finally {
@@ -330,11 +358,24 @@ const Operations = () => {
         </div>
         <div className="flex">
           <div className="flex-grow mt-2">
-            <div className={styles.itemTitle}>Count</div>
+            <div className={styles.itemTitle}>total Transfers</div>
             {fetchingData ? (
               <Skeleton variant="text" width={120} height={40} />
             ) : (
-              <div className={styles.counter}>15</div>
+              <div className={styles.counter}>
+                {bankList.total_cheque_transfer}
+              </div>
+            )}
+          </div>
+
+          <div className="mt-2">
+            <div className={styles.itemTitle}>total count</div>
+            {fetchingData ? (
+              <Skeleton variant="text" width={120} height={40} />
+            ) : (
+              <div className={styles.counter}>
+                {bankList.total_cheque_count}
+              </div>
             )}
           </div>
         </div>

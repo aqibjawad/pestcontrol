@@ -15,9 +15,9 @@ import {
   Box,
   Typography,
   Button,
+  TableSortLabel,
 } from "@mui/material";
 import "jspdf-autotable";
-
 import { getAllSuppliers } from "../../../networkUtil/Constants";
 import APICall from "../../../networkUtil/APICall";
 import { format } from "date-fns";
@@ -30,12 +30,10 @@ const getParamFromUrl = (url, param) => {
 
 const Page = () => {
   const api = new APICall();
-
   const [id, setId] = useState(null);
   const [supplierName, setSupplierName] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [number, setNumber] = useState("");
-
   const [tableData, setTableData] = useState([]);
   const [rowData, setRowData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -45,11 +43,12 @@ const Page = () => {
   const router = useRouter();
   const tableRef = useRef(null);
 
-  useEffect(() => {
-    // Get the current URL
-    const currentUrl = window.location.href;
+  // Add sorting states
+  const [orderBy, setOrderBy] = useState("updated_at");
+  const [order, setOrder] = useState("asc");
 
-    // Extract parameters from URL
+  useEffect(() => {
+    const currentUrl = window.location.href;
     const urlId = getParamFromUrl(currentUrl, "id");
     const urlSupplierName = getParamFromUrl(currentUrl, "supplier_name");
     const urlCompanyName = getParamFromUrl(currentUrl, "company_name");
@@ -71,15 +70,46 @@ const Page = () => {
       const response = await api.getDataWithToken(
         `${getAllSuppliers}/ledger/get/${supplierId}`
       );
-
       const data = response.data;
-
       setRowData(data);
     } catch (error) {
       setError(error.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Sorting function
+  const handleSort = (property) => {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
+  };
+
+  // Sort function for different data types
+  const sortData = (data) => {
+    return [...data].sort((a, b) => {
+      let comparison = 0;
+
+      switch (orderBy) {
+        case "updated_at":
+          comparison = new Date(a.updated_at) - new Date(b.updated_at);
+          break;
+        case "description":
+          comparison = a.description.localeCompare(b.description);
+          break;
+        case "cr_amt":
+        case "dr_amt":
+        case "cash_balance":
+          comparison =
+            parseFloat(a[orderBy] || 0) - parseFloat(b[orderBy] || 0);
+          break;
+        default:
+          comparison = 0;
+      }
+
+      return order === "asc" ? comparison : -comparison;
+    });
   };
 
   const handleViewDetails = (row) => {
@@ -100,10 +130,7 @@ const Page = () => {
     router.push(`/account/supplier_ledger/addSupplierBanks?id=${id}`);
   };
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString();
-  };
+  const sortedData = loading ? [] : sortData(rowData);
 
   return (
     <div>
@@ -139,11 +166,52 @@ const Page = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Date</TableCell>
-              <TableCell>Description</TableCell>
-              <TableCell>Credit</TableCell>
-              <TableCell>Debit</TableCell>
-              <TableCell>Balance</TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderBy === "updated_at"}
+                  direction={orderBy === "updated_at" ? order : "asc"}
+                  onClick={() => handleSort("updated_at")}
+                >
+                  Date
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderBy === "description"}
+                  direction={orderBy === "description" ? order : "asc"}
+                  onClick={() => handleSort("description")}
+                >
+                  Description
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>Invoice</TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderBy === "cr_amt"}
+                  direction={orderBy === "cr_amt" ? order : "asc"}
+                  onClick={() => handleSort("cr_amt")}
+                >
+                  Credit
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderBy === "dr_amt"}
+                  direction={orderBy === "dr_amt" ? order : "asc"}
+                  onClick={() => handleSort("dr_amt")}
+                >
+                  Debit
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderBy === "cash_balance"}
+                  direction={orderBy === "cash_balance" ? order : "asc"}
+                  onClick={() => handleSort("cash_balance")}
+                >
+                  Balance
+                </TableSortLabel>
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -167,12 +235,13 @@ const Page = () => {
                     </TableCell>
                   </TableRow>
                 ))
-              : rowData.map((row, index) => (
+              : sortedData.map((row, index) => (
                   <TableRow key={index}>
                     <TableCell>
                       {format(new Date(row.updated_at), "yyyy-MM-dd")}
                     </TableCell>
                     <TableCell>{row.description}</TableCell>
+                    <TableCell>-</TableCell>
                     <TableCell>{row.cr_amt}</TableCell>
                     <TableCell>{row.dr_amt}</TableCell>
                     <TableCell>{row.cash_balance}</TableCell>
