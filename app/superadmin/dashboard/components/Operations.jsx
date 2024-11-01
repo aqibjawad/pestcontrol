@@ -10,7 +10,7 @@ import DateFilters from "../../../../components/generic/DateFilters";
 
 import { format } from "date-fns";
 
-import Skeleton from '@mui/material/Skeleton';
+import Skeleton from "@mui/material/Skeleton";
 
 const Operations = () => {
   const api = new APICall();
@@ -168,6 +168,7 @@ const Operations = () => {
     }
   };
 
+  // All Components
   const totalExpenses = () => {
     return (
       <div className={styles.itemContainer}>
@@ -194,7 +195,11 @@ const Operations = () => {
         <div className="flex">
           <div className="flex-grow mt-2">
             <div className={styles.itemTitle}>Total expense</div>
-            <div className={styles.counter}> {expenseList.total_expense} </div>
+            {fetchingData ? (
+              <Skeleton variant="text" width={120} height={40} />
+            ) : (
+              <div className={styles.counter}>{expenseList.total_expense}</div>
+            )}
           </div>
         </div>
       </div>
@@ -230,12 +235,19 @@ const Operations = () => {
         <div className="flex">
           <div className="flex-grow mt-2">
             <div className={styles.itemTitle}>Total Collection</div>
-            <div className={styles.counter}> {cashList.total_cash} </div>
+            {fetchingData ? (
+              <Skeleton variant="text" width={120} height={40} />
+            ) : (
+              <div className={styles.counter}>{cashList.total_cash}</div>
+            )}
           </div>
-
-          <div className=" mt-2">
+          <div className="mt-2">
             <div className={styles.itemTitle}>Total Transactions</div>
-            <div className={styles.counter}> {cashList.no_of_transection} </div>
+            {fetchingData ? (
+              <Skeleton variant="text" width={120} height={40} />
+            ) : (
+              <div className={styles.counter}>{cashList.no_of_transection}</div>
+            )}
           </div>
         </div>
       </div>
@@ -271,11 +283,19 @@ const Operations = () => {
         <div className="flex">
           <div className="flex-grow mt-2">
             <div className={styles.itemTitle}>Total Amount</div>
-            <div className={styles.counter}> {posList.total_pos} </div>
+            {fetchingData ? (
+              <Skeleton variant="text" width={120} height={40} />
+            ) : (
+              <div className={styles.counter}>{posList.total_pos}</div>
+            )}
           </div>
           <div className="mt-2">
             <div className={styles.itemTitle}>Total Transactions</div>
-            <div className={styles.counter}> {posList.no_of_transection} </div>
+            {fetchingData ? (
+              <Skeleton variant="text" width={120} height={40} />
+            ) : (
+              <div className={styles.counter}>{posList.no_of_transection}</div>
+            )}
           </div>
         </div>
       </div>
@@ -311,25 +331,12 @@ const Operations = () => {
         <div className="flex">
           <div className="flex-grow mt-2">
             <div className={styles.itemTitle}>Count</div>
-            <div className={styles.counter}>15</div>
+            {fetchingData ? (
+              <Skeleton variant="text" width={120} height={40} />
+            ) : (
+              <div className={styles.counter}>15</div>
+            )}
           </div>
-        </div>
-      </div>
-    );
-  };
-
-  const teamAndVehicales = () => {
-    return (
-      <div className="flex gap-4 mt-5">
-        <div
-          className={`flex-grow ${styles.itemContainer} ${styles.teamMembers}`}
-        >
-          <div className={styles.itemTitle}>{"Team Member"}</div>
-          <div className={styles.itemCount}>{"423"}</div>
-        </div>
-        <div className={`flex-grow ${styles.itemContainer} `}>
-          <div className={styles.itemTitle}>{"Number of Vehicle"}</div>
-          <div className={styles.itemCount}>{"423"}</div>
         </div>
       </div>
     );
@@ -341,7 +348,11 @@ const Operations = () => {
         <div className={` flex flex-grow ${styles.itemContainer} `}>
           <div className="flex-grow">
             <div className={styles.itemTitle}>{"Number of Clients"}</div>
-            <div className={styles.itemCount}>{clientsList.length}</div>
+            {fetchingData ? (
+              <Skeleton variant="text" width={120} height={40} />
+            ) : (
+              <div className={styles.itemCount}>{clientsList.length}</div>
+            )}
           </div>
           <div>
             <div
@@ -362,7 +373,6 @@ const Operations = () => {
               />
               <DateFilters onDateChange={handleDateChange} />
             </div>
-
             <div className={styles.addClient}> + Add New Client</div>
           </div>
         </div>
@@ -376,7 +386,11 @@ const Operations = () => {
         <div className={` flex flex-grow ${styles.itemContainer} `}>
           <div className="flex-grow">
             <div className={styles.itemTitle}>{"Number of Jobs"}</div>
-            <div className={styles.itemCount}> {jobsList.length} </div>
+            {fetchingData ? (
+              <Skeleton variant="text" width={120} height={40} />
+            ) : (
+              <div className={styles.itemCount}>{jobsList.length}</div>
+            )}
           </div>
           <div>
             <div
@@ -397,7 +411,6 @@ const Operations = () => {
               />
               <DateFilters onDateChange={handleDateChange} />
             </div>
-
             <div className={styles.addClient}> View All Jobs</div>
           </div>
         </div>
