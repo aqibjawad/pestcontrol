@@ -7,14 +7,13 @@ import Link from "next/link";
 import APICall from "@/networkUtil/APICall";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-import { Skeleton } from "@mui/material"; // Import Skeleton
-
+import { Skeleton } from "@mui/material";
 import DateFilters from "../../../components/generic/DateFilters";
 import { format } from "date-fns";
+import InputWithTitle from "@/components/generic/InputWithTitle";
 
-// Generate PDF function
+// Generate PDF function remains the same
 const generatePDF = async () => {
-
   const input = document.getElementById("supplierTable");
   if (!input) return;
 
@@ -22,8 +21,8 @@ const generatePDF = async () => {
   const imgData = canvas.toDataURL("image/png");
   const pdf = new jsPDF();
 
-  const imgWidth = 210; // A4 width in mm
-  const pageHeight = 295; // A4 height in mm
+  const imgWidth = 210;
+  const pageHeight = 295;
   const imgHeight = (canvas.height * imgWidth) / canvas.width;
   let heightLeft = imgHeight;
 
@@ -58,6 +57,9 @@ const listTable = (data) => {
               Email
             </th>
             <th className="py-2 px-4 border-b border-gray-200 text-left">
+              tag
+            </th>
+            <th className="py-2 px-4 border-b border-gray-200 text-left">
               TRN
             </th>
             <th className="py-2 px-4 border-b border-gray-200 text-left">
@@ -75,6 +77,7 @@ const listTable = (data) => {
               <td className="py-2 px-4">{row.supplier_name}</td>
               <td className="py-2 px-4">{row.company_name}</td>
               <td className="py-2 px-4">{row.email}</td>
+              <td className="py-2 px-4">{row.tag}</td>
               <td className="py-2 px-4">{row.trn_no}</td>
               <td className="py-2 px-4">{row.zip}</td>
               <td className="py-2 px-4">
@@ -101,30 +104,25 @@ const listTable = (data) => {
 };
 
 const ViewSuppliers = () => {
-  
   const api = new APICall();
 
   const [fetchingData, setFetchingData] = useState(false);
-  const [supplierList, setSupplierList] = useState([]);
-
+  const [originalSupplierList, setOriginalSupplierList] = useState([]); // Store original data
+  const [filteredSupplierList, setFilteredSupplierList] = useState([]); // Store filtered data
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
+  const [filterValue, setFilterValue] = useState("");
 
   const handleDateChange = (start, end) => {
     setStartDate(start);
     setEndDate(end);
   };
 
-
-  useEffect(() => {
-    getAllSuppliere();
-  }, [startDate, endDate]);
-
+  // Fetch suppliers from API
   const getAllSuppliere = async () => {
     setFetchingData(true);
 
     const queryParams = [];
-
     if (startDate && endDate) {
       queryParams.push(`start_date=${startDate}`);
       queryParams.push(`end_date=${endDate}`);
@@ -134,14 +132,44 @@ const ViewSuppliers = () => {
       queryParams.push(`end_date=${currentDate}`);
     }
 
-
     try {
-      const response = await api.getDataWithToken(`${getAllSuppliers}?${queryParams.join("&")}`);
-      setSupplierList(response.data);
+      const response = await api.getDataWithToken(
+        `${getAllSuppliers}?${queryParams.join("&")}`
+      );
+      setOriginalSupplierList(response.data);
+      setFilteredSupplierList(response.data); // Initialize filtered list with all data
     } catch (error) {
       console.error("Error fetching suppliers:", error);
     } finally {
       setFetchingData(false);
+    }
+  };
+
+  // Fetch data when dates change
+  useEffect(() => {
+    getAllSuppliere();
+  }, [startDate, endDate]);
+
+  // Handle filtering
+  const handleFilterChange = (value) => {
+    setFilterValue(value);
+
+    if (value.trim() === "") {
+      // If filter is cleared, restore original list
+      setFilteredSupplierList(originalSupplierList);
+    } else {
+      // Apply filter
+      const filtered = originalSupplierList.filter(
+        (item) =>
+          (item?.supplier_name || "")
+            .toLowerCase()
+            .includes(value.toLowerCase()) ||
+          (item?.company_name || "")
+            .toLowerCase()
+            .includes(value.toLowerCase()) ||
+          (item?.tag || "").toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredSupplierList(filtered);
     }
   };
 
@@ -163,25 +191,13 @@ const ViewSuppliers = () => {
             className="flex"
             style={{ display: "flex", alignItems: "center" }}
           >
-            <div
-              onClick={generatePDF}
-              style={{
-                marginTop: "2rem",
-                backgroundColor: "#32A92E",
-                color: "white",
-                fontWeight: "600",
-                fontSize: "16px",
-                height: "44px",
-                width: "180px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                marginLeft: "1rem",
-                borderRadius: "10px",
-                cursor: "pointer",
-              }}
-            >
-              Download all
+            <div>
+              <InputWithTitle
+                placeholder="Filter By Name, Tag"
+                title={"Filter by Tag, Name"}
+                onChange={handleFilterChange}
+                value={filterValue}
+              />
             </div>
             <div
               style={{
@@ -192,7 +208,7 @@ const ViewSuppliers = () => {
                 width: "150px",
                 alignItems: "center",
                 display: "flex",
-                marginLeft:"2rem"
+                marginLeft: "2rem",
               }}
             >
               <img
@@ -211,7 +227,6 @@ const ViewSuppliers = () => {
         <div className="col-span-12">
           {fetchingData ? (
             <div>
-              {/* Display Skeletons for loading state */}
               <Skeleton variant="rectangular" width="100%" height={50} />
               <Skeleton variant="rectangular" width="100%" height={50} />
               <Skeleton variant="rectangular" width="100%" height={50} />
@@ -219,7 +234,7 @@ const ViewSuppliers = () => {
               <Skeleton variant="rectangular" width="100%" height={50} />
             </div>
           ) : (
-            listTable(supplierList)
+            listTable(filteredSupplierList)
           )}
         </div>
       </div>
