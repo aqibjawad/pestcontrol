@@ -5,6 +5,8 @@ import JobsList from "./JobsList";
 import ContractSummary from "./contract";
 import { Button } from "@mui/material";
 
+import Scope from "./scope";
+
 const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
   const api = new APICall();
   const [allServices, setAllServices] = useState([]);
@@ -180,6 +182,8 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
     return <div>Loading...</div>;
   }
 
+  const selectedServices = allServices.filter((service) => service.isChecked)
+
   return (
     <div className="mt-10 p-5 border border-[#D0D5DD]">
       <div className="text-xl font-semibold mt-5">Service Agreement</div>
@@ -229,6 +233,8 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
       </div>
 
       <ContractSummary setFormData={setFormData} grandTotal={grandTotal} />
+
+      <Scope selectedServices={selectedServices} />
     </div>
   );
 };
