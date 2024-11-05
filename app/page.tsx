@@ -27,6 +27,13 @@ export default function Home() {
   const [showErrorAlert, setShowAlert] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
+  // Add keydown event handler
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      tryLogin();
+    }
+  };
+
   const imgSection = () => {
     return (
       <div>
@@ -58,6 +65,7 @@ export default function Home() {
                 placeholder="Please enter email"
                 value={userEmail}
                 onChange={(event) => setUserEmail(event.target.value)}
+                onKeyDown={handleKeyDown}
               />
             </div>
 
@@ -69,6 +77,7 @@ export default function Home() {
                 placeholder="Please enter password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
+                onKeyDown={handleKeyDown}
               />
             </div>
             <div className={styles.rememberContainer}>
@@ -154,6 +163,7 @@ export default function Home() {
       setSendingData(false);
     }
   };
+
   function isValidEmail(email: string) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);

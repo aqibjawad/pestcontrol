@@ -197,6 +197,11 @@ const Page = () => {
     setTotal(calculateTotal(amount, value));
   };
 
+  
+  const handleDateChange = (name, value) => {
+    setExpDate(value);
+  };
+
   const expenseForm = () => {
     return (
       <div>
@@ -211,7 +216,7 @@ const Page = () => {
             title={"Expense Date"}
             type={"date"}
             placeholder={"Please enter expense Date"}
-            onChange={setExpDate}
+            onChange={handleDateChange}
             value={expense_date}
           />
         </div>

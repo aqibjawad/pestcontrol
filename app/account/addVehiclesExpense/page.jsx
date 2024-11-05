@@ -185,6 +185,11 @@ const Page = () => {
     label: vehcilees.vehicle_number,
   }));
 
+  const handleDateChange = (name, value) => {
+    setExpDate(value);
+  };
+
+
   return (
     <div>
       <div className={styles.stockHead}>vehicles</div>
@@ -215,7 +220,7 @@ const Page = () => {
         <Grid item lg={4} xs={12} sm={6} md={6}>
           <InputWithTitle3
             value={expense_date}
-            onChange={setExpDate}
+            onChange={handleDateChange}
             title={"date"}
             type={"date"}
           />

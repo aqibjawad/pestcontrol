@@ -59,28 +59,30 @@ const Transactions = () => {
                 </TableCell>
               </TableRow>
             ) : (
-              quoteList.map((row, index) => (
-                <TableRow key={index}>
-                  <TableCell>{index + 1}</TableCell>
-                  <TableCell>
-                    {new Date(row.created_at).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </TableCell>
-                  <TableCell>{row?.name}</TableCell>
-                  <TableCell>{row?.client?.referencable?.name}</TableCell>
-                  <TableCell>{row?.received_amt}</TableCell>
-                  <TableCell>
-                    <Link href={`/customerLedger?id=${row.id}`}>
-                      <span className="text-blue-600 hover:text-blue-800">
-                        View Details
-                      </span>
-                    </Link>
-                  </TableCell>
-                </TableRow>
-              ))
+              quoteList
+                .filter((row) => row.received_amt > 0) // Filter rows with amount > 0
+                .map((row, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>
+                      {new Date(row.created_at).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </TableCell>
+                    <TableCell>{row?.name}</TableCell>
+                    <TableCell>{row?.client?.referencable?.name}</TableCell>
+                    <TableCell>{row?.received_amt}</TableCell>
+                    <TableCell>
+                      <Link href={`/customerLedger?id=${row.id}`}>
+                        <span className="text-blue-600 hover:text-blue-800">
+                          View Details
+                        </span>
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                ))
             )}
           </TableBody>
         </Table>
