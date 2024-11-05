@@ -7,12 +7,14 @@ import { Delete, Edit, Check, Close } from "@mui/icons-material";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import InputWithTitle3 from "@/components/generic/InputWithTitle3";
 import GreenButton from "@/components/generic/GreenButton";
+import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+
 import {
   Table,
   TableBody,
   TableCell,
   TableContainer,
-  TableHead, 
+  TableHead,
   TableRow,
   Paper,
 } from "@mui/material";
@@ -21,13 +23,14 @@ const Page = () => {
   const {
     fetchingData,
     vehiclesList,
-
     vehicle_number,
-    modal_number, 
+    modal_number,
     condition,
     expiry_date,
     oil_change_limit,
-
+    employeesList,
+    selectedEmployee,
+    setSelectedEmployee,
     setVehicleNumber,
     setModalNumber,
     setCondition,
@@ -41,6 +44,8 @@ const Page = () => {
     startEditing,
     cancelEditing,
   } = useVehicles();
+
+  console.log("Current employeesList:", employeesList);
 
   const handleEditClick = (id, number) => {
     startEditing(id, number);
@@ -121,6 +126,10 @@ const Page = () => {
     </TableContainer>
   );
 
+  const handleDateChange = (name, value) => {
+    setExpiryDate(value);
+  };
+
   return (
     <div>
       <div className="pageTitle">Vehicles</div>
@@ -151,12 +160,36 @@ const Page = () => {
             </div>
 
             <div className="mt-5">
-              <InputWithTitle
-                title={"Assign To"}
-                placeholder={"Assign To"}
-                value={vehicle_number}
-                onChange={(value) => setVehicleNumber(value)}
-              />
+              <label className="text-black text-sm font-medium mb-1 block">
+                Assign To
+              </label>
+              <select
+                value={selectedEmployee}
+                onChange={(e) => setSelectedEmployee(e.target.value)}
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500"
+                style={{
+                  border: "1px solid rgb(229, 231, 235)",
+                  height: "45px",
+                  backgroundColor: "white",
+                }}
+              >
+                <option value="">Select Employee</option>
+                {Array.isArray(employeesList) && employeesList.length > 0 ? (
+                  employeesList.map((emp) => (
+                    <option key={emp.id} value={emp.id}>
+                      {emp.name} - {emp.role.name}
+                    </option>
+                  ))
+                ) : (
+                  <option value="" disabled>
+                    No employees available
+                  </option>
+                )}
+              </select>
+              {/* Add this temporarily to debug */}
+              <div style={{ display: "none" }}>
+                Debug: {employeesList?.length || 0} employees loaded
+              </div>
             </div>
 
             <div className="mt-5">
@@ -170,11 +203,12 @@ const Page = () => {
 
             <div className="mt-5">
               <InputWithTitle3
-                title={"Mulkia Expiry Date"}
-                placeholder={"Mulkia Expiry Date"}
+                title="Mulkia Expiry Date"
+                placeholder="Mulkia Expiry Date"
                 value={expiry_date}
-                type={"date"}
-                onChange={(value) => setExpiryDate(value)}
+                type="date"
+                onChange={handleDateChange}
+                name="expiry_date"
               />
             </div>
 

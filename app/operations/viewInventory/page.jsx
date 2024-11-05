@@ -82,7 +82,7 @@ const Page = () => {
                 Remaining
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
-                View Attachements
+                View Attachments
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Actions
@@ -96,6 +96,9 @@ const Page = () => {
             {suppliersList?.map((row, index) => {
               const stock = row.stocks[0] || {}; // Get the first stock object
               const attachments = row.attachments || [];
+              const remainingQty =
+                (stock.remaining_qty || 0) * (stock.per_item_qty || 1);
+
               return (
                 <tr className="border-b border-gray-200" key={index}>
                   <td className="py-5 px-4">
@@ -106,25 +109,11 @@ const Page = () => {
                     />
                   </td>
                   <td className="py-5 px-4">{row.product_name}</td>
+                  <td className="py-2 px-4">{row.product_type}</td>
+                  <td className="py-2 px-4">{row.batch_number}</td>
+                  <td className="py-2 px-4">{stock.total_qty || 0}</td>
                   <td className="py-2 px-4">
-                    <div className={tableStyles.clientContact}>
-                      {row.product_type}
-                    </div>
-                  </td>
-                  <td className="py-2 px-4">
-                    <div className={tableStyles.clientContact}>
-                      {row.batch_number}
-                    </div>
-                  </td>
-                  <td className="py-2 px-4">
-                    <div className={tableStyles.clientContact}>
-                      {stock.total_qty || 0}
-                    </div>
-                  </td>
-                  <td className="py-2 px-4">
-                    <div className={tableStyles.clientContact}>
-                      {stock.remaining_qty || 0}
-                    </div>
+                    {remainingQty} {stock.unit || ""}
                   </td>
                   <td className="py-2 px-4">
                     {attachments.length > 0 ? (
@@ -135,7 +124,7 @@ const Page = () => {
                             download={attachment.file_name}
                             className="text-blue-600 hover:text-blue-800"
                           >
-                            View Attachements
+                            View Attachments
                           </a>
                         </div>
                       ))
@@ -144,22 +133,18 @@ const Page = () => {
                     )}
                   </td>
                   <td className="py-2 px-4">
-                    <div className={tableStyles.clientContact}>
-                      <Link href={`/operations/products/?id=${row.id}`}>
-                        <span className="text-blue-600 hover:text-blue-800">
-                          View Details
-                        </span>
-                      </Link>
-                    </div>
+                    <Link href={`/operations/products/?id=${row.id}`}>
+                      <span className="text-blue-600 hover:text-blue-800">
+                        View Details
+                      </span>
+                    </Link>
                   </td>
                   <td className="py-2 px-4">
-                    <div className={tableStyles.clientContact}>
-                      <Link href={`/operations/assignStock/?id=${row.id}`}>
-                        <span className="text-blue-600 hover:text-blue-800">
-                          Assign Stock
-                        </span>
-                      </Link>
-                    </div>
+                    <Link href={`/operations/assignStock/?id=${row.id}`}>
+                      <span className="text-blue-600 hover:text-blue-800">
+                        Assign Stock
+                      </span>
+                    </Link>
                   </td>
                 </tr>
               );

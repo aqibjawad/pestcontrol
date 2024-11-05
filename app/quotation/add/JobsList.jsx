@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import InputWithTitle from "../../../components/generic/InputWithTitle";
+import InputWithTitle from "@/components/generic/InputWithTitle";
+import Dropdown2 from "../../../components/generic/dropDown2";
 import CalendarComponent from "./calender.component";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import { Grid, Tabs, Tab, Box, Button } from "@mui/material";
-import Dropdown2 from "@/components/generic/DropDown2";
 
 const JobsList = ({
   jobData,
@@ -14,20 +14,26 @@ const JobsList = ({
   updateJobList,
   duration_in_months,
 }) => {
-  
   const [rate, setRate] = useState(jobData.rate || 0);
   const [open, setOpen] = useState(false);
   const [selectedJobType, setSelectedJobType] = useState(jobData.jobType || "");
-  
   const [selectedDates, setSelectedDates] = useState(jobData.dates || []);
-  console.log("dates selected !!!!",selectedDates);
-  
   const [subTotal, setSubTotal] = useState(jobData.subTotal || 0);
   const [intervalDays, setIntervalDays] = useState(5);
   const [allGeneratedDates, setAllGeneratedDates] = useState([]);
   const [generatedSubTotal, setGeneratedSubTotal] = useState(0);
   const [activeTab, setActiveTab] = useState(0);
   const [dayWiseSelection, setDayWiseSelection] = useState([]);
+
+  // Remove duplicate service names from dropdown options
+  const uniqueServices = allServices.reduce((acc, current) => {
+    const x = acc.find((item) => item.service_title === current.service_title);
+    if (!x) {
+      return acc.concat([current]);
+    } else {
+      return acc;
+    }
+  }, []);
 
   const jobTypes = [
     { label: "One Time", value: "one_time" },
@@ -39,42 +45,63 @@ const JobsList = ({
   ];
 
   const generateDates = (initialDates) => {
-    if (!initialDates || !initialDates.length) return [];
+    if (!initialDates || initialDates.length === 0) return [];
 
-    return initialDates
-      .flatMap((initialDate) => {
-        const startDate = new Date(initialDate);
-        return Array.from({ length: duration_in_months - 1 }, (_, i) => {
-          const date = new Date(startDate);
-          date.setMonth(startDate.getMonth() + i + 1);
-          return date.getDate() === startDate.getDate() ? date : null;
-        })
-          .filter(Boolean)
-          .map((date) => date.toISOString().slice(0, 10));
-      })
-      .sort();
+    const allDates = [...initialDates];
+    const startDate = new Date(initialDates[0]);
+
+    for (let i = 1; i < duration_in_months * 30; i++) {
+      const newDate = new Date(startDate);
+      newDate.setDate(newDate.getDate() + i);
+      allDates.push(newDate.toISOString().slice(0, 10));
+    }
+
+    return allDates.sort();
+  };
+
+  const clearDates = () => {
+    setSelectedDates([]);
+    setAllGeneratedDates([]);
+    setDayWiseSelection([]);
+    updateJobList({
+      ...jobData,
+      dates: [],
+      displayDates: [],
+      subTotal: 0,
+    });
   };
 
   useEffect(() => {
     let allDates = selectedDates ? [...selectedDates] : [];
-    let finalDates = allDates;
+    let selectedSubTotal = allDates.length * parseFloat(rate || 0);
 
-    if (selectedJobType === "monthly" && allDates.length > 0) {
-      finalDates = generateDates(allDates);
+    let generatedSubTotal = 0;
+    if (
+      (selectedJobType === "monthly" || selectedJobType === "daily") &&
+      allDates.length > 0
+    ) {
+      const generatedDates = generateDates(allDates);
+      setAllGeneratedDates(generatedDates);
+      generatedSubTotal = generatedDates.length * parseFloat(rate || 0);
+    } else {
+      setAllGeneratedDates(allDates);
     }
 
-    const calculatedSubTotal = finalDates.length * parseFloat(rate || 0);
-
-    setAllGeneratedDates(finalDates);
-    setSubTotal(calculatedSubTotal);
-    setGeneratedSubTotal(calculatedSubTotal);
+    setSubTotal(selectedSubTotal);
+    setGeneratedSubTotal(generatedSubTotal);
 
     updateJobList({
       jobType: selectedJobType,
       rate: rate,
-      dates: finalDates,
+      dates:
+        selectedJobType === "monthly" || selectedJobType === "daily"
+          ? allGeneratedDates
+          : allDates,
       displayDates: selectedDates,
-      subTotal: calculatedSubTotal,
+      subTotal:
+        selectedJobType === "monthly" || selectedJobType === "daily"
+          ? generatedSubTotal
+          : selectedSubTotal,
       service_id: jobData.service_id,
       serviceName: jobData.serviceName,
     });
@@ -226,61 +253,27 @@ const JobsList = ({
     return result.sort();
   };
 
-  const handleServiceChange = (value) => {
-    console.log("handleServiceChange called with value:", value);
-    const selectedService = allServices.find((service) => service.id === value);
-    console.log("selectedService:", selectedService);
-    if (selectedService) {
-      updateJobList((prevJobData) => {
-        console.log("Updating jobData:", prevJobData);
-        return {
-          ...prevJobData,
-          service_id: value,
-          service_name: selectedService.pest_name,
-        };
-      });
-    }
-  };
-
-  useEffect(() => {
-    // This will run after jobData has been updated
-    // console.log("Updated jobData:", jobData);
-  }, [jobData]);
-
-  // const serviceOptions = allServices.map((service) => ({
-  //   label: service.service_title,
-  //   value: service.id,
-  // }));
-
-  const getUniqueServiceOptions = (allServices) => {
-    const uniqueTitles = new Set();
-    const uniqueOptions = [];
-
-    allServices.forEach((service) => {
-      if (!uniqueTitles.has(service.service_title)) {
-        uniqueTitles.add(service.service_title);
-        uniqueOptions.push({
-          label: service.service_title,
-          value: service.id,
-        });
-      }
-    });
-
-    return uniqueOptions;
-  };
-
-  const serviceOptions = getUniqueServiceOptions(allServices);
-
   return (
     <div style={{ marginBottom: "2rem" }}>
       <Grid container spacing={2}>
         <Grid item lg={3} xs={4}>
           <Dropdown2
-            title="Select Services"
-            options={serviceOptions}
+            title="Selected Products"
+            options={uniqueServices.map((service) => ({
+              label: service.service_title,
+              value: service.id,
+            }))}
             value={jobData.service_id}
-            onChange={handleServiceChange}
-            fullWidth
+            onChange={(value) => {
+              const selectedService = allServices.find(
+                (service) => service.id === value
+              );
+              updateJobList({
+                ...jobData,
+                service_id: value,
+                serviceName: selectedService.service_title,
+              });
+            }}
           />
         </Grid>
 
@@ -385,7 +378,9 @@ const JobsList = ({
         fullWidth
       >
         <DialogTitle>
-          {selectedJobType === "monthly" || selectedJobType === "daily"
+          {selectedJobType === "monthly" ||
+          selectedJobType === "daily" ||
+          selectedJobType === "monthly"
             ? `Select Dates (Will repeat for ${duration_in_months} months)`
             : selectedJobType === "daily"
             ? "Select Date (Only one date allowed)"
@@ -402,12 +397,24 @@ const JobsList = ({
           )}
           <Box sx={{ p: 2 }}>
             {activeTab === 0 && (
-              <CalendarComponent
-                initialDates={selectedDates?.map((date) => new Date(date))}
-                onDateChange={handleDateChange}
-                minDate={selectedJobType === "daily" ? new Date() : undefined}
-                maxSelectable={selectedJobType === "daily" ? 1 : undefined}
-              />
+              <>
+                <CalendarComponent
+                  initialDates={selectedDates?.map((date) => new Date(date))}
+                  onDateChange={handleDateChange}
+                  minDate={selectedJobType === "daily" ? new Date() : undefined}
+                  maxSelectable={selectedJobType === "daily" ? 1 : undefined}
+                />
+                {selectedDates.length > 0 && (
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={clearDates}
+                    style={{ marginTop: "1rem" }}
+                  >
+                    Clear Dates
+                  </Button>
+                )}
+              </>
             )}
             {activeTab === 1 && renderDayWiseSelection()}
           </Box>
@@ -423,14 +430,6 @@ const JobsList = ({
           )}
         </DialogContent>
         <DialogActions>
-          <Button
-            onClick={() => {
-              setSelectedDates([]); // Clear selected dates
-              setDayWiseSelection([]); // Clear day-wise selection if applicable
-            }}
-          >
-            Clear
-          </Button>
           <Button onClick={() => setOpen(false)}>Cancel</Button>
           <Button onClick={() => setOpen(false)} color="primary">
             Save Dates

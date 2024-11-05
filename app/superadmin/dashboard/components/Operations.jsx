@@ -34,10 +34,30 @@ const Operations = () => {
 
   useEffect(() => {
     getAllJobs();
+  }, [startDate, endDate]);
+
+  useEffect(() => {
     getAllClients();
+  }, [startDate, endDate]);
+
+  useEffect(() => {
     getCash();
+  }, [startDate, endDate]);
+
+  useEffect(() => {
+    getCash();
+  }, [startDate, endDate]);
+
+  useEffect(() => {
     getPos();
+  }, [startDate, endDate]);
+
+  useEffect(() => {
     getExpense();
+    getBank();
+  }, [startDate, endDate]);
+
+  useEffect(() => {
     getBank();
   }, [startDate, endDate]);
 
@@ -56,7 +76,7 @@ const Operations = () => {
 
     try {
       const response = await api.getDataWithToken(
-        `${job}/all?${queryParams.join("&")}`
+        `${dashboard}/count_jobs?${queryParams.join("&")}`
       );
       setJobsList(response.data);
     } catch (error) {
@@ -82,7 +102,7 @@ const Operations = () => {
 
     try {
       const response = await api.getDataWithToken(
-        `${clients}?${queryParams.join("&")}`
+        `${dashboard}/count_clients?${queryParams.join("&")}`
       );
       setClientsList(response.data);
     } catch (error) {
@@ -392,7 +412,7 @@ const Operations = () => {
             {fetchingData ? (
               <Skeleton variant="text" width={120} height={40} />
             ) : (
-              <div className={styles.itemCount}>{clientsList.length}</div>
+              <div className={styles.itemCount}>{clientsList?.clients_count}</div>
             )}
           </div>
           <div>
@@ -430,7 +450,7 @@ const Operations = () => {
             {fetchingData ? (
               <Skeleton variant="text" width={120} height={40} />
             ) : (
-              <div className={styles.itemCount}>{jobsList.length}</div>
+              <div className={styles.itemCount}>{jobsList?.jobs_count}</div>
             )}
           </div>
           <div>
