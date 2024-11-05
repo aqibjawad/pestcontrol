@@ -3,7 +3,7 @@ import { Grid, Typography, Button, Box } from "@mui/material";
 import styles from "../../../styles/quotes.module.css";
 
 const Scope = ({ selectedServices }) => {
-  const [isScopeVisible, setIsScopeVisible] = useState(false);
+  const [isScopeVisible, setIsScopeVisible] = useState(true); // Set initial state to true
 
   const handleEnable = () => {
     setIsScopeVisible(true);
@@ -56,7 +56,6 @@ const Scope = ({ selectedServices }) => {
 
       {isScopeVisible && (
         <Box sx={{ flexGrow: 1 }}>
-
           <Grid className="mt-3" container spacing={3}>
             {selectedServices.length === 0 ? (
               <Grid item xs={12}>
