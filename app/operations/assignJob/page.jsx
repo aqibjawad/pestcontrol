@@ -59,6 +59,7 @@ const Page = () => {
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [jobStatus, setJobStatus] = useState("not_started");
   const [selectedCaptainId, setSelectedCaptainId] = useState(null);
+  const [selectedCaptainName, setSelectedCaptainName] = useState("")
 
   useEffect(() => {
     const currentUrl = window.location.href;
@@ -118,6 +119,7 @@ const Page = () => {
   const handleCaptainChange = (value) => {
     if (!value) {
       setSelectedCaptainId(null);
+      setSelectedCaptainName(""); // Clear the captain name
       return;
     }
 
@@ -127,10 +129,10 @@ const Page = () => {
 
     if (selectedCaptain) {
       setSelectedCaptainId(selectedCaptain.id);
+      setSelectedCaptainName(value); // Set the captain name
       setFormData((prev) => ({
         ...prev,
         captain_id: selectedCaptain.id,
-        // Remove the captain from team members if they were previously selected
         team_member_ids: prev.team_member_ids.filter(
           (id) => id !== selectedCaptain.id
         ),
@@ -139,7 +141,6 @@ const Page = () => {
   };
 
   const handleTeamMemberChange = (managerId) => {
-    // Don't allow selection if this manager is the captain
     if (managerId === selectedCaptainId) return;
 
     setFormData((prev) => {
@@ -269,6 +270,7 @@ const Page = () => {
                 <Dropdown2
                   onChange={handleCaptainChange}
                   title="Select Captain"
+                  value={selectedCaptainName} // Add this prop
                   options={managerNames.map((name) => ({
                     value: name,
                     label: name,

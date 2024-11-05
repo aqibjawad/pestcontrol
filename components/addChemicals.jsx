@@ -18,7 +18,7 @@ const AddChemicals = ({
   const [chemicalData, setChemicalData] = useState({
     product_id: "",
     name: "",
-    dose: "",
+    dose: 1,
     qty: "",
   });
   const [products, setProducts] = useState([]);
@@ -105,7 +105,7 @@ const AddChemicals = ({
             onChange={handleProductChange}
           />
         </div>
-        <div className="mt-5">
+        {/* <div className="mt-5">
           <InputWithTitle
             title="Dose"
             type="text"
@@ -113,7 +113,7 @@ const AddChemicals = ({
             value={chemicalData.dose}
             onChange={(value) => handleInputChange("dose", value)}
           />
-        </div>
+        </div> */}
         <div className="mt-5">
           <InputWithTitle
             title="qty"

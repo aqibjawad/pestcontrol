@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import styles from "../../styles/job.module.css";
 import { Grid } from "@mui/material";
 import InputWithTitle from "../../components/generic/InputWithTitle";
+import InputWithTitle3 from "../../components/generic/InputWithTitle3";
 import { job } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
 import { useRouter } from "next/navigation";
@@ -200,6 +201,10 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
     return null;
   };
 
+  const handleDateChange = (name, value) => {
+    setJobDate(value);
+  };
+
   return (
     <div style={{ marginTop: "2rem" }} className={styles.mainDivTreat}>
       {jobStatus === 0 && (
@@ -212,11 +217,11 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
             </Grid>
           </Grid>
           <div className={styles.formReschedule}>
-            <InputWithTitle
-              onChange={(value) => setJobDate(value)}
+            <InputWithTitle3
+              onChange={handleDateChange}
               value={job_date}
-              type={"date"}
               title={"Date"}
+              type={"date"}
             />
 
             <div className="mt-5">

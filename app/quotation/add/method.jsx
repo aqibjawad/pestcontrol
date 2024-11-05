@@ -32,13 +32,32 @@ const Method = ({ setFormData, formData }) => {
     if (service.length > 0) {
       makeServicesList();
     }
-  }, [service]);
+  }, [service, formData.tm_ids]);
 
   const makeServicesList = () => {
+    // Handle different types of tm_ids input
+    let currentTmIds = [];
+
+    if (Array.isArray(formData.tm_ids)) {
+      currentTmIds = formData.tm_ids;
+    } else if (typeof formData.tm_ids === "string") {
+      // Handle string input like "[12,11,10,9]"
+      try {
+        currentTmIds = JSON.parse(formData.tm_ids);
+      } catch {
+        // If JSON.parse fails, try splitting the string
+        currentTmIds = formData.tm_ids
+          .replace(/[\[\]\s]/g, "") // Remove brackets and whitespace
+          .split(",")
+          .map((id) => Number(id))
+          .filter((id) => !isNaN(id)); // Filter out any invalid numbers
+      }
+    }
+
     const servicesWithCheck = service.map((item) => ({
       id: item.id,
       name: item.name,
-      isChecked: formData.tm_ids?.includes(item.id) || false, // Initialize based on formData
+      isChecked: currentTmIds.includes(item.id),
     }));
     setMyServices(servicesWithCheck);
   };
@@ -49,12 +68,12 @@ const Method = ({ setFormData, formData }) => {
         i === index ? { ...service, isChecked: !service.isChecked } : service
       );
 
-      // Get the IDs of the checked services
+      // Get the IDs of the checked services as an array of numbers
       const selectedIds = updatedServices
         .filter((service) => service.isChecked)
-        .map((service) => service.id);
+        .map((service) => Number(service.id));
 
-      // Update the form data with the selected IDs
+      // Update the form data with the selected IDs array
       setFormData((prevData) => ({
         ...prevData,
         tm_ids: selectedIds,
@@ -65,34 +84,35 @@ const Method = ({ setFormData, formData }) => {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center p-4">Loading...</div>
+    );
   }
 
   return (
-    <div
-      className="mt-10"
-      style={{ border: "1px solid #D0D5DD", padding: "20px" }}
-    >
-      <div className="mt-5" style={{ fontSize: "20px", fontWeight: "600" }}>
-        Treatment Method
-      </div>
-      <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+    <div className="mt-10 border border-[#D0D5DD] p-5 rounded-md">
+      <div className="text-xl font-semibold mb-4">Treatment Method</div>
+      <div className="flex flex-wrap gap-4">
         {myServices.length > 0 ? (
           myServices.map((agreement, index) => (
-            <div
-              key={agreement.id}
-              style={{ display: "flex", alignItems: "center" }}
-            >
+            <div key={agreement.id} className="flex items-center space-x-2">
               <input
                 type="checkbox"
+                id={`treatment-${agreement.id}`}
                 checked={agreement.isChecked}
                 onChange={() => handleCheckboxChange(index)}
+                className="rounded border-gray-300 focus:ring-blue-500"
               />
-              <label style={{ marginLeft: "0.5rem" }}>{agreement.name}</label>
+              <label
+                htmlFor={`treatment-${agreement.id}`}
+                className="text-sm text-gray-700"
+              >
+                {agreement.name}
+              </label>
             </div>
           ))
         ) : (
-          <div>No services available</div>
+          <div className="text-gray-500">No services available</div>
         )}
       </div>
     </div>
