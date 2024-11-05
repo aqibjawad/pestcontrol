@@ -74,9 +74,15 @@ const JobsList = ({
   useEffect(() => {
     let allDates = selectedDates ? [...selectedDates] : [];
     let selectedSubTotal = allDates.length * parseFloat(rate || 0);
-
     let generatedSubTotal = 0;
-    if (
+
+    // Check for day-wise selection for calculations
+    if (dayWiseSelection.length > 0) {
+      const generatedDates =
+        generateDatesFromDayWiseSelection(dayWiseSelection);
+      setAllGeneratedDates(generatedDates);
+      generatedSubTotal = generatedDates.length * parseFloat(rate || 0);
+    } else if (
       (selectedJobType === "monthly" || selectedJobType === "daily") &&
       allDates.length > 0
     ) {
@@ -93,32 +99,38 @@ const JobsList = ({
     updateJobList({
       jobType: selectedJobType,
       rate: rate,
-      dates:
-        selectedJobType === "monthly" || selectedJobType === "daily"
-          ? allGeneratedDates
-          : allDates,
+      dates: dayWiseSelection.length > 0 ? allGeneratedDates : allDates,
       displayDates: selectedDates,
       subTotal:
-        selectedJobType === "monthly" || selectedJobType === "daily"
-          ? generatedSubTotal
-          : selectedSubTotal,
+        dayWiseSelection.length > 0 ? generatedSubTotal : selectedSubTotal,
       service_id: jobData.service_id,
       serviceName: jobData.serviceName,
     });
-  }, [selectedDates, rate, selectedJobType, duration_in_months]);
+  }, [
+    selectedDates,
+    rate,
+    selectedJobType,
+    duration_in_months,
+    dayWiseSelection,
+  ]);
 
   const handleDateChange = (dates) => {
-    const formattedDates = dates
-      ? dates.map((date) =>
-          date instanceof Date ? date.toISOString().slice(0, 10) : date
-        )
-      : [];
+    const lastElement = dates[dates.length - 1];
 
-    if (selectedJobType === "daily") {
-      // For daily, only allow one date selection
-      setSelectedDates(formattedDates.slice(-1));
-    } else {
-      setSelectedDates(formattedDates);
+    if (!selectedDates.includes(lastElement)) {
+      console.log("chekcing for selected dtae");
+      
+      const formattedDates = dates
+        ? dates.map((date) =>
+            date instanceof Date ? date.toISOString().slice(0, 10) : date
+          )
+        : [];
+
+      if (selectedJobType === "daily") {
+        setSelectedDates(formattedDates.slice(-1));
+      } else {
+        setSelectedDates(formattedDates);
+      }
     }
   };
 
@@ -319,7 +331,7 @@ const JobsList = ({
           />
         </Grid>
 
-        {selectedJobType === "monthly" && (
+        {/* {selectedJobType === "monthly" && (
           <>
             <Grid item lg={3} xs={4}>
               <InputWithTitle
@@ -342,7 +354,7 @@ const JobsList = ({
               />
             </Grid>
           </>
-        )}
+        )} */}
       </Grid>
 
       <div style={{ marginTop: "1rem" }}>
@@ -350,6 +362,7 @@ const JobsList = ({
           {selectedDates?.length > 0 ? (
             <>
               Selected Dates: {selectedDates.join(", ")}
+
               {(selectedJobType === "monthly" ||
                 selectedJobType === "daily") && (
                 <span style={{ marginLeft: "10px", color: "#9E9E9E" }}>

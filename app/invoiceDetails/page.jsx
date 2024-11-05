@@ -87,6 +87,86 @@ const Page = () => {
     }
   };
 
+  const numberToWords = (num) => {
+    const ones = [
+      "",
+      "One",
+      "Two",
+      "Three",
+      "Four",
+      "Five",
+      "Six",
+      "Seven",
+      "Eight",
+      "Nine",
+    ];
+    const tens = [
+      "",
+      "",
+      "Twenty",
+      "Thirty",
+      "Forty",
+      "Fifty",
+      "Sixty",
+      "Seventy",
+      "Eighty",
+      "Ninety",
+    ];
+    const teens = [
+      "Ten",
+      "Eleven",
+      "Twelve",
+      "Thirteen",
+      "Fourteen",
+      "Fifteen",
+      "Sixteen",
+      "Seventeen",
+      "Eighteen",
+      "Nineteen",
+    ];
+
+    const convertLessThanThousand = (n) => {
+      if (n === 0) return "";
+
+      if (n < 10) return ones[n];
+
+      if (n < 20) return teens[n - 10];
+
+      if (n < 100) {
+        return (
+          tens[Math.floor(n / 10)] + (n % 10 !== 0 ? " " + ones[n % 10] : "")
+        );
+      }
+
+      return (
+        ones[Math.floor(n / 100)] +
+        " Hundred" +
+        (n % 100 !== 0 ? " " + convertLessThanThousand(n % 100) : "")
+      );
+    };
+
+    if (num === 0) return "Zero";
+
+    const decimalParts = num.toString().split(".");
+    const wholePart = parseInt(decimalParts[0]);
+    const decimal = decimalParts[1] ? parseInt(decimalParts[1]) : 0;
+
+    let result = convertLessThanThousand(wholePart);
+
+    if (decimal > 0) {
+      result += " Point " + convertLessThanThousand(decimal);
+    }
+
+    return result;
+  };
+
+  const formatAmountDisplay = (amount) => {
+    if (!amount) return '';
+    const numAmount = parseFloat(amount);
+    const amountInWords = numberToWords(numAmount);
+    return `Total Amount AED ${numAmount.toFixed(2)} (${amountInWords} Only)`;
+  };
+
   return (
     <Layout>
       <Grid container spacing={2}>
@@ -162,7 +242,7 @@ const Page = () => {
 
       <div>
         <div className={styles.totalAmount}>
-          Total Amount AED 1,134.00 (One Thousand One Hundred Thirty-Four Only)
+          ({invoiceList?.total_amt && formatAmountDisplay(invoiceList.total_amt)})
         </div>
 
         <div className={styles.descrp}>

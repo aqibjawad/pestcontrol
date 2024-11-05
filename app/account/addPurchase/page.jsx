@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import UploadImagePlaceholder from "../../../components/generic/uploadImage";
 import InputWithTitle from "@/components/generic/InputWithTitle";
+import InputWithTitle3 from "@/components/generic/InputWithTitle3";
 import Dropdown from "@/components/generic/Dropdown";
 import DeleteIcon from "@mui/icons-material/Delete";
 
@@ -242,6 +243,15 @@ const Page = () => {
     ]);
   };
 
+  
+  const handleOrderDateChange = (name, value) => {
+    setOrderDate(value);
+  };
+
+  const handleDeliveryDateChange = (name, value) => {
+    setDeliveryDate(value);
+  };
+
   return (
     <div>
       <Grid container spacing={2}>
@@ -259,20 +269,20 @@ const Page = () => {
           />
         </Grid>
 
-        <Grid className="mt-5" item lg={4} xs={12} sm={6} md={4}>
-          <InputWithTitle
+        <Grid className="mt-10" item lg={4} xs={12} sm={6} md={4}>
+          <InputWithTitle3
             title={"Order date"}
             type="date"
             value={order_date}
-            onChange={setOrderDate}
+            onChange={handleOrderDateChange}
           />
         </Grid>
-        <Grid className="mt-5" item lg={4} xs={12} sm={6} md={4}>
-          <InputWithTitle
+        <Grid className="mt-10" item lg={4} xs={12} sm={6} md={4}>
+          <InputWithTitle3
             title={"Delivery date"}
             type="date"
             value={delivery_date}
-            onChange={setDeliveryDate}
+            onChange={handleDeliveryDateChange}
           />
         </Grid>
 

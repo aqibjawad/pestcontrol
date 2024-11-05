@@ -7,69 +7,79 @@ const CalendarComponent = ({
   initialDates = [],
   isDateSelectable,
 }) => {
-  const [dates, setDates] = useState(initialDates);
+  const [selectedDates, setSelectedDates] = useState(initialDates);
 
   useEffect(() => {
-    if (JSON.stringify(dates) !== JSON.stringify(initialDates)) {
-      setDates(initialDates);
+    if (JSON.stringify(selectedDates) !== JSON.stringify(initialDates)) {
+      setSelectedDates(initialDates);
     }
   }, [initialDates]);
 
-  // Helper function to normalize date to local midnight
-  const normalizeDate = (date) => {
-    const newDate = new Date(date);
-    newDate.setHours(0, 0, 0, 0);
-    return newDate;
-  };
-
   const formatDate = (date) => {
-    const d = normalizeDate(date);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
-      2,
-      "0"
-    )}-${String(d.getDate()).padStart(2, "0")}`;
+    if (!date) return "";
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
   };
 
   const handleDateChange = (date) => {
-    if (date) {
-      const normalizedDate = normalizeDate(date);
-      const dateStr = formatDate(normalizedDate);
-      const newDates = dates.includes(dateStr)
-        ? dates.filter((d) => d !== dateStr)
-        : [...dates, dateStr];
+    if (!date) return;
 
-      setDates(newDates);
-      onDateChange(newDates);
+    const formattedDate = formatDate(date);
+    let newDates;
+
+    if (selectedDates.includes(formattedDate)) {
+      // If date is already selected, remove it
+      newDates = selectedDates.filter((d) => d !== formattedDate);
+    } else {
+      // If date is not selected, add it
+      newDates = [...selectedDates, formattedDate];
     }
+
+    setSelectedDates(newDates);
+    onDateChange(newDates);
   };
 
-  const formattedDates = dates.map((dateStr) =>
-    normalizeDate(new Date(dateStr))
-  );
+  const getHighlightedDates = () => {
+    return selectedDates.map((dateStr) => new Date(dateStr));
+  };
 
-  // Format selected dates for display
-  const displayDates = dates
-    .map((dateStr) => normalizeDate(new Date(dateStr)).toLocaleDateString())
-    .join(", ");
+  const getDisplayDates = () => {
+    return selectedDates
+      .map((dateStr) => new Date(dateStr).toLocaleDateString())
+      .join(", ");
+  };
 
   return (
-    <div>
+    <div className="w-full max-w-md mx-auto">
       <DatePicker
         selected={null}
         onChange={handleDateChange}
         inline
-        highlightDates={formattedDates}
+        highlightDates={getHighlightedDates()}
+        dateFormat="yyyy-MM-dd"
+        showTimeSelect={false} // Ensure no time selection
         dayClassName={(date) => {
-          const dateStr = formatDate(normalizeDate(date));
-          return dates.includes(dateStr) ? "selected-date" : undefined;
+          return selectedDates.includes(formatDate(date))
+            ? "selected-date"
+            : undefined;
         }}
         filterDate={isDateSelectable}
       />
-      <p>Selected Dates: {displayDates.length > 0 ? displayDates : "None"}</p>
+      <p className="mt-4 text-gray-700">
+        Selected Dates: {getDisplayDates() || "None"}
+      </p>
       <style jsx>{`
         .selected-date {
-          background-color: #007bff;
-          color: white;
+          background-color: #007bff !important;
+          color: white !important;
+          border-radius: 0.25rem;
+        }
+        .react-datepicker {
+          font-family: inherit;
+          border-radius: 0.5rem;
         }
       `}</style>
     </div>
