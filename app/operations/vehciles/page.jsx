@@ -131,7 +131,7 @@ const Page = () => {
         <Loading />
       ) : (
         <div className="grid grid-cols-2 gap-4">
-          <div>{viewList()}</div>
+          {/* <div>{viewList()}</div> */}
           <div>
             <div className="pageTitle">Add Vehicle</div>
             <div className="mt-10"></div>

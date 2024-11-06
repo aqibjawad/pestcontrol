@@ -141,9 +141,15 @@ const Page = () => {
 
               <Grid className="" item xs={12} sm={6} md={4} lg={4}>
                 <div className={styles.addProd}>
-                  <Link href="/account/viewVehicles">View Vehicle Expense</Link>
+                  <Link href="/account/viewAllVehciles">View Vehicles</Link>
                 </div>
               </Grid>
+
+              {/* <Grid className="" item xs={12} sm={6} md={4} lg={4}>
+                <div className={styles.addProd}>
+                  <Link href="/account/viewVehicles">View Vehicle Expense</Link>
+                </div>
+              </Grid> */}
             </Grid>
           </div>
         </Grid>

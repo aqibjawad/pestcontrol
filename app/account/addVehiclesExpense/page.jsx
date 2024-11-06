@@ -192,7 +192,7 @@ const Page = () => {
 
   const bankOptions = allVehiclesList.map((vehcilees) => ({
     value: vehcilees.id,
-    label: `${vehcilees.vehicle_number} - ${vehcilees.modal_name}`,
+    label: `${vehcilees.vehicle_number} - ${vehcilees.modal_name}- ${vehcilees?.user?.namne}`,
   }));
 
   const handleDateChange = (name, value) => {
@@ -226,7 +226,7 @@ const Page = () => {
             value={selectedVehicleId}
           />
         </Grid>
-        <Grid className="mt-5" item lg={4} xs={12} sm={6} md={6}>
+        <Grid item lg={4} xs={12} sm={6} md={6}>
           <InputWithTitle3
             value={expense_date}
             onChange={handleDateChange}
