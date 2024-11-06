@@ -1,3 +1,4 @@
+// useVehicles.js
 import { useState, useEffect } from "react";
 import APICall from "@/networkUtil/APICall";
 import { vehciles, getAllEmpoyesUrl } from "@/networkUtil/Constants";
@@ -17,7 +18,6 @@ export const useVehicles = () => {
   const [condition, setCondition] = useState("");
   const [expiry_date, setExpiryDate] = useState("");
   const [oil_change_limit, setOilChange] = useState("");
-  const [employee, setEmployee] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState("");
   const [employeesList, setEmployeesList] = useState([]);
 
@@ -40,16 +40,12 @@ export const useVehicles = () => {
   };
 
   const getAllEmployees = async () => {
-    setFetchingData(true);
     try {
       const response = await api.getDataWithToken(`${getAllEmpoyesUrl}`);
-      setEmployeesList(response.data); // Make sure we're setting the data correctly
-      console.log("Employees fetched:", response.data); // Add this to debug
+      setEmployeesList(response.data);
     } catch (error) {
       console.error("Error fetching employees:", error);
       alerts.errorAlert("Failed to fetch employees. Please try again.");
-    } finally {
-      setFetchingData(false);
     }
   };
 
@@ -64,7 +60,7 @@ export const useVehicles = () => {
         condition,
         expiry_date,
         oil_change_limit,
-        user_id: selectedEmployee, // Add employee_id to the payload
+        user_id: selectedEmployee,
       };
       const response = await api.postFormDataWithToken(
         `${vehciles}/create`,
@@ -72,7 +68,7 @@ export const useVehicles = () => {
       );
       if (response.status === "success") {
         alerts.successAlert("Vehicle has been added");
-        setVehicleNumber("");
+        resetForm();
         await getAllVehicles();
       } else {
         alerts.errorAlert("The vehicle number has already been taken");
@@ -85,12 +81,19 @@ export const useVehicles = () => {
     }
   };
 
-  const updateVehicle = async (id, vehicle_number) => {
+  const updateVehicle = async (id) => {
     if (sendingData || vehicle_number === "") return;
 
     setSendingData(true);
     try {
-      const obj = { vehicle_number };
+      const obj = {
+        vehicle_number,
+        modal_number,
+        condition,
+        expiry_date,
+        oil_change_limit,
+        user_id: selectedEmployee,
+      };
       const response = await api.updateFormDataWithToken(
         `${vehciles}/update/${id}`,
         obj
@@ -98,7 +101,7 @@ export const useVehicles = () => {
       if (response.status === "success") {
         alerts.successAlert("Vehicle has been updated");
         setEditingVehiclesId(null);
-        setVehicleNumber("");
+        resetForm();
         await getAllVehicles();
       } else {
         alerts.errorAlert("The vehicle number has already been taken.");
@@ -111,14 +114,22 @@ export const useVehicles = () => {
     }
   };
 
-  const startEditing = (id, currentName) => {
-    setEditingVehiclesId(id);
-    setVehicleNumber(currentName);
+  const startEditing = (id) => {
+    const vehicleToEdit = vehiclesList.find((vehicle) => vehicle.id === id);
+    if (vehicleToEdit) {
+      setEditingVehiclesId(id);
+      setVehicleNumber(vehicleToEdit.vehicle_number);
+      setModalNumber(vehicleToEdit.modal_number);
+      setCondition(vehicleToEdit.condition);
+      setExpiryDate(vehicleToEdit.expiry_date);
+      setOilChange(vehicleToEdit.oil_change_limit);
+      setSelectedEmployee(vehicleToEdit.user_id);
+    }
   };
 
   const cancelEditing = () => {
     setEditingVehiclesId(null);
-    setVehicleNumber("");
+    resetForm();
   };
 
   const resetForm = () => {
@@ -133,22 +144,19 @@ export const useVehicles = () => {
   return {
     fetchingData,
     vehiclesList,
-
     vehicle_number,
-    employeesList, // Add employees list to return object
     modal_number,
     condition,
     expiry_date,
     oil_change_limit,
-
+    employeesList,
+    selectedEmployee,
+    setSelectedEmployee,
+    setVehicleNumber,
     setModalNumber,
-    selectedEmployee, // Add selected employee to return object
-    setSelectedEmployee, // Add setter for selected employee
     setCondition,
     setExpiryDate,
     setOilChange,
-    setVehicleNumber,
-
     sendingData,
     addVehicle,
     updateVehicle,

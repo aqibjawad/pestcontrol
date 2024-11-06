@@ -78,7 +78,7 @@ const Operations = () => {
       const response = await api.getDataWithToken(
         `${dashboard}/count_jobs?${queryParams.join("&")}`
       );
-      setJobsList(response.data);
+      setJobsList(response);
     } catch (error) {
       console.error("Error fetching quotes:", error);
     } finally {
@@ -104,7 +104,7 @@ const Operations = () => {
       const response = await api.getDataWithToken(
         `${dashboard}/count_clients?${queryParams.join("&")}`
       );
-      setClientsList(response.data);
+      setClientsList(response);
     } catch (error) {
       console.error(error.message);
     } finally {

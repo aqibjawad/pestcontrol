@@ -174,9 +174,12 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
   };
 
   const grandTotal = (formData.services || []).reduce(
+
     (total, job) => total + job.subTotal,
     0
   );
+  console.log("formData ki services",formData.services);
+
 
   if (isLoading) {
     return <div>Loading...</div>;
