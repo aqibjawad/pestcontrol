@@ -140,6 +140,9 @@ const Page = () => {
                 Phone Number
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Email
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Firm
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
@@ -164,6 +167,7 @@ const Page = () => {
                 <td className="py-5 px-4">{index + 1}</td>
                 <td className="py-5 px-4">{row.name}</td>
                 <td className="py-2 px-4">{row?.client?.phone_number}</td>
+                <td className="py-5 px-4">{row.email}</td>
                 <td className="py-2 px-4">{row?.client?.firm_name}</td>
                 <td className="py-2 px-4">
                   {AppHelpers.convertDate(row.created_at)}
@@ -365,23 +369,6 @@ const Page = () => {
               justifyContent: "flex-end",
             }}
           >
-            <div
-              style={{
-                backgroundColor: "#32A92E",
-                color: "white",
-                fontWeight: "600",
-                fontSize: "16px",
-                height: "44px",
-                width: "202px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                marginLeft: "1rem",
-                borderRadius: "10px",
-              }}
-            >
-              Download all
-            </div>
           </div>
         </div>
       </div>

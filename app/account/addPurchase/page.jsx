@@ -61,7 +61,7 @@ const Page = () => {
     try {
       const response = await api.getDataWithToken(`${getAllSuppliers}`);
       setAllBrandsList(response.data);
-      const brandNames = response.data.map((item) => item.supplier_name);
+      const brandNames = response.data.map((item) => item.company_name);
       setBrandList(brandNames);
     } catch (error) {
       console.error("Error fetching brands:", error);

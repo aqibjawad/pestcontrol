@@ -24,7 +24,7 @@ const Page = () => {
     fetchingData,
     vehiclesList,
     vehicle_number,
-    modal_number,
+    modal_name,
     condition,
     expiry_date,
     oil_change_limit,
@@ -139,7 +139,7 @@ const Page = () => {
             <InputWithTitle
               title={"Enter Modal Name"}
               placeholder={"Enter Modal Number"}
-              value={modal_number}
+              value={modal_name}
               onChange={(value) => setModalNumber(value)}
             />
 

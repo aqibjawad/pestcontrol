@@ -127,16 +127,12 @@ const Page = () => {
 
     const convertLessThanThousand = (n) => {
       if (n === 0) return "";
-
       if (n < 10) return ones[n];
-
       if (n < 20) return teens[n - 10];
-
-      if (n < 100) {
+      if (n < 100)
         return (
           tens[Math.floor(n / 10)] + (n % 10 !== 0 ? " " + ones[n % 10] : "")
         );
-      }
 
       return (
         ones[Math.floor(n / 100)] +
@@ -153,6 +149,14 @@ const Page = () => {
 
     let result = convertLessThanThousand(wholePart);
 
+    if (wholePart > 999) {
+      const thousands = Math.floor(wholePart / 1000);
+      result =
+        convertLessThanThousand(thousands) +
+        " Thousand " +
+        convertLessThanThousand(wholePart % 1000);
+    }
+
     if (decimal > 0) {
       result += " Point " + convertLessThanThousand(decimal);
     }
@@ -161,12 +165,12 @@ const Page = () => {
   };
 
   const formatAmountDisplay = (amount) => {
-    if (!amount) return '';
+    if (amount === undefined || amount === null) return "";
     const numAmount = parseFloat(amount);
     const amountInWords = numberToWords(numAmount);
     return `Total Amount AED ${numAmount.toFixed(2)} (${amountInWords} Only)`;
   };
-
+  
   return (
     <Layout>
       <Grid container spacing={2}>
@@ -242,7 +246,9 @@ const Page = () => {
 
       <div>
         <div className={styles.totalAmount}>
-          ({invoiceList?.total_amt && formatAmountDisplay(invoiceList.total_amt)})
+          (
+          {invoiceList?.total_amt && formatAmountDisplay(invoiceList.total_amt)}
+          )
         </div>
 
         <div className={styles.descrp}>

@@ -14,7 +14,7 @@ export const useVehicles = () => {
   const [editingVehiclesId, setEditingVehiclesId] = useState(null);
 
   const [vehicle_number, setVehicleNumber] = useState("");
-  const [modal_number, setModalNumber] = useState("");
+  const [modal_name, setModalNumber] = useState("");
   const [condition, setCondition] = useState("");
   const [expiry_date, setExpiryDate] = useState("");
   const [oil_change_limit, setOilChange] = useState("");
@@ -56,7 +56,7 @@ export const useVehicles = () => {
     try {
       const obj = {
         vehicle_number,
-        modal_number,
+        modal_name,
         condition,
         expiry_date,
         oil_change_limit,
@@ -88,7 +88,7 @@ export const useVehicles = () => {
     try {
       const obj = {
         vehicle_number,
-        modal_number,
+        modal_name,
         condition,
         expiry_date,
         oil_change_limit,
@@ -119,7 +119,7 @@ export const useVehicles = () => {
     if (vehicleToEdit) {
       setEditingVehiclesId(id);
       setVehicleNumber(vehicleToEdit.vehicle_number);
-      setModalNumber(vehicleToEdit.modal_number);
+      setModalNumber(vehicleToEdit.modal_name);
       setCondition(vehicleToEdit.condition);
       setExpiryDate(vehicleToEdit.expiry_date);
       setOilChange(vehicleToEdit.oil_change_limit);
@@ -145,7 +145,7 @@ export const useVehicles = () => {
     fetchingData,
     vehiclesList,
     vehicle_number,
-    modal_number,
+    modal_name,
     condition,
     expiry_date,
     oil_change_limit,

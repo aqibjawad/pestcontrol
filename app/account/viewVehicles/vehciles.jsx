@@ -121,7 +121,7 @@ const Vehciles = () => {
                 </td>
                 <td className="py-2 px-4">
                   <div className={tableStyles.clientContact}>
-                    {row.vat_amount}%
+                    {row.vat_amount}
                   </div>
                 </td>
 

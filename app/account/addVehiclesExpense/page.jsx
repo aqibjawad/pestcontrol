@@ -95,6 +95,16 @@ const Page = () => {
 
   const handleVehcileChange = (selectedValue) => {
     setSelectedVehicleId(selectedValue);
+
+    // Find the selected vehicle from allVehiclesList
+    const selectedVehicle = allVehiclesList.find(
+      (vehicle) => vehicle.id === selectedValue
+    );
+
+    // If vehicle found, set its oil_change_limit
+    if (selectedVehicle) {
+      setOilChangeLimit(selectedVehicle.oil_change_limit);
+    }
   };
 
   // const handleTabChange = (tab) => {
@@ -182,13 +192,12 @@ const Page = () => {
 
   const bankOptions = allVehiclesList.map((vehcilees) => ({
     value: vehcilees.id,
-    label: vehcilees.vehicle_number,
+    label: `${vehcilees.vehicle_number} - ${vehcilees.modal_name}`,
   }));
 
   const handleDateChange = (name, value) => {
     setExpDate(value);
   };
-
 
   return (
     <div>
@@ -217,7 +226,7 @@ const Page = () => {
             value={selectedVehicleId}
           />
         </Grid>
-        <Grid item lg={4} xs={12} sm={6} md={6}>
+        <Grid className="mt-5" item lg={4} xs={12} sm={6} md={6}>
           <InputWithTitle3
             value={expense_date}
             onChange={handleDateChange}
