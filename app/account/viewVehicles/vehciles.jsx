@@ -53,6 +53,11 @@ const Vehciles = () => {
     }
   };
 
+  // Calculate the total sum of the total_amount field
+  const calculateTotalAmount = () => {
+    return expenseList.reduce((sum, row) => sum + (parseFloat(row.total_amount) || 0), 0);
+  };
+
   const listServiceTable = () => {
     return (
       <div className={tableStyles.tableContainer}>
@@ -77,17 +82,16 @@ const Vehciles = () => {
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 VAT
               </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Amount
-              </th>
+
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Oil Change Limit
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Payment Type
               </th>
+
               <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Action
+                Amount
               </th>
             </tr>
           </thead>
@@ -120,11 +124,7 @@ const Vehciles = () => {
                     {row.vat_amount}%
                   </div>
                 </td>
-                <td className="py-2 px-4">
-                  <div className={tableStyles.clientContact}>
-                    {row.total_amount}
-                  </div>
-                </td>
+
                 <td className="py-2 px-4">
                   <div className={tableStyles.clientContact}>
                     {row.oil_change_limit}
@@ -135,19 +135,22 @@ const Vehciles = () => {
                     {row.payment_type}
                   </div>
                 </td>
+
                 <td className="py-2 px-4">
                   <div className={tableStyles.clientContact}>
-                    <Link href={`/account/getVehicle?id=${row.id}`}>
-                      <span className="text-blue-600 hover:text-blue-800">
-                        View Details
-                      </span>
-                    </Link>
+                    {row.total_amount}
                   </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+
+        {/* Show the total sum at the bottom of the table */}
+        <div className="py-3 px-4 text-right">
+          <strong>Total Amount: </strong>
+          {calculateTotalAmount()}
+        </div>
       </div>
     );
   };

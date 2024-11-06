@@ -77,7 +77,7 @@ const Page = () => {
   };
 
   return (
-    <div>
+    <div> 
       <UpcomingJobs 
         jobsList={filteredList.length > 0 ? filteredList : jobsList} 
         handleDateChange={handleDateChange}

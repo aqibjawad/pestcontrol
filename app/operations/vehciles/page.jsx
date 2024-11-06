@@ -109,13 +109,6 @@ const Page = () => {
                         handleEditClick(item.id, item.vehicle_number)
                       }
                     />
-                    <Delete
-                      sx={{
-                        color: "red",
-                        marginLeft: "10px",
-                        cursor: "pointer",
-                      }}
-                    />
                   </>
                 )}
               </TableCell>

@@ -10,9 +10,7 @@ const CalendarComponent = ({
   const [selectedDates, setSelectedDates] = useState(initialDates);
 
   useEffect(() => {
-    console.log("Initial dates updated:", initialDates);
     if (JSON.stringify(selectedDates) !== JSON.stringify(initialDates)) {
-      console.log("Resetting selected dates to initial dates");
       setSelectedDates(initialDates);
     }
   }, [initialDates]);
@@ -27,34 +25,28 @@ const CalendarComponent = ({
   };
 
   const handleDateChange = (date) => {
-    console.log("Date changed:", date);
     if (!date) return;
 
     const formattedDate = formatDate(date);
     let newDates;
 
     if (selectedDates.includes(formattedDate)) {
-      console.log("Removing date:", formattedDate);
       // If date is already selected, remove it
       newDates = selectedDates.filter((d) => d !== formattedDate);
     } else {
-      console.log("Adding date:", formattedDate);
       // If date is not selected, add it
       newDates = [...selectedDates, formattedDate];
     }
 
-    console.log("Updated selected dates:", newDates);
     setSelectedDates(newDates);
     onDateChange(newDates);
   };
 
   const getHighlightedDates = () => {
-    console.log("Getting highlighted dates");
     return selectedDates.map((dateStr) => new Date(dateStr));
   };
 
   const getDisplayDates = () => {
-    console.log("Getting display dates");
     return selectedDates
       .map((dateStr) => new Date(dateStr).toLocaleDateString())
       .join(", ");
@@ -70,7 +62,6 @@ const CalendarComponent = ({
         dateFormat="yyyy-MM-dd"
         showTimeSelect={false} // Ensure no time selection
         dayClassName={(date) => {
-          console.log("Getting day class name for date:", date);
           return selectedDates.includes(formatDate(date))
             ? "selected-date"
             : undefined;

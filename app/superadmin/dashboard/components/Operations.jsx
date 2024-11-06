@@ -4,13 +4,15 @@ import React, { useState, useEffect } from "react";
 import styles from "../../../../styles/superAdmin/opreationStyles.module.css";
 
 import APICall from "@/networkUtil/APICall";
-import { dashboard, job, clients } from "@/networkUtil/Constants";
+import { dashboard } from "@/networkUtil/Constants";
 
 import DateFilters from "../../../../components/generic/DateFilters";
 
 import { format } from "date-fns";
 
 import Skeleton from "@mui/material/Skeleton";
+
+import Link from "next/link";
 
 const Operations = () => {
   const api = new APICall();
@@ -246,7 +248,7 @@ const Operations = () => {
             {fetchingData ? (
               <Skeleton variant="text" width={120} height={40} />
             ) : (
-              <div className={styles.counter}>{expenseList.total_expense}</div>
+              <div className={styles.counter}>{expenseList?.total_expense}</div>
             )}
           </div>
         </div>
@@ -286,7 +288,7 @@ const Operations = () => {
             {fetchingData ? (
               <Skeleton variant="text" width={120} height={40} />
             ) : (
-              <div className={styles.counter}>{cashList.total_cash}</div>
+              <div className={styles.counter}>{cashList?.total_cash}</div>
             )}
           </div>
           <div className="mt-2">
@@ -294,7 +296,7 @@ const Operations = () => {
             {fetchingData ? (
               <Skeleton variant="text" width={120} height={40} />
             ) : (
-              <div className={styles.counter}>{cashList.no_of_transection}</div>
+              <div className={styles.counter}>{cashList?.no_of_transection}</div>
             )}
           </div>
         </div>
@@ -334,7 +336,7 @@ const Operations = () => {
             {fetchingData ? (
               <Skeleton variant="text" width={120} height={40} />
             ) : (
-              <div className={styles.counter}>{posList.total_pos}</div>
+              <div className={styles.counter}>{posList?.total_pos}</div>
             )}
           </div>
           <div className="mt-2">
@@ -342,7 +344,7 @@ const Operations = () => {
             {fetchingData ? (
               <Skeleton variant="text" width={120} height={40} />
             ) : (
-              <div className={styles.counter}>{posList.no_of_transection}</div>
+              <div className={styles.counter}>{posList?.no_of_transection}</div>
             )}
           </div>
         </div>
@@ -383,7 +385,7 @@ const Operations = () => {
               <Skeleton variant="text" width={120} height={40} />
             ) : (
               <div className={styles.counter}>
-                {bankList.total_cheque_transfer}
+                {bankList?.total_cheque_transfer}
               </div>
             )}
           </div>
@@ -394,7 +396,7 @@ const Operations = () => {
               <Skeleton variant="text" width={120} height={40} />
             ) : (
               <div className={styles.counter}>
-                {bankList.total_cheque_count}
+                {bankList?.total_cheque_count}
               </div>
             )}
           </div>
@@ -412,7 +414,9 @@ const Operations = () => {
             {fetchingData ? (
               <Skeleton variant="text" width={120} height={40} />
             ) : (
-              <div className={styles.itemCount}>{clientsList?.clients_count}</div>
+              <div className={styles.itemCount}>
+                {clientsList?.clients_count}
+              </div>
             )}
           </div>
           <div>
@@ -434,7 +438,9 @@ const Operations = () => {
               />
               <DateFilters onDateChange={handleDateChange} />
             </div>
-            <div className={styles.addClient}> + Add New Client</div>
+            <div className={styles.addClient}>
+              <Link href="/clients">+ Add New Client</Link>
+            </div>
           </div>
         </div>
       </div>
@@ -472,7 +478,9 @@ const Operations = () => {
               />
               <DateFilters onDateChange={handleDateChange} />
             </div>
-            <div className={styles.addClient}> View All Jobs</div>
+            <div className={styles.addClient}>
+              <Link href="/allJobs">View All Jobs</Link>
+            </div>
           </div>
         </div>
       </div>
