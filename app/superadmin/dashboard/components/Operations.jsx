@@ -2,70 +2,50 @@
 
 import React, { useState, useEffect } from "react";
 import styles from "../../../../styles/superAdmin/opreationStyles.module.css";
-
 import APICall from "@/networkUtil/APICall";
 import { dashboard } from "@/networkUtil/Constants";
-
 import DateFilters from "../../../../components/generic/DateFilters";
-
 import { format } from "date-fns";
-
 import Skeleton from "@mui/material/Skeleton";
-
 import Link from "next/link";
 
 const Operations = () => {
   const api = new APICall();
-  const [fetchingData, setFetchingData] = useState(false);
 
+  // Separate states for each component's loading and date filters
+  const [filters, setFilters] = useState({
+    jobs: { startDate: null, endDate: null, loading: false },
+    clients: { startDate: null, endDate: null, loading: false },
+    cash: { startDate: null, endDate: null, loading: false },
+    pos: { startDate: null, endDate: null, loading: false },
+    expense: { startDate: null, endDate: null, loading: false },
+    bank: { startDate: null, endDate: null, loading: false },
+  });
+
+  // Data states
   const [jobsList, setJobsList] = useState([]);
   const [clientsList, setClientsList] = useState([]);
-
   const [cashList, setCashList] = useState([]);
   const [posList, setPosList] = useState([]);
   const [expenseList, setExpenseList] = useState([]);
   const [bankList, setBankList] = useState([]);
 
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
-
-  const handleDateChange = (start, end) => {
-    setStartDate(start);
-    setEndDate(end);
+  // Generic date change handler that takes component identifier
+  const handleDateChange = (component) => (start, end) => {
+    setFilters((prev) => ({
+      ...prev,
+      [component]: {
+        ...prev[component],
+        startDate: start,
+        endDate: end,
+      },
+    }));
   };
 
-  useEffect(() => {
-    getAllJobs();
-  }, [startDate, endDate]);
-
-  useEffect(() => {
-    getAllClients();
-  }, [startDate, endDate]);
-
-  useEffect(() => {
-    getCash();
-  }, [startDate, endDate]);
-
-  useEffect(() => {
-    getCash();
-  }, [startDate, endDate]);
-
-  useEffect(() => {
-    getPos();
-  }, [startDate, endDate]);
-
-  useEffect(() => {
-    getExpense();
-    getBank();
-  }, [startDate, endDate]);
-
-  useEffect(() => {
-    getBank();
-  }, [startDate, endDate]);
-
-  const getAllJobs = async () => {
-    setFetchingData(true);
+  // Generic function to get query params
+  const getQueryParams = (component) => {
     const queryParams = [];
+    const { startDate, endDate } = filters[component];
 
     if (startDate && endDate) {
       queryParams.push(`start_date=${startDate}`);
@@ -76,33 +56,35 @@ const Operations = () => {
       queryParams.push(`end_date=${currentDate}`);
     }
 
+    return queryParams;
+  };
+
+  // Individual fetch functions with component-specific loading states
+  const getAllJobs = async () => {
+    setFilters((prev) => ({ ...prev, jobs: { ...prev.jobs, loading: true } }));
     try {
+      const queryParams = getQueryParams("jobs");
       const response = await api.getDataWithToken(
         `${dashboard}/count_jobs?${queryParams.join("&")}`
       );
       setJobsList(response);
     } catch (error) {
-      console.error("Error fetching quotes:", error);
+      console.error("Error fetching jobs:", error);
     } finally {
-      setFetchingData(false);
+      setFilters((prev) => ({
+        ...prev,
+        jobs: { ...prev.jobs, loading: false },
+      }));
     }
   };
 
   const getAllClients = async () => {
-    setFetchingData(true);
-
-    const queryParams = [];
-
-    if (startDate && endDate) {
-      queryParams.push(`start_date=${startDate}`);
-      queryParams.push(`end_date=${endDate}`);
-    } else {
-      const currentDate = format(new Date(), "yyyy-MM-dd");
-      queryParams.push(`start_date=${currentDate}`);
-      queryParams.push(`end_date=${currentDate}`);
-    }
-
+    setFilters((prev) => ({
+      ...prev,
+      clients: { ...prev.clients, loading: true },
+    }));
     try {
+      const queryParams = getQueryParams("clients");
       const response = await api.getDataWithToken(
         `${dashboard}/count_clients?${queryParams.join("&")}`
       );
@@ -110,25 +92,17 @@ const Operations = () => {
     } catch (error) {
       console.error(error.message);
     } finally {
-      setFetchingData(false);
+      setFilters((prev) => ({
+        ...prev,
+        clients: { ...prev.clients, loading: false },
+      }));
     }
   };
 
   const getCash = async () => {
-    setFetchingData(true);
-
-    const queryParams = [];
-
-    if (startDate && endDate) {
-      queryParams.push(`start_date=${startDate}`);
-      queryParams.push(`end_date=${endDate}`);
-    } else {
-      const currentDate = format(new Date(), "yyyy-MM-dd");
-      queryParams.push(`start_date=${currentDate}`);
-      queryParams.push(`end_date=${currentDate}`);
-    }
-
+    setFilters((prev) => ({ ...prev, cash: { ...prev.cash, loading: true } }));
     try {
+      const queryParams = getQueryParams("cash");
       const response = await api.getDataWithToken(
         `${dashboard}/cash_collection?${queryParams.join("&")}`
       );
@@ -136,25 +110,17 @@ const Operations = () => {
     } catch (error) {
       console.error(error.message);
     } finally {
-      setFetchingData(false);
+      setFilters((prev) => ({
+        ...prev,
+        cash: { ...prev.cash, loading: false },
+      }));
     }
   };
 
   const getPos = async () => {
-    setFetchingData(true);
-
-    const queryParams = [];
-
-    if (startDate && endDate) {
-      queryParams.push(`start_date=${startDate}`);
-      queryParams.push(`end_date=${endDate}`);
-    } else {
-      const currentDate = format(new Date(), "yyyy-MM-dd");
-      queryParams.push(`start_date=${currentDate}`);
-      queryParams.push(`end_date=${currentDate}`);
-    }
-
+    setFilters((prev) => ({ ...prev, pos: { ...prev.pos, loading: true } }));
     try {
+      const queryParams = getQueryParams("pos");
       const response = await api.getDataWithToken(
         `${dashboard}/pos_collection?${queryParams.join("&")}`
       );
@@ -162,25 +128,17 @@ const Operations = () => {
     } catch (error) {
       console.error(error.message);
     } finally {
-      setFetchingData(false);
+      setFilters((prev) => ({ ...prev, pos: { ...prev.pos, loading: false } }));
     }
   };
 
   const getExpense = async () => {
-    setFetchingData(true);
-
-    const queryParams = [];
-
-    if (startDate && endDate) {
-      queryParams.push(`start_date=${startDate}`);
-      queryParams.push(`end_date=${endDate}`);
-    } else {
-      const currentDate = format(new Date(), "yyyy-MM-dd");
-      queryParams.push(`start_date=${currentDate}`);
-      queryParams.push(`end_date=${currentDate}`);
-    }
-
+    setFilters((prev) => ({
+      ...prev,
+      expense: { ...prev.expense, loading: true },
+    }));
     try {
+      const queryParams = getQueryParams("expense");
       const response = await api.getDataWithToken(
         `${dashboard}/expense_collection?${queryParams.join("&")}`
       );
@@ -188,25 +146,17 @@ const Operations = () => {
     } catch (error) {
       console.error(error.message);
     } finally {
-      setFetchingData(false);
+      setFilters((prev) => ({
+        ...prev,
+        expense: { ...prev.expense, loading: false },
+      }));
     }
   };
 
   const getBank = async () => {
-    setFetchingData(true);
-
-    const queryParams = [];
-
-    if (startDate && endDate) {
-      queryParams.push(`start_date=${startDate}`);
-      queryParams.push(`end_date=${endDate}`);
-    } else {
-      const currentDate = format(new Date(), "yyyy-MM-dd");
-      queryParams.push(`start_date=${currentDate}`);
-      queryParams.push(`end_date=${currentDate}`);
-    }
-
+    setFilters((prev) => ({ ...prev, bank: { ...prev.bank, loading: true } }));
     try {
+      const queryParams = getQueryParams("bank");
       const response = await api.getDataWithToken(
         `${dashboard}/bank_collection?${queryParams.join("&")}`
       );
@@ -214,42 +164,150 @@ const Operations = () => {
     } catch (error) {
       console.error(error.message);
     } finally {
-      setFetchingData(false);
+      setFilters((prev) => ({
+        ...prev,
+        bank: { ...prev.bank, loading: false },
+      }));
     }
   };
 
-  // All Components
-  const totalExpenses = () => {
-    return (
-      <div className={styles.itemContainer}>
-        <div className="flex">
-          <div
-            style={{
-              border: "1px solid #38A73B",
-              borderRadius: "8px",
-              height: "40px",
-              width: "150px",
-              alignItems: "center",
-              display: "flex",
-            }}
-          >
-            <img
-              src="/Filters lines.svg"
-              height={20}
-              width={20}
-              className="ml-2 mr-2"
-            />
-            <DateFilters onDateChange={handleDateChange} />
-          </div>
+  // Individual useEffects for each component
+  useEffect(() => {
+    getAllJobs();
+  }, [filters.jobs.startDate, filters.jobs.endDate]);
+
+  useEffect(() => {
+    getAllClients();
+  }, [filters.clients.startDate, filters.clients.endDate]);
+
+  useEffect(() => {
+    getCash();
+  }, [filters.cash.startDate, filters.cash.endDate]);
+
+  useEffect(() => {
+    getPos();
+  }, [filters.pos.startDate, filters.pos.endDate]);
+
+  useEffect(() => {
+    getExpense();
+  }, [filters.expense.startDate, filters.expense.endDate]);
+
+  useEffect(() => {
+    getBank();
+  }, [filters.bank.startDate, filters.bank.endDate]);
+
+  // Component render functions
+  const totalExpenses = () => (
+    <div className={styles.itemContainer}>
+      <div className="flex">
+        <div
+          style={{
+            border: "1px solid #38A73B",
+            borderRadius: "8px",
+            height: "40px",
+            width: "150px",
+            alignItems: "center",
+            display: "flex",
+          }}
+        >
+          <img
+            src="/Filters lines.svg"
+            height={20}
+            width={20}
+            className="ml-2 mr-2"
+          />
+          <DateFilters onDateChange={handleDateChange("expense")} />
         </div>
-        <div className="flex">
-          <div className="flex-grow mt-2">
-            <div className={styles.itemTitle}>Total expense</div>
-            {fetchingData ? (
+      </div>
+      <div className="flex">
+        <div className="flex-grow mt-2">
+          <div className={styles.itemTitle}>Total expense</div>
+          {filters.expense.loading ? (
+            <Skeleton variant="text" width={120} height={40} />
+          ) : (
+            <div className={styles.counter}>{expenseList?.total_expense}</div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  const numberOfClients = () => {
+    return (
+      <div className="flex gap-4 mt-5">
+        <div className={` flex flex-grow ${styles.itemContainer} `}>
+          <div className="flex-grow">
+            <div className={styles.itemTitle}>{"Number of Clients"}</div>
+            {filters.clients.loading ? (
               <Skeleton variant="text" width={120} height={40} />
             ) : (
-              <div className={styles.counter}>{expenseList?.total_expense}</div>
+              <div className={styles.itemCount}>
+                {clientsList?.clients_count}
+              </div>
             )}
+          </div>
+          <div>
+            <div
+              style={{
+                border: "1px solid #38A73B",
+                borderRadius: "8px",
+                height: "40px",
+                width: "150px",
+                alignItems: "center",
+                display: "flex",
+              }}
+            >
+              <img
+                src="/Filters lines.svg"
+                height={20}
+                width={20}
+                className="ml-2 mr-2"
+              />
+              <DateFilters onDateChange={handleDateChange("clients")} />
+            </div>
+            <div className={styles.addClient}>
+              <Link href="/clients">+ Add New Client</Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const numberOfJobs = () => {
+    return (
+      <div className="flex gap-4 mt-5">
+        <div className={` flex flex-grow ${styles.itemContainer} `}>
+          <div className="flex-grow">
+            <div className={styles.itemTitle}>{"Number of Jobs"}</div>
+            {filters.jobs.loading ? (
+              <Skeleton variant="text" width={120} height={40} />
+            ) : (
+              <div className={styles.itemCount}>{jobsList?.jobs_count}</div>
+            )}
+          </div>
+          <div>
+            <div
+              style={{
+                border: "1px solid #38A73B",
+                borderRadius: "8px",
+                height: "40px",
+                width: "150px",
+                alignItems: "center",
+                display: "flex",
+              }}
+            >
+              <img
+                src="/Filters lines.svg"
+                height={20}
+                width={20}
+                className="ml-2 mr-2"
+              />
+              <DateFilters onDateChange={handleDateChange("jobs")} />
+            </div>
+            <div className={styles.addClient}>
+              <Link href="/allJobs">View All Jobs</Link>
+            </div>
           </div>
         </div>
       </div>
@@ -285,18 +343,20 @@ const Operations = () => {
         <div className="flex">
           <div className="flex-grow mt-2">
             <div className={styles.itemTitle}>Total Collection</div>
-            {fetchingData ? (
+            {filters.cash.loading ? (
               <Skeleton variant="text" width={120} height={40} />
             ) : (
-              <div className={styles.counter}>{cashList?.total_cash}</div>
+              <div>{cashList?.total_cash}</div>
             )}
           </div>
           <div className="mt-2">
             <div className={styles.itemTitle}>Total Transactions</div>
-            {fetchingData ? (
+            {filters.cash.loading ? (
               <Skeleton variant="text" width={120} height={40} />
             ) : (
-              <div className={styles.counter}>{cashList?.no_of_transection}</div>
+              <div>
+                {cashList?.no_of_transection}
+              </div>
             )}
           </div>
         </div>
@@ -333,18 +393,20 @@ const Operations = () => {
         <div className="flex">
           <div className="flex-grow mt-2">
             <div className={styles.itemTitle}>Total Amount</div>
-            {fetchingData ? (
+            {filters.pos.loading ? (
               <Skeleton variant="text" width={120} height={40} />
             ) : (
-              <div className={styles.counter}>{posList?.total_pos}</div>
+              <div>{posList?.total_pos}</div>
             )}
           </div>
           <div className="mt-2">
             <div className={styles.itemTitle}>Total Transactions</div>
-            {fetchingData ? (
+            {filters.pos.loading ? (
               <Skeleton variant="text" width={120} height={40} />
             ) : (
-              <div className={styles.counter}>{posList?.no_of_transection}</div>
+              <div>
+                {posList?.no_of_transection}
+              </div>
             )}
           </div>
         </div>
@@ -381,10 +443,10 @@ const Operations = () => {
         <div className="flex">
           <div className="flex-grow mt-2">
             <div className={styles.itemTitle}>total Transfers</div>
-            {fetchingData ? (
+            {filters.bank.loading ? (
               <Skeleton variant="text" width={120} height={40} />
             ) : (
-              <div className={styles.counter}>
+              <div>
                 {bankList?.total_cheque_transfer}
               </div>
             )}
@@ -392,10 +454,10 @@ const Operations = () => {
 
           <div className="mt-2">
             <div className={styles.itemTitle}>total count</div>
-            {fetchingData ? (
+            {filters.bank.loading ? (
               <Skeleton variant="text" width={120} height={40} />
             ) : (
-              <div className={styles.counter}>
+              <div>
                 {bankList?.total_cheque_count}
               </div>
             )}
@@ -405,99 +467,13 @@ const Operations = () => {
     );
   };
 
-  const numberOfClients = () => {
-    return (
-      <div className="flex gap-4 mt-5">
-        <div className={` flex flex-grow ${styles.itemContainer} `}>
-          <div className="flex-grow">
-            <div className={styles.itemTitle}>{"Number of Clients"}</div>
-            {fetchingData ? (
-              <Skeleton variant="text" width={120} height={40} />
-            ) : (
-              <div className={styles.itemCount}>
-                {clientsList?.clients_count}
-              </div>
-            )}
-          </div>
-          <div>
-            <div
-              style={{
-                border: "1px solid #38A73B",
-                borderRadius: "8px",
-                height: "40px",
-                width: "150px",
-                alignItems: "center",
-                display: "flex",
-              }}
-            >
-              <img
-                src="/Filters lines.svg"
-                height={20}
-                width={20}
-                className="ml-2 mr-2"
-              />
-              <DateFilters onDateChange={handleDateChange} />
-            </div>
-            <div className={styles.addClient}>
-              <Link href="/clients">+ Add New Client</Link>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const numberOfJobs = () => {
-    return (
-      <div className="flex gap-4 mt-5">
-        <div className={` flex flex-grow ${styles.itemContainer} `}>
-          <div className="flex-grow">
-            <div className={styles.itemTitle}>{"Number of Jobs"}</div>
-            {fetchingData ? (
-              <Skeleton variant="text" width={120} height={40} />
-            ) : (
-              <div className={styles.itemCount}>{jobsList?.jobs_count}</div>
-            )}
-          </div>
-          <div>
-            <div
-              style={{
-                border: "1px solid #38A73B",
-                borderRadius: "8px",
-                height: "40px",
-                width: "150px",
-                alignItems: "center",
-                display: "flex",
-              }}
-            >
-              <img
-                src="/Filters lines.svg"
-                height={20}
-                width={20}
-                className="ml-2 mr-2"
-              />
-              <DateFilters onDateChange={handleDateChange} />
-            </div>
-            <div className={styles.addClient}>
-              <Link href="/allJobs">View All Jobs</Link>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div>
       <div className="pageTitle">Operations</div>
-
-      {/* Wrap number of clients and number of jobs in a grid */}
       <div className="grid grid-cols-2 gap-4">
         <div>{numberOfClients()}</div>
         <div>{numberOfJobs()}</div>
       </div>
-
-      {/* {teamAndVehicales()} */}
       <div className="mt-5"></div>
       <div className="pageTitle">Accounts</div>
       <div className="mt-10">
