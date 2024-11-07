@@ -243,7 +243,7 @@ const Page = () => {
               </TableRow>
               <TableRow>
                 <TableCell>Date</TableCell>
-                <TableCell>{formatDate(jobList.updated_at)}</TableCell>
+                <TableCell>{formatDate(jobList.job_date)}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>Client Contact</TableCell>
