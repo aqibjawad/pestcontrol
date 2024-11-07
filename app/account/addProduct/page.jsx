@@ -46,6 +46,8 @@ const Page = () => {
 
   const [attachments, setAttachments] = useState([]);
 
+  const [product_category, setProductCategory] = useState("");
+
   useEffect(() => {
     getAllBrands();
   }, []);
@@ -203,8 +205,8 @@ const Page = () => {
 
   const firstSection = () => {
     return (
-      <div className="mt-10">
-        <div className="grid grid-cols-2 gap-10">
+      <div>
+        <div className=" mt-5 grid grid-cols-2 gap-10">
           <div>
             <InputWithTitle
               title={"Item Name"}
@@ -224,6 +226,7 @@ const Page = () => {
             />
           </div>
         </div>
+
         <div className="mt-5">
           {fetchingData ? (
             <Skeleton height={40} />
@@ -246,42 +249,49 @@ const Page = () => {
             </>
           )}
         </div>
-        <div className="mt-5">
-          <InputWithTitle
-            onChange={handleManufactureDateChange}
-            title={"Manufacture Date"}
-            type={"date"}
-            value={mfg_date}
-          />
-        </div>
-        <div className="mt-5">
-          <InputWithTitle
-            onChange={handleExpiryDateChange}
-            title={"Expiry Date"}
-            type={"date"}
-            value={exp_date}
-            min={mfg_date}
-          />
-        </div>
-        <div className="mt-5">
-          <InputWithTitle
-            placeholder={"Active Ingredient"}
-            onChange={setActiveIngredients}
-            title={"Active Ingredient"}
-            type={"text"}
-            value={active_ingredients}
-          />
-        </div>
+
+        {product_category === "Pest Control Chemical" && (
+          <div className="mt-10">
+            <div className="mt-5">
+              <InputWithTitle
+                onChange={handleManufactureDateChange}
+                title={"Manufacture Date"}
+                type={"date"}
+                value={mfg_date}
+              />
+            </div>
+            <div className="mt-5">
+              <InputWithTitle
+                onChange={handleExpiryDateChange}
+                title={"Expiry Date"}
+                type={"date"}
+                value={exp_date}
+                min={mfg_date}
+              />
+            </div>
+            <div className="mt-5">
+              <InputWithTitle
+                placeholder={"Active Ingredient"}
+                onChange={setActiveIngredients}
+                title={"Active Ingredient"}
+                type={"text"}
+                value={active_ingredients}
+              />
+            </div>
+            <div className="mt-5">
+              <UploadImagePlaceholder
+                onFileSelect={handleAttachmentSelect}
+                title={"Attachment"}
+                multiple
+              />
+            </div>
+          </div>
+        )}
+
         <div className="mt-5">
           <UploadImagePlaceholder
             onFileSelect={handleProductPictureSelect}
             title={"Product Image"}
-          />
-
-          <UploadImagePlaceholder
-            onFileSelect={handleAttachmentSelect}
-            title={"Attachment"}
-            multiple
           />
         </div>
       </div>
@@ -289,83 +299,126 @@ const Page = () => {
   };
 
   const secondSection = () => {
+    const isCategoryProtectionOrMachine =
+      product_category === "Protection Equipment" ||
+      product_category === "Machine";
+
+    useEffect(() => {
+      if (isCategoryProtectionOrMachine) {
+        setProductType("Pieces");
+        setUnit("No");
+      }
+    }, [product_category]);
+
     return (
       <div className="mt-10">
-        <Dropdown
-          options={["Powder", "Liquid", "Gel", "Pieces"]}
-          title={"Product Type"}
-          onChange={(value) => setProductType(value)}
-        />
-        <div className="mt-10">
-          <div className="flex gap-4">
-            <div className="flex-grow">
-              <InputWithTitle
-                title={"Per Item Quantity"}
-                type={"text"}
-                placeholder={"Per Item Quantity"}
-                onChange={setPerItemQuantity}
-                value={per_item_qty}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-10">
-          <div className="flex gap-4">
-            <div className="flex-grow">
-              <Dropdown
-                title={"Unit"}
-                options={["ML", "GRAM"]}
-                onChange={(value) => setUnit(value)}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-10">
+        <div className="mt-5 flex gap-4">
           <div className="flex-grow">
             <InputWithTitle
-              title={"Other Ingredients"}
+              title={"Per Item Quantity"}
               type={"text"}
-              placeholder={"Other Ingredients"}
-              onChange={setOtherIngredients}
-              value={others_ingredients}
+              placeholder={"Per Item Quantity"}
+              onChange={setPerItemQuantity}
+              value={per_item_qty}
             />
           </div>
         </div>
 
-        <div className="mt-10">
-          <div className="flex-grow">
-            <Dropdown
-              options={["Approved", "Not Approved"]}
-              title={"MOCCAE Approval"}
-              onChange={(value) => setMoccaeApproved(value)}
-            />
-          </div>
-        </div>
-
-        <div className="mt-10">
-          <div className="flex gap-4">
-            <div className="flex-grow">
-              <InputWithTitle
-                title={"MOCCAE Start Date"}
-                type={"date"}
-                onChange={handleMocaStartDateChange}
-                value={moccae_start_date}
+        {/* For "Pest Control Chemical" category, show dropdowns */}
+        {product_category === "Pest Control Chemical" && (
+          <>
+            <div className="mt-10">
+              <Dropdown
+                options={["Powder", "Liquid", "Gel", "Pieces"]}
+                title={"Product Type"}
+                onChange={(value) => setProductType(value)}
+                value={product_type}
               />
             </div>
-            <div className="flex-grow">
+
+            <div className="mt-10">
+              <div className="flex gap-4">
+                <div className="flex-grow">
+                  <Dropdown
+                    title={"Unit"}
+                    options={["ML", "GRAM"]}
+                    onChange={(value) => setUnit(value)}
+                    value={unit}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-10">
+              <div className="flex-grow">
+                <InputWithTitle
+                  title={"Other Ingredients"}
+                  type={"text"}
+                  placeholder={"Other Ingredients"}
+                  onChange={setOtherIngredients}
+                  value={others_ingredients}
+                />
+              </div>
+            </div>
+
+            <div className="mt-10">
+              <div className="flex-grow">
+                <Dropdown
+                  options={["Approved", "Not Approved"]}
+                  title={"MOCCAE Approval"}
+                  onChange={(value) => setMoccaeApproved(value)}
+                />
+              </div>
+            </div>
+
+            <div className="mt-10">
+              <div className="flex gap-4">
+                <div className="flex-grow">
+                  <InputWithTitle
+                    title={"MOCCAE Start Date"}
+                    type={"date"}
+                    onChange={handleMocaStartDateChange}
+                    value={moccae_start_date}
+                  />
+                </div>
+                <div className="flex-grow">
+                  <InputWithTitle
+                    title={"MOCCAE Expiry Date"}
+                    type={"date"}
+                    onChange={handleMocaExpiryDateChange}
+                    value={moccae_exp_date}
+                    min={moccae_start_date}
+                  />
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* For "Protection Equipment" or "Machine", hardcode the values */}
+        {isCategoryProtectionOrMachine && (
+          <>
+            <div className="mt-10">
               <InputWithTitle
-                title={"MOCCAE Expiry Date"}
-                type={"date"}
-                onChange={handleMocaExpiryDateChange}
-                value={moccae_exp_date}
-                min={moccae_start_date}
+                title={"Product Type"}
+                type={"text"}
+                value="Pieces" // Hardcoded value
+                disabled
               />
             </div>
-          </div>
-        </div>
 
+            <div className="mt-10">
+              <InputWithTitle
+                title={"Unit"}
+                type={"text"}
+                value="No" // Hardcoded value
+                disabled
+              />
+            </div>
+          </>
+        )}
+
+        {/* Description always displayed */}
         <div className="mt-10">
           <MultilineInput
             title={"Description"}
@@ -381,6 +434,13 @@ const Page = () => {
   return (
     <div>
       <div className="pageTitle">Add Inventory Item</div>
+      <div className="mt-5">
+        <Dropdown
+          options={["Pest Control Chemical", "Protection Equipment", "Machine"]}
+          title={"Product Categories"}
+          onChange={(value) => setProductCategory(value)}
+        />
+      </div>
       <div className="grid grid-cols-2 gap-10">
         <div>{firstSection()}</div>
         <div>{secondSection()}</div>

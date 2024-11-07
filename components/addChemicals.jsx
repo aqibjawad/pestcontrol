@@ -20,11 +20,9 @@ const AddChemicals = ({
     name: "",
     dose: 1,
     qty: "",
+    remaining_qty: "",
   });
   const [products, setProducts] = useState([]);
-
-  const [productId, setSelectedProductId] = useState("");
-
   const [brands, setBrandList] = useState([]);
 
   const handleInputChange = (field, value) => {
@@ -41,7 +39,8 @@ const AddChemicals = ({
       name: "",
       dose: "",
       qty: "",
-      price:0,
+      remaining_qty: "",
+      price: 0,
     });
     handleCloseUseChemicals();
   };
@@ -55,20 +54,19 @@ const AddChemicals = ({
       const response = await api.getDataWithToken(product);
       setProducts(response.data);
       const brandNames = response.data.map((item) => item.product_name);
-
       setBrandList(brandNames);
     } catch (error) {
       console.error("Error fetching products:", error);
     }
   };
 
-  // Transform products for dropdown
   const handleProductChange = (name, index) => {
     const selectedProduct = products[index];
     setChemicalData((prev) => ({
       ...prev,
       product_id: selectedProduct.id,
       name: selectedProduct.product_name,
+      remaining_qty: selectedProduct.stocks[0]?.remaining_qty || "N/A",
     }));
   };
 
@@ -105,18 +103,9 @@ const AddChemicals = ({
             onChange={handleProductChange}
           />
         </div>
-        {/* <div className="mt-5">
-          <InputWithTitle
-            title="Dose"
-            type="text"
-            placeholder="Dose"
-            value={chemicalData.dose}
-            onChange={(value) => handleInputChange("dose", value)}
-          />
-        </div> */}
         <div className="mt-5">
           <InputWithTitle
-            title="qty"
+            title={`Quantity (Available: ${chemicalData.remaining_qty})`}
             type="text"
             placeholder="qty"
             value={chemicalData.qty}
@@ -124,7 +113,11 @@ const AddChemicals = ({
           />
         </div>
         <div className="mt-5">
-          <GreenButton title="Submit" onClick={handleSubmit} />
+          <GreenButton
+            title="Submit"
+            onClick={handleSubmit}
+            disabled={!chemicalData.qty || chemicalData.qty <= 0} // Disable button if qty <= 0
+          />
         </div>
       </Box>
     </Modal>
