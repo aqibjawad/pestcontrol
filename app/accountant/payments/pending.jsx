@@ -106,7 +106,7 @@ const Pending = () => {
                   </TableCell>
                   <TableCell>{row?.status}</TableCell>
                   <TableCell> 
-                    <Link href={`/invoiceDetails?id=${row.id}`}>
+                    <Link href={`/invoiceDetails?id=${row.service_invoice_id}`}>
                       <span className="text-blue-600 hover:text-blue-800">
                         View Details
                       </span>

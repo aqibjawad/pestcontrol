@@ -170,7 +170,7 @@ const Page = () => {
     const amountInWords = numberToWords(numAmount);
     return `Total Amount AED ${numAmount.toFixed(2)} (${amountInWords} Only)`;
   };
-  
+
   return (
     <Layout>
       <Grid container spacing={2}>
@@ -202,11 +202,25 @@ const Page = () => {
             <Table>
               <TableHead style={{ backgroundColor: "lightgreen" }}>
                 <TableRow>
-                  <TableCell align="left" style={{ color: "white" }}>
+                  <TableCell
+                    sx={{
+                      color: "black",
+                      padding: "4px 16px",
+                      lineHeight: "1rem",
+                      fontWeight: "bold",
+                    }}
+                  >
                     Tax Invoice
                   </TableCell>
-                  <TableCell align="left" style={{ color: "white" }}>
-                    TotaL Amount
+                  <TableCell
+                    sx={{
+                      color: "black",
+                      padding: "4px 16px",
+                      lineHeight: "1rem",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Total Amount
                   </TableCell>
                 </TableRow>
               </TableHead>
@@ -226,17 +240,70 @@ const Page = () => {
           <Table>
             <TableHead style={{ backgroundColor: "#32A92E", color: "white" }}>
               <TableRow>
-                <TableCell>Description</TableCell>
-                <TableCell align="right">Rate (AED)</TableCell>
-                <TableCell align="right">Total (AED)</TableCell>
+                <TableCell
+                  sx={{
+                    color: "white",
+                    padding: "4px 16px",
+                    lineHeight: "1rem",
+                  }}
+                >
+                  Description
+                </TableCell>
+                <TableCell
+                  sx={{
+                    color: "white",
+                    padding: "4px 16px",
+                    lineHeight: "1rem",
+                  }}
+                  align="right"
+                >
+                  Rate (AED)
+                </TableCell>
+                <TableCell
+                  sx={{
+                    color: "white",
+                    padding: "4px 16px",
+                    lineHeight: "1rem",
+                  }}
+                  align="right"
+                >
+                  Total (AED)
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {invoiceList?.details?.map((item, index) => (
                 <TableRow key={index}>
-                  <TableCell> General Pest Control </TableCell>
-                  <TableCell align="right">{item.rate}</TableCell>
-                  <TableCell align="right">{item.sub_total}</TableCell>
+                  <TableCell
+                    sx={{
+                      color: "black",
+                      padding: "4px 16px",
+                      lineHeight: "1rem",
+                    }}
+                  >
+                    {" "}
+                    General Pest Control{" "}
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      color: "black",
+                      padding: "4px 16px",
+                      lineHeight: "1rem",
+                    }}
+                    align="right"
+                  >
+                    {item.rate}
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      color: "black",
+                      padding: "4px 16px",
+                      lineHeight: "1rem",
+                    }}
+                    align="right"
+                  >
+                    {item.sub_total}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
