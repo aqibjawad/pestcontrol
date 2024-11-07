@@ -1,6 +1,7 @@
 "use client";
 import Dropdown from "@/components/generic/Dropdown";
 import InputWithTitle from "@/components/generic/InputWithTitle";
+import InputWithTitle3 from "@/components/generic/InputWithTitle3";
 import { Skeleton } from "@mui/material";
 import { brand, product } from "@/networkUtil/Constants";
 import React, { useEffect, useState } from "react";
@@ -71,43 +72,43 @@ const Page = () => {
     }
   };
 
-  const handleManufactureDateChange = (date) => {
-    setManufactureDate(date);
-    if (exp_date && new Date(exp_date) <= new Date(date)) {
-      setExpiryDate("");
-    }
-  };
+  // const handleManufactureDateChange = (date) => {
+  //   setManufactureDate(date);
+  //   if (exp_date && new Date(exp_date) <= new Date(date)) {
+  //     setExpiryDate("");
+  //   }
+  // };
 
-  const handleMocaStartDateChange = (date) => {
-    setMocaStartDate(date);
-    if (moccae_exp_date && new Date(moccae_exp_date) <= new Date(date)) {
-      setMocaExpiryDate("");
-    }
-  };
+  // const handleMocaStartDateChange = (date) => {
+  //   setMocaStartDate(date);
+  //   if (moccae_exp_date && new Date(moccae_exp_date) <= new Date(date)) {
+  //     setMocaExpiryDate("");
+  //   }
+  // };
 
-  const handleMocaExpiryDateChange = (date) => {
-    if (new Date(date) > new Date(moccae_start_date)) {
-      setMocaExpiryDate(date);
-    } else {
-      Swal.fire({
-        icon: "error",
-        title: "Invalid Date",
-        text: "MOCCAE expiry date must be after the MOCCAE start date.",
-      });
-    }
-  };
+  // const handleMocaExpiryDateChange = (date) => {
+  //   if (new Date(date) > new Date(moccae_start_date)) {
+  //     setMocaExpiryDate(date);
+  //   } else {
+  //     Swal.fire({
+  //       icon: "error",
+  //       title: "Invalid Date",
+  //       text: "MOCCAE expiry date must be after the MOCCAE start date.",
+  //     });
+  //   }
+  // };
 
-  const handleExpiryDateChange = (date) => {
-    if (new Date(date) > new Date(mfg_date)) {
-      setExpiryDate(date);
-    } else {
-      Swal.fire({
-        icon: "error",
-        title: "Invalid Date",
-        text: "Expiry date must be after the manufacture date.",
-      });
-    }
-  };
+  // const handleExpiryDateChange = (date) => {
+  //   if (new Date(date) > new Date(mfg_date)) {
+  //     setExpiryDate(date);
+  //   } else {
+  //     Swal.fire({
+  //       icon: "error",
+  //       title: "Invalid Date",
+  //       text: "Expiry date must be after the manufacture date.",
+  //     });
+  //   }
+  // };
 
   const handleAttachmentSelect = (file) => {
     console.log("Selected Attachment:", file);
@@ -203,6 +204,22 @@ const Page = () => {
     setProductPicture(file);
   };
 
+  const handleManufactureDateChange = (name, value) => {
+    setManufactureDate(value);
+  };
+
+  const handleExpiryDateChange = (name, value) => {
+    setExpiryDate(value);
+  };
+
+  const handleMocaStartDateChange = (name, value) => {
+    setMocaStartDate(value);
+  };
+
+  const handleMocaExpiryDateChange = (name, value) => {
+    setMocaExpiryDate(value);
+  };
+
   const firstSection = () => {
     return (
       <div>
@@ -253,7 +270,7 @@ const Page = () => {
         {product_category === "Pest Control Chemical" && (
           <div className="mt-10">
             <div className="mt-5">
-              <InputWithTitle
+              <InputWithTitle3
                 onChange={handleManufactureDateChange}
                 title={"Manufacture Date"}
                 type={"date"}
@@ -261,7 +278,7 @@ const Page = () => {
               />
             </div>
             <div className="mt-5">
-              <InputWithTitle
+              <InputWithTitle3
                 onChange={handleExpiryDateChange}
                 title={"Expiry Date"}
                 type={"date"}
@@ -374,7 +391,7 @@ const Page = () => {
             <div className="mt-10">
               <div className="flex gap-4">
                 <div className="flex-grow">
-                  <InputWithTitle
+                  <InputWithTitle3
                     title={"MOCCAE Start Date"}
                     type={"date"}
                     onChange={handleMocaStartDateChange}
@@ -382,7 +399,7 @@ const Page = () => {
                   />
                 </div>
                 <div className="flex-grow">
-                  <InputWithTitle
+                  <InputWithTitle3
                     title={"MOCCAE Expiry Date"}
                     type={"date"}
                     onChange={handleMocaExpiryDateChange}

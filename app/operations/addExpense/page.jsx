@@ -203,7 +203,7 @@ const Page = () => {
   };
 
   const expenseForm = () => {
-    return (
+    return ( 
       <div>
         <InputWithTitle
           title={"Expense Name"}
