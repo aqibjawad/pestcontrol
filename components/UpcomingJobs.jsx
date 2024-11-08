@@ -76,9 +76,9 @@ const UpcomingJobs = ({
         <td>
           <div className={styles.teamCaptainName}>
             {row.reschedule_dates?.length > 1 ? (
-              <span>Reschedule</span>
+              <span style={{ color: "red", fontSize:"15px" }}>Reschedule</span>
             ) : (
-              <span>No Reschedule</span>
+              <span style={{ fontSize:"15px" }}>Regular Job</span>
             )}
           </div>
         </td>
