@@ -78,9 +78,10 @@ const Page = () => {
       {jobList?.captain_id !== null && (
         <>
           <Members jobList={jobList} />
-          <ResheduleTreatment jobList={jobList} jobId={id} />
         </>
       )}
+
+      <ResheduleTreatment jobList={jobList} jobId={id} />
 
       {jobList?.captain_id === null && (
         <div className="mt-5">

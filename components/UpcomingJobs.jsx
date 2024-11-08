@@ -75,6 +75,15 @@ const UpcomingJobs = ({
         </td>
         <td>
           <div className={styles.teamCaptainName}>
+            {row.reschedule_dates?.length > 1 ? (
+              <span>Reschedule</span>
+            ) : (
+              <span>No Reschedule</span>
+            )}
+          </div>
+        </td>
+        <td>
+          <div className={styles.teamCaptainName}>
             {row.captain_id === null ? (
               <Link href={`/operations/assignJob?id=${row.id}`}>
                 <GreenButton onClick={assignedJob} title="Assign Job" />
@@ -95,7 +104,7 @@ const UpcomingJobs = ({
                   />
                 </Link>
               ) : (
-                <Link href={`/serviceRpoertPdf?id=${row?.report?.id}`}>
+                <Link href={`/serviceReportPdf?id=${row?.report?.id}`}>
                   <GreenButton onClick={assignedJob} title="View Report" />
                 </Link>
               )
@@ -124,27 +133,22 @@ const UpcomingJobs = ({
 
   const renderFilterButtons = () => (
     <>
-      <GreenButton
-        title="Assigned"
+      <button
         onClick={() => handleFilter("assigned")}
-        style={{
-          backgroundColor: isActiveFilter("assigned") ? "#2c852f" : "#38A73B",
-          color: "white",
-          marginLeft: "12px",
-        }}
-      />
-      <div className="ml-5">
-        <GreenButton
-          title="Not Assigned"
-          onClick={() => handleFilter("not-assigned")}
-          style={{
-            backgroundColor: isActiveFilter("not-assigned")
-              ? "#2c852f"
-              : "#38A73B",
-            color: "white",
-          }}
-        />
-      </div>
+        className={`py-2 px-4 rounded text-white ml-3 ${
+          isActiveFilter("assigned") ? "bg-green-700" : "bg-green-500"
+        }`}
+      >
+        Assigned
+      </button>
+      <button
+        onClick={() => handleFilter("not-assigned")}
+        className={`py-2 px-4 rounded text-white ml-5 ${
+          isActiveFilter("not-assigned") ? "bg-green-700" : "bg-green-500"
+        }`}
+      >
+        Not Assigned
+      </button>
     </>
   );
 
@@ -176,6 +180,7 @@ const UpcomingJobs = ({
                 "Job Name",
                 "Status",
                 "Priority",
+                "Reschedule",
                 "Assign Job",
                 "View Details",
               ].map((header, index) => (

@@ -26,7 +26,7 @@ const Scheduler = () => {
 
   useEffect(() => {
     getAllQuotes();
-  }, []);
+  }, [selectedDate]); // Trigger API call when selectedDate changes
 
   const getAllQuotes = async () => {
     setFetchingData(true);
@@ -102,9 +102,7 @@ const Scheduler = () => {
                       <TableRow key={job.id}>
                         <TableCell>{job.quote_title}</TableCell>
                         <TableCell>{job.billing_method}</TableCell>
-                        <TableCell>
-                          {job.contract_start_date}
-                        </TableCell>
+                        <TableCell>{job.contract_start_date}</TableCell>
                         <TableCell>{job.contract_end_date}</TableCell>
                       </TableRow>
                     ))

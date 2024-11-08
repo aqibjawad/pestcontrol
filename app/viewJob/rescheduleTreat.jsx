@@ -217,20 +217,26 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
             </Grid>
           </Grid>
           <div className={styles.formReschedule}>
-            <InputWithTitle3
-              onChange={handleDateChange}
-              value={job_date}
-              title={"Date"}
-              type={"date"}
-            />
+            <Grid container spacing={2}>
+              <Grid item lg={6} sm={12} xs={12} md={4}>
+                <InputWithTitle3
+                  onChange={handleDateChange}
+                  value={job_date}
+                  title={"Date"}
+                  type={"date"}
+                />
+              </Grid>
 
-            <div className="mt-5">
-              <InputWithTitle
-                onChange={(value) => setReason(value)}
-                value={reason}
-                title={"Reason"}
-              />
-            </div>
+              <Grid item lg={6} sm={12} xs={12} md={4}>
+                <div className="">
+                  <InputWithTitle
+                    onChange={(value) => setReason(value)}
+                    value={reason}
+                    title={"Reason"}
+                  />
+                </div>
+              </Grid>
+            </Grid>
           </div>
         </div>
       )}
