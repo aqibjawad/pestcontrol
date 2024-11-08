@@ -1,4 +1,3 @@
-"use client";
 import React, { useState } from "react";
 import Popover from "@mui/material/Popover";
 import PropTypes from "prop-types";
@@ -27,6 +26,21 @@ const DateFilters = ({ onOptionChange, onDateChange }) => {
         end = formatDateForInput(
           new Date(today.getFullYear(), today.getMonth() + 1, 0)
         );
+        break;
+      case "Last Month":
+        // Calculate the start and end date of the last month
+        const firstDayLastMonth = new Date(
+          today.getFullYear(),
+          today.getMonth() - 1,
+          1
+        );
+        const lastDayLastMonth = new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          0
+        );
+        start = formatDateForInput(firstDayLastMonth);
+        end = formatDateForInput(lastDayLastMonth);
         break;
       case "This Year":
         start = formatDateForInput(new Date(today.getFullYear(), 0, 1));
@@ -152,6 +166,13 @@ const DateFilters = ({ onOptionChange, onDateChange }) => {
               onClick={() => handleOptionClick("This Month")}
             >
               This Month
+            </div>
+            <div
+              className={styles.dateItem}
+              style={{ border: "none" }}
+              onClick={() => handleOptionClick("Last Month")}
+            >
+              Last Month
             </div>
           </div>
           <div>
