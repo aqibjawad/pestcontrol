@@ -10,6 +10,8 @@ import APICall from "@/networkUtil/APICall";
 import DateFilters from "@/components/generic/DateFilters";
 import { format } from "date-fns";
 
+import Link from "next/link";
+
 const All = () => {
   const api = new APICall();
 
@@ -173,7 +175,18 @@ const All = () => {
             {loadingStates.paid ? (
               <Skeleton variant="text" width={150} />
             ) : (
-              <div>Total Amount: {(totalAmount || 0).toFixed(2)}</div>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                }}
+              >
+                <div>Total Amount: {(totalAmount || 0).toFixed(2)}</div>
+
+                <div>
+                  <Link href="/amounts">View Details</Link>
+                </div>
+              </div>
             )}
           </CardContent>
         </Card>
@@ -200,7 +213,19 @@ const All = () => {
             {loadingStates.unpaid ? (
               <Skeleton variant="text" width={150} />
             ) : (
-              <div>Total Amount: {(unPaidTotalAmount || 0).toFixed(2)}</div>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                }}
+              >
+                <div>Total Amount: {(unPaidTotalAmount || 0).toFixed(2)}</div>
+
+                <div>
+                  <Link href="/amounts">View Details</Link>
+                </div>
+              </div>
+              // <div>Total Amount: {(unPaidTotalAmount || 0).toFixed(2)}</div>
             )}
           </CardContent>
         </Card>
