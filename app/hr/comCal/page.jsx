@@ -95,7 +95,7 @@ const CommissionCal = () => {
   return (
     <div>
       <div className="mt-10 mb-10">
-        <div className="pageTitle">Commission Calculations</div>
+        <div className="pageTitle"> Sales By Employees </div>
 
         <div className={tableStyles.tableContainer}>
           <table className="min-w-full bg-white">
