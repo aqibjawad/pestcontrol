@@ -10,8 +10,16 @@ import Skeleton from "@mui/material/Skeleton";
 import { AppHelpers } from "@/Helper/AppHelpers";
 
 import Link from "next/link";
+import DateFilters from "@/components/generic/DateFilters";
 
-const ListServiceTable = () => {
+import { format } from "date-fns";
+
+const ListServiceTable = ({
+  handleDateChange,
+  startDate,
+  endDate,
+  updateTotalAmount,
+}) => {
   const api = new APICall();
   const [fetchingData, setFetchingData] = useState(false);
   const [invoiceList, setQuoteList] = useState([]);
@@ -19,7 +27,7 @@ const ListServiceTable = () => {
 
   useEffect(() => {
     getAllQuotes();
-  }, []);
+  }, [startDate, endDate]);
 
   const formatDate = (dateString) => {
     try {
@@ -32,15 +40,30 @@ const ListServiceTable = () => {
 
   const getAllQuotes = async () => {
     setFetchingData(true);
+
+    const queryParams = [];
+    if (startDate && endDate) {
+      queryParams.push(`start_date=${startDate}`);
+      queryParams.push(`end_date=${endDate}`);
+    } else {
+      const currentDate = format(new Date(), "yyyy-MM-dd");
+      queryParams.push(`start_date=${currentDate}`);
+      queryParams.push(`end_date=${currentDate}`);
+    }
+
     try {
-      const response = await api.getDataWithToken(`${serviceInvoice}`);
+      const response = await api.getDataWithToken(
+        `${serviceInvoice}?${queryParams.join("&")}`
+      );
       const paidInvoices = response.data.filter(
         (invoice) => invoice.status === "paid"
       );
       setQuoteList(paidInvoices);
+      updateTotalAmount(paidInvoices); // Update total amount here
     } catch (error) {
       console.error("Error fetching quotes:", error);
       setQuoteList([]); // Set empty array on error
+      updateTotalAmount([]); // Reset total amount on error
     } finally {
       setFetchingData(false);
       setLoadingDetails(false);
@@ -145,14 +168,21 @@ const ListServiceTable = () => {
 };
 
 const Invoices = () => {
-  const [open, setOpen] = useState(false);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [totalAmount, setTotalAmount] = useState(0);
 
-  const handleClickOpen = () => {
-    setOpen(true);
+  const handleDateChange = (start, end) => {
+    setStartDate(start);
+    setEndDate(end);
   };
 
-  const handleClose = () => {
-    setOpen(false);
+  const updateTotalAmount = (invoiceList) => {
+    const total = invoiceList.reduce(
+      (acc, invoice) => acc + (invoice.total_amt || 0),
+      0
+    );
+    setTotalAmount(total);
   };
 
   return (
@@ -167,11 +197,43 @@ const Invoices = () => {
         >
           Invoices
         </div>
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginTop: "2rem",
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "#32A92E",
+              color: "white",
+              fontWeight: "600",
+              fontSize: "16px",
+              height: "44px",
+              width: "202px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              marginLeft: "1rem",
+              padding: "12px 16px",
+              borderRadius: "10px",
+            }}
+          >
+            <DateFilters onDateChange={handleDateChange} />
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-12 gap-4">
         <div className="col-span-12">
-          <ListServiceTable />
+          <ListServiceTable
+            handleDateChange={handleDateChange}
+            startDate={startDate}
+            endDate={endDate}
+            updateTotalAmount={updateTotalAmount}
+          />
         </div>
       </div>
     </div>

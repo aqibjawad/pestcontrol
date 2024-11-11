@@ -15,20 +15,45 @@ import { clients } from "../../../networkUtil/Constants";
 
 import Link from "next/link";
 
+import DateFilters from "@/components/generic/DateFilters";
+import { format } from "date-fns";
+
+
 const Transactions = () => {
   const api = new APICall();
 
   const [fetchingData, setFetchingData] = useState(false);
   const [quoteList, setQuoteList] = useState([]);
 
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+
+  const handleDateChange = (start, end) => {
+    setStartDate(start);
+    setEndDate(end);
+  };
+
   useEffect(() => {
     getAllQuotes();
-  }, []);
+  }, [startDate, endDate]);
 
   const getAllQuotes = async () => {
     setFetchingData(true);
+
+    const queryParams = [];
+    if (startDate && endDate) {
+      queryParams.push(`start_date=${startDate}`);
+      queryParams.push(`end_date=${endDate}`);
+    } else {
+      const currentDate = format(new Date(), "yyyy-MM-dd");
+      queryParams.push(`start_date=${currentDate}`);
+      queryParams.push(`end_date=${currentDate}`);
+    }
+
     try {
-      const response = await api.getDataWithToken(`${clients}`);
+      const response = await api.getDataWithToken(
+        `${clients}?${queryParams.join("&")}`
+      );
       setQuoteList(response.data);
     } catch (error) {
       console.error("Error fetching quotes:", error);
@@ -98,7 +123,7 @@ const Transactions = () => {
         >
           All Clients Ledger Details
         </div>
-        <div
+        {/* <div
           style={{
             display: "flex",
             justifyContent: "flex-end",
@@ -121,9 +146,9 @@ const Transactions = () => {
               borderRadius: "10px",
             }}
           >
-            Date
+            <DateFilters onDateChange={handleDateChange} />
           </div>
-        </div>
+        </div> */}
       </div>
 
       <div className="grid grid-cols-12 gap-4">
