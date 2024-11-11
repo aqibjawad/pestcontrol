@@ -134,13 +134,11 @@ const All = () => {
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                fontSize: "20px",
-                fontWeight: "500",
                 marginBottom: "1rem",
               }}
             >
-              <div>Expenses</div>
-              <div>
+              <div style={{fontSize:"17px", fontWeight:"500"}}>Expenses</div>
+              <div style={{border:"1px solid black", padding:"5px", borderRadius:"50px", fontSize:"13px"}}>
                 <DateFilters2 onDateChange={handleExpenseDateChange} />
               </div>
             </div>
@@ -161,13 +159,11 @@ const All = () => {
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                fontSize: "20px",
-                fontWeight: "500",
                 marginBottom: "1rem",
               }}
             >
-              <div>Paid Amount</div>
-              <div>
+              <div style={{fontSize:"17px", fontWeight:"500"}}>Recieve Payments</div>
+              <div style={{border:"1px solid black", padding:"5px", borderRadius:"50px", fontSize:"13px"}}>
                 <DateFilters2 onDateChange={handlePaidDateChange} />
               </div>
             </div>
@@ -199,13 +195,11 @@ const All = () => {
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                fontSize: "20px",
-                fontWeight: "500",
                 marginBottom: "1rem",
               }}
             >
-              <div>Un Paid Amount</div>
-              <div>
+              <div style={{fontSize:"17px", fontWeight:"500"}}>Recieveable Amounts</div>
+              <div style={{border:"1px solid black", padding:"5px", borderRadius:"50px", fontSize:"13px"}}>
                 <DateFilters2 onDateChange={handleUnpaidDateChange} />
               </div>
             </div>

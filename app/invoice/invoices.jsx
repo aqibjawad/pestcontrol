@@ -5,13 +5,9 @@ import tableStyles from "../../styles/upcomingJobsStyles.module.css";
 import { serviceInvoice } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
 import Skeleton from "@mui/material/Skeleton";
-
-// Properly import AppHelpers
 import { AppHelpers } from "@/Helper/AppHelpers";
-
 import Link from "next/link";
-import DateFilters from "@/components/generic/DateFilters";
-
+import DateFilters2 from "@/components/generic/DateFilters2";
 import { format } from "date-fns";
 
 const ListServiceTable = ({
@@ -19,27 +15,25 @@ const ListServiceTable = ({
   startDate,
   endDate,
   updateTotalAmount,
+  statusFilter,
 }) => {
   const api = new APICall();
   const [fetchingData, setFetchingData] = useState(false);
   const [invoiceList, setQuoteList] = useState([]);
   const [loadingDetails, setLoadingDetails] = useState(true);
 
-  useEffect(() => {
-    getAllQuotes();
-  }, [startDate, endDate]);
-
   const formatDate = (dateString) => {
     try {
       return AppHelpers.convertDate(dateString);
     } catch (error) {
       console.error("Error converting date:", error);
-      return dateString; // Return original string if conversion fails
+      return dateString;
     }
   };
 
   const getAllQuotes = async () => {
     setFetchingData(true);
+    setLoadingDetails(true);
 
     const queryParams = [];
     if (startDate && endDate) {
@@ -55,24 +49,35 @@ const ListServiceTable = ({
       const response = await api.getDataWithToken(
         `${serviceInvoice}?${queryParams.join("&")}`
       );
-      const paidInvoices = response.data.filter(
-        (invoice) => invoice.status === "paid"
-      );
-      setQuoteList(paidInvoices);
-      updateTotalAmount(paidInvoices); // Update total amount here
+
+      let filteredData = response.data;
+      if (statusFilter !== "all") {
+        filteredData = response.data.filter(
+          (invoice) => invoice.status.toLowerCase() === statusFilter
+        );
+      }
+
+      setQuoteList(filteredData);
+      updateTotalAmount(filteredData);
     } catch (error) {
       console.error("Error fetching quotes:", error);
-      setQuoteList([]); // Set empty array on error
-      updateTotalAmount([]); // Reset total amount on error
+      setQuoteList([]);
+      updateTotalAmount([]);
     } finally {
       setFetchingData(false);
       setLoadingDetails(false);
     }
   };
 
+  // Call getAllQuotes when component mounts or when dependencies change
+  useEffect(() => {
+    getAllQuotes();
+  }, [startDate, endDate, statusFilter]); // Added statusFilter as dependency
+
   return (
     <div className={tableStyles.tableContainer}>
       <table className="min-w-full bg-white">
+        {/* ... table header remains the same ... */}
         <thead>
           <tr>
             <th className="py-5 px-4 border-b border-gray-200 text-left">
@@ -103,22 +108,25 @@ const ListServiceTable = ({
             ? Array.from({ length: 5 }).map((_, index) => (
                 <tr key={index} className="border-b border-gray-200">
                   <td className="py-5 px-4">
-                    <Skeleton variant="text" animation="wave" />
+                    <Skeleton variant="rectangular" width={30} height={20} />
                   </td>
                   <td className="py-2 px-4">
-                    <Skeleton variant="text" animation="wave" />
+                    <Skeleton variant="rectangular" width={120} height={20} />
                   </td>
                   <td className="py-2 px-4">
-                    <Skeleton variant="text" animation="wave" />
+                    <Skeleton variant="rectangular" width={150} height={20} />
                   </td>
                   <td className="py-2 px-4">
-                    <Skeleton variant="text" animation="wave" />
+                    <Skeleton variant="rectangular" width={100} height={20} />
                   </td>
                   <td className="py-2 px-4">
-                    <Skeleton variant="text" animation="wave" />
+                    <Skeleton variant="rectangular" width={100} height={20} />
                   </td>
                   <td className="py-2 px-4">
-                    <Skeleton variant="text" animation="wave" />
+                    <Skeleton variant="rectangular" width={80} height={20} />
+                  </td>
+                  <td className="py-2 px-4">
+                    <Skeleton variant="rectangular" width={100} height={20} />
                   </td>
                 </tr>
               ))
@@ -146,7 +154,13 @@ const ListServiceTable = ({
                     </div>
                   </td>
                   <td className="py-2 px-4">
-                    <div className={tableStyles.clientContact}>
+                    <div
+                      className={`${tableStyles.clientContact} ${
+                        row.status.toLowerCase() === "paid"
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
+                    >
                       {row.status}
                     </div>
                   </td>
@@ -168,9 +182,12 @@ const ListServiceTable = ({
 };
 
 const Invoices = () => {
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  // Initialize with current date
+  const currentDate = format(new Date(), "yyyy-MM-dd");
+  const [startDate, setStartDate] = useState(currentDate);
+  const [endDate, setEndDate] = useState(currentDate);
   const [totalAmount, setTotalAmount] = useState(0);
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const handleDateChange = (start, end) => {
     setStartDate(start);
@@ -178,11 +195,12 @@ const Invoices = () => {
   };
 
   const updateTotalAmount = (invoiceList) => {
-    const total = invoiceList.reduce(
-      (acc, invoice) => acc + (invoice.total_amt || 0),
-      0
-    );
-    setTotalAmount(total);
+    const total = invoiceList.reduce((acc, invoice) => {
+      const amount = parseFloat(invoice.total_amt) || 0;
+      return acc + amount;
+    }, 0);
+
+    setTotalAmount(Number(total.toFixed(2)));
   };
 
   return (
@@ -192,36 +210,48 @@ const Invoices = () => {
           style={{
             fontSize: "20px",
             fontFamily: "semibold",
-            marginBottom: "-4rem",
+            marginBottom: "1rem",
           }}
         >
-          Invoices
+          All Invoices
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            marginTop: "2rem",
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "#32A92E",
-              color: "white",
-              fontWeight: "600",
-              fontSize: "16px",
-              height: "44px",
-              width: "202px",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              marginLeft: "1rem",
-              padding: "12px 16px",
-              borderRadius: "10px",
-            }}
-          >
-            <DateFilters onDateChange={handleDateChange} />
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex gap-4">
+            <button
+              onClick={() => setStatusFilter("all")}
+              className={`px-6 py-2 rounded-lg ${
+                statusFilter === "all"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200 text-gray-700"
+              }`}
+            >
+              All
+            </button>
+            <button
+              onClick={() => setStatusFilter("paid")}
+              className={`px-6 py-2 rounded-lg ${
+                statusFilter === "paid"
+                  ? "bg-green-600 text-white"
+                  : "bg-gray-200 text-gray-700"
+              }`}
+            >
+              Paid
+            </button>
+            <button
+              onClick={() => setStatusFilter("unpaid")}
+              className={`px-6 py-2 rounded-lg ${
+                statusFilter === "unpaid"
+                  ? "bg-red-600 text-white"
+                  : "bg-gray-200 text-gray-700"
+              }`}
+            >
+              Unpaid
+            </button>
+          </div>
+
+          <div className="bg-green-600 text-white font-semibold text-base h-11 w-52 flex justify-center items-center px-4 py-3 rounded-lg">
+            <DateFilters2 onDateChange={handleDateChange} />
           </div>
         </div>
       </div>
@@ -233,7 +263,20 @@ const Invoices = () => {
             startDate={startDate}
             endDate={endDate}
             updateTotalAmount={updateTotalAmount}
+            statusFilter={statusFilter}
           />
+        </div>
+      </div>
+
+      <div className="flex justify-end p-6">
+        <div className="bg-gray-100 p-4 rounded-lg">
+          <span className="font-semibold text-lg">Total Amount: </span>
+          <span className="text-lg text-blue-600">
+            {totalAmount.toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+          </span>
         </div>
       </div>
     </div>

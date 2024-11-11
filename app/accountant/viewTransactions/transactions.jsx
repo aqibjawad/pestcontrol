@@ -100,7 +100,7 @@ const Transactions = () => {
                     <TableCell>{row?.client?.referencable?.name}</TableCell>
                     <TableCell>{row?.received_amt}</TableCell>
                     <TableCell>
-                      <Link href={`/customerLedger?id=${row.id}`}>
+                      <Link href={`/invoiceDetails?id=${row.service_invoice_id}`}>
                         <span className="text-blue-600 hover:text-blue-800">
                           View Details
                         </span>
