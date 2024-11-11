@@ -146,7 +146,7 @@ const All = () => {
             {loadingStates.expense ? (
               <Skeleton variant="text" width={150} />
             ) : (
-              <div>Total Expense: {expenseList?.total_expense}</div>
+              <div>Total Expense: {expenseList?.total_expense || 0}</div>
             )}
           </CardContent>
         </Card>
