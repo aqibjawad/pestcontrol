@@ -6,6 +6,7 @@ import Transactions from "./viewTransactions/transactions";
 import Invoices from "../invoice/invoices";
 import Vehciles from "../account/viewVehicles/vehciles"; 
 import Pending from "./payments/pending";
+import CommissionCal from "../hr/comCal/page";
 
 const Page =()=>{
     return(
@@ -15,6 +16,7 @@ const Page =()=>{
             {/* <AllCustomers /> */}
             <Transactions />
             <Invoices />
+            <CommissionCal />
             <Vehciles />
         </div>
     )

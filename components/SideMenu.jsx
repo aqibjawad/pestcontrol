@@ -150,6 +150,11 @@ export default function SideMenu({ children }) {
           icon: <MdOutlineInventory />,
         },
         {
+          name: "View Sales",
+          url: "sales/allSales",
+          icon: <IoPersonCircle />,
+        },
+        {
           name: "Clients",
           url: "clients",
           icon: <IoPersonCircle />,
