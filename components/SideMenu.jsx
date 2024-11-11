@@ -185,10 +185,9 @@ export default function SideMenu({ children }) {
           icon: "/jobs.png",
         },
         { name: "Invoices", url: "invoice", icon: "/jobs.png" },
-
         {
-          name: "Extense Category",
-          url: "operations/expense_category",
+          name: "View Expense",
+          url: "operations/viewAllExpenses",
           icon: "/jobs.png",
         },
         {
@@ -196,12 +195,12 @@ export default function SideMenu({ children }) {
           url: "operations/addExpense",
           icon: "/jobs.png",
         },
+
         {
-          name: "View Expense",
-          url: "operations/viewAllExpenses",
+          name: "Expense Category",
+          url: "operations/expense_category",
           icon: "/jobs.png",
         },
-
         {
           name: "Profile",
           url: `hr/employeeDetails?id=${userId}`,
