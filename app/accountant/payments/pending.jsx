@@ -127,7 +127,7 @@ const Pending = () => {
         <div
           style={{ fontSize: "20px", fontWeight: "600", marginBottom: "-4rem" }}
         >
-          All Pending Payments
+          Pending Payments
         </div>
         <div
           style={{

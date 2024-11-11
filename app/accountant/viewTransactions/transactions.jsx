@@ -121,7 +121,7 @@ const Transactions = () => {
         <div
           style={{ fontSize: "20px", fontWeight: "600", marginBottom: "-4rem" }}
         >
-          All Clients Ledger Details
+          Approved Payments
         </div>
         {/* <div
           style={{
