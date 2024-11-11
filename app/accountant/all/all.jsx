@@ -3,136 +3,205 @@
 import React, { useState, useEffect } from "react";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
-
+import Skeleton from "@mui/material/Skeleton";
 import { serviceInvoice, dashboard } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
+import DateFilters from "@/components/generic/DateFilters";
+import { format } from "date-fns";
 
 const All = () => {
   const api = new APICall();
-  const [fetchingData, setFetchingData] = useState(false);
-  const [invoiceList, setQuoteList] = useState([]);
-  const [loadingDetails, setLoadingDetails] = useState(true);
 
-  const [totalAmount, setTotalAmount] = useState();
-
-  const [unPaidList, setUnPaidList] = useState([]);
-
-  const [unPaidTotalAmount, setUnPaidTotalAmount] = useState();
+  // Separate loading states for each section
+  const [loadingStates, setLoadingStates] = useState({
+    expense: false,
+    paid: false,
+    unpaid: false,
+  });
 
   const [expenseList, setExpenseList] = useState([]);
+  const [paidInvoices, setPaidInvoices] = useState([]);
+  const [totalAmount, setTotalAmount] = useState(0);
+  const [unPaidList, setUnPaidList] = useState([]);
+  const [unPaidTotalAmount, setUnPaidTotalAmount] = useState(0);
 
-  useEffect(() => {
-    getAllPaid();
-    getAllUnPaid();
-    getExpense();
-  }, []);
-
-  const getAllPaid = async () => {
-    setFetchingData(true);
-
+  const fetchPaidInvoices = async (startDate, endDate) => {
+    setLoadingStates((prev) => ({ ...prev, paid: true }));
     try {
-      const response = await api.getDataWithToken(`${serviceInvoice}`);
+      const queryParams = [];
+      if (startDate && endDate) {
+        queryParams.push(`start_date=${startDate}`);
+        queryParams.push(`end_date=${endDate}`);
+      }
+
+      const response = await api.getDataWithToken(
+        `${serviceInvoice}${
+          queryParams.length ? "?" + queryParams.join("&") : ""
+        }`
+      );
       const paidInvoices = response.data.filter(
         (invoice) => invoice.status === "paid"
       );
-      setQuoteList(paidInvoices);
-      updateTotalAmount(paidInvoices); // Update total amount here
+      setPaidInvoices(paidInvoices);
+
+      const total = paidInvoices.reduce(
+        (sum, invoice) => sum + parseFloat(invoice.total_amt || 0),
+        0
+      );
+      setTotalAmount(total);
     } catch (error) {
-      console.error("Error fetching quotes:", error);
-      setQuoteList([]); // Set empty array on error
+      console.error("Error fetching paid invoices:", error);
     } finally {
-      setFetchingData(false);
-      setLoadingDetails(false);
+      setLoadingStates((prev) => ({ ...prev, paid: false }));
     }
   };
 
-  const updateTotalAmount = (invoices) => {
-    const totalAmount = invoices.reduce((sum, invoice) => {
-      return sum + parseFloat(invoice.total_amt || 0);
-    }, 0);
-
-    setTotalAmount(totalAmount);
-  };
-
-  const getAllUnPaid = async () => {
-    setFetchingData(true);
-
+  const fetchUnpaidInvoices = async (startDate, endDate) => {
+    setLoadingStates((prev) => ({ ...prev, unpaid: true }));
     try {
-      const response = await api.getDataWithToken(`${serviceInvoice}`);
-      const unPaidInvoices = response.data.filter(
+      const queryParams = [];
+      if (startDate && endDate) {
+        queryParams.push(`start_date=${startDate}`);
+        queryParams.push(`end_date=${endDate}`);
+      }
+
+      const response = await api.getDataWithToken(
+        `${serviceInvoice}${
+          queryParams.length ? "?" + queryParams.join("&") : ""
+        }`
+      );
+      const unpaidInvoices = response.data.filter(
         (invoice) => invoice.status === "unpaid"
       );
-      setUnPaidList(unPaidInvoices);
-      updateUnPaidTotalAmount(unPaidInvoices); // Update total amount here
+      setUnPaidList(unpaidInvoices);
+
+      const total = unpaidInvoices.reduce(
+        (sum, invoice) => sum + parseFloat(invoice.total_amt || 0),
+        0
+      );
+      setUnPaidTotalAmount(total);
     } catch (error) {
-      console.error("Error fetching quotes:", error);
-      setQuoteList([]); // Set empty array on error
+      console.error("Error fetching unpaid invoices:", error);
     } finally {
-      setFetchingData(false);
-      setLoadingDetails(false);
+      setLoadingStates((prev) => ({ ...prev, unpaid: false }));
     }
   };
 
-  const updateUnPaidTotalAmount = (invoices) => {
-    const unPaidTotalAmount = invoices.reduce((sum, invoice) => {
-      return sum + parseFloat(invoice.total_amt || 0);
-    }, 0);
-
-    setUnPaidTotalAmount(unPaidTotalAmount);
-  };
-
-  const getExpense = async () => {
+  const fetchExpenses = async (startDate, endDate) => {
+    setLoadingStates((prev) => ({ ...prev, expense: true }));
     try {
+      const queryParams = [];
+      if (startDate && endDate) {
+        queryParams.push(`start_date=${startDate}`);
+        queryParams.push(`end_date=${endDate}`);
+      }
+
       const response = await api.getDataWithToken(
-        `${dashboard}/expense_collection`
+        `${dashboard}/expense_collection${
+          queryParams.length ? "?" + queryParams.join("&") : ""
+        }`
       );
       setExpenseList(response.data);
     } catch (error) {
-      console.error(error.message);
+      console.error("Error fetching expenses:", error);
     } finally {
-      console.log("done");
+      setLoadingStates((prev) => ({ ...prev, expense: false }));
     }
+  };
+
+  // Separate handlers for each date filter
+  const handleExpenseDateChange = (start, end) => {
+    fetchExpenses(start, end);
+  };
+
+  const handlePaidDateChange = (start, end) => {
+    fetchPaidInvoices(start, end);
+  };
+
+  const handleUnpaidDateChange = (start, end) => {
+    fetchUnpaidInvoices(start, end);
   };
 
   return (
     <Grid container spacing={2}>
+      {/* Expense Card */}
       <Grid item xs={12} sm={6} md={4}>
         <Card sx={{ maxWidth: 345 }}>
           <CardContent>
-            <Typography gutterBottom variant="h5" component="div">
-              Expenses
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Total Amount: {expenseList?.total_expense}
-            </Typography>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                fontSize: "20px",
+                fontWeight: "500",
+                marginBottom: "1rem",
+              }}
+            >
+              <div>Expenses</div>
+              <div>
+                <DateFilters onDateChange={handleExpenseDateChange} />
+              </div>
+            </div>
+            {loadingStates.expense ? (
+              <Skeleton variant="text" width={150} />
+            ) : (
+              <div>Total Expense: {expenseList?.total_expense}</div>
+            )}
           </CardContent>
         </Card>
       </Grid>
 
+      {/* Paid Amount Card */}
       <Grid item xs={12} sm={6} md={4}>
         <Card sx={{ maxWidth: 345 }}>
           <CardContent>
-            <Typography gutterBottom variant="h5" component="div">
-              Paid Amount
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Total Amount: {(totalAmount || 0).toFixed(2)}
-            </Typography>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                fontSize: "20px",
+                fontWeight: "500",
+                marginBottom: "1rem",
+              }}
+            >
+              <div>Paid Amount</div>
+              <div>
+                <DateFilters onDateChange={handlePaidDateChange} />
+              </div>
+            </div>
+            {loadingStates.paid ? (
+              <Skeleton variant="text" width={150} />
+            ) : (
+              <div>Total Amount: {(totalAmount || 0).toFixed(2)}</div>
+            )}
           </CardContent>
         </Card>
       </Grid>
 
+      {/* Unpaid Amount Card */}
       <Grid item xs={12} sm={6} md={4}>
         <Card sx={{ maxWidth: 345 }}>
           <CardContent>
-            <Typography gutterBottom variant="h5" component="div">
-              Un Paid Amount
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Total Amount: {(unPaidTotalAmount || 0).toFixed(2)}
-            </Typography>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                fontSize: "20px",
+                fontWeight: "500",
+                marginBottom: "1rem",
+              }}
+            >
+              <div>Un Paid Amount</div>
+              <div>
+                <DateFilters onDateChange={handleUnpaidDateChange} />
+              </div>
+            </div>
+            {loadingStates.unpaid ? (
+              <Skeleton variant="text" width={150} />
+            ) : (
+              <div>Total Amount: {(unPaidTotalAmount || 0).toFixed(2)}</div>
+            )}
           </CardContent>
         </Card>
       </Grid>

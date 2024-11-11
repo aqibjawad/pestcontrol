@@ -136,7 +136,7 @@ const Pending = () => {
             marginTop: "2rem",
           }}
         >
-          <div
+          {/* <div
             style={{
               backgroundColor: "#32A92E",
               color: "white",
@@ -153,7 +153,7 @@ const Pending = () => {
             }}
           >
             Date
-          </div>
+          </div> */}
         </div>
       </div>
 
