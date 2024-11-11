@@ -9,7 +9,6 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Swal from "sweetalert2";
 
 const CommissionCal = () => {
-
   const api = new APICall();
   const [fetchingData, setFetchingData] = useState(false);
   const [employeeList, setEmployeeList] = useState([]);
@@ -111,6 +110,9 @@ const CommissionCal = () => {
                   Commission
                 </th>
                 <th className="py-2 px-4 border-b border-gray-200 text-left">
+                  Target %
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 text-left">
                   Sale
                 </th>
                 <th className="py-2 px-4 border-b border-gray-200 text-left">
@@ -124,6 +126,12 @@ const CommissionCal = () => {
                   <td className="py-5 px-4">{index + 1}</td>
                   <td className="py-5 px-4">{row?.referencable?.name}</td>
                   <td className="py-5 px-4">{row.commission_per}%</td>
+                  <td className="py-5 px-4">
+                    {row.target && row.sale
+                      ? ((row.sale / row.target) * 100).toFixed(2)
+                      : 0}
+                    %
+                  </td>
                   <td className="py-5 px-4">{row.sale}</td>
                   <td className="py-5 px-4">{row.target}</td>
                 </tr>

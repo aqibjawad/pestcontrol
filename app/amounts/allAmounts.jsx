@@ -10,7 +10,7 @@ import Skeleton from "@mui/material/Skeleton";
 import { AppHelpers } from "@/Helper/AppHelpers";
 
 import Link from "next/link";
-import DateFilters from "@/components/generic/DateFilters";
+import DateFilters2 from "@/components/generic/DateFilters2";
 
 import { format } from "date-fns";
 
@@ -55,9 +55,9 @@ const ListServiceTable = ({
       const response = await api.getDataWithToken(
         `${serviceInvoice}?${queryParams.join("&")}`
       );
-    //   const paidInvoices = response.data.filter(
-    //     (invoice) => invoice.status === "paid"
-    //   );
+      //   const paidInvoices = response.data.filter(
+      //     (invoice) => invoice.status === "paid"
+      //   );
       setQuoteList(response.data);
       updateTotalAmount(response.data); // Update total amount here
     } catch (error) {
@@ -221,7 +221,7 @@ const AllPayments = () => {
               borderRadius: "10px",
             }}
           >
-            <DateFilters onDateChange={handleDateChange} />
+            <DateFilters2 onDateChange={handleDateChange} />
           </div>
         </div>
       </div>

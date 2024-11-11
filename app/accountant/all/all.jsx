@@ -7,8 +7,7 @@ import Grid from "@mui/material/Grid";
 import Skeleton from "@mui/material/Skeleton";
 import { serviceInvoice, dashboard } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
-import DateFilters from "@/components/generic/DateFilters";
-import { format } from "date-fns";
+import DateFilters2 from "@/components/generic/DateFilters2";
 
 import Link from "next/link";
 
@@ -142,7 +141,7 @@ const All = () => {
             >
               <div>Expenses</div>
               <div>
-                <DateFilters onDateChange={handleExpenseDateChange} />
+                <DateFilters2 onDateChange={handleExpenseDateChange} />
               </div>
             </div>
             {loadingStates.expense ? (
@@ -169,7 +168,7 @@ const All = () => {
             >
               <div>Paid Amount</div>
               <div>
-                <DateFilters onDateChange={handlePaidDateChange} />
+                <DateFilters2 onDateChange={handlePaidDateChange} />
               </div>
             </div>
             {loadingStates.paid ? (
@@ -207,7 +206,7 @@ const All = () => {
             >
               <div>Un Paid Amount</div>
               <div>
-                <DateFilters onDateChange={handleUnpaidDateChange} />
+                <DateFilters2 onDateChange={handleUnpaidDateChange} />
               </div>
             </div>
             {loadingStates.unpaid ? (
