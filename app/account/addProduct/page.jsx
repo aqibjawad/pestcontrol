@@ -12,9 +12,7 @@ import Swal from "sweetalert2";
 import UploadImagePlaceholder from "../../../components/generic/uploadImage";
 import MultilineInput from "@/components/generic/MultilineInput";
 import GreenButton from "@/components/generic/GreenButton";
-
 import { useRouter } from "next/navigation";
-
 import CircularProgress from "@mui/material/CircularProgress";
 
 const Page = () => {
@@ -42,16 +40,25 @@ const Page = () => {
   const [description, setDescription] = useState("");
   const [per_item_qty, setPerItemQuantity] = useState("");
   const [price, setPrice] = useState("");
-
   const [product_picture, setProductPicture] = useState(null);
-
   const [attachments, setAttachments] = useState([]);
-
   const [product_category, setProductCategory] = useState("");
 
   useEffect(() => {
     getAllBrands();
   }, []);
+
+  // Add new useEffect for product type and unit
+  useEffect(() => {
+    const isCategoryProtectionOrMachine =
+      product_category === "Protection Equipment" ||
+      product_category === "Machine";
+
+    if (isCategoryProtectionOrMachine) {
+      setProductType("Pieces");
+      setUnit("No");
+    }
+  }, [product_category]);
 
   const getAllBrands = async () => {
     setFetchingData(true);
@@ -72,44 +79,6 @@ const Page = () => {
     }
   };
 
-  // const handleManufactureDateChange = (date) => {
-  //   setManufactureDate(date);
-  //   if (exp_date && new Date(exp_date) <= new Date(date)) {
-  //     setExpiryDate("");
-  //   }
-  // };
-
-  // const handleMocaStartDateChange = (date) => {
-  //   setMocaStartDate(date);
-  //   if (moccae_exp_date && new Date(moccae_exp_date) <= new Date(date)) {
-  //     setMocaExpiryDate("");
-  //   }
-  // };
-
-  // const handleMocaExpiryDateChange = (date) => {
-  //   if (new Date(date) > new Date(moccae_start_date)) {
-  //     setMocaExpiryDate(date);
-  //   } else {
-  //     Swal.fire({
-  //       icon: "error",
-  //       title: "Invalid Date",
-  //       text: "MOCCAE expiry date must be after the MOCCAE start date.",
-  //     });
-  //   }
-  // };
-
-  // const handleExpiryDateChange = (date) => {
-  //   if (new Date(date) > new Date(mfg_date)) {
-  //     setExpiryDate(date);
-  //   } else {
-  //     Swal.fire({
-  //       icon: "error",
-  //       title: "Invalid Date",
-  //       text: "Expiry date must be after the manufacture date.",
-  //     });
-  //   }
-  // };
-
   const handleAttachmentSelect = (file) => {
     console.log("Selected Attachment:", file);
     setAttachments(file);
@@ -117,8 +86,6 @@ const Page = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // if (!validateForm()) return;
-
     setLoadingSubmit(true);
 
     const obj = {
@@ -159,40 +126,7 @@ const Page = () => {
         text: `${response.error.message}`,
       });
     }
-
-    // try {
-    //   // resetForm();
-    // } catch (error) {
-    //   console.error("Error submitting data:", error);
-    // } finally {
-    //   setLoadingSubmit(false);
-    // }
   };
-
-  // const validateForm = () => {
-  //   const requiredFields = [
-  //     product_name,
-  //     batch_number,
-  //     selectedBrandId,
-  //     mfg_date,
-  //     exp_date,
-  //     active_ingredients,
-  //     product_type,
-  //     unit,
-  //     per_item_qty,
-  //     price,
-  //   ];
-
-  //   if (requiredFields.some((field) => !field)) {
-  //     Swal.fire({
-  //       icon: "error",
-  //       title: "Validation Error",
-  //       text: "Please fill in all required fields.",
-  //     });
-  //     return false;
-  //   }
-  //   return true;
-  // };
 
   const handleBrandChange = (name, index) => {
     const idAtIndex = allBrandsList[index].id;
@@ -223,7 +157,7 @@ const Page = () => {
   const firstSection = () => {
     return (
       <div>
-        <div className=" mt-5 grid grid-cols-2 gap-10">
+        <div className="mt-5 grid grid-cols-2 gap-10">
           <div>
             <InputWithTitle
               title={"Item Name"}
@@ -320,13 +254,6 @@ const Page = () => {
       product_category === "Protection Equipment" ||
       product_category === "Machine";
 
-    useEffect(() => {
-      if (isCategoryProtectionOrMachine) {
-        setProductType("Pieces");
-        setUnit("No");
-      }
-    }, [product_category]);
-
     return (
       <div className="mt-10">
         <div className="mt-5 flex gap-4">
@@ -341,7 +268,6 @@ const Page = () => {
           </div>
         </div>
 
-        {/* For "Pest Control Chemical" category, show dropdowns */}
         {product_category === "Pest Control Chemical" && (
           <>
             <div className="mt-10">
@@ -412,14 +338,13 @@ const Page = () => {
           </>
         )}
 
-        {/* For "Protection Equipment" or "Machine", hardcode the values */}
         {isCategoryProtectionOrMachine && (
           <>
             <div className="mt-10">
               <InputWithTitle
                 title={"Product Type"}
                 type={"text"}
-                value="Pieces" // Hardcoded value
+                value="Pieces"
                 disabled
               />
             </div>
@@ -428,14 +353,13 @@ const Page = () => {
               <InputWithTitle
                 title={"Unit"}
                 type={"text"}
-                value="No" // Hardcoded value
+                value="No"
                 disabled
               />
             </div>
           </>
         )}
 
-        {/* Description always displayed */}
         <div className="mt-10">
           <MultilineInput
             title={"Description"}
@@ -476,12 +400,6 @@ const Page = () => {
           disabled={loadingSubmit}
         />
       </div>
-
-      {/* <div className="mt-20">
-        <GreenButton onClick={handleSubmit} disabled={loadingSubmit}>
-          {loadingSubmit ? <CircularProgress size={24} /> : "Save"}
-        </GreenButton> 
-      </div> */}
     </div>
   );
 };
