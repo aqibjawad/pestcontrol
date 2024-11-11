@@ -27,34 +27,6 @@ export default function Home() {
   const [showErrorAlert, setShowAlert] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Check if token exists in localStorage
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      // Token exists, so navigate based on role (you may need to fetch user info)
-      const userRole = localStorage.getItem("role"); // Assuming role is stored in localStorage
-      if (userRole) {
-        // Redirect based on role
-        switch (userRole) {
-          case "1":
-            router.replace("/superadmin/dashboard");
-            break;
-          case "2":
-            router.replace("/hr/hr");
-            break;
-          case "4":
-            router.replace("/jobs/");
-            break;
-          default:
-            router.replace("/accountant");
-        }
-      } else {
-        // If no role is found in localStorage, handle accordingly (e.g., redirect to default page)
-        router.replace("/accountant");
-      }
-    }
-  }, [router]);
-
   // Add keydown event handler
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
@@ -171,10 +143,6 @@ export default function Home() {
         const user = new User(response);
         // Get role ID from response
         const roleId = response.data.role_id;
-
-        // Store token and role in localStorage
-        localStorage.setItem("token", response.data.token);
-        localStorage.setItem("role", roleId);
 
         // Route based on role ID
         switch (roleId) {
