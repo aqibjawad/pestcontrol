@@ -6,7 +6,7 @@ import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
 import APICall from "@/networkUtil/APICall";
 import { expense_category } from "@/networkUtil/Constants";
 
-import DateFilters from "../../../components/generic/DateFilters";
+import DateFilters2 from "../../../components/generic/DateFilters2";
 
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
@@ -183,7 +183,7 @@ const Page = () => {
                 style={{ marginLeft: "8px", marginRight: "8px" }}
                 alt="Filter Icon"
               />
-              <DateFilters onDateChange={handleDateChange} />
+              <DateFilters2 onDateChange={handleDateChange} />
             </Box>
           </Grid>
         </Grid>

@@ -7,6 +7,8 @@ import GreenButton from "@/components/generic/GreenButton";
 
 import AllClients from "../../../clients/all";
 
+import AllPayments from "../../../amounts/allAmounts";
+
 const Finance = () => {
   
   const totalExpenses = () => {
@@ -256,9 +258,11 @@ const Finance = () => {
       <div className="mt-10 mb-10">{accountStatement()}</div>
 
       <div className="grid grid-cols-12 gap-4">
-        <div className="col-span-6 ">{invoices()}</div>
-        <div className="col-span-6 ">{paymentReceipt()}</div>
-        <div className="col-span-6 ">{paymentVouchers()}</div>
+        <div className="col-span-6 ">
+          <AllPayments />
+        </div>
+        {/* <div className="col-span-6 ">{paymentReceipt()}</div>
+        <div className="col-span-6 ">{paymentVouchers()}</div> */}
       </div>
     </div>
   );

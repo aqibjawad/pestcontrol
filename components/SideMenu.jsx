@@ -130,12 +130,12 @@ export default function SideMenu({ children }) {
         { name: "Home", url: "accountant", icon: "/home.png" },
 
         {
-          name: "Add Product",
+          name: "Add Inventory",
           url: "account/addProduct/",
           icon: <MdOutlineProductionQuantityLimits />,
         },
         {
-          name: "View Product",
+          name: "View Inventory",
           url: "operations/viewInventory/",
           icon: <AiFillProduct />,
         },
@@ -149,15 +149,25 @@ export default function SideMenu({ children }) {
           url: "account/purchaseOrders/",
           icon: <MdOutlineInventory />,
         },
-        {
-          name: "View Sales",
-          url: "sales/allSales",
-          icon: <IoPersonCircle />,
-        },
+        // {
+        //   name: "View Sales",
+        //   url: "sales/allSales",
+        //   icon: <IoPersonCircle />,
+        // },
         {
           name: "Clients",
           url: "clients",
           icon: <IoPersonCircle />,
+        },
+        {
+          name: "Add Vehicle",
+          url: "operations/vehciles",
+          icon: <IoIosPerson />,
+        },
+        {
+          name: "Vehicle Expense",
+          url: "account/addVehiclesExpense",
+          icon: <IoIosPerson />,
         },
         {
           name: "Add Suppliers",
@@ -176,8 +186,8 @@ export default function SideMenu({ children }) {
           icon: <MdOutlinePayments />,
         },
 
-        { name: "Add Customers", url: "customers", icon: "/jobs.png" },
-        { name: "View Customers", url: "allCustomers", icon: "/jobs.png" },
+        // { name: "Add Customers", url: "customers", icon: "/jobs.png" },
+        // { name: "View Customers", url: "allCustomers", icon: "/jobs.png" },
 
         {
           name: "Transactions",
