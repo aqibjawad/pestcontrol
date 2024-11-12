@@ -162,7 +162,7 @@ const All = () => {
                 marginBottom: "1rem",
               }}
             >
-              <div style={{fontSize:"17px", fontWeight:"500"}}>Recieve Payments</div>
+              <div style={{fontSize:"17px", fontWeight:"500"}}>Recieved Payments</div>
               <div style={{border:"1px solid black", padding:"5px", borderRadius:"50px", fontSize:"13px"}}>
                 <DateFilters2 onDateChange={handlePaidDateChange} />
               </div>
