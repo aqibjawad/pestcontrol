@@ -18,6 +18,8 @@ import {
 } from "@mui/material";
 import "jspdf-autotable";
 
+import Link from "next/link";
+
 import { clients } from "../../../networkUtil/Constants";
 import APICall from "../../../networkUtil/APICall";
 import { format } from "date-fns";
@@ -58,7 +60,7 @@ const Page = () => {
     // Get the current URL
     const currentUrl = window.location.href;
     const urlParams = getParamsFromUrl(currentUrl);
-    
+
     setId(urlParams.id);
     setSupplierName(urlParams.name || "");
     setPhoneNumber(urlParams.phone_number || "");
@@ -127,6 +129,7 @@ const Page = () => {
               <TableCell>Credit</TableCell>
               <TableCell>Debit</TableCell>
               <TableCell>Balance</TableCell>
+              <TableCell>View Invoice</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -134,19 +137,22 @@ const Page = () => {
               ? Array.from(new Array(5)).map((_, index) => (
                   <TableRow key={index}>
                     <TableCell>
-                      <Skeleton variant="text" width={100} />
+                      <Skeleton variant="wave" width={100} />
                     </TableCell>
                     <TableCell>
-                      <Skeleton variant="text" width={200} />
+                      <Skeleton variant="wave" width={200} />
                     </TableCell>
                     <TableCell>
-                      <Skeleton variant="text" width={100} />
+                      <Skeleton variant="wave" width={100} />
                     </TableCell>
                     <TableCell>
-                      <Skeleton variant="text" width={100} />
+                      <Skeleton variant="wave" width={100} />
                     </TableCell>
                     <TableCell>
-                      <Skeleton variant="text" width={100} />
+                      <Skeleton variant="wave" width={100} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="wave" width={100} />
                     </TableCell>
                   </TableRow>
                 ))
@@ -159,6 +165,9 @@ const Page = () => {
                     <TableCell>{row.cr_amt}</TableCell>
                     <TableCell>{row.dr_amt}</TableCell>
                     <TableCell>{row.cash_balance}</TableCell>
+                    <TableCell>
+                      <Link href="/">View Invoice</Link>
+                    </TableCell>
                   </TableRow>
                 ))}
           </TableBody>

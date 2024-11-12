@@ -18,7 +18,6 @@ import Link from "next/link";
 import DateFilters from "@/components/generic/DateFilters";
 import { format } from "date-fns";
 
-
 const Transactions = () => {
   const api = new APICall();
 
@@ -100,7 +99,15 @@ const Transactions = () => {
                     <TableCell>{row?.client?.referencable?.name}</TableCell>
                     <TableCell>{row?.received_amt}</TableCell>
                     <TableCell>
-                      <Link href={`/invoiceDetails?id=${row.service_invoice_id}`}>
+                      <Link
+                        href={`/client/clientLedger/?id=${
+                          row.id
+                        }&name=${encodeURIComponent(
+                          row.name
+                        )}&phone_number=${encodeURIComponent(
+                          row?.client?.phone_number
+                        )}`}
+                      >
                         <span className="text-blue-600 hover:text-blue-800">
                           View Details
                         </span>
