@@ -29,13 +29,13 @@ import {
   TableHead,
   TableRow,
   Paper,
-  CircularProgress
+  CircularProgress,
 } from "@mui/material";
 
 // Import the correct icons
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 
 const Page = () => {
   const [tabNames, setTabNames] = useState([
@@ -88,16 +88,17 @@ const Page = () => {
       // Sort the employee list by the earliest expiry date
       const sortedEmployees = response.data.sort((a, b) => {
         // Extract the dates for both employees and parse them to Date objects
-        const getDates = (emp) => [
-          emp.employee.eid_expiry,
-          emp.employee.passport_expiry,
-          emp.employee.hi_expiry,
-          emp.employee.ui_expiry,
-          emp.employee.dm_expiry,
-          emp.employee.labour_card_expiry,
-        ]
-          .map(date => new Date(date))
-          .filter(date => !isNaN(date.getTime()));
+        const getDates = (emp) =>
+          [
+            emp.employee.eid_expiry,
+            emp.employee.passport_expiry,
+            emp.employee.hi_expiry,
+            emp.employee.ui_expiry,
+            emp.employee.dm_expiry,
+            emp.employee.labour_card_expiry,
+          ]
+            .map((date) => new Date(date))
+            .filter((date) => !isNaN(date.getTime()));
 
         const datesA = getDates(a);
         const datesB = getDates(b);
@@ -135,28 +136,31 @@ const Page = () => {
   }, []);
 
   const getStatusStyle = (daysLeft) => {
-    if (daysLeft === null) return {
-      backgroundColor: "#F3F4F6",
-      textColor: "#6B7280",
-      icon: null
-    };
-    
-    if (daysLeft < 0) return {
-      backgroundColor: "#FEE2E2",
-      textColor: "#DC2626",
-      icon: <ErrorOutlineIcon sx={{ fontSize: 16, color: "#DC2626" }} />
-    };
-    
-    if (daysLeft <= 30) return {
-      backgroundColor: "#FEF3C7",
-      textColor: "#D97706",
-      icon: <WarningAmberIcon sx={{ fontSize: 16, color: "#D97706" }} />
-    };
-    
+    if (daysLeft === null)
+      return {
+        backgroundColor: "#F3F4F6",
+        textColor: "#6B7280",
+        icon: null,
+      };
+
+    if (daysLeft < 0)
+      return {
+        backgroundColor: "#FEE2E2",
+        textColor: "#DC2626",
+        icon: <ErrorOutlineIcon sx={{ fontSize: 16, color: "#DC2626" }} />,
+      };
+
+    if (daysLeft <= 30)
+      return {
+        backgroundColor: "#FEF3C7",
+        textColor: "#D97706",
+        icon: <WarningAmberIcon sx={{ fontSize: 16, color: "#D97706" }} />,
+      };
+
     return {
       backgroundColor: "#DCFCE7",
       textColor: "#15803D",
-      icon: <CheckCircleOutlineIcon sx={{ fontSize: 16, color: "#15803D" }} />
+      icon: <CheckCircleOutlineIcon sx={{ fontSize: 16, color: "#15803D" }} />,
     };
   };
 
@@ -187,7 +191,37 @@ const Page = () => {
           </div>
         </div>
 
-        <div className="col-span-12 md:col-span-3">
+        <div
+          className="col-span-12 md:col-span-3"
+          style={{
+            height: "2000px",
+            overflowY: "auto", // Enables vertical scrolling
+          }}
+        >
+          <style>
+            {`
+              .scroll-container::-webkit-scrollbar {
+                width: 8px;
+              }
+
+              .scroll-container::-webkit-scrollbar-track {
+                background-color: #f1f1f1;
+                border-radius: 10px;
+              }
+
+              .scroll-container::-webkit-scrollbar-thumb {
+                background-color: #888;
+                border-radius: 10px;
+                border: 2px solid transparent;
+                background-clip: content-box;
+              }
+
+              .scroll-container::-webkit-scrollbar-thumb:hover {
+                background-color: #555;
+              }
+            `}
+          </style>
+
           <Tabs
             value={selectedIndexTabs}
             onChange={handleTabChange}
@@ -231,7 +265,10 @@ const Page = () => {
                             alt={`${employee.name} Image`}
                             sx={{ width: 48, height: 48 }}
                           />
-                          <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                          <Typography
+                            variant="subtitle1"
+                            sx={{ fontWeight: "bold" }}
+                          >
                             {employee.name}
                           </Typography>
                         </Stack>
@@ -265,12 +302,15 @@ const Page = () => {
                           ].map(({ label, value }) => {
                             const expiryDate = value ? new Date(value) : null;
                             const today = new Date();
-                            const diffTime = expiryDate ? expiryDate - today : null;
+                            const diffTime = expiryDate
+                              ? expiryDate - today
+                              : null;
                             const daysLeft = diffTime
                               ? Math.ceil(diffTime / (1000 * 60 * 60 * 24))
                               : null;
 
-                            const { backgroundColor, textColor, icon } = getStatusStyle(daysLeft);
+                            const { backgroundColor, textColor, icon } =
+                              getStatusStyle(daysLeft);
 
                             return (
                               <Box
@@ -286,9 +326,16 @@ const Page = () => {
                                   color: textColor,
                                 }}
                               >
-                                <Stack direction="row" spacing={1} alignItems="center">
+                                <Stack
+                                  direction="row"
+                                  spacing={1}
+                                  alignItems="center"
+                                >
                                   {icon}
-                                  <Typography variant="body2" sx={{ fontWeight: "medium" }}>
+                                  <Typography
+                                    variant="body2"
+                                    sx={{ fontWeight: "medium" }}
+                                  >
                                     <strong>{label}:</strong>
                                   </Typography>
                                 </Stack>
@@ -346,11 +393,14 @@ const Page = () => {
                         <TableRow key={index}>
                           <TableCell>{index + 1}</TableCell>
                           <TableCell>
-                            {new Date(row.created_at).toLocaleDateString("en-US", {
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                            })}
+                            {new Date(row.created_at).toLocaleDateString(
+                              "en-US",
+                              {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              }
+                            )}
                           </TableCell>
                           <TableCell>{row?.client_user?.name}</TableCell>
                           <TableCell>{row?.employee_user?.name}</TableCell>

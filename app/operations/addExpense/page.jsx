@@ -284,9 +284,9 @@ const Page = () => {
             </div>
 
             <div className="mt-5">
-              <InputWithTitle
+              <InputWithTitle3
                 title={"Cheque Date"}
-                type={"text"}
+                type={"date"}
                 placeholder={"Cheque Date"}
                 onChange={setChequeDate}
               />
