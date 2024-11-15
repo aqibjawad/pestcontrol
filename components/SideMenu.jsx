@@ -89,6 +89,11 @@ export default function SideMenu({ children }) {
     { name: "Team Head", url: "teams", icon: "/teamhead.png" },
     { name: "Company setup", url: "company_setup", icon: "/comnpany.png" },
     { name: "Settings", url: "setting", icon: "/setting-2.png" },
+    {
+      name: "Financial Report",
+      url: "financialReport/",
+      icon: <MdOutlineInventory />,
+    },
   ];
 
   const [permissions, setPermissions] = useState([]);
@@ -128,6 +133,11 @@ export default function SideMenu({ children }) {
     } else if (userRoleId === 6) {
       userPermissions = [
         { name: "Home", url: "accountant", icon: "/home.png" },
+        {
+          name: "Financial Report",
+          url: "financialReport/",
+          icon: <MdOutlineInventory />,
+        },
 
         {
           name: "Add Inventory",
@@ -149,6 +159,7 @@ export default function SideMenu({ children }) {
           url: "account/purchaseOrders/",
           icon: <MdOutlineInventory />,
         },
+
         // {
         //   name: "View Sales",
         //   url: "sales/allSales",
