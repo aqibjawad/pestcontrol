@@ -232,6 +232,17 @@ const Page = () => {
               </TableBody>
             </Table>
           </TableContainer>
+
+          <div style={{ textAlign: "right" }} className={styles.totalAmount}>
+            APCS{invoiceList?.user?.client?.referencable_id}PT
+            {invoiceList?.invoiceable?.billing_method === "monthly"
+              ? 1
+              : invoiceList?.invoiceable?.billing_method === "monthly"
+              ? 2
+              : invoiceList?.invoiceable?.billing_method === "service"
+              ? 3
+              : "unknown"}
+          </div>
         </Grid>
       </Grid>
 
@@ -332,8 +343,6 @@ const Page = () => {
         <div className={styles.Bankdescrp}>
           Account: 0883216722001 Bank Name : RAK BANK
         </div>
-
-        <div className={styles.Bankdescrp}>Branch: DRAGON MART, DUBAI</div>
 
         <div className={styles.Bankdescrp}>Branch: DRAGON MART, DUBAI</div>
 

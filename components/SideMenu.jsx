@@ -23,6 +23,7 @@ import {
 import { AiFillProduct } from "react-icons/ai";
 import { IoIosPerson } from "react-icons/io";
 import { IoPersonCircle } from "react-icons/io5";
+import { FaAlipay } from "react-icons/fa";
 
 const drawerWidth = 240;
 
@@ -85,6 +86,7 @@ export default function SideMenu({ children }) {
     { name: "Clients", url: "clients", icon: "/clients.png" },
     { name: "Operations", url: "allJobs", icon: "/operations.png" },
     { name: "Sales", url: "sales/allSales", icon: "/sales.png" },
+    { name: "Pay Roll", url: "payRoll", icon: <FaAlipay /> },
     { name: "HR", url: "hr/hr", icon: "/hr.png" },
     { name: "Team Head", url: "teams", icon: "/teamhead.png" },
     { name: "Company setup", url: "company_setup", icon: "/comnpany.png" },
@@ -92,7 +94,7 @@ export default function SideMenu({ children }) {
     {
       name: "Financial Report",
       url: "financialReport/",
-      icon: <MdOutlineInventory />,
+      icon: <FaAlipay />,
     },
   ];
 

@@ -72,3 +72,5 @@ export const supplierPayment = apiPrefix + "/add_payment";
 
 export const payments = apiPrefix + "/received_cash_record";
 
+export const admin = apiPrefix + "/ledger/get";
+
