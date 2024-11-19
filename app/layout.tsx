@@ -18,7 +18,7 @@ export default function RootLayout({
     "/quotePdf/",
     "/account/supplier_ledger/",
     "/invoiceDetails/",
-    "/paymentInvoice/",
+    // "/paymentInvoice/",
   ];
   const pathname = usePathname();
 

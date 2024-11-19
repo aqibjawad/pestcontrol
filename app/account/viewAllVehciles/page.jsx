@@ -2,12 +2,10 @@
 import { useState, useEffect } from "react";
 import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
 import Link from "next/link";
-import SearchInput from "@/components/generic/SearchInput";
 import DateFilters from "../../../components/generic/DateFilters";
 import APICall from "@/networkUtil/APICall";
 import { vehciles } from "@/networkUtil/Constants";
-import { Skeleton } from "@mui/material"; // Import MUI Skeleton
-
+import { Skeleton } from "@mui/material";
 import { format } from "date-fns";
 
 const Page = () => {
@@ -95,7 +93,11 @@ const Page = () => {
                   </div>
                 </td>
                 <td className="py-2 px-4">
-                  <div className={tableStyles.clientContact}>View</div>
+                  <Link href={`/account/vehicleExpense?id=${row.id}`}>
+                    <span className="text-blue-600 hover:text-blue-800">
+                      View Details
+                    </span>
+                  </Link>
                 </td>
               </tr>
             ))}

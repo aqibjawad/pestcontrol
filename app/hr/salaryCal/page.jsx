@@ -11,25 +11,42 @@ import GreenButton from "@/components/generic/GreenButton";
 import Swal from "sweetalert2";
 import CircularProgress from "@mui/material/CircularProgress";
 
+import { useRouter } from "next/navigation";
+
 const SalaryCal = () => {
   const api = new APICall();
+  const router = useRouter();
+
   const [fetchingData, setFetchingData] = useState(false);
   const [employeeList, setEmployeeList] = useState([]);
+
   const [employeeCompany, setEmployeeCompany] = useState([]);
   const [attendance_per, setAttendance] = useState("");
-  const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().slice(0, 7)); // YYYY-MM format
+  const [selectedMonth, setSelectedMonth] = useState(
+    new Date().toISOString().slice(0, 7)
+  ); // YYYY-MM format
 
   // Modal state
   const [openModal, setOpenModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
+  
   const [loadingSubmit, setLoadingSubmit] = useState(false);
 
   const getAllEmployees = async () => {
     setFetchingData(true);
     try {
-      const response = await api.getDataWithToken(`${getAllEmpoyesUrl}/salary/get`);
+      const response = await api.getDataWithToken(
+        `${getAllEmpoyesUrl}/salary/get`
+      );
       if (response?.data) {
-        setEmployeeList(response.data);
+        // Sort employees: unpaid first, then paid
+        const sortedEmployees = response.data.sort((a, b) => {
+          if (a.status === "unpaid" && b.status === "paid") return -1;
+          if (a.status === "paid" && b.status === "unpaid") return 1;
+          return 0;
+        });
+
+        setEmployeeList(sortedEmployees);
         setEmployeeCompany(response.data.captain_jobs || []);
       }
     } catch (error) {
@@ -62,7 +79,12 @@ const SalaryCal = () => {
 
   const handleSubmit = async () => {
     if (!selectedEmployee) return;
-    if (!attendance_per || isNaN(attendance_per) || attendance_per < 0 || attendance_per > 100) {
+    if (
+      !attendance_per ||
+      isNaN(attendance_per) ||
+      attendance_per < 0 ||
+      attendance_per > 100
+    ) {
       Swal.fire({
         icon: "error",
         title: "Invalid Input",
@@ -74,28 +96,36 @@ const SalaryCal = () => {
     setLoadingSubmit(true);
 
     const obj = {
-      employee_id: selectedEmployee.id,
-      attendance_percentage: attendance_per,
-      month: selectedMonth,
+      employee_salary_id: selectedEmployee.id,
+      attendance_per: attendance_per,
     };
 
     try {
       const response = await api.postFormDataWithToken(
-        `${getAllEmpoyesUrl}/attendance/update`,
+        `${getAllEmpoyesUrl}/salary/paid`,
         obj
       );
 
       if (response.status === "success") {
+        handleCloseModal();
         Swal.fire({
           icon: "success",
           title: "Success",
-          text: "Attendance has been updated successfully!",
+          text: "Attendance has been updated success  fully!",
         }).then(() => {
-          handleCloseModal();
-          getAllEmployees(); // Refresh the data
+          const employeeId = selectedEmployee?.user?.id || selectedEmployee?.id;
+          console.log(employeeId);
+          
+          if (!employeeId) {
+            console.error("Employee ID is missing");
+            return;
+          }
+          router.push(`/paySlip?id=${employeeId}`);
         });
       } else {
-        throw new Error(response.error?.message || "Failed to update attendance");
+        throw new Error(
+          response.error?.message || "Failed to update attendance"
+        );
       }
     } catch (error) {
       Swal.fire({
@@ -117,50 +147,66 @@ const SalaryCal = () => {
           <table className="min-w-full bg-white">
             <thead>
               <tr>
-                <th className="py-5 px-4 border-b border-gray-200 text-left">Sr.</th>
-                <th className="py-2 px-4 border-b border-gray-200 text-left">Employee Name</th>
-                <th className="py-2 px-4 border-b border-gray-200 text-left">Allowance</th>
-                <th className="py-2 px-4 border-b border-gray-200 text-left">Attendance (%)</th>
-                <th className="py-2 px-4 border-b border-gray-200 text-left">Basic Salary</th>
-                <th className="py-2 px-4 border-b border-gray-200 text-left">Paid Total Salary</th>
-                <th className="py-2 px-4 border-b border-gray-200 text-left">Status</th>
-                <th className="py-2 px-4 border-b border-gray-200 text-left">Total Salary</th>
-                <th className="py-2 px-4 border-b border-gray-200 text-left">Actions</th>
+                <th className="py-5 px-4 border-b border-gray-200 text-left">
+                  Sr.
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 text-left">
+                  Employee Name
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 text-left">
+                  Allowance
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 text-left">
+                  Attendance (%)
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 text-left">
+                  Basic Salary
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 text-left">
+                  Paid Total Salary
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 text-left">
+                  Status
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 text-left">
+                  Total Salary
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 text-left">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
-              {fetchingData ? (
-                Array.from({ length: 5 }).map((_, index) => (
-                  <tr key={index} className="border-b border-gray-200">
-                    {Array.from({ length: 9 }).map((_, colIndex) => (
-                      <td key={colIndex} className="py-5 px-4">
-                        <Skeleton variant="rectangular" height={30} />
+              {fetchingData
+                ? Array.from({ length: 5 }).map((_, index) => (
+                    <tr key={index} className="border-b border-gray-200">
+                      {Array.from({ length: 9 }).map((_, colIndex) => (
+                        <td key={colIndex} className="py-5 px-4">
+                          <Skeleton variant="rectangular" height={30} />
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                : employeeList.map((row, index) => (
+                    <tr key={index} className="border-b border-gray-200">
+                      <td className="py-5 px-4">{index + 1}</td>
+                      <td className="py-5 px-4">{row?.user?.name}</td>
+                      <td className="py-5 px-4">{row.allowance}</td>
+                      <td className="py-5 px-4">{row.attendance_per}%</td>
+                      <td className="py-5 px-4">{row.basic_salary}</td>
+                      <td className="py-5 px-4">{row.paid_total_salary}</td>
+                      <td className="py-5 px-4">{row.status}</td>
+                      <td className="py-5 px-4">{row.total_salary}</td>
+                      <td className="py-5 px-4">
+                        <Button
+                          variant="outlined"
+                          onClick={() => handleOpenModal(row)}
+                        >
+                          Update Attendance
+                        </Button>
                       </td>
-                    ))}
-                  </tr>
-                ))
-              ) : (
-                employeeList.map((row, index) => (
-                  <tr key={index} className="border-b border-gray-200">
-                    <td className="py-5 px-4">{index + 1}</td>
-                    <td className="py-5 px-4">{row?.user?.name}</td>
-                    <td className="py-5 px-4">{row.allowance}</td>
-                    <td className="py-5 px-4">{row.attendance_per}%</td>
-                    <td className="py-5 px-4">{row.basic_salary}</td>
-                    <td className="py-5 px-4">{row.paid_total_salary}</td>
-                    <td className="py-5 px-4">{row.status}</td>
-                    <td className="py-5 px-4">{row.total_salary}</td>
-                    <td className="py-5 px-4">
-                      <Button 
-                        variant="outlined" 
-                        onClick={() => handleOpenModal(row)}
-                      >
-                        Update Attendance
-                      </Button>
-                    </td>
-                  </tr>
-                ))
-              )}
+                    </tr>
+                  ))}
             </tbody>
           </table>
         </div>
@@ -184,7 +230,13 @@ const SalaryCal = () => {
             <div className="mt-5">
               <GreenButton
                 onClick={handleSubmit}
-                title={loadingSubmit ? <CircularProgress size={20} color="inherit" /> : "Submit"}
+                title={
+                  loadingSubmit ? (
+                    <CircularProgress size={20} color="inherit" />
+                  ) : (
+                    "Submit"
+                  )
+                }
                 disabled={loadingSubmit}
               />
             </div>
@@ -195,4 +247,4 @@ const SalaryCal = () => {
   );
 };
 
-export default SalaryCal; 
+export default SalaryCal;
