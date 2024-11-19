@@ -2,18 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Layout from "../../components/layout";
-import {
-  Box,
-  Grid,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  TableContainer,
-  Paper,
-} from "@mui/material";
+import { Box, Grid, Typography, Paper } from "@mui/material";
 import styles from "../../styles/invoiceDetails.module.css";
 
 import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
@@ -21,7 +10,6 @@ import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
 
 const invoiceData = {
-
   companyDetails: {
     name: "Accurate Pest Control Services LLC",
     logo: "/api/placeholder/100/100",
@@ -54,7 +42,6 @@ const getIdFromUrl = (url) => {
 };
 
 const Page = () => {
-
   const api = new APICall();
 
   const [id, setId] = useState(null);
@@ -198,95 +185,158 @@ const Page = () => {
       </Grid>
 
       <div className="mt-5">
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead style={{ backgroundColor: "#32A92E", color: "white" }}>
-              <TableRow>
-                <TableCell
-                  sx={{
-                    color: "white",
-                    padding: "4px 16px",
-                    lineHeight: "1rem",
-                  }}
-                >
-                  Basic
-                </TableCell>
-                <TableCell
-                  sx={{
-                    color: "white",
-                    padding: "4px 16px",
-                    lineHeight: "1rem",
-                  }}
-                  align="right"
-                >
-                Allowance (AED)
-                </TableCell>
-                <TableCell
-                  sx={{
-                    color: "white",
-                    padding: "4px 16px",
-                    lineHeight: "1rem",
-                  }}
-                  align="right"
-                >
-                  Other (AED)
-                </TableCell>
-                <TableCell
-                  sx={{
-                    color: "white",
-                    padding: "4px 16px",
-                    lineHeight: "1rem",
-                  }}
-                  align="right"
-                >
-                  Total (AED)
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {invoiceList?.details?.map((item, index) => (
-                <TableRow key={index}>
-                  <TableCell
-                    sx={{
-                      color: "black",
-                      padding: "4px 16px",
-                      lineHeight: "1rem",
-                    }}
-                  >
-                    {" "}
-                    General Pest Control{" "}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      color: "black",
-                      padding: "4px 16px",
-                      lineHeight: "1rem",
-                    }}
-                    align="right"
-                  >
-                    {item.rate}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      color: "black",
-                      padding: "4px 16px",
-                      lineHeight: "1rem",
-                    }}
-                    align="right"
-                  >
-                    {item.sub_total}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <Grid container spacing={2} component={Paper} sx={{ padding: 2 }}>
+          {/* Header Row */}
+          <Grid item xs={6}>
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: "bold", color: "#32A92E" }}
+            >
+              Basic
+            </Typography>
+          </Grid>
+
+          <Grid item xs={6}>
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: "bold", color: "#32A92E", textAlign: "right" }}
+            >
+              Allowance (AED)
+            </Typography>
+          </Grid>
+
+          {/* Data Row */}
+          <Grid item xs={6}>
+            <Typography
+              sx={{ color: "black", padding: "4px 16px", lineHeight: "1rem" }}
+            >
+              {invoiceList?.employee?.basic_salary}
+            </Typography>
+          </Grid>
+
+          <Grid item xs={6}>
+            <Typography
+              sx={{
+                color: "black",
+                padding: "4px 16px",
+                lineHeight: "1rem",
+                textAlign: "right",
+              }}
+            >
+              {invoiceList?.employee?.allowance}
+            </Typography>
+          </Grid>
+        </Grid>
+
+        <Grid
+          className="mt-5"
+          container
+          spacing={2}
+          component={Paper}
+          sx={{ padding: 2 }}
+        >
+          {/* Header Row */}
+          <Grid item xs={6}>
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: "bold", color: "#32A92E" }}
+            >
+              Other
+            </Typography>
+          </Grid>
+
+          <Grid item xs={6}>
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: "bold", color: "#32A92E", textAlign: "right" }}
+            >
+              Salary (AED)
+            </Typography>
+          </Grid>
+
+          {/* Data Row */}
+          <Grid item xs={6}>
+            <Typography
+              sx={{ color: "black", padding: "4px 16px", lineHeight: "1rem" }}
+            >
+              {invoiceList?.employee?.other}
+            </Typography>
+          </Grid>
+
+          <Grid item xs={6}>
+            <Typography
+              sx={{
+                color: "black",
+                padding: "4px 16px",
+                lineHeight: "1rem",
+                textAlign: "right",
+              }}
+            >
+              {invoiceList?.employee?.total_salary}
+            </Typography>
+          </Grid>
+        </Grid>
+
+        <Grid
+          className="mt-5"
+          container
+          spacing={2}
+          component={Paper}
+          sx={{ padding: 2 }}
+        >
+          {/* Header Row */}
+          <Grid item xs={6}>
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: "bold", color: "#32A92E" }}
+            >
+              Comission
+            </Typography>
+          </Grid>
+
+          <Grid item xs={6}>
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: "bold", color: "#32A92E", textAlign: "right" }}
+            >
+              Total Salary (AED)
+            </Typography>
+          </Grid>
+
+          {/* Data Row */}
+          <Grid item xs={6}>
+            <Typography
+              sx={{ color: "black", padding: "4px 16px", lineHeight: "1rem" }}
+            >
+              {invoiceList?.employee?.commission_per}
+            </Typography>
+          </Grid>
+
+          <Grid item xs={6}>
+            <Typography
+              sx={{
+                color: "black",
+                padding: "4px 16px",
+                lineHeight: "1rem",
+                textAlign: "right",
+              }}
+            >
+              {invoiceList?.employee?.total_salary &&
+              invoiceList?.employee?.commission_per
+                ? (
+                    invoiceList?.employee?.total_salary *
+                    (1 + invoiceList?.employee?.commission_per / 100)
+                  ).toFixed(2)
+                : "0.00"}
+            </Typography>
+          </Grid>
+        </Grid>
       </div>
 
       <Grid className="mt-5" container spacing={2}>
         <Grid item xs={6}>
           <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-            {invoiceList?.user?.client?.firm_name}
+            {invoiceList?.name}
           </Typography>
         </Grid>
 
@@ -305,13 +355,6 @@ const Page = () => {
 
           <Typography variant="body2">Signature</Typography>
           <Typography variant="body2">Date :</Typography>
-
-          <Typography className="" variant="body2">
-            {invoiceList?.user?.name}
-          </Typography>
-          <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-            Manager
-          </Typography>
         </Grid>
 
         <Grid item xs={6}>
