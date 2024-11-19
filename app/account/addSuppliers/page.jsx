@@ -168,8 +168,8 @@ const Page = () => {
           <InputWithTitle
             title={"Add Tag"}
             placeholder={"Add Tag"}
-            onChange={(value) => handleInputChange("hsn", value)}
-            value={supplierData.hsn}
+            onChange={(value) => handleInputChange("tag", value)}
+            value={supplierData.tag}
           />
         </div>
 

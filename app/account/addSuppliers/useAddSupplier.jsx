@@ -25,7 +25,8 @@ export const useSupplier = () => {
     city: "", // Remains the same
     zip: "", // Remains the same
     item_notes: "", // Updated to match validation schema
-    opening_balance: ""
+    opening_balance: "",
+    tag: ""
   });
 
   const handleInputChange = (field, value) => {
@@ -97,7 +98,8 @@ export const useSupplier = () => {
         hsn: supplierData.hsn,
         zip: supplierData.zip,
         item_notes: supplierData.item_notes,
-        opening_balance: supplierData.opening_balance
+        opening_balance: supplierData.opening_balance,
+        tag: supplierData.tag
       };
       setSendingData(true);
       try {

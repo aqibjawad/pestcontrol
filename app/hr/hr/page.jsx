@@ -6,7 +6,7 @@ import AllEmployees from "@/app/operations/viewEmployees/allEmployees";
 import SalarCal from "../salaryCal/page";
 import CommissionCal from "../comCal/page";
 
-import MonthPicker from "../monthpicker";
+import MonthPicker from "../monthPicker";
 
 const Page = () => {
   const [selectedMonth, setSelectedMonth] = useState(
