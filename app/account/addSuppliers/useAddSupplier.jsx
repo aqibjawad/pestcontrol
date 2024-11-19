@@ -77,8 +77,8 @@ export const useSupplier = () => {
       msg = "Please select country";
     } else if (supplierData.city === "") {
       msg = "Please select city";
-    } else if (supplierData.hsn === "") {
-      msg = "Please enter HSN";
+    } else if (supplierData.tag === "") {
+      msg = "Please enter tag";
     } else if (supplierData.zip === "") {
       msg = "Please enter zip code";
     } else if (supplierData.item_notes === "") {
