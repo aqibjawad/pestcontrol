@@ -65,6 +65,13 @@ const Page = () => {
     }
   };
 
+  // Calculate total amount
+  const totalAmount =
+    invoiceList?.vehicle_expenses?.reduce(
+      (acc, item) => acc + (parseFloat(item.total_amount) || 0), // Ensure it's treated as a number
+      0
+    ) || 0;
+
   if (loadingDetails || fetchingData) {
     return (
       <Box
@@ -97,7 +104,7 @@ const Page = () => {
                 Vehicle Details
               </Typography>
               <Typography color="text.secondary">
-                Owner: {invoiceList?.user?.name}
+                Assign To: {invoiceList?.user?.name}
               </Typography>
             </Box>
             <Box
@@ -120,20 +127,26 @@ const Page = () => {
 
           <TableContainer component={Paper} elevation={0}>
             <Table sx={{ minWidth: 650 }}>
-              <TableHead>
+              <TableHead style={{ backgroundColor: "#32A92E" }}>
                 <TableRow>
-                  <TableCell>
+                  <TableCell sx={{ color: "white" }}>
+                    <Typography variant="subtitle2">Date</Typography>
+                  </TableCell>
+                  <TableCell sx={{ color: "white" }}>
                     <Typography variant="subtitle2">Maintenance</Typography>
                   </TableCell>
-                  <TableCell>
+                  <TableCell sx={{ color: "white" }}>
                     <Typography variant="subtitle2">Oil Amount</Typography>
                   </TableCell>
-                  <TableCell>
+                  <TableCell sx={{ color: "white" }}>
+                    <Typography variant="subtitle2">Fuel Amount</Typography>
+                  </TableCell>
+                  <TableCell sx={{ color: "white" }}>
                     <Typography variant="subtitle2">
                       Oil Change Limit
                     </Typography>
                   </TableCell>
-                  <TableCell>
+                  <TableCell sx={{ color: "white" }}>
                     <Typography variant="subtitle2">Total</Typography>
                   </TableCell>
                 </TableRow>
@@ -146,13 +159,21 @@ const Page = () => {
                     hover
                   >
                     <TableCell>
-                      ₹{item.maintenance_amount.toLocaleString()}
+                      {new Date(item.updated_at).toLocaleString("en-US", {
+                        month: "long",
+                        weekday: "long",
+                        year: "numeric",
+                      })}
                     </TableCell>
-                    <TableCell>₹{item.oil_amount.toLocaleString()}</TableCell>
+                    <TableCell>
+                      {item.maintenance_amount.toLocaleString()}
+                    </TableCell>
+                    <TableCell>{item.oil_amount.toLocaleString()}</TableCell>
+                    <TableCell>{item.fuel_amount.toLocaleString()}</TableCell>
                     <TableCell>{item.oil_change_limit} km</TableCell>
                     <TableCell>
                       <Typography fontWeight="medium">
-                        ₹{item.total_amount.toLocaleString()}
+                        {item.total_amount.toLocaleString()}
                       </Typography>
                     </TableCell>
                   </TableRow>
@@ -160,6 +181,20 @@ const Page = () => {
               </TableBody>
             </Table>
           </TableContainer>
+
+          {/* Display total amount */}
+          <Box
+            sx={{
+              mt: 3,
+              display: "flex",
+              justifyContent: "right",
+              width: "100%",
+            }}
+          >
+            <Typography variant="h6" fontWeight="medium">
+              Total: {totalAmount.toLocaleString()}
+            </Typography>
+          </Box>
         </CardContent>
       </Card>
     </Box>
