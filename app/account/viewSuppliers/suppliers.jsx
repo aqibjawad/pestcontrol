@@ -60,10 +60,10 @@ const listTable = (data) => {
               tag
             </th>
             <th className="py-2 px-4 border-b border-gray-200 text-left">
-              TRN
+              Zip
             </th>
             <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Zip
+              Balance
             </th>
             <th className="py-2 px-4 border-b border-gray-200 text-left">
               View
@@ -78,8 +78,8 @@ const listTable = (data) => {
               <td className="py-2 px-4">{row.company_name}</td>
               <td className="py-2 px-4">{row.email}</td>
               <td className="py-2 px-4">{row.tag}</td>
-              <td className="py-2 px-4">{row.trn_no}</td>
               <td className="py-2 px-4">{row.zip}</td>
+              <td className="py-2 px-4">{row.balance}</td>
               <td className="py-2 px-4">
                 <Link
                   href={`/account/supplier_ledger?id=${
