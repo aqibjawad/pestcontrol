@@ -12,6 +12,7 @@ import Swal from "sweetalert2";
 import CircularProgress from "@mui/material/CircularProgress";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const SalaryCal = () => {
   const api = new APICall();
@@ -172,7 +173,10 @@ const SalaryCal = () => {
                   Total Salary
                 </th>
                 <th className="py-2 px-4 border-b border-gray-200 text-left">
-                  Actions
+                  Update Attendence
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 text-left">
+                  View Slip
                 </th>
               </tr>
             </thead>
@@ -202,8 +206,16 @@ const SalaryCal = () => {
                           variant="outlined"
                           onClick={() => handleOpenModal(row)}
                         >
-                          Update Attendance
+                          Update
                         </Button>
+                      </td>
+                      <td className="py-5 px-4">
+                        <Link
+                          variant="outlined"
+                          href={`/paySlip?id=${row?.user?.id}`}
+                        >
+                          View
+                        </Link>
                       </td>
                     </tr>
                   ))}

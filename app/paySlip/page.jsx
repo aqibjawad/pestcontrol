@@ -168,7 +168,8 @@ const Page = () => {
             {invoiceData.name}
           </Typography>
           <Typography variant="body2">
-            Greece Cluster Building K12, Office 12, International City
+            Warehouse No.1, Plot No. 247-289, Al Qusais Industrial Area 4, Dubai
+            - UAE
           </Typography>
           <Typography variant="body2">info@accuratepestcontrol.ae</Typography>
 
@@ -185,95 +186,116 @@ const Page = () => {
       </Grid>
 
       <div className="mt-5">
-        <Grid container spacing={2} component={Paper} sx={{ padding: 2 }}>
-          {/* Header Row */}
-          <Grid item xs={6}>
-            <Typography
-              variant="h6"
-              sx={{ fontWeight: "bold", color: "#32A92E" }}
-            >
-              Basic
-            </Typography>
+        <Grid container spacing={2} sx={{ padding: 2 }}>
+          <Grid item xs={5}>
+            <Grid container spacing={2} component={Paper} sx={{ padding: 2 }}>
+              {/* Header Row */}
+              <Grid item xs={6}>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: "bold", color: "#32A92E" }}
+                >
+                  Basic
+                </Typography>
+              </Grid>
+
+              <Grid item xs={6}>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: "bold",
+                    color: "#32A92E",
+                    textAlign: "right",
+                  }}
+                >
+                  Allowance
+                </Typography>
+              </Grid>
+
+              {/* Data Row */}
+              <Grid item xs={6}>
+                <Typography
+                  sx={{
+                    color: "black",
+                    padding: "4px 16px",
+                    lineHeight: "1rem",
+                  }}
+                >
+                  {invoiceList?.employee?.basic_salary}
+                </Typography>
+              </Grid>
+
+              <Grid item xs={6}>
+                <Typography
+                  sx={{
+                    color: "black",
+                    padding: "4px 16px",
+                    lineHeight: "1rem",
+                    textAlign: "right",
+                  }}
+                >
+                  {invoiceList?.employee?.allowance}
+                </Typography>
+              </Grid>
+            </Grid>
           </Grid>
 
-          <Grid item xs={6}>
-            <Typography
-              variant="h6"
-              sx={{ fontWeight: "bold", color: "#32A92E", textAlign: "right" }}
+          <Grid className="ml-20" item xs={5}>
+            <Grid
+              container
+              spacing={2}
+              component={Paper}
+              sx={{ padding: 2 }}
             >
-              Allowance (AED)
-            </Typography>
-          </Grid>
+              {/* Header Row */}
+              <Grid item xs={6}>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: "bold", color: "#32A92E" }}
+                >
+                  Other
+                </Typography>
+              </Grid>
 
-          {/* Data Row */}
-          <Grid item xs={6}>
-            <Typography
-              sx={{ color: "black", padding: "4px 16px", lineHeight: "1rem" }}
-            >
-              {invoiceList?.employee?.basic_salary}
-            </Typography>
-          </Grid>
+              <Grid item xs={6}>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: "bold",
+                    color: "#32A92E",
+                    textAlign: "right",
+                  }}
+                >
+                  Salary
+                </Typography>
+              </Grid>
 
-          <Grid item xs={6}>
-            <Typography
-              sx={{
-                color: "black",
-                padding: "4px 16px",
-                lineHeight: "1rem",
-                textAlign: "right",
-              }}
-            >
-              {invoiceList?.employee?.allowance}
-            </Typography>
-          </Grid>
-        </Grid>
+              {/* Data Row */}
+              <Grid item xs={6}>
+                <Typography
+                  sx={{
+                    color: "black",
+                    padding: "4px 16px",
+                    lineHeight: "1rem",
+                  }}
+                >
+                  {invoiceList?.employee?.other}
+                </Typography>
+              </Grid>
 
-        <Grid
-          className="mt-5"
-          container
-          spacing={2}
-          component={Paper}
-          sx={{ padding: 2 }}
-        >
-          {/* Header Row */}
-          <Grid item xs={6}>
-            <Typography
-              variant="h6"
-              sx={{ fontWeight: "bold", color: "#32A92E" }}
-            >
-              Other
-            </Typography>
-          </Grid>
-
-          <Grid item xs={6}>
-            <Typography
-              variant="h6"
-              sx={{ fontWeight: "bold", color: "#32A92E", textAlign: "right" }}
-            >
-              Salary (AED)
-            </Typography>
-          </Grid>
-
-          {/* Data Row */}
-          <Grid item xs={6}>
-            <Typography
-              sx={{ color: "black", padding: "4px 16px", lineHeight: "1rem" }}
-            >
-              {invoiceList?.employee?.other}
-            </Typography>
-          </Grid>
-
-          <Grid item xs={6}>
-            <Typography
-              sx={{
-                color: "black",
-                padding: "4px 16px",
-                lineHeight: "1rem",
-                textAlign: "right",
-              }}
-            >
-              {invoiceList?.employee?.total_salary}
-            </Typography>
+              <Grid item xs={6}>
+                <Typography
+                  sx={{
+                    color: "black",
+                    padding: "4px 16px",
+                    lineHeight: "1rem",
+                    textAlign: "right",
+                  }}
+                >
+                  {invoiceList?.employee?.total_salary}
+                </Typography>
+              </Grid>
+            </Grid>
           </Grid>
         </Grid>
 
