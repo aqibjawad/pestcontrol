@@ -167,27 +167,49 @@ const Page = () => {
 
     if (selectedIndex === -1) {
       newSelected = newSelected.concat(selectedInvoices, invoice.id);
-      setSelectedInvoice(invoice);
+      setSelectedInvoice({
+        ...invoice,
+        userId: invoice.user.id, // Include user ID
+        userName: invoice.user.name, // Optionally include user name
+      });
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selectedInvoices.slice(1));
-      setSelectedInvoice(
+      const nextInvoice =
         newSelected.length > 0
           ? allInvoiceList.find((inv) => inv.id === newSelected[0])
+          : null;
+      setSelectedInvoice(
+        nextInvoice
+          ? {
+              ...nextInvoice,
+              userId: nextInvoice.user.id,
+              userName: nextInvoice.user.name,
+            }
           : null
       );
     } else if (selectedIndex === selectedInvoices.length - 1) {
       newSelected = newSelected.concat(selectedInvoices.slice(0, -1));
-      setSelectedInvoice(
-        allInvoiceList.find((inv) => inv.id === newSelected[0])
+      const nextInvoice = allInvoiceList.find(
+        (inv) => inv.id === newSelected[0]
       );
+      setSelectedInvoice({
+        ...nextInvoice,
+        userId: nextInvoice.user.id,
+        userName: nextInvoice.user.name,
+      });
     } else if (selectedIndex > 0) {
       newSelected = newSelected.concat(
         selectedInvoices.slice(0, selectedIndex),
         selectedInvoices.slice(selectedIndex + 1)
       );
-      setSelectedInvoice(
-        allInvoiceList.find((inv) => inv.id === newSelected[0])
+      const nextInvoice = allInvoiceList.find(
+        (inv) => inv.id === newSelected[0]
       );
+      setSelectedInvoice({
+        ...nextInvoice,
+        userId: nextInvoice.user.id,
+        userName: nextInvoice.user.name,
+      });
     }
 
     setSelectedInvoices(newSelected);
@@ -239,7 +261,7 @@ const Page = () => {
         alert("Service Invoice Payment Added Successfully");
         clearFormState();
         getAllServices(id);
-        router.push(`/paymentInvoice?id=${selectedInvoice.id}`);
+        router.push(`/paymentInvoice?id=${selectedInvoice.id}&userId=${selectedInvoice.userId}`);
       } else {
         alert(`${response.error.message}`);
       }

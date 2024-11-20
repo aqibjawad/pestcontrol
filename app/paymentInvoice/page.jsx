@@ -2,48 +2,73 @@
 
 import React, { useState, useEffect } from "react";
 
-import { serviceInvoice, bank } from "@/networkUtil/Constants";
+import { serviceInvoice, clients } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
 
-import Grid from "@mui/material/Grid";
+import {
+  Grid,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper, Skeleton
+} from "@mui/material";
 
 import styles from "../../styles/paymentPdf.module.css";
+import { format } from "date-fns";
 
 import { FaPhone } from "react-icons/fa";
 import { TbDeviceLandlinePhone } from "react-icons/tb";
 
-const getIdFromUrl = (url) => {
+const getParamsFromUrl = (url) => {
   const parts = url.split("?");
   if (parts.length > 1) {
+    const params = {};
     const queryParams = parts[1].split("&");
+
     for (const param of queryParams) {
       const [key, value] = param.split("=");
-      if (key === "id") {
-        return value;
-      }
+      params[key] = value;
     }
+
+    return params;
   }
-  return null;
+  return { id: null, userId: null };
 };
 
 const Page = () => {
   const api = new APICall();
+
   const [id, setId] = useState("");
+  const [userId, setUserId] = useState(null);
+
   const [allInvoiceList, setAllInvoiceList] = useState([]);
+  const [rowData, setRowData] = useState([]);
+
+  console.log(rowData);
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [fetchingData, setFetchingData] = useState(false);
 
   useEffect(() => {
     const currentUrl = window.location.href;
-    const urlId = getIdFromUrl(currentUrl);
-    setId(urlId);
+    const params = getParamsFromUrl(currentUrl);
+    setId(params.id);
+    setUserId(params.userId);
   }, []);
 
   useEffect(() => {
     if (id !== undefined && id !== null) {
       getAllServices(id);
     }
-  }, [id]);
+    if (userId !== undefined && userId !== null) {
+      fetchData(userId);
+    }
+  }, [id, userId]);
 
   const getAllServices = async () => {
     setFetchingData(true);
@@ -60,6 +85,21 @@ const Page = () => {
     }
   };
 
+  const fetchData = async (userId) => {
+    setLoading(true);
+    try {
+      const response = await api.getDataWithToken(
+        `${clients}/ledger/get/${userId}`
+      );
+      // Get only last 5 arrays using slice
+      const lastFiveArrays = response.data.slice(-5);
+      setRowData(lastFiveArrays);
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
   const numberToWords = (num) => {
     const belowTwenty = [
       "",
@@ -167,8 +207,7 @@ const Page = () => {
       </Grid>
 
       <Grid container spacing={2}>
-      <Grid className="mt-5" item lg={3} xs={12} sm={6} md={4}>
-        </Grid>
+        <Grid className="mt-5" item lg={3} xs={12} sm={6} md={4}></Grid>
 
         <Grid className="mt-5" item lg={4} xs={12} sm={6} md={4}>
           <div className={styles.payment}>Paymen Voucher</div>
@@ -189,7 +228,9 @@ const Page = () => {
                     </span>
                   </div>
                   {/* {allInvoiceList.service_invoice_id} */}
-                  <div className="h-16 p-2">{allInvoiceList.service_invoice_id}</div>
+                  <div className="h-16 p-2">
+                    {allInvoiceList.service_invoice_id}
+                  </div>
                 </div>
 
                 {/* Date Box */}
@@ -352,6 +393,54 @@ const Page = () => {
           <img className={styles.qrImage} src="/qr.png" />
         </div>
       </div>
+
+      <TableContainer className="mt-5" component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Date</TableCell>
+              <TableCell>Description</TableCell>
+              <TableCell>Credit</TableCell>
+              <TableCell>Debit</TableCell>
+              <TableCell>Balance</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {loading
+              ? Array.from(new Array(5)).map((_, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <Skeleton variant="wave" width={100} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="wave" width={200} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="wave" width={100} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="wave" width={100} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="wave" width={100} />
+                    </TableCell>
+
+                  </TableRow>
+                ))
+              : rowData.map((row, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      {format(new Date(row.updated_at), "yyyy-MM-dd")}
+                    </TableCell>
+                    <TableCell>{row.description}</TableCell>
+                    <TableCell>{row.cr_amt}</TableCell>
+                    <TableCell>{row.dr_amt}</TableCell>
+                    <TableCell>{row.cash_balance}</TableCell>
+                  </TableRow>
+                ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </div>
   );
 };
