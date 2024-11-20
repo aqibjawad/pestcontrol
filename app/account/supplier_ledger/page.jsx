@@ -23,6 +23,8 @@ import APICall from "../../../networkUtil/APICall";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 
+import Link from "next/link";
+
 const getParamFromUrl = (url, param) => {
   const searchParams = new URLSearchParams(url.split("?")[1]);
   return searchParams.get(param);
@@ -132,6 +134,9 @@ const Page = () => {
 
   const sortedData = loading ? [] : sortData(rowData);
 
+  console.log(sortedData);
+  
+
   return (
     <div>
       <div className={styles.container}>
@@ -212,6 +217,7 @@ const Page = () => {
                   Balance
                 </TableSortLabel>
               </TableCell>
+              <TableCell>View Purchase Order</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -245,6 +251,13 @@ const Page = () => {
                     <TableCell>{row.cr_amt}</TableCell>
                     <TableCell>{row.dr_amt}</TableCell>
                     <TableCell>{row.cash_balance}</TableCell>
+                    <TableCell>
+                      <Link
+                        href={`/account/purchaseOrderDetails?id=${row?.purchase_order?.id}`}
+                      >
+                        View
+                      </Link>
+                    </TableCell>
                   </TableRow>
                 ))}
           </TableBody>

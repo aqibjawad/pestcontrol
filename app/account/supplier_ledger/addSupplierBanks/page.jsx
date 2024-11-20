@@ -10,10 +10,9 @@ import APICall from "@/networkUtil/APICall";
 import ViewBanks from "./bank";
 
 const Index = () => {
-
   const api = new APICall();
   const [supplierID, setSupplierID] = useState();
-  
+
   const [bank_name, setBankName] = useState("");
   const [iban, setIban] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
@@ -55,10 +54,9 @@ const Index = () => {
           addSupplierBankInfo,
           obj
         );
-        console.log(response);
         if (response.status === "success") {
           alert.successAlert(response.message);
-          // router.replace("/hr/hr");
+          window.location.reload();
         } else {
           alert.errorAlert(response.error.message);
         }
@@ -83,7 +81,7 @@ const Index = () => {
               title="Account Number"
               onChange={setAccountNumber}
             />
-          </div> 
+          </div>
           <div className="">
             <InputWithTitle title="Bank Address" onChange={setBankAddress} />
           </div>
@@ -108,7 +106,10 @@ const Index = () => {
   return (
     <>
       <div className="grid grid-cols-2 gap-4">
-        <div> <ViewBanks supplierID={supplierID} /> </div>
+        <div>
+          {" "}
+          <ViewBanks supplierID={supplierID} />{" "}
+        </div>
         <div> {bankSection()} </div>
       </div>
     </>
