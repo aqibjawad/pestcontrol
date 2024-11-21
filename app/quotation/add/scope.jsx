@@ -91,7 +91,18 @@ const Scope = ({ selectedServices }) => {
                     <Typography variant="subtitle1" fontWeight="bold" mt={2}>
                       Terms and Conditions:
                     </Typography>
-                    <Typography>{service.term_and_conditions}</Typography>
+                    <Box
+                      sx={{
+                        pl: 2, // Add padding if needed
+                        "& ul": { paddingLeft: "20px" }, // Ensure list indenting
+                        "& ol": { paddingLeft: "20px" }, // For ordered lists
+                        "& li": { marginBottom: "8px" }, // Add spacing between list items
+                        "& a": { color: "blue", textDecoration: "underline" }, // Styling links
+                      }}
+                      dangerouslySetInnerHTML={{
+                        __html: service.term_and_conditions,
+                      }}
+                    />
                   </Box>
                 </Grid>
               ))

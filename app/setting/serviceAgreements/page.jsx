@@ -1,18 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import InputWithTitle from "../../../components/generic/InputWithTitle";
 import styles from "../../../styles/account/addServiceAgreementStyles.module.css";
-import APICall from "@/networkUtil/APICall";
-import {
-  getServiceAgreements,
-  addServiceAgreements,
-  deleteServiceAgreement,
-} from "@/networkUtil/Constants";
-import MultilineInput from "../../../components/generic/MultilineInput";
+import { Editor } from "@tinymce/tinymce-react";
 import GreenButton from "../../../components/generic/GreenButton";
 import Loading from "../../../components/generic/Loading";
-import Swal from "sweetalert2";
 import useServices from "./useServices";
 import { AppAlerts } from "../../../Helper/AppAlerts";
 import {
@@ -32,6 +25,7 @@ const Page = () => {
   const { isLoading, service, addService, updateService, addingService } =
     useServices();
 
+  const editorRef = useRef(null);
   const [name, setServiceName] = useState("");
   const [pestName, setPestName] = useState("");
   const [work_scope, setScope] = useState("");
@@ -39,17 +33,22 @@ const Page = () => {
   const [updateId, setUpdateId] = useState(null);
 
   const handleFormSubmit = async () => {
+    // Get the current content from TinyMCE editor
+    const editorContent = editorRef.current
+      ? editorRef.current.getContent()
+      : "";
+
     if (pestName === "") {
       alert.errorAlert("Pest Name is required");
     } else if (name === "") {
       alert.errorAlert("Name is required");
-    } else if (work_scope === "") {
+    } else if (editorContent.trim() === "") {
       alert.errorAlert("Please enter scope of work");
     } else {
       if (isUpdate) {
-        updateService(updateId, pestName, name, work_scope);
+        updateService(updateId, pestName, name, editorContent);
       } else {
-        addService(pestName, name, work_scope);
+        addService(pestName, name, editorContent);
       }
     }
   };
@@ -61,15 +60,23 @@ const Page = () => {
       setScope("");
       setIsUpdate(false);
       setUpdateId(null);
+      // Reset TinyMCE editor
+      if (editorRef.current) {
+        editorRef.current.setContent("");
+      }
     }
   }, [isLoading]);
 
   const handleDelete = (item) => {
     setIsUpdate(true);
-    setUpdateId(item.id); // Assuming each item has a unique id
+    setUpdateId(item.id);
     setServiceName(item.service_title);
     setPestName(item.pest_name);
-    setScope(item.term_and_conditions);
+
+    // Set the content in TinyMCE editor
+    if (editorRef.current) {
+      editorRef.current.setContent(item.term_and_conditions || "");
+    }
   };
 
   return (
@@ -130,13 +137,55 @@ const Page = () => {
             />
           </div>
 
-          <div className="mt-5"></div>
-          <MultilineInput
-            value={work_scope}
-            onChange={setScope}
-            placeholder="Scope of work"
-            title="Scope of Work"
-          />
+          <div className="mt-5">
+            <Editor
+              apiKey="zpa6jhahb7wr51wcc4yrbt91xeuizav1kudmrtpziohibpz4"
+              onInit={(evt, editor) => (editorRef.current = editor)}
+              initialValue="<p>Add your scope of work here...</p>"
+              init={{
+                height: 300,
+                menubar: true,
+                plugins: [
+                  "advlist autolink lists link image charmap print preview anchor",
+                  "searchreplace visualblocks code fullscreen",
+                  "insertdatetime media table paste code help wordcount",
+                  "image imagetools",
+                ],
+                toolbar:
+                  "undo redo | formatselect | bold italic backcolor | \
+                  alignleft aligncenter alignright alignjustify | \
+                  bullist numlist outdent indent | removeformat | link image",
+                automatic_uploads: true,
+                images_upload_url: "/api/upload-image",
+                file_picker_types: "image",
+                file_picker_callback: (cb, value, meta) => {
+                  const input = document.createElement("input");
+                  input.setAttribute("type", "file");
+                  input.setAttribute("accept", "image/*");
+                  input.onchange = () => {
+                    const file = input.files[0];
+                    const formData = new FormData();
+                    formData.append("file", file);
+
+                    fetch("/api/upload-image", {
+                      method: "POST",
+                      body: formData,
+                    })
+                      .then((response) => response.json())
+                      .then((data) => {
+                        cb(data.location);
+                      })
+                      .catch((err) => {
+                        console.error(err);
+                        alert("Failed to upload image!");
+                      });
+                  };
+                  input.click();
+                },
+              }}
+            />
+          </div>
+
           <div className="mt-5"></div>
           <GreenButton
             onClick={() => handleFormSubmit()}
