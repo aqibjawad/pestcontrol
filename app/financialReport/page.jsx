@@ -9,6 +9,7 @@ import {
   expense_category,
   admin,
   payments,
+  clients
 } from "../../networkUtil/Constants";
 import APICall from "../../networkUtil/APICall";
 
@@ -20,7 +21,8 @@ const FinancialDashboard = () => {
   const [allClientsList, setAllClientsList] = useState([]);
   const [allVehicleExpense, setAllVehicleExpense] = useState(0);
   const [expenseList, setExpenseList] = useState(0);
-  const [ledgerList, setLedgerList] = useState(0);
+  const [ledgerList, setLedgerList] = useState(0);  
+  
   const [paymentList, setPaymentsList] = useState([]);
 
   const [fetchingData, setFetchingData] = useState(false);
@@ -88,12 +90,12 @@ const FinancialDashboard = () => {
   const getLedger = async () => {
     try {
       const response = await api.getDataWithToken(
-        `${admin}?month=${selectedMonth}`
-      );
-
+        `${`${clients}/received_amount/get`}?month=${selectedMonth}`
+      );      
       const totalAmountLedger = response.data.reduce((sum, item) => {
-        return sum + parseFloat(item.cr_amt || 0);
+        return sum + parseFloat(item.ledger_cr_amt_sum || 0);
       }, 0);
+
       setLedgerList(totalAmountLedger);
     } catch (error) {
       console.error("Error fetching ledger:", error);

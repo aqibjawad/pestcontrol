@@ -15,7 +15,9 @@ import {
 } from "@mui/material";
 
 import APICall from "@/networkUtil/APICall";
-import { quotation } from "@/networkUtil/Constants";
+import { job } from "@/networkUtil/Constants";
+
+import AllJobs from "../../../allJobs/jobs";
 
 const Scheduler = () => {
   const api = new APICall();
@@ -31,12 +33,15 @@ const Scheduler = () => {
   const getAllQuotes = async () => {
     setFetchingData(true);
     try {
-      const contactsResponse = await api.getDataWithToken(
-        `${quotation}/contracted`
+      const startDate = selectedDate.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+      const endDate = selectedDate.toISOString().split("T")[0]; // Same as start date for a single day
+
+      const response = await api.getDataWithToken(
+        `${job}/all?start_date=${startDate}&end_date=${endDate}`
       );
-      setQuoteList(contactsResponse.data); // Assuming the data includes `updated_at` field
+      setQuoteList(response.data); // Assuming the response data is the job list
     } catch (error) {
-      console.error("Error fetching quotes and contacts:", error);
+      console.error("Error fetching jobs:", error);
     } finally {
       setFetchingData(false);
     }
@@ -46,7 +51,6 @@ const Scheduler = () => {
     setSelectedDate(date);
   };
 
-  // Function to parse and compare job date with selected calendar date
   const isSameDay = (date1, date2) => {
     return (
       date1.getFullYear() === date2.getFullYear() &&
@@ -55,7 +59,6 @@ const Scheduler = () => {
     );
   };
 
-  // Filter jobs by `updated_at` field
   const filteredJobs = quoteList?.filter((job) => {
     const jobUpdateDate = new Date(job?.updated_at); // Convert 'updated_at' string to Date object
     return isSameDay(jobUpdateDate, selectedDate); // Compare selected date with job's updated_at
@@ -63,8 +66,7 @@ const Scheduler = () => {
 
   return (
     <div style={{ padding: "20px" }}>
-      <Grid container spacing={3}>
-        {/* Calendar Section */}
+      {/* <Grid container spacing={3}>
         <Grid item lg={4} xs={12} md={6}>
           <Typography variant="h6" gutterBottom>
             Select a Date
@@ -76,14 +78,12 @@ const Scheduler = () => {
           />
         </Grid>
 
-        {/* Table Section */}
         <Grid lg={8} item xs={12} md={6}>
           <Typography variant="h6" gutterBottom>
             Job Schedule
           </Typography>
 
           {fetchingData ? (
-            // MUI Skeleton while loading
             <Skeleton variant="rectangular" width="100%" height={300} />
           ) : (
             <TableContainer component={Paper}>
@@ -118,7 +118,8 @@ const Scheduler = () => {
             </TableContainer>
           )}
         </Grid>
-      </Grid>
+      </Grid> */}
+      <AllJobs />
     </div>
   );
 };

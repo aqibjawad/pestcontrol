@@ -51,7 +51,7 @@ const Transactions = () => {
 
     try {
       const response = await api.getDataWithToken(
-        `${clients}?${queryParams.join("&")}`
+        `${`${clients}/received_amount/get`}?${queryParams.join("&")}`
       );
       setQuoteList(response.data);
     } catch (error) {
@@ -70,7 +70,6 @@ const Transactions = () => {
               <TableCell>Sr No</TableCell>
               <TableCell>Date</TableCell>
               <TableCell>Client Name</TableCell>
-              <TableCell>Recieved By</TableCell>
               <TableCell>Amount</TableCell>
               <TableCell>View Details</TableCell>
             </TableRow>
@@ -84,7 +83,6 @@ const Transactions = () => {
               </TableRow>
             ) : (
               quoteList
-                .filter((row) => row.received_amt > 0) // Filter rows with amount > 0
                 .map((row, index) => (
                   <TableRow key={index}>
                     <TableCell>{index + 1}</TableCell>
@@ -96,8 +94,7 @@ const Transactions = () => {
                       })}
                     </TableCell>
                     <TableCell>{row?.name}</TableCell>
-                    <TableCell>{row?.client?.referencable?.name}</TableCell>
-                    <TableCell>{row?.received_amt}</TableCell>
+                    <TableCell>{row?.ledger_cr_amt_sum}</TableCell>
                     <TableCell>
                       <Link
                         href={`/client/clientLedger/?id=${
