@@ -43,9 +43,10 @@ const Page = () => {
 
   const calculateTotal = () => {
     const amountValue = parseFloat(amount) || 0;
-    const vatValue = parseFloat(vat) || 0;
-    const calculatedTotal = amountValue + vatValue;
-    setTotal(calculatedTotal.toFixed(2));
+    const vatPercentage = parseFloat(vat) || 0; // Use VAT as a percentage
+    const vatAmount = (amountValue * vatPercentage) / 100; // Calculate VAT amount
+    const calculatedTotal = amountValue + vatAmount; // Add VAT amount to the base amount
+    setTotal(calculatedTotal.toFixed(2)); // Update total with two decimal places
   };
 
   const handleAmountChange = (value) => {
