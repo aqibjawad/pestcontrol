@@ -105,6 +105,7 @@ const Page = () => {
       per_item_qty,
       price,
       product_picture,
+      product_category,
     };
     attachments.forEach((file, index) => {
       obj[`attachments[${index}]`] = file;
