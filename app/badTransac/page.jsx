@@ -245,7 +245,7 @@ const Page = () => {
         variant="h6"
         sx={{ p: 2, borderBottom: "1px solid rgba(224, 224, 224, 1)" }}
       >
-        Bad Debits
+        Outstandings
       </Typography>
       <Table>
         <TableHead>
