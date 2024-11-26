@@ -51,11 +51,20 @@ const ListServiceTable = ({
       );
 
       let filteredData = response.data;
+
+      // Apply the status filter if it's not 'all'
       if (statusFilter !== "all") {
         filteredData = response.data.filter(
           (invoice) => invoice.status.toLowerCase() === statusFilter
         );
       }
+
+      // Sort the invoices by issue date in descending order
+      filteredData.sort((a, b) => {
+        const dateA = new Date(a.issued_date);
+        const dateB = new Date(b.issued_date);
+        return dateA - dateB; // Ascending order
+      });
 
       setQuoteList(filteredData);
       updateTotalAmount(filteredData);
