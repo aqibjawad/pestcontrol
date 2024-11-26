@@ -19,10 +19,10 @@ import {
   endOfMonth,
   isWithinInterval,
   isBefore,
+  isAfter,
 } from "date-fns";
 import { serviceInvoice } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
-
 import Link from "next/link";
 
 const Page = () => {
@@ -31,22 +31,16 @@ const Page = () => {
   const [fetchingData, setFetchingData] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(true);
   const [summaryData, setSummaryData] = useState({
-    thisMonth: { total: 0, count: 0 },
-    lastMonth: { total: 0, count: 0 },
-    lastThreeMonths: { total: 0, count: 0 },
-    olderThanThreeMonths: { total: 0, count: 0 }, // New category
+    thisMonth: { total: 0, count: 0, start: null, end: null },
+    lastMonth: { total: 0, count: 0, start: null, end: null },
+    lastThreeMonths: { total: 0, count: 0, start: null, end: null },
+    olderThanThreeMonths: { total: 0, count: 0, start: null, end: null },
   });
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("unpaid");
 
   const getAllQuotes = async () => {
     setFetchingData(true);
     setLoadingDetails(true);
-
-    const currentDate = format(new Date(), "yyyy-MM-dd");
-    const queryParams = [
-      `start_date=${currentDate}`,
-      `end_date=${currentDate}`,
-    ];
 
     try {
       const response = await api.getDataWithToken(`${serviceInvoice}`);
@@ -74,20 +68,44 @@ const Page = () => {
     if (!Array.isArray(data)) return;
 
     const now = new Date();
+
+    // This month range
     const thisMonthStart = startOfMonth(now);
     const thisMonthEnd = endOfMonth(now);
 
+    // Last month range
     const lastMonthStart = startOfMonth(subMonths(now, 1));
     const lastMonthEnd = endOfMonth(subMonths(now, 1));
 
-    const threeMonthsAgoStart = startOfMonth(subMonths(now, 3));
-    const threeMonthsAgoEnd = endOfMonth(now);
+    // Last 3 months range (excluding current and last month)
+    const threeMonthsStart = startOfMonth(subMonths(now, 4)); // Start from 4 months ago
+    const threeMonthsEnd = endOfMonth(subMonths(now, 2)); // End at 2 months ago
 
     const summary = {
-      thisMonth: { total: 0, count: 0 },
-      lastMonth: { total: 0, count: 0 },
-      lastThreeMonths: { total: 0, count: 0 },
-      olderThanThreeMonths: { total: 0, count: 0 }, // New category
+      thisMonth: {
+        total: 0,
+        count: 0,
+        start: thisMonthStart,
+        end: thisMonthEnd,
+      },
+      lastMonth: {
+        total: 0,
+        count: 0,
+        start: lastMonthStart,
+        end: lastMonthEnd,
+      },
+      lastThreeMonths: {
+        total: 0,
+        count: 0,
+        start: threeMonthsStart,
+        end: threeMonthsEnd,
+      },
+      olderThanThreeMonths: {
+        total: 0,
+        count: 0,
+        start: null,
+        end: threeMonthsStart,
+      },
     };
 
     try {
@@ -97,13 +115,7 @@ const Page = () => {
         const issueDate = new Date(invoice.issued_date);
         const amount = parseFloat(invoice.total_amt) || 0;
 
-        // Check for older than 3 months first
-        if (isBefore(issueDate, threeMonthsAgoStart)) {
-          summary.olderThanThreeMonths.total += amount;
-          summary.olderThanThreeMonths.count++;
-          return; // Skip other checks if it's older than 3 months
-        }
-
+        // This Month
         if (
           isWithinInterval(issueDate, {
             start: thisMonthStart,
@@ -112,8 +124,10 @@ const Page = () => {
         ) {
           summary.thisMonth.total += amount;
           summary.thisMonth.count++;
+          return;
         }
 
+        // Last Month
         if (
           isWithinInterval(issueDate, {
             start: lastMonthStart,
@@ -122,16 +136,25 @@ const Page = () => {
         ) {
           summary.lastMonth.total += amount;
           summary.lastMonth.count++;
+          return;
         }
 
+        // Last 3 Months (excluding current and last month)
         if (
           isWithinInterval(issueDate, {
-            start: threeMonthsAgoStart,
-            end: threeMonthsAgoEnd,
+            start: threeMonthsStart,
+            end: threeMonthsEnd,
           })
         ) {
           summary.lastThreeMonths.total += amount;
           summary.lastThreeMonths.count++;
+          return;
+        }
+
+        // Older than 3 months
+        if (isBefore(issueDate, threeMonthsStart)) {
+          summary.olderThanThreeMonths.total += amount;
+          summary.olderThanThreeMonths.count++;
         }
       });
 
@@ -183,7 +206,7 @@ const Page = () => {
           variant="h6"
           sx={{ p: 2, borderBottom: "1px solid rgba(224, 224, 224, 1)" }}
         >
-          Invoice Summary
+          Bad Debits
         </Typography>
         <Table>
           <TableHead>
@@ -203,18 +226,11 @@ const Page = () => {
           <TableBody>
             {[1, 2, 3, 4].map((row) => (
               <TableRow key={row}>
-                <TableCell>
-                  <Skeleton />
-                </TableCell>
-                <TableCell>
-                  <Skeleton />
-                </TableCell>
-                <TableCell>
-                  <Skeleton />
-                </TableCell>
-                <TableCell>
-                  <Skeleton />
-                </TableCell>
+                {[1, 2, 3, 4].map((cell) => (
+                  <TableCell key={cell}>
+                    <Skeleton />
+                  </TableCell>
+                ))}
               </TableRow>
             ))}
           </TableBody>
@@ -223,20 +239,13 @@ const Page = () => {
     );
   }
 
-  // Calculate total amount across all periods
-  const totalAmount =
-    summaryData.thisMonth.total +
-    summaryData.lastMonth.total +
-    summaryData.lastThreeMonths.total +
-    summaryData.olderThanThreeMonths.total;
-
   return (
     <TableContainer component={Paper} elevation={1}>
       <Typography
         variant="h6"
         sx={{ p: 2, borderBottom: "1px solid rgba(224, 224, 224, 1)" }}
       >
-        Invoice Summary
+        Bad Debits
       </Typography>
       <Table>
         <TableHead>
@@ -263,7 +272,13 @@ const Page = () => {
               {formatCurrency(summaryData.thisMonth.total)}
             </TableCell>
             <TableCell sx={{ ...bodyCellStyle, textAlign: "right" }}>
-              <Link href="/invoice" style={linkStyle}>
+              <Link
+                href={`/invoice?start=${format(
+                  summaryData.thisMonth.start,
+                  "yyyy-MM-dd"
+                )}&end=${format(summaryData.thisMonth.end, "yyyy-MM-dd")}`}
+                style={linkStyle}
+              >
                 View Details
               </Link>
             </TableCell>
@@ -277,7 +292,13 @@ const Page = () => {
               {formatCurrency(summaryData.lastMonth.total)}
             </TableCell>
             <TableCell sx={{ ...bodyCellStyle, textAlign: "right" }}>
-              <Link href="/invoice" style={linkStyle}>
+              <Link
+                href={`/invoice?start=${format(
+                  summaryData.lastMonth.start,
+                  "yyyy-MM-dd"
+                )}&end=${format(summaryData.lastMonth.end, "yyyy-MM-dd")}`}
+                style={linkStyle}
+              >
                 View Details
               </Link>
             </TableCell>
@@ -291,7 +312,16 @@ const Page = () => {
               {formatCurrency(summaryData.lastThreeMonths.total)}
             </TableCell>
             <TableCell sx={{ ...bodyCellStyle, textAlign: "right" }}>
-              <Link href="/invoice" style={linkStyle}>
+              <Link
+                href={`/invoice?start=${format(
+                  summaryData.lastThreeMonths.start,
+                  "yyyy-MM-dd"
+                )}&end=${format(
+                  summaryData.lastThreeMonths.end,
+                  "yyyy-MM-dd"
+                )}`}
+                style={linkStyle}
+              >
                 View Details
               </Link>
             </TableCell>
@@ -305,44 +335,16 @@ const Page = () => {
               {formatCurrency(summaryData.olderThanThreeMonths.total)}
             </TableCell>
             <TableCell sx={{ ...bodyCellStyle, textAlign: "right" }}>
-              <Link href="/invoice" style={linkStyle}>
+              <Link
+                href={`/invoice?start=&end=${format(
+                  summaryData.olderThanThreeMonths.end,
+                  "yyyy-MM-dd"
+                )}`}
+                style={linkStyle}
+              >
                 View Details
               </Link>
             </TableCell>
-          </TableRow>
-          {/* Total Row */}
-          <TableRow hover>
-            <TableCell
-              sx={{
-                ...bodyCellStyle,
-                fontWeight: "bold",
-                borderTop: "2px solid rgba(224, 224, 224, 1)",
-              }}
-            >
-              Total
-            </TableCell>
-            <TableCell
-              sx={{
-                ...bodyCellStyle,
-                textAlign: "right",
-                fontWeight: "bold",
-              }}
-            >
-              {summaryData.thisMonth.count +
-                summaryData.lastMonth.count +
-                summaryData.lastThreeMonths.count +
-                summaryData.olderThanThreeMonths.count}
-            </TableCell>
-            <TableCell
-              sx={{
-                ...bodyCellStyle,
-                ...amountCellStyle,
-                fontWeight: "bold",
-              }}
-            >
-              {formatCurrency(totalAmount)}
-            </TableCell>
-            <TableCell sx={bodyCellStyle} />
           </TableRow>
         </TableBody>
       </Table>

@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { Skeleton } from "@mui/material";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 import {
   dashboard,
@@ -9,11 +11,9 @@ import {
   expense_category,
   admin,
   payments,
-  clients
+  clients,
 } from "../../networkUtil/Constants";
 import APICall from "../../networkUtil/APICall";
-
-import MonthPicker from "../hr/monthPicker";
 
 const FinancialDashboard = () => {
   const api = new APICall();
@@ -21,41 +21,60 @@ const FinancialDashboard = () => {
   const [allClientsList, setAllClientsList] = useState([]);
   const [allVehicleExpense, setAllVehicleExpense] = useState(0);
   const [expenseList, setExpenseList] = useState(0);
-  const [ledgerList, setLedgerList] = useState(0);  
-  
+  const [ledgerList, setLedgerList] = useState(0);
+
+  console.log(ledgerList);
+
   const [paymentList, setPaymentsList] = useState([]);
 
   const [fetchingData, setFetchingData] = useState(false);
 
-  const [selectedMonth, setSelectedMonth] = useState("");  
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
-  useEffect(() => {
-    getFinancial();
-    getVehiclesExpense();
-    getAllExpenses();
-    getLedger();
-    getPending();
-  }, [selectedMonth]);
+  const formatDate = (date) => {
+    return date.toISOString().slice(0, 7); // Returns YYYY-MM format
+  };
 
-  const getFinancial = async () => {
+  // Fetch all financial data based on selected month
+  const fetchFinancialData = async () => {
     setFetchingData(true);
     try {
-      const response = await api.getDataWithToken(
-        `${dashboard}/monthly_financial_report?month=${selectedMonth}`
-      );
-      setAllClientsList(response.data);
+      // Parallel API calls for different data points
+      await Promise.all([
+        getFinancial(),
+        getVehiclesExpense(),
+        getAllExpenses(),
+        getLedger(),
+        getPending(),
+      ]);
     } catch (error) {
-      console.error(error.message);
+      console.error("Error fetching financial data:", error);
     } finally {
       setFetchingData(false);
     }
   };
 
-  const getVehiclesExpense = async () => {
-    setFetchingData(true);
+  useEffect(() => {
+    fetchFinancialData();
+  }, [selectedDate]);
+
+  const getFinancial = async () => {
     try {
       const response = await api.getDataWithToken(
-        `${vehciles}?month=${selectedMonth}`
+        `${dashboard}/monthly_financial_report?month=${formatDate(
+          selectedDate
+        )}`
+      );
+      setAllClientsList(response.data);
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+
+  const getVehiclesExpense = async () => {
+    try {
+      const response = await api.getDataWithToken(
+        `${vehciles}?month=${formatDate(selectedDate)}`
       );
 
       const totalExpense = response.data.reduce((sum, item) => {
@@ -65,15 +84,13 @@ const FinancialDashboard = () => {
       setAllVehicleExpense(totalExpense);
     } catch (error) {
       console.error(error.message);
-    } finally {
-      setFetchingData(false);
     }
   };
 
   const getAllExpenses = async () => {
     try {
       const response = await api.getDataWithToken(
-        `${expense_category}?month=${selectedMonth}`
+        `${expense_category}?month=${formatDate(selectedDate)}`
       );
 
       const totalAmount = response.data.reduce((sum, item) => {
@@ -82,33 +99,39 @@ const FinancialDashboard = () => {
       setExpenseList(totalAmount);
     } catch (error) {
       console.error("Error fetching expenses:", error);
-    } finally {
-      setFetchingData(false);
     }
   };
 
   const getLedger = async () => {
     try {
       const response = await api.getDataWithToken(
-        `${`${clients}/received_amount/get`}?month=${selectedMonth}`
-      );      
+        `${`${clients}/received_amount/get`}?month=${formatDate(selectedDate)}`
+      );
+
+      // Log the full response data
+      console.log("Response data:", response.data);
+
+      // Log each item's paid_amt
+      response.data.forEach((item) => {
+        console.log(`Item paid amount: ${item.paid_amt}`);
+      });
+
       const totalAmountLedger = response.data.reduce((sum, item) => {
-        return sum + parseFloat(item.ledger_cr_amt_sum || 0);
+        return sum + parseFloat(item.paid_amt || 0);
       }, 0);
 
       setLedgerList(totalAmountLedger);
+
+      console.log("Total Ledger Amount:", totalAmountLedger);
     } catch (error) {
       console.error("Error fetching ledger:", error);
-    } finally {
-      setFetchingData(false);
     }
   };
 
   const getPending = async () => {
-    setFetchingData(true);
     try {
       const response = await api.getDataWithToken(
-        `${payments}?month=${selectedMonth}`
+        `${payments}?month=${formatDate(selectedDate)}`
       );
       const totalPending = response.data.reduce((sum, item) => {
         return sum + parseFloat(item.paid_amt || 0);
@@ -116,8 +139,6 @@ const FinancialDashboard = () => {
       setPaymentsList(totalPending);
     } catch (error) {
       console.error("Error fetching payments:", error);
-    } finally {
-      setFetchingData(false);
     }
   };
 
@@ -197,21 +218,20 @@ const FinancialDashboard = () => {
     </div>
   );
 
-  const formatMonth = (monthString) => {
-    if (!monthString) return "";
-    const [year, month] = monthString.split("-");
-    const date = new Date(year, month - 1); // Month is 0-indexed in JavaScript Date
-    return date.toLocaleString("en-US", { month: "long", year: "numeric" });
-  };
-  
-
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <MonthPicker onMonthChanged={(date) => setSelectedMonth(date)} />
-
-      {/* Header */}
-      <div className="mt-5 bg-green-600 text-white p-4 rounded-lg mb-6">
+      {/* Header with Month Picker */}
+      <div className="mt-5 bg-green-600 text-white p-4 rounded-lg mb-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold"> Financial Report </h1>
+        <div>
+          <DatePicker
+            selected={selectedDate}
+            onChange={(date) => setSelectedDate(date)}
+            dateFormat="MM/yyyy"
+            showMonthYearPicker
+            className="bg-white text-green-800 px-3 py-2 rounded"
+          />
+        </div>
       </div>
 
       {fetchingData ? (
