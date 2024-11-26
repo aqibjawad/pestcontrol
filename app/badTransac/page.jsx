@@ -223,6 +223,13 @@ const Page = () => {
     );
   }
 
+  // Calculate total amount across all periods
+  const totalAmount =
+    summaryData.thisMonth.total +
+    summaryData.lastMonth.total +
+    summaryData.lastThreeMonths.total +
+    summaryData.olderThanThreeMonths.total;
+
   return (
     <TableContainer component={Paper} elevation={1}>
       <Typography
@@ -302,6 +309,40 @@ const Page = () => {
                 View Details
               </Link>
             </TableCell>
+          </TableRow>
+          {/* Total Row */}
+          <TableRow hover>
+            <TableCell
+              sx={{
+                ...bodyCellStyle,
+                fontWeight: "bold",
+                borderTop: "2px solid rgba(224, 224, 224, 1)",
+              }}
+            >
+              Total
+            </TableCell>
+            <TableCell
+              sx={{
+                ...bodyCellStyle,
+                textAlign: "right",
+                fontWeight: "bold",
+              }}
+            >
+              {summaryData.thisMonth.count +
+                summaryData.lastMonth.count +
+                summaryData.lastThreeMonths.count +
+                summaryData.olderThanThreeMonths.count}
+            </TableCell>
+            <TableCell
+              sx={{
+                ...bodyCellStyle,
+                ...amountCellStyle,
+                fontWeight: "bold",
+              }}
+            >
+              {formatCurrency(totalAmount)}
+            </TableCell>
+            <TableCell sx={bodyCellStyle} />
           </TableRow>
         </TableBody>
       </Table>
