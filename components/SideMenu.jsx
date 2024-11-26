@@ -87,6 +87,7 @@ export default function SideMenu({ children }) {
     { name: "Operations", url: "allJobs", icon: "/operations.png" },
     { name: "Sales", url: "sales/allSales", icon: "/sales.png" },
     { name: "Pay Roll", url: "payRoll", icon: <FaAlipay /> },
+    { name: "Bad Transactions", url: "badTransac", icon: <FaAlipay /> },
     { name: "HR", url: "hr/hr", icon: "/hr.png" },
     { name: "Team Head", url: "teams", icon: "/teamhead.png" },
     { name: "Company setup", url: "company_setup", icon: "/comnpany.png" },
