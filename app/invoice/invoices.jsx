@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { format } from "date-fns";
 import tableStyles from "../../styles/upcomingJobsStyles.module.css";
 import { serviceInvoice } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
@@ -9,17 +8,7 @@ import Skeleton from "@mui/material/Skeleton";
 import { AppHelpers } from "@/Helper/AppHelpers";
 import Link from "next/link";
 import DateFilters2 from "@/components/generic/DateFilters2";
-
-// Improved URL parameter handling
-const getParamsFromUrl = () => {
-  if (typeof window === "undefined") return { start: null, end: null };
-
-  const params = new URLSearchParams(window.location.search);
-  return {
-    start: params.get("start"),
-    end: params.get("end"),
-  };
-};
+import { format } from "date-fns";
 
 const ListServiceTable = ({
   handleDateChange,
@@ -46,37 +35,27 @@ const ListServiceTable = ({
     setFetchingData(true);
     setLoadingDetails(true);
 
+    const queryParams = [];
+    if (startDate && endDate) {
+      queryParams.push(`start_date=${startDate}`);
+      queryParams.push(`end_date=${endDate}`);
+    } else {
+      const currentDate = format(new Date(), "yyyy-MM-dd");
+      queryParams.push(`start_date=${currentDate}`);
+      queryParams.push(`end_date=${currentDate}`);
+    }
+
     try {
-      // Ensure dates are properly formatted
-      const formattedStartDate = startDate
-        ? format(new Date(startDate), "yyyy-MM-dd")
-        : "";
-      const formattedEndDate = endDate
-        ? format(new Date(endDate), "yyyy-MM-dd")
-        : "";
-
-      // Construct API URL with date parameters
-      const apiUrl = `${serviceInvoice}?start_date=${formattedStartDate}&end_date=${formattedEndDate}`;
-
-      console.log("Fetching from API:", apiUrl); // For debugging
-
-      const response = await api.getDataWithToken(apiUrl);
+      const response = await api.getDataWithToken(
+        `${serviceInvoice}?${queryParams.join("&")}`
+      );
 
       let filteredData = response.data;
-
-      // Apply the status filter if it's not 'all'
       if (statusFilter !== "all") {
-        filteredData = filteredData.filter(
+        filteredData = response.data.filter(
           (invoice) => invoice.status.toLowerCase() === statusFilter
         );
       }
-
-      // Sort the invoices by issue date in descending order
-      filteredData.sort((a, b) => {
-        const dateA = new Date(a.issued_date);
-        const dateB = new Date(b.issued_date);
-        return dateB - dateA;
-      });
 
       setQuoteList(filteredData);
       updateTotalAmount(filteredData);
@@ -90,10 +69,9 @@ const ListServiceTable = ({
     }
   };
 
+  // Call getAllQuotes when component mounts or when dependencies change
   useEffect(() => {
-    if (startDate && endDate) {
-      getAllQuotes();
-    }
+    getAllQuotes();
   }, [startDate, endDate, statusFilter]);
 
   return (
@@ -203,45 +181,46 @@ const ListServiceTable = ({
 };
 
 const Invoices = () => {
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  // Function to get date parameters from URL
+  const getDateParamsFromUrl = () => {
+    // Check if window is defined (client-side)
+    if (typeof window !== "undefined") {
+      const searchParams = new URL(window.location.href).searchParams;
+
+      const startDate = searchParams.get("start");
+      const endDate = searchParams.get("end");
+
+      return {
+        startDate,
+        endDate,
+      };
+    }
+    return { startDate: null, endDate: null };
+  };
+
+  // Initialize with current date
+  const currentDate = format(new Date(), "yyyy-MM-dd");
+  const [startDate, setStartDate] = useState(currentDate);
+  const [endDate, setEndDate] = useState(currentDate);
   const [totalAmount, setTotalAmount] = useState(0);
   const [statusFilter, setStatusFilter] = useState("all");
 
+  // Effect to set dates from URL on component mount
   useEffect(() => {
-    // Get dates from URL when component mounts
-    const { start, end } = getParamsFromUrl();
+    // Extract date parameters from URL
+    const { startDate: urlStartDate, endDate: urlEndDate } =
+      getDateParamsFromUrl();
 
-    if (start && end) {
-      setStartDate(start);
-      setEndDate(end);
-    } else {
-      // If no dates in URL, set to current date
-      const currentDate = format(new Date(), "yyyy-MM-dd");
-      setStartDate(currentDate);
-      setEndDate(currentDate);
-
-      // Update URL with current date
-      const newUrl = new URL(window.location.href);
-      newUrl.searchParams.set("start", currentDate);
-      newUrl.searchParams.set("end", currentDate);
-      window.history.pushState({}, "", newUrl);
+    // If URL parameters exist, use them; otherwise, use current date
+    if (urlStartDate && urlEndDate) {
+      setStartDate(urlStartDate);
+      setEndDate(urlEndDate);
     }
   }, []);
 
   const handleDateChange = (start, end) => {
-    // Format dates consistently
-    const formattedStart = format(new Date(start), "yyyy-MM-dd");
-    const formattedEnd = format(new Date(end), "yyyy-MM-dd");
-
-    setStartDate(formattedStart);
-    setEndDate(formattedEnd);
-
-    // Update URL with new dates
-    const newUrl = new URL(window.location.href);
-    newUrl.searchParams.set("start", formattedStart);
-    newUrl.searchParams.set("end", formattedEnd);
-    window.history.pushState({}, "", newUrl);
+    setStartDate(start);
+    setEndDate(end);
   };
 
   const updateTotalAmount = (invoiceList) => {
@@ -249,6 +228,7 @@ const Invoices = () => {
       const amount = parseFloat(invoice.total_amt) || 0;
       return acc + amount;
     }, 0);
+
     setTotalAmount(Number(total.toFixed(2)));
   };
 

@@ -19,7 +19,6 @@ import {
   endOfMonth,
   isWithinInterval,
   isBefore,
-  isAfter,
 } from "date-fns";
 import { serviceInvoice } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
@@ -38,12 +37,39 @@ const Page = () => {
   });
   const [statusFilter, setStatusFilter] = useState("unpaid");
 
+  const calculateDateRanges = () => {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
+
+    // Last month calculations
+    const lastMonthDate = subMonths(now, 1);
+    const lastMonthStart = startOfMonth(lastMonthDate);
+    const lastMonthEnd = endOfMonth(lastMonthDate);
+
+    // This month range
+    const thisMonthStart = startOfMonth(now);
+    const thisMonthEnd = endOfMonth(now);
+
+    // Last 3 months range (excluding current and last month)
+    const threeMonthsStart = startOfMonth(subMonths(now, 4));
+    const threeMonthsEnd = endOfMonth(subMonths(now, 2));
+
+    return {
+      thisMonth: { start: thisMonthStart, end: thisMonthEnd },
+      lastMonth: { start: lastMonthStart, end: lastMonthEnd },
+      lastThreeMonths: { start: threeMonthsStart, end: threeMonthsEnd },
+      olderThanThreeMonths: { end: threeMonthsStart },
+    };
+  };
+
   const getAllQuotes = async () => {
     setFetchingData(true);
     setLoadingDetails(true);
 
     try {
       const response = await api.getDataWithToken(`${serviceInvoice}`);
+      const dateRanges = calculateDateRanges();
 
       let filteredData = response.data;
       if (statusFilter !== "all") {
@@ -53,58 +79,28 @@ const Page = () => {
       }
 
       setInvoiceList(filteredData);
-      processInvoiceData(filteredData);
+      processInvoiceData(filteredData, dateRanges);
     } catch (error) {
       console.error("Error fetching quotes:", error);
       setInvoiceList([]);
-      processInvoiceData([]);
+      processInvoiceData([], calculateDateRanges());
     } finally {
       setFetchingData(false);
       setLoadingDetails(false);
     }
   };
 
-  const processInvoiceData = (data) => {
+  const processInvoiceData = (data, dateRanges) => {
     if (!Array.isArray(data)) return;
 
-    const now = new Date();
-
-    // This month range
-    const thisMonthStart = startOfMonth(now);
-    const thisMonthEnd = endOfMonth(now);
-
-    // Last month range
-    const lastMonthStart = startOfMonth(subMonths(now, 1));
-    const lastMonthEnd = endOfMonth(subMonths(now, 1));
-
-    // Last 3 months range (excluding current and last month)
-    const threeMonthsStart = startOfMonth(subMonths(now, 4)); // Start from 4 months ago
-    const threeMonthsEnd = endOfMonth(subMonths(now, 2)); // End at 2 months ago
-
     const summary = {
-      thisMonth: {
-        total: 0,
-        count: 0,
-        start: thisMonthStart,
-        end: thisMonthEnd,
-      },
-      lastMonth: {
-        total: 0,
-        count: 0,
-        start: lastMonthStart,
-        end: lastMonthEnd,
-      },
-      lastThreeMonths: {
-        total: 0,
-        count: 0,
-        start: threeMonthsStart,
-        end: threeMonthsEnd,
-      },
+      thisMonth: { total: 0, count: 0, ...dateRanges.thisMonth },
+      lastMonth: { total: 0, count: 0, ...dateRanges.lastMonth },
+      lastThreeMonths: { total: 0, count: 0, ...dateRanges.lastThreeMonths },
       olderThanThreeMonths: {
         total: 0,
         count: 0,
-        start: null,
-        end: threeMonthsStart,
+        end: dateRanges.olderThanThreeMonths.end,
       },
     };
 
@@ -118,8 +114,8 @@ const Page = () => {
         // This Month
         if (
           isWithinInterval(issueDate, {
-            start: thisMonthStart,
-            end: thisMonthEnd,
+            start: dateRanges.thisMonth.start,
+            end: dateRanges.thisMonth.end,
           })
         ) {
           summary.thisMonth.total += amount;
@@ -130,8 +126,8 @@ const Page = () => {
         // Last Month
         if (
           isWithinInterval(issueDate, {
-            start: lastMonthStart,
-            end: lastMonthEnd,
+            start: dateRanges.lastMonth.start,
+            end: dateRanges.lastMonth.end,
           })
         ) {
           summary.lastMonth.total += amount;
@@ -139,11 +135,11 @@ const Page = () => {
           return;
         }
 
-        // Last 3 Months (excluding current and last month)
+        // Last 3 Months
         if (
           isWithinInterval(issueDate, {
-            start: threeMonthsStart,
-            end: threeMonthsEnd,
+            start: dateRanges.lastThreeMonths.start,
+            end: dateRanges.lastThreeMonths.end,
           })
         ) {
           summary.lastThreeMonths.total += amount;
@@ -152,7 +148,7 @@ const Page = () => {
         }
 
         // Older than 3 months
-        if (isBefore(issueDate, threeMonthsStart)) {
+        if (isBefore(issueDate, dateRanges.olderThanThreeMonths.end)) {
           summary.olderThanThreeMonths.total += amount;
           summary.olderThanThreeMonths.count++;
         }
@@ -206,7 +202,7 @@ const Page = () => {
           variant="h6"
           sx={{ p: 2, borderBottom: "1px solid rgba(224, 224, 224, 1)" }}
         >
-          Bad Debits
+          Outstandings
         </Typography>
         <Table>
           <TableHead>

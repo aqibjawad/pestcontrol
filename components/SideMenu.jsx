@@ -13,11 +13,13 @@ import Toolbar from "@mui/material/Toolbar";
 import styles from "../styles/sideMenu.module.css";
 import { useRouter } from "next/navigation";
 import User from "../networkUtil/user";
+import { IoIosStats } from "react-icons/io";
 
 import {
   MdOutlineProductionQuantityLimits,
   MdInventory,
   MdOutlineInventory,
+  MdOutlineQueryStats,
   MdOutlinePayments,
 } from "react-icons/md";
 import { AiFillProduct } from "react-icons/ai";
@@ -87,13 +89,13 @@ export default function SideMenu({ children }) {
     { name: "Operations", url: "allJobs", icon: "/operations.png" },
     { name: "Sales", url: "sales/allSales", icon: "/sales.png" },
     { name: "Pay Roll", url: "payRoll", icon: <FaAlipay /> },
-    { name: "Outstandings", url: "badTransac", icon: <FaAlipay /> },
+    { name: "Outstandings", url: "badTransac", icon: <MdOutlineQueryStats /> },
     { name: "HR", url: "hr/hr", icon: "/hr.png" },
     { name: "Company setup", url: "company_setup", icon: "/comnpany.png" },
     {
       name: "Financial Report",
       url: "financialReport/",
-      icon: <FaAlipay />,
+      icon: <IoIosStats />,
     },
     { name: "Settings", url: "setting", icon: "/setting-2.png" },
   ];
@@ -326,11 +328,22 @@ export default function SideMenu({ children }) {
                     : styles.menuItem
                 }
               >
-                {typeof item.icon === "string" ? (
-                  <img src={item.icon} alt={item.name} height={20} width={20} />
-                ) : (
-                  item.icon // Directly render the React icon component
-                )}
+                {/* Render the icon */}
+                <span style={{ marginRight: "10px" }}>
+                  {typeof item.icon === "string" ? (
+                    <img
+                      src={item.icon}
+                      alt={item.name}
+                      height={20}
+                      width={20}
+                    />
+                  ) : (
+                    React.cloneElement(item.icon, {
+                      size: "20px",
+                      color: "white",
+                    })
+                  )}
+                </span>
                 <div className={styles.sideMenuNames}>{item.name}</div>
               </div>
             ))
