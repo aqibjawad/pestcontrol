@@ -1,8 +1,9 @@
 import React from "react";
 
 import ViewSuppliers from "./suppliers";
+import withAuth from "@/utils/withAuth";
 
-const Suppliers =()=>{
+const Page =()=>{
     return(
         <div>
             <ViewSuppliers />
@@ -10,4 +11,4 @@ const Suppliers =()=>{
     )
 };
 
-export default Suppliers;
+export default withAuth(Page);

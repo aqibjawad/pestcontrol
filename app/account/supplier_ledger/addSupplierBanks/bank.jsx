@@ -3,11 +3,11 @@
 import React, { useState, useEffect } from "react";
 import tableStyles from "../../../../styles/upcomingJobsStyles.module.css";
 import { getAllSuppliers } from "../../../../networkUtil/Constants";
-import Link from "next/link";
 import APICall from "@/networkUtil/APICall";
 import { Skeleton } from "@mui/material";
 
-import DateFilters from "../../../../components/generic/DateFilters";
+import withAuth from "@/utils/withAuth";
+
 import { format } from "date-fns";
 
 const listTable = (data) => {
@@ -111,4 +111,4 @@ const ViewBanks = ({ supplierID }) => {
   );
 };
 
-export default ViewBanks;
+export default withAuth(ViewBanks);

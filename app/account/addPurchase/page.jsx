@@ -7,6 +7,9 @@ import InputWithTitle3 from "@/components/generic/InputWithTitle3";
 import Dropdown from "@/components/generic/Dropdown";
 import DeleteIcon from "@mui/icons-material/Delete";
 
+import withAuth from "@/utils/withAuth";
+
+
 import {
   getAllSuppliers,
   product,
@@ -425,4 +428,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

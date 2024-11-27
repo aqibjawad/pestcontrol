@@ -7,6 +7,7 @@ import MultilineInput from "@/components/generic/MultilineInput";
 import GreenButton from "@/components/generic/GreenButton";
 import { useSupplier } from "./useAddSupplier";
 import { useRouter } from "next/navigation";
+import withAuth from "@/utils/withAuth";
 
 const Page = () => {
   const router = new useRouter();
@@ -246,4 +247,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

@@ -1,12 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
 import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
-import SearchInput from "@/components/generic/SearchInput";
-import styles from "../../../styles/loginStyles.module.css";
-import Link from "next/link";
 import APICall from "@/networkUtil/APICall";
 import { purchaseOrder } from "@/networkUtil/Constants";
 import { Skeleton } from "@mui/material";
+import withAuth from "@/utils/withAuth";
 
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
@@ -165,4 +163,4 @@ const PurchaseOrder = () => {
   );
 };
 
-export default PurchaseOrder;
+export default withAuth(PurchaseOrder);

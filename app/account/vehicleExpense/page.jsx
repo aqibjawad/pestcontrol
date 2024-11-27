@@ -18,6 +18,7 @@ import {
 } from "@mui/material";
 import APICall from "@/networkUtil/APICall";
 import { vehciles } from "@/networkUtil/Constants";
+import withAuth from "@/utils/withAuth";
 
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
@@ -201,4 +202,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

@@ -7,6 +7,7 @@ import APICall from "@/networkUtil/APICall";
 import { vehciles } from "@/networkUtil/Constants";
 import { Skeleton } from "@mui/material";
 import { format } from "date-fns";
+import withAuth from "@/utils/withAuth";
 
 const Page = () => {
   const api = new APICall();
@@ -189,4 +190,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

@@ -1,7 +1,8 @@
 import React from "react";
 import PrchaseOrder from "./purchaseOrder"
+import withAuth from "@/utils/withAuth";
 
-const Purchase =()=>{
+const Page =()=>{
     return(
         <div>            
             <PrchaseOrder />
@@ -9,4 +10,4 @@ const Purchase =()=>{
     )
 }
 
-export default Purchase
+export default withAuth(Page);

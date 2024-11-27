@@ -8,6 +8,7 @@ import { CircularProgress } from "@mui/material";
 import APICall from "@/networkUtil/APICall";
 
 import ViewBanks from "./bank";
+import withAuth from "@/utils/withAuth";
 
 const Index = () => {
   const api = new APICall();
@@ -116,4 +117,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default withAuth(Index);

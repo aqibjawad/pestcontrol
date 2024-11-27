@@ -15,6 +15,8 @@ import Dropdown2 from "@/components/generic/DropDown2";
 
 import { useRouter } from "next/navigation";
 
+import withAuth from "@/utils/withAuth";
+
 import {
   vehciles,
   bank,
@@ -421,4 +423,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

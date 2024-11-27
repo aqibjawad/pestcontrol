@@ -10,6 +10,8 @@ import styles from "../../../styles/stock.module.css";
 
 import GreenButton from "@/components/generic/GreenButton";
 
+import withAuth from "@/utils/withAuth";
+
 const Page = () => {
   return (
     <div>
@@ -62,4 +64,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

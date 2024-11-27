@@ -1,14 +1,12 @@
 "use client";
 import { useState, useEffect } from "react";
 import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
-import Link from "next/link";
-import SearchInput from "@/components/generic/SearchInput";
-import DateFilters from "../../../components/generic/DateFilters";
 import APICall from "@/networkUtil/APICall";
 import { vehicleExpense } from "@/networkUtil/Constants";
 import { Skeleton } from "@mui/material"; // Import MUI Skeleton
 
 import { format } from "date-fns";
+import withAuth from "@/utils/withAuth";
 
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
@@ -261,4 +259,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);
