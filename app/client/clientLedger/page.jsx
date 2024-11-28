@@ -24,6 +24,7 @@ import { clients } from "../../../networkUtil/Constants";
 import APICall from "../../../networkUtil/APICall";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
+import withAuth from "@/utils/withAuth";
 
 const getParamsFromUrl = (url) => {
   const parts = url.split("?");
@@ -166,7 +167,9 @@ const Page = () => {
                     <TableCell>{row.dr_amt}</TableCell>
                     <TableCell>{row.cash_balance}</TableCell>
                     <TableCell>
-                      <Link href={`/paymentInvoice/?id=${row.id}`}>View Invoice</Link>
+                      <Link href={`/paymentInvoice/?id=${row.id}`}>
+                        View Invoice
+                      </Link>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -244,4 +247,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

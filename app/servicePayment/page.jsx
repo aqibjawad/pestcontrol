@@ -12,12 +12,12 @@ import {
   Paper,
   CircularProgress,
 } from "@mui/material";
-import { useSearchParams } from "next/navigation";
 import APICall from "@/networkUtil/APICall";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import { serviceInvoice } from "@/networkUtil/Constants";
 import GreenButton from "@/components/generic/GreenButton";
 import Swal from "sweetalert2";
+import withAuth from "@/utils/withAuth";
 
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
@@ -231,4 +231,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

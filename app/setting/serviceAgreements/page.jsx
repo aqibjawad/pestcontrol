@@ -19,6 +19,7 @@ import {
   Paper,
   Button,
 } from "@mui/material";
+import withAuth from "@/utils/withAuth";
 
 const Page = () => {
   const alert = new AppAlerts();
@@ -205,4 +206,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

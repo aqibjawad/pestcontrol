@@ -4,6 +4,7 @@ import CustomerDetails from "./customerDetails";
 import ClientRecords from './cleintRecords';
 import VisitRecords from "./visitRecords";
 import Terms from "./terms";
+import withAuth from "@/utils/withAuth";
 
 const Page =()=>{
     return(
@@ -18,4 +19,4 @@ const Page =()=>{
     )
 }
 
-export default Page;
+export default withAuth(Page);

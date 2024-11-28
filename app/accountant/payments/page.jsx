@@ -2,6 +2,7 @@
 
 import React from "react";
 import Pending from "./pending";
+import withAuth from "@/utils/withAuth";
 
 const Page = () => {
   return (
@@ -11,4 +12,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

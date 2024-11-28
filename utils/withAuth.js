@@ -1,6 +1,6 @@
 "use client";
 
-import User from '@/networkApi/user';
+import User from '../networkUtil/user';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';

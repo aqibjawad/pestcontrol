@@ -22,6 +22,7 @@ import { customers } from "../../networkUtil/Constants";
 import APICall from "../../networkUtil/APICall";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
+import withAuth from "@/utils/withAuth";
 
 const getParamFromUrl = (url, param) => {
   const searchParams = new URLSearchParams(url.split("?")[1]);
@@ -249,4 +250,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

@@ -17,6 +17,7 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
+import withAuth from "@/utils/withAuth";
 
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
@@ -233,4 +234,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

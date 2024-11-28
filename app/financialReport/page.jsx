@@ -14,6 +14,7 @@ import {
   clients,
 } from "../../networkUtil/Constants";
 import APICall from "../../networkUtil/APICall";
+import withAuth from "@/utils/withAuth";
 
 const FinancialDashboard = () => {
   const api = new APICall();
@@ -284,4 +285,4 @@ const FinancialDashboard = () => {
   );
 };
 
-export default FinancialDashboard;
+export default withAuth(FinancialDashboard);

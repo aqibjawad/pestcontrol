@@ -1,5 +1,6 @@
 import Vendors from "@/components/Vendors";
 import React from "react";
+import withAuth from "@/utils/withAuth";
 
 const Page = () => {
   return (
@@ -9,4 +10,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

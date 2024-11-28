@@ -2,7 +2,7 @@
 
 import React from "react";
 import AllCustomers from "./allCustomers"
-
+import withAuth from "@/utils/withAuth";
 const Page =()=>{
   return(
     <div>
@@ -10,4 +10,4 @@ const Page =()=>{
     </div>
   )
 }
-export default Page;
+export default withAuth(Page);

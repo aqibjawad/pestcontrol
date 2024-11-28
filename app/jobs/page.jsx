@@ -11,9 +11,9 @@ import {
   Paper,
   CircularProgress,
 } from "@mui/material";
-import SearchInput from "@/components/generic/SearchInput";
 import APICall from "@/networkUtil/APICall";
 import { job } from "@/networkUtil/Constants";
+import withAuth from "@/utils/withAuth";
 
 import Link from "next/link";
 
@@ -149,4 +149,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

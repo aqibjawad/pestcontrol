@@ -15,6 +15,8 @@ import GreenButton from "@/components/generic/GreenButton";
 
 import Swal from "sweetalert2";
 
+import withAuth from "@/utils/withAuth";
+
 const Page = () => {
   const api = new APICall();
 
@@ -115,4 +117,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

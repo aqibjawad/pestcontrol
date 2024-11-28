@@ -6,6 +6,7 @@ import InputWithTitle from "@/components/generic/InputWithTitle";
 import APICall from "@/networkUtil/APICall";
 import { addClient } from "../../networkUtil/Constants";
 import "./index.css";
+import withAuth from "@/utils/withAuth";
 
 const Page = () => {
   const api = new APICall();
@@ -176,4 +177,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

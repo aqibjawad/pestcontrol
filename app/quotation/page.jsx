@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import GreenButton from "@/components/generic/GreenButton";
 import CircularProgress from "@mui/material/CircularProgress";
+import withAuth from "@/utils/withAuth";
 
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
@@ -180,4 +181,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

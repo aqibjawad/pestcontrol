@@ -12,6 +12,7 @@ import Scheduler from "./components/Scheduler";
 
 import APICall from "@/networkUtil/APICall";
 import { getAllEmpoyesUrl, payments } from "@/networkUtil/Constants";
+import withAuth from "@/utils/withAuth";
 
 import {
   Tabs,
@@ -420,4 +421,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

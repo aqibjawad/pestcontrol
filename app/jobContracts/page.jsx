@@ -1,6 +1,7 @@
 import React from "react";
 
 import Contracts from "../../components/Contracts"
+import withAuth from "@/utils/withAuth";
 
 const Page =()=>{
     return(
@@ -10,4 +11,4 @@ const Page =()=>{
     )
 }
 
-export default Page;
+export default withAuth(Page);

@@ -11,11 +11,12 @@ import { AppAlerts } from "../../../Helper/AppAlerts";
 import { useRouter } from "next/navigation";
 import { FaTrash } from "react-icons/fa";
 import { CiSquarePlus } from "react-icons/ci";
+import withAuth from "@/utils/withAuth";
 
 const Page = () => {
   const api = new APICall();
   const alerts = new AppAlerts();
-  const router = useRouter();
+  const router = useRouter(); 
 
   // Single customer state
   const [selectedCustomerId, setSelectedCustomerId] = useState("");
@@ -282,4 +283,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

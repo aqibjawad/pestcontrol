@@ -23,6 +23,7 @@ import {
 import { serviceInvoice } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
 import Link from "next/link";
+import withAuth from "@/utils/withAuth";
 
 const Page = () => {
   const api = new APICall();
@@ -348,4 +349,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

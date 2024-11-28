@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import DateFilters from "@/components/generic/DateFilters";
 import { format } from "date-fns";
 import InputWithTitle from "@/components/generic/InputWithTitle";
+import withAuth from "@/utils/withAuth";
 
 const Quotation = () => {
   const router = useRouter();
@@ -352,4 +353,4 @@ const Quotation = () => {
   );
 };
 
-export default Quotation;
+export default withAuth(Quotation);

@@ -19,6 +19,7 @@ import styles from "../../styles/invoiceDetails.module.css";
 import { serviceInvoice } from "@/networkUtil/Constants";
 
 import APICall from "@/networkUtil/APICall";
+import withAuth from "@/utils/withAuth";
 
 const invoiceData = {
   companyDetails: {
@@ -393,4 +394,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

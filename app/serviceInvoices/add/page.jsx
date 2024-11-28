@@ -21,6 +21,7 @@ import APICall from "@/networkUtil/APICall";
 import Tabs from "./tabs";
 import styles from "../../../styles/stock.module.css";
 import Dropdown2 from "../../../components/generic/DropDown2";
+import withAuth from "@/utils/withAuth";
 
 import { useRouter } from "next/navigation";
 
@@ -499,4 +500,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

@@ -14,6 +14,8 @@ import GreenButton from "@/components/generic/GreenButton";
 
 import { useRouter } from "next/navigation";
 
+import withAuth from "@/utils/withAuth";
+
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
   if (parts.length > 1) {
@@ -92,4 +94,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

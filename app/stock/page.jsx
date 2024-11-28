@@ -15,6 +15,7 @@ import {
   Paper,
   Skeleton, // Import Skeleton
 } from "@mui/material";
+import withAuth from "@/utils/withAuth";
 
 const Page = () => {
   const api = new APICall();
@@ -181,4 +182,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

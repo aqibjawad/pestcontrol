@@ -6,6 +6,7 @@ import GreenButton from "@/components/generic/GreenButton";
 import { useVendor } from "./useAddVendor"; // Adjust the import path as needed
 
 import Link from "next/link";
+import withAuth from "@/utils/withAuth";
 
 const Page = () => {
   const { vendorData, handleInputChange, sendingData, addRequest } =
@@ -166,4 +167,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

@@ -14,6 +14,7 @@ import { job } from "../../networkUtil/Constants";
 import { useRouter } from "next/navigation";
 import GreenButton from "@/components/generic/GreenButton";
 import { CircularProgress } from "@mui/material";
+import withAuth from "@/utils/withAuth";
 
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
@@ -145,4 +146,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

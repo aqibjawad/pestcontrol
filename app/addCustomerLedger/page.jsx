@@ -15,6 +15,7 @@ import APICall from "@/networkUtil/APICall";
 import { AppAlerts } from "../../Helper/AppAlerts";
 
 import { useRouter } from "next/navigation";
+import withAuth from "@/utils/withAuth";
 
 const Page = () => {
   const api = new APICall();
@@ -353,4 +354,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);
