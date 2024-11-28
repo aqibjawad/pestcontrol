@@ -1,4 +1,5 @@
 "use client";
+
 import Image from "next/image";
 import styles from "../styles/loginStyles.module.css";
 import {
@@ -14,7 +15,6 @@ import APICall from "../networkUtil/APICall";
 import { login } from "../networkUtil/Constants";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { log } from "console";
 
 export default function Home() {
   const apiCall = new APICall();
@@ -27,6 +27,38 @@ export default function Home() {
   const [showErrorAlert, setShowAlert] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
+  // Check authentication status on component mount
+  useEffect(() => {
+    const checkAuthStatus = () => {
+      const token = User.getAccessToken();
+      const roleId = User.getUserRoleId();
+
+      if (token && roleId) {
+        // Redirect based on role if already authenticated
+        redirectBasedOnRole(roleId);
+      }
+    };
+
+    checkAuthStatus();
+  }, []);
+
+  // Centralized role-based redirection
+  const redirectBasedOnRole = (roleId: number) => {
+    switch (roleId) {
+      case 1:
+        router.replace("/superadmin/dashboard");
+        break;
+      case 2:
+        router.replace("/hr/hr");
+        break;
+      case 4:
+        router.replace("/jobs/");
+        break;
+      default:
+        router.replace("/accountant");
+    }
+  };
+
   // Add keydown event handler
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
@@ -37,9 +69,9 @@ export default function Home() {
   const imgSection = () => {
     return (
       <div>
-        <img src="/logo.webp" height={100} width={100} />
+        <img src="/logo.webp" height={100} width={100} alt="Logo" />
         <div className="flex justify-center items-center h-full">
-          <img src="/loginImg.png" />
+          <img src="/loginImg.png" alt="Login Illustration" />
         </div>
       </div>
     );
@@ -99,7 +131,7 @@ export default function Home() {
                   </FormGroup>
                 </div>
                 <div className={styles.forgotPassword}>
-                  {"forgot passowrd?"}
+                  {"Forgot password?"}
                 </div>
               </div>
             </div>
@@ -115,9 +147,7 @@ export default function Home() {
               <div className={styles.errorContainer}>
                 <Alert severity="error">{errorMsg}</Alert>
               </div>
-            ) : (
-              <></>
-            )}
+            ) : null}
           </div>
         </div>
       </div>
@@ -125,45 +155,51 @@ export default function Home() {
   };
 
   const tryLogin = async () => {
+    // Basic email validation
     if (!isValidEmail(userEmail)) {
       alert("Please enter a valid email");
-    } else if (password.length < 0) {
+      return;
+    }
+
+    // Basic password validation
+    if (password.trim().length === 0) {
       alert("Please enter a valid password");
-    } else {
-      setSendingData(true);
-      const userObj = {
-        email: userEmail,
-        password: password,
-      };
+      return;
+    }
+
+    // Start login process
+    setSendingData(true);
+    const userObj = {
+      email: userEmail,
+      password: password,
+    };
+
+    try {
       const response = await apiCall.postData(login, userObj);
+
       if (response.error) {
         setErrorMsg(response.error.message);
         setShowAlert(true);
       } else {
+        // Create user instance
         const user = new User(response);
+
         // Get role ID from response
         const roleId = response.data.role_id;
 
         // Route based on role ID
-        switch (roleId) {
-          case 1:
-            router.replace("/superadmin/dashboard");
-            break;
-          case 2:
-            router.replace("/hr/hr");
-            break;
-          case 4:
-            router.replace("/jobs/");
-            break;
-          default:
-            // Handle unknown role or redirect to default page
-            router.replace("/accountant");
-        }
+        redirectBasedOnRole(roleId);
       }
+    } catch (error) {
+      // Handle any network or unexpected errors
+      setErrorMsg("An unexpected error occurred. Please try again.");
+      setShowAlert(true);
+    } finally {
       setSendingData(false);
     }
   };
 
+  // Email validation function
   function isValidEmail(email: string) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
