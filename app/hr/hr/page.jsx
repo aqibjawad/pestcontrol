@@ -10,23 +10,21 @@ import MonthPicker from "../monthPicker";
 import withAuth from "@/utils/withAuth";
 
 const Page = () => {
-  const [selectedMonth, setSelectedMonth] = useState(
-    new Date().toISOString().slice(0, 7)
-  );
+  
 
   return (
     <div>
-      <div className="max-w-3xl mx-auto mb-6">
-        <MonthPicker onMonthChanged={(date) => setSelectedMonth(date)} />
-      </div>
       <div>
-        <AllEmployees selectedMonth={selectedMonth} />
+        <AllEmployees  />
+      </div>
+      <div className="max-w-3xl mx-auto mb-6 mt-10">
+        
       </div>
       <div className="mt-10 mb-10">
-        <SalarCal selectedMonth={selectedMonth} />
+        <SalarCal  />
       </div>
       <div className="mt-10 mb-10">
-        <CommissionCal selectedMonth={selectedMonth} />
+        <CommissionCal  />
       </div>
     </div>
   );

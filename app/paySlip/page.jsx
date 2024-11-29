@@ -27,13 +27,13 @@ const invoiceData = {
   ],
 };
 
-const getIdFromUrl = (url) => {
+const getQueryParam = (url, paramKey) => {
   const parts = url.split("?");
   if (parts.length > 1) {
     const queryParams = parts[1].split("&");
     for (const param of queryParams) {
       const [key, value] = param.split("=");
-      if (key === "id") {
+      if (key === paramKey) {
         return value;
       }
     }
@@ -49,12 +49,21 @@ const Page = () => {
   const [invoiceList, setQuoteList] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(true);
 
+  const [amount, setAmount] = useState(true);
+
   useEffect(() => {
     // Get the current URL
     const currentUrl = window.location.href;
 
-    const urlId = getIdFromUrl(currentUrl);
+    // Extract id and amount
+    const urlId = getQueryParam(currentUrl, "id");
+    const urlAmount = getQueryParam(currentUrl, "amount");
+
+    console.log("ID:", urlId);
+    console.log("Amount:", urlAmount);
+
     setId(urlId);
+    setAmount(urlAmount); // Assuming setAmount is defined in your component
   }, []);
 
   useEffect(() => {
@@ -241,12 +250,7 @@ const Page = () => {
           </Grid>
 
           <Grid className="ml-20" item xs={5}>
-            <Grid
-              container
-              spacing={2}
-              component={Paper}
-              sx={{ padding: 2 }}
-            >
+            <Grid container spacing={2} component={Paper} sx={{ padding: 2 }}>
               {/* Header Row */}
               <Grid item xs={6}>
                 <Typography
@@ -266,7 +270,7 @@ const Page = () => {
                     textAlign: "right",
                   }}
                 >
-                  Salary
+                  Payable
                 </Typography>
               </Grid>
 
@@ -292,7 +296,7 @@ const Page = () => {
                     textAlign: "right",
                   }}
                 >
-                  {invoiceList?.employee?.total_salary}
+                  {amount}
                 </Typography>
               </Grid>
             </Grid>

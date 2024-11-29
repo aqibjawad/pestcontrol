@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
-import { Modal, Box, Typography, Button, Skeleton } from "@mui/material";
+import { Modal, Box, Button, Skeleton } from "@mui/material";
 import APICall from "@/networkUtil/APICall";
 import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
 import InputWithTitle from "@/components/generic/InputWithTitle";
@@ -13,6 +13,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import withAuth from "@/utils/withAuth";
 
 import { useRouter } from "next/navigation";
+import MonthPicker from "../monthPicker";
 import Link from "next/link";
 
 const SalaryCal = () => {
@@ -28,6 +29,9 @@ const SalaryCal = () => {
     new Date().toISOString().slice(0, 7)
   ); // YYYY-MM format
 
+  console.log(selectedMonth);
+  
+
   // Modal state
   const [openModal, setOpenModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -38,7 +42,7 @@ const SalaryCal = () => {
     setFetchingData(true);
     try {
       const response = await api.getDataWithToken(
-        `${getAllEmpoyesUrl}/salary/get`
+        `${getAllEmpoyesUrl}/salary/get?salary_month=${selectedMonth}`
       );
       if (response?.data) {
         // Sort employees: unpaid first, then paid
@@ -62,6 +66,10 @@ const SalaryCal = () => {
       setFetchingData(false);
     }
   };
+
+  useEffect(() => {
+    getAllEmployees();
+  }, [selectedMonth]);
 
   useEffect(() => {
     getAllEmployees();
@@ -142,6 +150,7 @@ const SalaryCal = () => {
 
   return (
     <div>
+      <MonthPicker onMonthChanged={(date) => setSelectedMonth(date)} />
       <div className="mt-10 mb-10">
         <div className="pageTitle">Salary Calculations</div>
 
@@ -165,13 +174,10 @@ const SalaryCal = () => {
                   Basic Salary
                 </th>
                 <th className="py-2 px-4 border-b border-gray-200 text-left">
-                  Paid Total Salary
+                  Payable Salary
                 </th>
                 <th className="py-2 px-4 border-b border-gray-200 text-left">
                   Status
-                </th>
-                <th className="py-2 px-4 border-b border-gray-200 text-left">
-                  Total Salary
                 </th>
                 <th className="py-2 px-4 border-b border-gray-200 text-left">
                   Update Attendence
@@ -201,7 +207,6 @@ const SalaryCal = () => {
                       <td className="py-5 px-4">{row.basic_salary}</td>
                       <td className="py-5 px-4">{row.paid_total_salary}</td>
                       <td className="py-5 px-4">{row.status}</td>
-                      <td className="py-5 px-4">{row.total_salary}</td>
                       <td className="py-5 px-4">
                         <Button
                           variant="outlined"
@@ -213,7 +218,7 @@ const SalaryCal = () => {
                       <td className="py-5 px-4">
                         <Link
                           variant="outlined"
-                          href={`/paySlip?id=${row?.user?.id}`}
+                          href={`/paySlip?id=${row?.user?.id}&amount=${row.paid_total_salary}`}
                         >
                           View
                         </Link>

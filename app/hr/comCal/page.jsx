@@ -7,6 +7,7 @@ import APICall from "@/networkUtil/APICall";
 import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
 import CircularProgress from "@mui/material/CircularProgress";
 import Swal from "sweetalert2";
+import MonthPicker from "../monthPicker";
 
 const CommissionCal = () => {
   const api = new APICall();
@@ -14,11 +15,15 @@ const CommissionCal = () => {
   const [employeeList, setEmployeeList] = useState([]);
   const [processingPayments, setProcessingPayments] = useState({});
 
+  const [selectedMonth, setSelectedMonth] = useState(
+    new Date().toISOString().slice(0, 7)
+  ); 
+
   const getAllEmployees = async () => {
     setFetchingData(true);
     try {
       const response = await api.getDataWithToken(
-        `${getAllEmpoyesUrl}/commission/get`
+        `${getAllEmpoyesUrl}/commission/get?commission_month=${selectedMonth}`
       );
       setEmployeeList(response.data);
     } catch (error) {
@@ -35,65 +40,19 @@ const CommissionCal = () => {
 
   useEffect(() => {
     getAllEmployees();
+  }, [selectedMonth]);
+
+  useEffect(() => {
+    getAllEmployees();
   }, []);
 
-  const handleSubmit = async (employee) => {
-    // Set loading state for specific employee
-    setProcessingPayments((prev) => ({
-      ...prev,
-      [employee.id]: true,
-    }));
-
-    const obj = {
-      employee_commission_id: employee.id, // Use the correct employee commission ID
-    };
-
-    try {
-      const response = await api.postFormDataWithToken(
-        `${getAllEmpoyesUrl}/commission/paid`,
-        obj
-      );
-
-      if (response.status === "success") {
-        Swal.fire({
-          icon: "success",
-          title: "Success",
-          text: "Commission has been paid successfully!",
-        }).then(() => {
-          getAllEmployees(); // Refresh the data instead of full page reload
-        });
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: response.error?.message || "Error processing payment",
-        });
-      }
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: error.message || "Unexpected error occurred",
-      });
-    } finally {
-      setProcessingPayments((prev) => ({
-        ...prev,
-        [employee.id]: false,
-      }));
-    }
-  };
-
-  if (fetchingData) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <CircularProgress />
-      </div>
-    );
-  }
-
+  
   return (
     <div>
-      <div className="mt-10 mb-10">
+      <MonthPicker onMonthChanged={(date) => setSelectedMonth(date)} />
+
+        {fetchingData ? <CircularProgress/> : <>
+          <div className="mt-10 mb-10">
         <div className="pageTitle"> Sales By Employees </div>
 
         <div className={tableStyles.tableContainer}>
@@ -139,7 +98,9 @@ const CommissionCal = () => {
             </tbody>
           </table>
         </div>
-      </div>
+      </div>  
+        </>}
+      
     </div>
   );
 };

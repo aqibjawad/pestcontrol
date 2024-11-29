@@ -23,9 +23,7 @@ const AllEmployees = () => {
   const getAllExpenses = async () => {
     setFetchingData(true);
     try {
-      const response = await api.getDataWithToken(
-        `${getAllEmpoyesUrl}`
-      );
+      const response = await api.getDataWithToken(`${getAllEmpoyesUrl}`);
       setExpenseList(response.data);
     } catch (error) {
       console.error("Error fetching employees:", error);
@@ -126,9 +124,9 @@ const AllEmployees = () => {
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Contact
               </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
+              {/* <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Status
-              </th>
+              </th> */}
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Action
               </th>
@@ -161,7 +159,7 @@ const AllEmployees = () => {
                       {row.employee.phone_number || "null"}
                     </div>
                   </td>
-                  <td className="py-2 px-4">
+                  {/* <td className="py-2 px-4">
                     <div
                       className={tableStyles.clientContact}
                       style={{
@@ -180,11 +178,11 @@ const AllEmployees = () => {
                         size="small"
                         style={{ cursor: "pointer" }}
                       />
-                      {/* <span style={{ marginLeft: "4px" }}>
-                        {row.is_active === 1 ? "Inactive" : "Active"}
-                      </span> */}
+                      // <span style={{ marginLeft: "4px" }}>
+                      //   {row.is_active === 1 ? "Inactive" : "Active"}
+                      // </span> 
                     </div>
-                  </td>
+                  </td> */}
                   <td className="py-2 px-4">
                     <div className={tableStyles.clientContact}>
                       <Link href={`/hr/employeeDetails?id=${row.id}`}>
