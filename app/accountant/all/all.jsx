@@ -137,8 +137,17 @@ const All = () => {
                 marginBottom: "1rem",
               }}
             >
-              <div style={{fontSize:"17px", fontWeight:"500"}}>Expenses</div>
-              <div style={{border:"1px solid black", padding:"5px", borderRadius:"50px", fontSize:"13px"}}>
+              <div style={{ fontSize: "17px", fontWeight: "500" }}>
+                Expenses
+              </div>
+              <div
+                style={{
+                  padding: "5px",
+                  backgroundColor: "#32a92e",
+                  borderRadius: "50px",
+                  fontSize: "13px",
+                }}
+              >
                 <DateFilters2 onDateChange={handleExpenseDateChange} />
               </div>
             </div>
@@ -162,8 +171,17 @@ const All = () => {
                 marginBottom: "1rem",
               }}
             >
-              <div style={{fontSize:"17px", fontWeight:"500"}}>Recieved Payments</div>
-              <div style={{border:"1px solid black", padding:"5px", borderRadius:"50px", fontSize:"13px"}}>
+              <div style={{ fontSize: "17px", fontWeight: "500" }}>
+                Recieved Payments
+              </div>
+              <div
+                style={{
+                  backgroundColor: "#32a92e",
+                  padding: "5px",
+                  borderRadius: "50px",
+                  fontSize: "13px",
+                }}
+              >
                 <DateFilters2 onDateChange={handlePaidDateChange} />
               </div>
             </div>
@@ -198,8 +216,17 @@ const All = () => {
                 marginBottom: "1rem",
               }}
             >
-              <div style={{fontSize:"17px", fontWeight:"500"}}>Recieveable Amounts</div>
-              <div style={{border:"1px solid black", padding:"5px", borderRadius:"50px", fontSize:"13px"}}>
+              <div style={{ fontSize: "17px", fontWeight: "500" }}>
+                Recieveable Amounts
+              </div>
+              <div
+                style={{
+                  backgroundColor: "#32a92e",
+                  padding: "5px",
+                  borderRadius: "50px",
+                  fontSize: "13px",
+                }}
+              >
                 <DateFilters2 onDateChange={handleUnpaidDateChange} />
               </div>
             </div>

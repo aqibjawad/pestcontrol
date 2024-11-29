@@ -41,10 +41,18 @@ const DateFilters2 = ({ onDateChange }) => {
     setTitle(option);
 
     if (onDateChange && start && end) {
-      onDateChange(start, end);
+      const formattedStart = formatDate(start);
+      const formattedEnd = formatDate(end);
+      onDateChange(formattedStart, formattedEnd);
     }
 
     setAnchorEl(null); // Close the popover
+  };
+
+  const formatDate = (date) => {
+    if (!date) return "";
+    const d = new Date(date);
+    return d.toISOString().split("T")[0];
   };
 
   useEffect(() => {

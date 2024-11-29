@@ -39,7 +39,7 @@ const Pending = () => {
   };
 
   const handleApprove = async (id) => {
-    setApproving(id); 
+    setApproving(id);
     try {
       const response = await api.postFormDataWithToken(`${payments}/approve`, {
         received_cash_record_id: id,
@@ -76,7 +76,7 @@ const Pending = () => {
                   <CircularProgress />
                 </TableCell>
               </TableRow>
-            ) : (
+            ) : quoteList.length > 0 ? (
               quoteList.map((row, index) => (
                 <TableRow key={index}>
                   <TableCell>{index + 1}</TableCell>
@@ -105,7 +105,7 @@ const Pending = () => {
                     </Button>
                   </TableCell>
                   <TableCell>{row?.status}</TableCell>
-                  <TableCell> 
+                  <TableCell>
                     <Link href={`/invoiceDetails?id=${row.service_invoice_id}`}>
                       <span className="text-blue-600 hover:text-blue-800">
                         View Details
@@ -114,6 +114,8 @@ const Pending = () => {
                   </TableCell>
                 </TableRow>
               ))
+            ) : (
+              " No Pending Amounts"
             )}
           </TableBody>
         </Table>
