@@ -149,15 +149,16 @@ const AllClients = () => {
                 Date
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Add Address
+                Balance
               </th>
-
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 View Ledger
               </th>
-
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Add Payment
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Add Address
               </th>
             </tr>
           </thead>
@@ -172,20 +173,7 @@ const AllClients = () => {
                 <td className="py-2 px-4">
                   {AppHelpers.convertDate(row.created_at)}
                 </td>
-                <td>
-                  <Link
-                    href={`/address?id=${row.id}&name=${encodeURIComponent(
-                      row.name
-                    )}&phone_number=${encodeURIComponent(
-                      row?.client?.phone_number
-                    )}`}
-                  >
-                    <span className="text-blue-600 hover:text-blue-800">
-                      Add Address
-                    </span>
-                  </Link>
-                </td>
-
+                <td className="py-5 px-4">{row.current_balance}</td>
                 <td>
                   <Link
                     href={`/client/clientLedger/?id=${
@@ -201,11 +189,23 @@ const AllClients = () => {
                     </span>
                   </Link>
                 </td>
-
                 <td>
                   <Link href={`/serviceInvoices/add?id=${row.id}`}>
                     <span className="text-blue-600 hover:text-blue-800">
                       Add Payment
+                    </span>
+                  </Link>
+                </td>
+                <td>
+                  <Link
+                    href={`/address?id=${row.id}&name=${encodeURIComponent(
+                      row.name
+                    )}&phone_number=${encodeURIComponent(
+                      row?.client?.phone_number
+                    )}`}
+                  >
+                    <span className="text-blue-600 hover:text-blue-800">
+                      Add Address
                     </span>
                   </Link>
                 </td>
@@ -368,8 +368,7 @@ const AllClients = () => {
               display: "flex",
               justifyContent: "flex-end",
             }}
-          >
-          </div>
+          ></div>
         </div>
       </div>
 

@@ -24,6 +24,10 @@ const JobsList = ({
   const [generatedSubTotal, setGeneratedSubTotal] = useState(0);
   const [activeTab, setActiveTab] = useState(0);
   const [dayWiseSelection, setDayWiseSelection] = useState([]);
+  const [allDatesSelect, setAllDatesSelect] = useState([]);
+
+  console.log(allDatesSelect);
+  
 
   const jobTypes = [
     { label: "One Time", value: "one_time" },
@@ -34,40 +38,40 @@ const JobsList = ({
     { label: "Custom", value: "custom" },
   ];
 
-  const generateDates = (initialDates) => {
-    if (!initialDates || initialDates.length === 0) return [];
+  // const generateDates = (initialDates) => {
+  //   if (!initialDates || initialDates.length === 0) return [];
 
-    const result = [...initialDates];
+  //   const result = [...initialDates];
 
-    if (selectedJobType === "monthly") {
-      // For each selected date, add corresponding dates for subsequent months
-      initialDates.forEach((initialDate) => {
-        const date = new Date(initialDate);
+  //   if (selectedJobType === "monthly") {
+  //     // For each selected date, add corresponding dates for subsequent months
+  //     initialDates.forEach((initialDate) => {
+  //       const date = new Date(initialDate);
 
-        for (let i = 1; i < duration_in_months; i++) {
-          const newDate = new Date(date);
-          newDate.setMonth(newDate.getMonth() + i);
+  //       for (let i = 1; i < duration_in_months; i++) {
+  //         const newDate = new Date(date);
+  //         newDate.setMonth(newDate.getMonth() + i);
 
-          // Check if the day exists in the target month
-          // For example, March 31 doesn't exist in April
-          const targetMonth = newDate.getMonth();
-          newDate.setDate(1); // Reset to first of month
-          newDate.setMonth(targetMonth + 1); // Go to first of next month
-          newDate.setDate(0); // Back up one day to last of target month
+  //         // Check if the day exists in the target month
+  //         // For example, March 31 doesn't exist in April
+  //         const targetMonth = newDate.getMonth();
+  //         newDate.setDate(1); // Reset to first of month
+  //         newDate.setMonth(targetMonth + 1); // Go to first of next month
+  //         newDate.setDate(0); // Back up one day to last of target month
 
-          const lastDayOfMonth = newDate.getDate();
-          const originalDay = date.getDate();
+  //         const lastDayOfMonth = newDate.getDate();
+  //         const originalDay = date.getDate();
 
-          newDate.setMonth(targetMonth);
-          newDate.setDate(Math.min(originalDay, lastDayOfMonth));
+  //         newDate.setMonth(targetMonth);
+  //         newDate.setDate(Math.min(originalDay, lastDayOfMonth));
 
-          result.push(newDate.toISOString().slice(0, 10));
-        }
-      });
-    }
+  //         result.push(newDate.toISOString().slice(0, 10));
+  //       }
+  //     });
+  //   }
 
-    return result.sort();
-  };
+  //   return result.sort();
+  // };
 
   // Function to calculate subtotal
   const calculateSubTotal = (numberOfJobs, currentRate) => {
@@ -88,12 +92,55 @@ const JobsList = ({
     }
   };
 
+  const generateFutureDates = (
+    initialDates,
+    selectedJobType,
+    durationInMonths
+  ) => {
+    if (!initialDates || initialDates.length === 0) return [];
+
+    const today = new Date();
+    const result = [];
+
+    if (selectedJobType === "monthly") {
+      // For each selected date, add corresponding dates for subsequent months
+      initialDates.forEach((initialDate) => {
+        const date = new Date(initialDate);
+
+        for (let i = 0; i < durationInMonths; i++) {
+          const newDate = new Date(date);
+          newDate.setMonth(newDate.getMonth() + i);
+          const targetMonth = newDate.getMonth();
+          newDate.setDate(1); // Reset to first of month
+          newDate.setMonth(targetMonth + 1); // Go to first of next month
+          newDate.setDate(0); // Back up one day to last of target month
+
+          const lastDayOfMonth = newDate.getDate();
+          const originalDay = date.getDate();
+
+          newDate.setMonth(targetMonth);
+          newDate.setDate(Math.min(originalDay, lastDayOfMonth));
+
+          // Only add dates in the future
+          if (newDate >= today) {
+            result.push(newDate.toISOString().slice(0, 10));
+          }
+        }
+      });
+    }
+
+    return result.sort();
+  };
+
   useEffect(() => {
     let allDates = selectedDates ? [...selectedDates] : [];
     let finalDates = allDates;
 
     if (selectedJobType === "monthly" && allDates.length > 0) {
-      finalDates = generateDates(allDates);
+      finalDates = generateFutureDates(allDates, "monthly", duration_in_months);
+      setAllDatesSelect(finalDates.length);
+      console.log("kfdj",finalDates.length);
+      
     }
 
     // Calculate subtotals
@@ -274,7 +321,9 @@ const JobsList = ({
     }
   };
 
-  const [selectedService, setSelectedService] = useState(jobData.service_id || "");
+  const [selectedService, setSelectedService] = useState(
+    jobData.service_id || ""
+  );
 
   const getUniqueServiceOptions = (services) => {
     const uniqueServices = new Map();
@@ -356,7 +405,7 @@ const JobsList = ({
                 type="text"
                 name="generatedDatesCount"
                 placeholder="Generated Jobs"
-                value={selectedDates.length * duration_in_months}
+                value={allDatesSelect}
                 readOnly={true}
               />
             </Grid>
@@ -366,7 +415,7 @@ const JobsList = ({
                 type="text"
                 name="generatedSubtotal"
                 placeholder="Generated Subtotal"
-                value={generatedSubTotal}
+                value={allDatesSelect * rate}
                 readOnly
               />
             </Grid>
@@ -414,7 +463,9 @@ const JobsList = ({
             : "Select Dates"}
         </DialogTitle>
         <DialogContent>
-          {(selectedJobType === "weekly" || selectedJobType === "daily" || selectedJobType === "monthly" ) && (
+          {(selectedJobType === "weekly" ||
+            selectedJobType === "daily" ||
+            selectedJobType === "monthly") && (
             <Tabs value={activeTab} onChange={handleTabChange}>
               <Tab label="Date" />
               <Tab label="Day-wise" />

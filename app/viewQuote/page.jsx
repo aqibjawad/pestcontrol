@@ -343,6 +343,25 @@ const Quotation = () => {
           >
             <DateFilters onDateChange={handleDateChange} />
           </div>
+          <div
+            style={{
+              backgroundColor: "#32A92E",
+              color: "white",
+              fontWeight: "600",
+              fontSize: "16px",
+              height: "44px",
+              width: "202px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              marginLeft: "1rem",
+              padding: "12px 16px",
+              marginTop: "35px",
+              borderRadius: "10px",
+            }}
+          >
+            <Link href="/quotation">Add Quote</Link>
+          </div>
         </div>
       </div>
 

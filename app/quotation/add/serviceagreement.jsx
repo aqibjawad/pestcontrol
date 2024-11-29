@@ -105,7 +105,7 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
     const selectedServices = allServices.filter((service) => service.isChecked);
 
     if (selectedServices.length === 0) {
-      console.error("No services selected.");
+      alert("Please select at least one service before adding"); // Simple JavaScript alert
       return;
     }
 
@@ -174,18 +174,15 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
   };
 
   const grandTotal = (formData.services || []).reduce(
-
     (total, job) => total + job.subTotal,
     0
   );
-  console.log("formData ki services",formData.services);
-
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
-  const selectedServices = allServices.filter((service) => service.isChecked)
+  const selectedServices = allServices.filter((service) => service.isChecked);
 
   return (
     <div className="mt-10 p-5 border border-[#D0D5DD]">
@@ -223,7 +220,7 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
               onClick={() => removeJobList(index)}
               className="ml-4"
             >
-              Remove
+              Remove Service
             </Button>
           </div>
         ))}
@@ -231,7 +228,7 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
 
       <div className="flex justify-end">
         <Button variant="outlined" onClick={addJobList}>
-          Add
+          Add Service
         </Button>
       </div>
 

@@ -61,7 +61,7 @@ const Page = () => {
       // If updates is a function, call it with prev
       if (typeof updates === "function") {
         const newState = updates(prev);
-        console.log("New Form State:", newState); // Debug log
+        // console.log("New Form State:", newState); // Debug log
         return newState;
       }
 
@@ -75,7 +75,7 @@ const Page = () => {
           : prev.services,
       };
 
-      console.log("New Form State:", newState); // Debug log
+      // console.log("New Form State:", newState); // Debug log
       return newState;
     });
   };

@@ -167,11 +167,9 @@ const FinancialDashboard = () => {
   };
 
   const closingData = [
-    { category: "CHEMICAL", amount: allClientsList?.supplier_balance || 0 },
-    {
-      category: "Paid Salaries",
-      amount: allClientsList?.paid_employee_salary || 0,
-    },
+    { category: "Total Payable to suppliers", amount: allClientsList?.supplier_balance || 0 },
+    { category: "Selected Month Purchase", amount: allClientsList?.purchase_order || 0 },
+    { category: "Paid Salaries", amount: allClientsList?.paid_employee_salary || 0,},
     {
       category: "Paid Comissions",
       amount: allClientsList?.paid_employee_comm || 0,

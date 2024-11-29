@@ -142,6 +142,11 @@ export default function SideMenu({ children }) {
           url: "financialReport/",
           icon: <MdOutlineInventory />,
         },
+        {
+          name: "Outstandings",
+          url: "badTransac",
+          icon: <MdOutlineQueryStats />,
+        },
 
         {
           name: "Add Inventory",
