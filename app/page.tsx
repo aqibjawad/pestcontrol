@@ -78,7 +78,7 @@ export default function Login() {
     <div className={styles.loginBg}>
       <div className={styles.formContainer}>
         <div className="mb-6">
-          <img src="/logo.webp" height={80} width={80} alt="Logo" className="mx-auto" />
+          <img src="/logo-black.png" height={80} width={80} alt="Logo" className="mx-auto" />
         </div>
         <div className={styles.loginTextContainer}>
           {"Sign in to your account"}
