@@ -7,6 +7,7 @@ import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import Skeleton from "@mui/material/Skeleton";
 import DateFilters from "../../../components/generic/DateFilters";
+import withAuth from "@/utils/withAuth";
 
 const EmpUpcomingJobs = ({ employeeCompany, handleDateChange, isLoading }) => {
     
@@ -218,4 +219,4 @@ const EmpUpcomingJobs = ({ employeeCompany, handleDateChange, isLoading }) => {
   );
 };
 
-export default EmpUpcomingJobs;
+export default withAuth(EmpUpcomingJobs);

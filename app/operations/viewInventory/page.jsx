@@ -11,6 +11,7 @@ import { Skeleton } from "@mui/material";
 import { format } from "date-fns";
 
 import DateFilters from "../../../components/generic/DateFilters";
+import withAuth from "@/utils/withAuth";
 
 const Page = () => {
   const apiCall = new APICall();
@@ -212,4 +213,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

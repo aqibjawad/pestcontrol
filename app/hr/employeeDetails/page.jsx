@@ -8,6 +8,7 @@ import { Skeleton } from "@mui/material"; // Import Skeleton from MUI
 import Link from "next/link";
 
 import EmpUpcomingJobs from "../jobs/upComing"
+import withAuth from "@/utils/withAuth";
 
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
@@ -441,4 +442,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

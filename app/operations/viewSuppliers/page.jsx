@@ -8,6 +8,7 @@ import APICall from "@/networkUtil/APICall";
 import { Delete, Edit, ViewAgenda } from "@mui/icons-material";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import withAuth from "@/utils/withAuth";
 
 const Page = () => {
   const apiCall = new APICall();
@@ -179,4 +180,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import Dropdown from "../../../components/generic/Dropdown";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import GreenButton from "@/components/generic/GreenButton";
+import withAuth from "@/utils/withAuth";
+
 const Page = () => {
   const [products, setProducts] = useState([
     "Super Delta",
@@ -53,4 +55,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

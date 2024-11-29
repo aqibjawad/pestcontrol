@@ -6,6 +6,7 @@ import styles from "../../../styles/account/addBrandStyles.module.css";
 import { Delete, Edit, Check, Close } from "@mui/icons-material";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import GreenButton from "@/components/generic/GreenButton";
+import withAuth from "@/utils/withAuth";
 
 const Page = () => {
   const {
@@ -119,4 +120,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

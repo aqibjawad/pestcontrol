@@ -1,3 +1,5 @@
+"use client";
+
 import Vendors from "@/components/Vendors";
 import React from "react";
 import withAuth from "@/utils/withAuth";

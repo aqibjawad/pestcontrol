@@ -7,6 +7,7 @@ import GreenButton from "@/components/generic/GreenButton";
 import { useRouter } from "next/navigation";
 import APICall from "@/networkUtil/APICall";
 import { job, getAllEmpoyesUrl } from "@/networkUtil/Constants";
+import withAuth from "@/utils/withAuth";
 
 import Swal from "sweetalert2";
 
@@ -347,4 +348,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

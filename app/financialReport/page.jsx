@@ -24,8 +24,6 @@ const FinancialDashboard = () => {
   const [expenseList, setExpenseList] = useState(0);
   const [ledgerList, setLedgerList] = useState(0);
 
-  console.log(ledgerList);
-
   const [paymentList, setPaymentsList] = useState([]);
 
   const [fetchingData, setFetchingData] = useState(false);
@@ -106,19 +104,19 @@ const FinancialDashboard = () => {
   const getLedger = async () => {
     try {
       const response = await api.getDataWithToken(
-        `${`${clients}/received_amount/get`}?month=${formatDate(selectedDate)}`
+        `${clients}/received_amount/get?month=${formatDate(selectedDate)}`
       );
 
-      // Log the full response data
-      console.log("Response data:", response.data);
-
-      // Log each item's paid_amt
-      response.data.forEach((item) => {
-        console.log(`Item paid amount: ${item.paid_amt}`);
-      });
-
+      console.log("response", response.data.ledger_cr_amt_sum);
+      
       const totalAmountLedger = response.data.reduce((sum, item) => {
-        return sum + parseFloat(item.paid_amt || 0);
+        const paidAmt =
+          item.paid_amt !== undefined ? parseFloat(item.ledger_cr_amt_sum ) : 0;
+        if (isNaN(paidAmt)) {
+          console.error(`Invalid ledger_cr_amt_sum  value: ${item.ledger_cr_amt_sum }`);
+          return sum;
+        }
+        return sum + paidAmt;
       }, 0);
 
       setLedgerList(totalAmountLedger);

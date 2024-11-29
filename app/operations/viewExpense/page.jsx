@@ -7,6 +7,7 @@ import APICall from "@/networkUtil/APICall";
 import { expense_category } from "@/networkUtil/Constants";
 
 import DateFilters2 from "../../../components/generic/DateFilters2";
+import withAuth from "@/utils/withAuth";
 
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
@@ -196,4 +197,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

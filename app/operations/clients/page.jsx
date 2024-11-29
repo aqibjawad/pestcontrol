@@ -10,6 +10,7 @@ import {
   DialogActions,
   Button,
 } from "@mui/material";
+import withAuth from "@/utils/withAuth";
 
 import { addClients } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
@@ -670,4 +671,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

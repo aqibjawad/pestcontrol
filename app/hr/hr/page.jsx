@@ -7,6 +7,7 @@ import SalarCal from "../salaryCal/page";
 import CommissionCal from "../comCal/page";
 
 import MonthPicker from "../monthPicker";
+import withAuth from "@/utils/withAuth";
 
 const Page = () => {
   const [selectedMonth, setSelectedMonth] = useState(
@@ -31,4 +32,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

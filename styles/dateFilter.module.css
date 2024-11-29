@@ -5,21 +5,20 @@
 }
 
 .filterButton {
-  background-color: #28a745; /* Green color for the button */
   color: white;
   border: none;
   padding: 10px 20px;
-  border-radius: 8px;
+  /* border-radius: 8px; */
   cursor: pointer;
   font-size: 14px;
   font-weight: bold;
-  transition: all 0.3s ease-in-out;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  /* transition: all 0.3s ease-in-out;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); */
 }
 
-.filterButton:hover {
+/* .filterButton:hover {
   background-color: #218838;
-}
+} */
 
 .popoverContent {
   display: flex;
@@ -44,11 +43,11 @@
 
 .option:hover {
   background-color: #f8f9fa;
-  color: #007bff;
+  color: #28a745;
 }
 
 .selected {
-  background-color: #007bff;
+  background-color: #28a745; /* Green color for the button */
   color: white;
 }
 
@@ -63,12 +62,11 @@
   width: 100%;
   padding: 8px;
   font-size: 14px;
-  border: 1px solid #ccc;
   border-radius: 6px;
 }
 
 .customRangeSubmitButton {
-  background-color: #007bff;
+  background-color: #28a745;
   color: white;
   padding: 8px 16px;
   border: none;
@@ -79,7 +77,7 @@
 }
 
 .customRangeSubmitButton:hover {
-  background-color: #0056b3;
+  background-color: #28a745;
 }
 
 .customRangeSubmitButton:disabled {

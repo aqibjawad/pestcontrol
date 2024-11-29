@@ -7,6 +7,7 @@ import APICall from "@/networkUtil/APICall";
 import { expense_category } from "@/networkUtil/Constants";
 import { Skeleton } from "@mui/material";
 import { format, startOfMonth, endOfMonth } from "date-fns";
+import withAuth from "@/utils/withAuth";
 
 const Page = () => {
   const api = new APICall();
@@ -176,4 +177,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

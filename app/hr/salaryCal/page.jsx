@@ -10,6 +10,7 @@ import styles from "../../../styles/salaryModal.module.css";
 import GreenButton from "@/components/generic/GreenButton";
 import Swal from "sweetalert2";
 import CircularProgress from "@mui/material/CircularProgress";
+import withAuth from "@/utils/withAuth";
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -259,4 +260,4 @@ const SalaryCal = () => {
   );
 };
 
-export default SalaryCal;
+export default withAuth(SalaryCal);

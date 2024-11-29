@@ -15,6 +15,7 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
+import withAuth from "@/utils/withAuth";
 
 const Page = () => {
   const {
@@ -119,4 +120,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

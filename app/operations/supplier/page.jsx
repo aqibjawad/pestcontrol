@@ -9,6 +9,7 @@ import { CircularProgress, Skeleton } from "@mui/material";
 import Util from "../../../utils/utils";
 import styles from "../../../styles/supplier/addSupplierStyles.module.css";
 import Link from "next/link";
+import withAuth from "@/utils/withAuth";
 
 const Page = () => {
   const apiCall = new APICall();
@@ -315,4 +316,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

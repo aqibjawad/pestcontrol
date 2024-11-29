@@ -8,6 +8,7 @@ import DateFilters from "../../../components/generic/DateFilters";
 
 import APICall from "@/networkUtil/APICall";
 import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
+import withAuth from "@/utils/withAuth";
 
 const Page = () => {
   const api = new APICall();
@@ -175,4 +176,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default withAuth(Page);

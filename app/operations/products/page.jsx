@@ -3,6 +3,7 @@
 import React from "react";
 import Inventory from "./inventroy"
 
+import withAuth from "@/utils/withAuth";
 
 const Index =()=>{
     return(
@@ -12,4 +13,4 @@ const Index =()=>{
     )
 }
 
-export default Index
+export default withAuth(Index)

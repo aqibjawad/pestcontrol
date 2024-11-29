@@ -20,6 +20,7 @@ import styles from "../../../styles/loginStyles.module.css";
 import { addVendors } from "@/networkUtil/Constants";
 
 import APICall from "@/networkUtil/APICall";
+import withAuth from "@/utils/withAuth";
 
 const rows = Array.from({ length: 10 }, (_, index) => ({
   clientName: "Olivia Rhye",
@@ -727,4 +728,4 @@ const Vendor = () => {
   );
 };
 
-export default Vendor;
+export default withAuth(Vendor);

@@ -3,6 +3,7 @@
 import React from "react";
 
 import AllEmployees from "./allEmployees";
+import withAuth from "@/utils/withAuth";
 
 const Page =()=>{
   return(
@@ -10,4 +11,4 @@ const Page =()=>{
   )
 }
 
-export default Page;
+export default withAuth(Page);

@@ -8,6 +8,7 @@ import Box from "@mui/material/Box";
 
 import Modal from "@mui/material/Modal";
 import styles from "../../../styles/loginStyles.module.css";
+import withAuth from "@/utils/withAuth";
 
 const Address = () => {
   const style = {
@@ -279,4 +280,4 @@ const Address = () => {
   );
 };
 
-export default Address;
+export default withAuth(Address);
