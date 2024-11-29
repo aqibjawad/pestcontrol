@@ -8,7 +8,7 @@ import Link from "next/link";
 import Skeleton from "@mui/material/Skeleton";
 import DateFilters from "../../../components/generic/DateFilters";
 import withAuth from "@/utils/withAuth";
-
+ 
 const EmpUpcomingJobs = ({ employeeCompany, handleDateChange, isLoading }) => {
     
   const pathname = usePathname();

@@ -15,7 +15,7 @@ import { clients } from "../../../networkUtil/Constants";
 
 import Link from "next/link";
 
-import DateFilters from "@/components/generic/DateFilters";
+import DateFilters2 from "@/components/generic/DateFilters2";
 import { format } from "date-fns";
 
 const Transactions = () => {
@@ -44,9 +44,23 @@ const Transactions = () => {
       queryParams.push(`start_date=${startDate}`);
       queryParams.push(`end_date=${endDate}`);
     } else {
-      const currentDate = format(new Date(), "yyyy-MM-dd");
-      queryParams.push(`start_date=${currentDate}`);
-      queryParams.push(`end_date=${currentDate}`);
+      const today = new Date();
+      const firstDayOfMonth = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        1
+      );
+      const lastDayOfMonth = new Date(
+        today.getFullYear(),
+        today.getMonth() + 1,
+        0
+      );
+
+      const startDate = format(firstDayOfMonth, "yyyy-MM-dd");
+      const endDate = format(lastDayOfMonth, "yyyy-MM-dd");
+
+      queryParams.push(`start_date=${startDate}`);
+      queryParams.push(`end_date=${endDate}`);
     }
 
     try {
@@ -82,36 +96,35 @@ const Transactions = () => {
                 </TableCell>
               </TableRow>
             ) : (
-              quoteList
-                .map((row, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>
-                      {new Date(row.created_at).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
-                    </TableCell>
-                    <TableCell>{row?.name}</TableCell>
-                    <TableCell>{row?.ledger_cr_amt_sum}</TableCell>
-                    <TableCell>
-                      <Link
-                        href={`/client/clientLedger/?id=${
-                          row.id
-                        }&name=${encodeURIComponent(
-                          row.name
-                        )}&phone_number=${encodeURIComponent(
-                          row?.client?.phone_number
-                        )}`}
-                      >
-                        <span className="text-blue-600 hover:text-blue-800">
-                          View Details
-                        </span>
-                      </Link>
-                    </TableCell>
-                  </TableRow>
-                ))
+              quoteList?.map((row, index) => (
+                <TableRow key={index}>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>
+                    {new Date(row.created_at).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </TableCell>
+                  <TableCell>{row?.name}</TableCell>
+                  <TableCell>{row?.ledger_cr_amt_sum}</TableCell>
+                  <TableCell>
+                    <Link
+                      href={`/client/clientLedger/?id=${
+                        row.id
+                      }&name=${encodeURIComponent(
+                        row.name
+                      )}&phone_number=${encodeURIComponent(
+                        row?.client?.phone_number
+                      )}`}
+                    >
+                      <span className="text-blue-600 hover:text-blue-800">
+                        View Details
+                      </span>
+                    </Link>
+                  </TableCell>
+                </TableRow>
+              ))
             )}
           </TableBody>
         </Table>
@@ -127,7 +140,7 @@ const Transactions = () => {
         >
           Approved Payments
         </div>
-        {/* <div
+        <div
           style={{
             display: "flex",
             justifyContent: "flex-end",
@@ -150,9 +163,9 @@ const Transactions = () => {
               borderRadius: "10px",
             }}
           >
-            <DateFilters onDateChange={handleDateChange} />
+            <DateFilters2 onDateChange={handleDateChange} />
           </div>
-        </div> */}
+        </div>
       </div>
 
       <div className="grid grid-cols-12 gap-4">

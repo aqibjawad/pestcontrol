@@ -231,7 +231,6 @@ const Page = () => {
             aria-label="Main tabs"
           >
             <Tab label="Employee" />
-            <Tab label="Jobs" />
             <Tab label="Payments" />
           </Tabs>
 
@@ -367,9 +366,6 @@ const Page = () => {
               </div>
             )}
             {selectedIndexTabs === 1 && (
-              <Typography>Jobs Content goes here</Typography>
-            )}
-            {selectedIndexTabs === 2 && (
               <TableContainer component={Paper}>
                 <Table>
                   <TableHead>
@@ -390,7 +386,7 @@ const Page = () => {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      paymentList.map((row, index) => (
+                      paymentList?.map((row, index) => (
                         <TableRow key={index}>
                           <TableCell>{index + 1}</TableCell>
                           <TableCell>

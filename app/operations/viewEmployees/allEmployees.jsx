@@ -135,8 +135,8 @@ const AllEmployees = () => {
             </tr>
           </thead>
           <tbody>
-            {expenseList.length > 0 ? (
-              expenseList.map((row, index) => (
+            {expenseList?.length > 0 ? (
+              expenseList?.map((row, index) => (
                 <tr key={index} className="border-b border-gray-200">
                   <td className="py-5 px-4">{index + 1}</td>
                   <td className="py-2 px-4">

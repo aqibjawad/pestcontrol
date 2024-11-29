@@ -88,10 +88,10 @@ export default function SideMenu({ children }) {
     { name: "Clients", url: "clients", icon: "/clients.png" },
     { name: "Operations", url: "allJobs", icon: "/operations.png" },
     { name: "Sales", url: "sales/allSales", icon: "/sales.png" },
-    { name: "Pay Roll", url: "payRoll", icon: <FaAlipay /> },
+    // { name: "Pay Roll", url: "payRoll", icon: <FaAlipay /> },
     { name: "Outstandings", url: "badTransac", icon: <MdOutlineQueryStats /> },
     { name: "HR", url: "hr/hr", icon: "/hr.png" },
-    { name: "Company setup", url: "company_setup", icon: "/comnpany.png" },
+    // { name: "Company setup", url: "company_setup", icon: "/comnpany.png" },
     {
       name: "Financial Report",
       url: "financialReport/",
@@ -127,7 +127,7 @@ export default function SideMenu({ children }) {
       ];
     } else if (userRoleId === 4) {
       userPermissions = [
-        { name: "Jobs", url: "jobs", icon: "/jobs.png" },
+        { name: "Jobs", url: "hr/jobs", icon: "/jobs.png" },
         {
           name: "Profile",
           url: `hr/employeeDetails?id=${userId}`,

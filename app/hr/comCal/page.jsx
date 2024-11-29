@@ -7,7 +7,6 @@ import APICall from "@/networkUtil/APICall";
 import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
 import CircularProgress from "@mui/material/CircularProgress";
 import Swal from "sweetalert2";
-import withAuth from "@/utils/withAuth";
 
 const CommissionCal = () => {
   const api = new APICall();
@@ -145,4 +144,4 @@ const CommissionCal = () => {
   );
 };
 
-export default withAuth(CommissionCal);
+export default CommissionCal;

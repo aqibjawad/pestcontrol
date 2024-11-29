@@ -78,6 +78,9 @@ const AllJobs = () => {
 
   return (
     <div> 
+      <div className="pageTitle" style={{marginTop:"3rem"}}>
+        Upcoming Jobs
+      </div>
       <UpcomingJobs 
         jobsList={filteredList.length > 0 ? filteredList : jobsList} 
         handleDateChange={handleDateChange}

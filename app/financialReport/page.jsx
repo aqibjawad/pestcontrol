@@ -11,7 +11,6 @@ import {
   expense_category,
   admin,
   payments,
-  clients,
 } from "../../networkUtil/Constants";
 import APICall from "../../networkUtil/APICall";
 import withAuth from "@/utils/withAuth";
@@ -22,29 +21,50 @@ const FinancialDashboard = () => {
   const [allClientsList, setAllClientsList] = useState([]);
   const [allVehicleExpense, setAllVehicleExpense] = useState(0);
   const [expenseList, setExpenseList] = useState(0);
-  const [ledgerList, setLedgerList] = useState(0);
 
-  const [paymentList, setPaymentsList] = useState([]);
+  const [ledgerList, setLedgerList] = useState(0);
+  const [cashList, setCashList] = useState([]);
+  const [posList, setPosList] = useState([]);
+  const [bankList, setBankList] = useState([]);
+
+  const [paymentList, setPaymentsList] = useState(0);
 
   const [fetchingData, setFetchingData] = useState(false);
 
   const [selectedDate, setSelectedDate] = useState(new Date());
 
-  const formatDate = (date) => {
-    return date.toISOString().slice(0, 7); // Returns YYYY-MM format
+  // New function to format start and end dates
+  const formatStartEndDates = (date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth(); // 0-based month
+
+    // Create start date (first day of the selected month)
+    const startDate = new Date(year, month, 1);
+
+    // Create end date (last day of the selected month)
+    const endDate = new Date(year, month + 1, 0);
+
+    return {
+      startDate: startDate.toISOString().slice(0, 10), // YYYY-MM-DD
+      endDate: endDate.toISOString().slice(0, 10),
+    };
   };
 
   // Fetch all financial data based on selected month
   const fetchFinancialData = async () => {
     setFetchingData(true);
+    const { startDate, endDate } = formatStartEndDates(selectedDate);
+
     try {
       // Parallel API calls for different data points
       await Promise.all([
-        getFinancial(),
-        getVehiclesExpense(),
-        getAllExpenses(),
-        getLedger(),
-        getPending(),
+        getFinancial(startDate, endDate),
+        getVehiclesExpense(startDate, endDate),
+        getAllExpenses(startDate, endDate),
+        getPending(startDate, endDate),
+        getBank(),
+        getPos(startDate, endDate),
+        getCash(startDate, endDate),
       ]);
     } catch (error) {
       console.error("Error fetching financial data:", error);
@@ -57,12 +77,10 @@ const FinancialDashboard = () => {
     fetchFinancialData();
   }, [selectedDate]);
 
-  const getFinancial = async () => {
+  const getFinancial = async (startDate, endDate) => {
     try {
       const response = await api.getDataWithToken(
-        `${dashboard}/monthly_financial_report?month=${formatDate(
-          selectedDate
-        )}`
+        `${dashboard}/monthly_financial_report?start_date=${startDate}&end_date=${endDate}`
       );
       setAllClientsList(response.data);
     } catch (error) {
@@ -70,10 +88,10 @@ const FinancialDashboard = () => {
     }
   };
 
-  const getVehiclesExpense = async () => {
+  const getVehiclesExpense = async (startDate, endDate) => {
     try {
       const response = await api.getDataWithToken(
-        `${vehciles}?month=${formatDate(selectedDate)}`
+        `${vehciles}?start_date=${startDate}&end_date=${endDate}`
       );
 
       const totalExpense = response.data.reduce((sum, item) => {
@@ -86,10 +104,10 @@ const FinancialDashboard = () => {
     }
   };
 
-  const getAllExpenses = async () => {
+  const getAllExpenses = async (startDate, endDate) => {
     try {
       const response = await api.getDataWithToken(
-        `${expense_category}?month=${formatDate(selectedDate)}`
+        `${expense_category}?start_date=${startDate}&end_date=${endDate}`
       );
 
       const totalAmount = response.data.reduce((sum, item) => {
@@ -101,36 +119,43 @@ const FinancialDashboard = () => {
     }
   };
 
-  const getLedger = async () => {
+  const getCash = async (startDate, endDate) => {
     try {
       const response = await api.getDataWithToken(
-        `${clients}/received_amount/get?month=${formatDate(selectedDate)}`
+        `${dashboard}/cash_collection?start_date=${startDate}&end_date=${endDate}`
       );
-
-      console.log("response", response.data.ledger_cr_amt_sum);
-      
-      const totalAmountLedger = response.data.reduce((sum, item) => {
-        const paidAmt =
-          item.paid_amt !== undefined ? parseFloat(item.ledger_cr_amt_sum ) : 0;
-        if (isNaN(paidAmt)) {
-          console.error(`Invalid ledger_cr_amt_sum  value: ${item.ledger_cr_amt_sum }`);
-          return sum;
-        }
-        return sum + paidAmt;
-      }, 0);
-
-      setLedgerList(totalAmountLedger);
-
-      console.log("Total Ledger Amount:", totalAmountLedger);
+      setCashList(response.data);
     } catch (error) {
-      console.error("Error fetching ledger:", error);
+      console.error(error.message);
     }
   };
 
-  const getPending = async () => {
+  const getPos = async (startDate, endDate) => {
     try {
       const response = await api.getDataWithToken(
-        `${payments}?month=${formatDate(selectedDate)}`
+        `${dashboard}/pos_collection?start_date=${startDate}&end_date=${endDate}`
+      );
+      setPosList(response.data);
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+
+  const getBank = async () => {
+    try {
+      const response = await api.getDataWithToken(
+        `${dashboard}/bank_collection`
+      );
+      setBankList(response.data);
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+
+  const getPending = async (startDate, endDate) => {
+    try {
+      const response = await api.getDataWithToken(
+        `${payments}?start_date=${startDate}&end_date=${endDate}`
       );
       const totalPending = response.data.reduce((sum, item) => {
         return sum + parseFloat(item.paid_amt || 0);
@@ -163,7 +188,9 @@ const FinancialDashboard = () => {
   };
 
   const detailData = [
-    { category: "Cash", amount: ledgerList },
+    { category: "Cash", amount: cashList.total_cash },
+    { category: "POS", amount: posList.total_pos },
+    { category: "Bank", amount: bankList.total_cheque_transfer },
     { category: "Pending Payments", amount: paymentList },
   ];
 
@@ -173,11 +200,6 @@ const FinancialDashboard = () => {
       0
     );
   };
-
-  const summaryData = [
-    { category: "PENDING CASH RCVD", amount: 3980.05 },
-    { category: "bank/CHQ", amount: 8254.62 },
-  ];
 
   const Card = ({ title, children }) => (
     <div className="bg-white rounded-lg shadow-md p-4">
@@ -190,10 +212,12 @@ const FinancialDashboard = () => {
     <div className="flex justify-between py-2 border-b border-gray-100">
       <span className="text-gray-700">{category}</span>
       <span className="font-medium">
-        {amount.toLocaleString("en-US", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })}
+        {amount != null
+          ? amount.toLocaleString("en-US", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })
+          : "0.00"}
       </span>
     </div>
   );
@@ -263,19 +287,6 @@ const FinancialDashboard = () => {
               />
             ))}
             <TotalRow amount={calculateDetailTotal()} />
-          </Card>
-
-          {/* Summary Card */}
-          <Card title="Summary">
-            <div className="bg-blue-50 p-3 rounded-md">
-              {summaryData.map((item, index) => (
-                <ExpenseItem
-                  key={index}
-                  category={item.category}
-                  amount={item.amount}
-                />
-              ))}
-            </div>
           </Card>
         </div>
       )}

@@ -46,19 +46,19 @@ const Invoice = ({ setFormData, formData }) => {
       style={{ fontSize: "16px", margin: "auto" }}
     >
       <div className="mt-5 border border-gray-300">
-        <div className="p-2.5 font-semibold text-lg">Invoice</div>
+        {/* <div className="p-2.5 font-semibold text-lg">Invoice</div> */}
 
         <div className="flex gap-4 pl-4 pb-4">
-          <div className="w-1/2">
+          {/* <div className="w-1/2">
             <InputWithTitle
               title={"Billing Frequency"}
               value={formData.no_of_installments}
               onChange={handleBillingFrequencyChange}
             />
-          </div>
+          </div> */}
 
-          <div className="w-1/2 ms-20">
-            <div className="text-lg font-semibold mb-4">Billing Methods</div>
+          <div className="w-1/2">
+            <div className="text-lg font-semibold mb-4 p-2.5">Billing Methods</div>
             <RadioGroup
               row
               value={selectedBillingMethod}
