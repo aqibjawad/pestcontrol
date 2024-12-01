@@ -11,6 +11,8 @@ import AllPayments from "../../../amounts/allAmounts";
 import CommissionCal from "@/app/hr/comCal/page";
 import Invoices from "@/app/invoice/invoices";
 
+import All from "../../../accountant/all/page";
+
 const Finance = () => {
   const totalExpenses = () => {
     return (
@@ -247,6 +249,9 @@ const Finance = () => {
 
   return (
     <div>
+      <div>
+        <All />
+      </div>
       {/* <div className="grid grid-cols-12 gap-4">
         <div className="col-span-6">{totalExpenses()}</div>
         <div className="col-span-6 ">{cashCollection()}</div>
