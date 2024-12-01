@@ -8,7 +8,7 @@ import Skeleton from "@mui/material/Skeleton";
 import { AppHelpers } from "@/Helper/AppHelpers";
 import Link from "next/link";
 import DateFilters2 from "@/components/generic/DateFilters2";
-import { format } from "date-fns";
+import { startOfMonth, endOfMonth, format } from "date-fns";
 
 const ListServiceTable = ({
   handleDateChange,
@@ -40,25 +40,30 @@ const ListServiceTable = ({
       queryParams.push(`start_date=${startDate}`);
       queryParams.push(`end_date=${endDate}`);
     } else {
-      const currentDate = format(new Date(), "yyyy-MM-dd");
-      queryParams.push(`start_date=${currentDate}`);
-      queryParams.push(`end_date=${currentDate}`);
+      const currentDate = new Date();
+      const startDate = startOfMonth(currentDate);
+      const endDate = endOfMonth(currentDate);
+      const queryParams = [];
+      queryParams.push(`start_date=${format(startDate, "yyyy-MM-dd")}`);
+      queryParams.push(`end_date=${format(endDate, "yyyy-MM-dd")}`);
     }
 
     try {
-      const response = await api.getDataWithToken(
-        `${serviceInvoice}?${queryParams.join("&")}`
-      );
-
-      let filteredData = response.data;
-      if (statusFilter !== "all") {
-        filteredData = response.data.filter(
-          (invoice) => invoice.status.toLowerCase() === statusFilter
+      if (queryParams.length > 0) {
+        const response = await api.getDataWithToken(
+          `${serviceInvoice}?${queryParams.join("&")}`
         );
-      }
 
-      setQuoteList(filteredData);
-      updateTotalAmount(filteredData);
+        let filteredData = response.data;
+        if (statusFilter !== "all") {
+          filteredData = response.data.filter(
+            (invoice) => invoice.status.toLowerCase() === statusFilter
+          );
+        }
+
+        setQuoteList(filteredData);
+        updateTotalAmount(filteredData);
+      }
     } catch (error) {
       console.error("Error fetching quotes:", error);
       setQuoteList([]);
@@ -181,9 +186,7 @@ const ListServiceTable = ({
 };
 
 const Invoices = () => {
-  // Function to get date parameters from URL
   const getDateParamsFromUrl = () => {
-    // Check if window is defined (client-side)
     if (typeof window !== "undefined") {
       const searchParams = new URL(window.location.href).searchParams;
 
@@ -197,21 +200,13 @@ const Invoices = () => {
     }
     return { startDate: null, endDate: null };
   };
-
-  // Initialize with current date
-  const currentDate = format(new Date(), "yyyy-MM-dd");
-  const [startDate, setStartDate] = useState(currentDate);
-  const [endDate, setEndDate] = useState(currentDate);
+  const { startDate: urlStartDate, endDate: urlEndDate } =
+    getDateParamsFromUrl();
+  const [startDate, setStartDate] = useState(urlStartDate);
+  const [endDate, setEndDate] = useState(urlEndDate);
   const [totalAmount, setTotalAmount] = useState(0);
   const [statusFilter, setStatusFilter] = useState("all");
-
-  // Effect to set dates from URL on component mount
   useEffect(() => {
-    // Extract date parameters from URL
-    const { startDate: urlStartDate, endDate: urlEndDate } =
-      getDateParamsFromUrl();
-
-    // If URL parameters exist, use them; otherwise, use current date
     if (urlStartDate && urlEndDate) {
       setStartDate(urlStartDate);
       setEndDate(urlEndDate);
@@ -278,10 +273,17 @@ const Invoices = () => {
               Unpaid
             </button>
           </div>
-
-          <div className="bg-green-600 text-white font-semibold text-base h-11 w-52 flex justify-center items-center px-4 py-3 rounded-lg">
-            <DateFilters2 onDateChange={handleDateChange} />
-          </div>
+          {urlStartDate ? (
+            // Show start and end dates when urlStartDate is set
+            <div>
+              <p>Start Date: {urlStartDate}</p>
+              <p>End Date: {urlEndDate || "Not Set"}</p>
+            </div>
+          ) : (
+            <div className="bg-green-600 text-white font-semibold text-base h-11 w-52 flex justify-center items-center px-4 py-3 rounded-lg">
+              <DateFilters2 onDateChange={handleDateChange} />
+            </div>
+          )}
         </div>
       </div>
 

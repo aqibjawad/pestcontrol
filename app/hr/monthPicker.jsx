@@ -1,23 +1,25 @@
-import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const MonthPicker = ({ onMonthChanged }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const currentDate = new Date();
 
   const formatDisplayDate = (date) => {
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      year: 'numeric' 
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      year: "numeric",
     });
   };
 
   const formatDate = (date) => {
-    return date.toISOString().slice(0, 7); // Returns YYYY-MM format
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    return `${year}-${month}`;
   };
 
   const previousMonth = () => {
-    setSelectedDate(prevDate => {
+    setSelectedDate((prevDate) => {
       const newDate = new Date(prevDate.getFullYear(), prevDate.getMonth() - 1);
       onMonthChanged(formatDate(newDate));
       return newDate;
@@ -25,37 +27,36 @@ const MonthPicker = ({ onMonthChanged }) => {
   };
 
   const nextMonth = () => {
-    setSelectedDate(prevDate => {
+    setSelectedDate((prevDate) => {
       const newDate = new Date(prevDate.getFullYear(), prevDate.getMonth() + 1);
       onMonthChanged(formatDate(newDate));
       return newDate;
     });
   };
 
-  const canGoNext = selectedDate.getFullYear() < currentDate.getFullYear() ||
+  const canGoNext =
+    selectedDate.getFullYear() < currentDate.getFullYear() ||
     (selectedDate.getFullYear() === currentDate.getFullYear() &&
-     selectedDate.getMonth() < currentDate.getMonth());
+      selectedDate.getMonth() < currentDate.getMonth());
 
   return (
     <div className="h-[50px] bg-white rounded-lg shadow-sm flex items-center justify-between px-4">
-      <button 
+      <button
         onClick={previousMonth}
         className="p-2 hover:bg-gray-100 rounded-full"
       >
         <ChevronLeft className="w-5 h-5" />
       </button>
-      
+
       <span className="font-bold text-green-600 text-base">
         {formatDisplayDate(selectedDate)}
       </span>
-      
-      <button 
+
+      <button
         onClick={nextMonth}
         disabled={!canGoNext}
         className={`p-2 rounded-full ${
-          canGoNext 
-            ? 'hover:bg-gray-100' 
-            : 'opacity-50 cursor-not-allowed'
+          canGoNext ? "hover:bg-gray-100" : "opacity-50 cursor-not-allowed"
         }`}
       >
         <ChevronRight className="w-5 h-5" />
