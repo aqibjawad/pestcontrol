@@ -122,7 +122,7 @@ const Finance = () => {
             <GreenButton title={"Vendor"} />
           </div> */}
 
-          <AllClients />
+          {/* <AllClients /> */}
         </div>
       </div>
     );
@@ -249,7 +249,7 @@ const Finance = () => {
 
   return (
     <div>
-      <div>
+      <div className="mb-10">
         <All />
       </div>
       {/* <div className="grid grid-cols-12 gap-4">
@@ -261,7 +261,7 @@ const Finance = () => {
         <div className="col-span-6 ">{bankCollection()}</div>
       </div> */}
 
-      <CommissionCal />
+      <CommissionCal  />
       <div className="mt-10 mb-10">{accountStatement()}</div>
 
       <div className="grid grid-cols-12 gap-4">
