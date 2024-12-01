@@ -76,7 +76,7 @@ const Pending = () => {
                   <CircularProgress />
                 </TableCell>
               </TableRow>
-            ) : quoteList.length > 0 ? (
+            ) : quoteList?.length > 0 ? (
               quoteList.map((row, index) => (
                 <TableRow key={index}>
                   <TableCell>{index + 1}</TableCell>

@@ -55,7 +55,10 @@ const Vehciles = () => {
 
   // Calculate the total sum of the total_amount field
   const calculateTotalAmount = () => {
-    return expenseList.reduce((sum, row) => sum + (parseFloat(row.total_amount) || 0), 0);
+    return expenseList.reduce(
+      (sum, row) => sum + (parseFloat(row.total_amount) || 0),
+      0
+    );
   };
 
   const listServiceTable = () => {
@@ -96,7 +99,7 @@ const Vehciles = () => {
             </tr>
           </thead>
           <tbody>
-            {expenseList.map((row, index) => (
+            {expenseList?.map((row, index) => (
               <tr key={index} className="border-b border-gray-200">
                 <td className="py-5 px-4">{index + 1}</td>
                 <td className="py-2 px-4">

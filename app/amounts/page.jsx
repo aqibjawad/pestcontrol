@@ -1,15 +1,15 @@
 "use client";
 
-import React from 'react';
-import AllPayments from './allAmounts';
+import React from "react";
+import AllPayments from "./allAmounts";
 import withAuth from "@/utils/withAuth";
 
-const Page =()=>{
-    return(
-        <div>
-            <AllPayments />
-        </div>
-    )
-}
+const Page = () => {
+  return (
+    <div>
+      <AllPayments />
+    </div>
+  );
+};
 
 export default withAuth(Page);

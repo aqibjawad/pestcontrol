@@ -86,7 +86,7 @@ const AllClients = () => {
               {Array.from({ length: 5 }).map((_, index) => (
                 <tr key={index} className="border-b border-gray-200">
                   <td className="py-5 px-4">
-                    <Skeleton />
+                    <Skeleton width={500} />
                   </td>
                   <td className="py-2 px-4">
                     <Skeleton />
@@ -134,7 +134,10 @@ const AllClients = () => {
                 Sr No
               </th>
               <th className="py-5 px-4 border-b border-gray-200 text-left">
-                Customer
+                Client Name
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Sales Man
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Phone Number
@@ -167,6 +170,7 @@ const AllClients = () => {
               <tr key={index} className="border-b border-gray-200">
                 <td className="py-5 px-4">{index + 1}</td>
                 <td className="py-5 px-4">{row.name}</td>
+                <td className="py-5 px-4">{row?.client.referencable?.name}</td>
                 <td className="py-2 px-4">{row?.client?.phone_number}</td>
                 <td className="py-5 px-4">{row.email}</td>
                 <td className="py-2 px-4">{row?.client?.firm_name}</td>

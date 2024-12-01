@@ -8,9 +8,9 @@ import GreenButton from "@/components/generic/GreenButton";
 import AllClients from "../../../clients/all";
 
 import AllPayments from "../../../amounts/allAmounts";
+import CommissionCal from "@/app/hr/comCal/page";
 
 const Finance = () => {
-  
   const totalExpenses = () => {
     return (
       <div className={styles.itemContainer}>
@@ -107,7 +107,7 @@ const Finance = () => {
   const accountStatement = () => {
     return (
       <div>
-        <div className="pageTitle">Statement of Account</div>
+        <div className="pageTitle"></div>
         <div className="flex">
           {/* <div className="flex-grow">
             <div className="mt-5">
@@ -121,7 +121,6 @@ const Finance = () => {
 
           <AllClients />
         </div>
-        
       </div>
     );
   };
@@ -255,10 +254,12 @@ const Finance = () => {
         <div className="col-span-6">{posCollection()}</div>
         <div className="col-span-6 ">{bankCollection()}</div>
       </div> */}
+
+      <CommissionCal />
       <div className="mt-10 mb-10">{accountStatement()}</div>
 
       <div className="grid grid-cols-12 gap-4">
-        <div className="col-span-6 ">
+        <div className="col-span-12 ">
           <AllPayments />
         </div>
         {/* <div className="col-span-6 ">{paymentReceipt()}</div>

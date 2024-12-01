@@ -174,7 +174,7 @@ const Page = () => {
           <div className={selectedIndex === 0 ? `block` : "hidden"}>
             <Operations />
             <AllJobs />
-            <Vendors />
+            {/* <Vendors /> */}
             <Quotation />
             <Contracts />
           </div>
@@ -230,8 +230,8 @@ const Page = () => {
             variant="scrollable"
             aria-label="Main tabs"
           >
-            <Tab label="Employee" />
-            <Tab label="Payments" />
+            <Tab label="Employees" />
+            <Tab label="Pending Payments" />
           </Tabs>
 
           <Box sx={{ p: 3 }}>

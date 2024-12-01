@@ -117,7 +117,8 @@ const All = () => {
   };
 
   const handlePaidDateChange = (start, end) => {
-    fetchPaidInvoices(start, end);
+    console.log("Paid date change", start);
+    // fetchPaidInvoices(start, end);
   };
 
   const handleUnpaidDateChange = (start, end) => {

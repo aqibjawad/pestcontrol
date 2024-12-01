@@ -4,6 +4,14 @@ import PropTypes from "prop-types";
 import DatePicker from "react-datepicker"; // For custom range selection
 import "react-datepicker/dist/react-datepicker.css"; // Import DatePicker styles
 import styles from "../../styles/dateFilter.module.css";
+import {
+  startOfMonth,
+  endOfMonth,
+  startOfWeek,
+  endOfWeek,
+  subMonths,
+  format,
+} from "date-fns";
 
 const DateFilters2 = ({ onDateChange }) => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -17,22 +25,34 @@ const DateFilters2 = ({ onDateChange }) => {
     const today = new Date();
     let start, end;
 
-    if (option === "This Month") {
-      start = new Date(today.getFullYear(), today.getMonth(), 1);
-      end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-      setCustomRange(false);
-    } else if (option === "Last Month") {
-      start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-      end = new Date(today.getFullYear(), today.getMonth(), 0);
-      setCustomRange(false);
-    } else if (option === "This Week") {
-      start = new Date(today.setDate(today.getDate() - today.getDay() + 1));
-      end = new Date(today.setDate(today.getDate() - today.getDay() + 7));
-      setCustomRange(false);
-    } else if (option === "Custom Range") {
-      setCustomRange(true);
-      start = null;
-      end = null;
+    switch (option) {
+      case "This Month":
+        start = startOfMonth(today);
+        end = endOfMonth(today);
+        setCustomRange(false);
+        break;
+
+      case "Last Month":
+        const lastMonth = subMonths(today, 1);
+        start = startOfMonth(lastMonth);
+        end = endOfMonth(lastMonth);
+        setCustomRange(false);
+        break;
+
+      case "This Week":
+        start = startOfWeek(today, { weekStartsOn: 1 }); // Monday as start of week
+        end = endOfWeek(today, { weekStartsOn: 1 });
+        setCustomRange(false);
+        break;
+
+      case "Custom Range":
+        setCustomRange(true);
+        start = null;
+        end = null;
+        break;
+
+      default:
+        break;
     }
 
     setStartDate(start);
@@ -41,12 +61,13 @@ const DateFilters2 = ({ onDateChange }) => {
     setTitle(option);
 
     if (onDateChange && start && end) {
-      const formattedStart = formatDate(start);
-      const formattedEnd = formatDate(end);
+      // Format dates consistently
+      const formattedStart = format(start, "yyyy-MM-dd");
+      const formattedEnd = format(end, "yyyy-MM-dd");
       onDateChange(formattedStart, formattedEnd);
     }
 
-    setAnchorEl(null); // Close the popover
+    setAnchorEl(null);
   };
 
   const formatDate = (date) => {

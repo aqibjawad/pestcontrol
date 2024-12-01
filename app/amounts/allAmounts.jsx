@@ -44,9 +44,21 @@ const ListServiceTable = ({
       queryParams.push(`start_date=${startDate}`);
       queryParams.push(`end_date=${endDate}`);
     } else {
-      const currentDate = format(new Date(), "yyyy-MM-dd");
-      queryParams.push(`start_date=${currentDate}`);
-      queryParams.push(`end_date=${currentDate}`);
+      // const currentDate = new Date();
+      // const firstDateOfMonth = new Date(
+      //   currentDate.getFullYear(),
+      //   currentDate.getMonth(),
+      //   1
+      // ); // 1st of the current month
+      // const lastDateOfMonth = new Date(
+      //   currentDate.getFullYear(),
+      //   currentDate.getMonth() + 1,
+      //   0
+      // ); // Last day of the current month
+      // const formattedFirstDateOfMonth = format(firstDateOfMonth, "yyyy-MM-dd");
+      // const formattedLastDateOfMonth = format(lastDateOfMonth, "yyyy-MM-dd");
+      // queryParams.push(`start_date=${formattedFirstDateOfMonth}`);
+      // queryParams.push(`end_date=${formattedLastDateOfMonth}`);
     }
 
     try {
@@ -75,106 +87,108 @@ const ListServiceTable = ({
 
   return (
     <div className={tableStyles.tableContainer}>
-      <table className="min-w-full bg-white">
-        <thead>
-          <tr>
-            <th className="py-5 px-4 border-b border-gray-200 text-left">
-              Sr.
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Invoice Issue Date
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Client
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Paid Amount
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Total Amount
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Status
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Action
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {loadingDetails
-            ? Array.from({ length: 5 }).map((_, index) => (
-                <tr key={index} className="border-b border-gray-200">
-                  <td className="py-5 px-4">
-                    <Skeleton variant="rectangular" width={30} height={20} />
-                  </td>
-                  <td className="py-2 px-4">
-                    <Skeleton variant="rectangular" width={120} height={20} />
-                  </td>
-                  <td className="py-2 px-4">
-                    <Skeleton variant="rectangular" width={150} height={20} />
-                  </td>
-                  <td className="py-2 px-4">
-                    <Skeleton variant="rectangular" width={100} height={20} />
-                  </td>
-                  <td className="py-2 px-4">
-                    <Skeleton variant="rectangular" width={100} height={20} />
-                  </td>
-                  <td className="py-2 px-4">
-                    <Skeleton variant="rectangular" width={80} height={20} />
-                  </td>
-                  <td className="py-2 px-4">
-                    <Skeleton variant="rectangular" width={100} height={20} />
-                  </td>
-                </tr>
-              ))
-            : invoiceList?.map((row, index) => (
-                <tr key={index} className="border-b border-gray-200">
-                  <td className="py-5 px-4">{index + 1}</td>
-                  <td className="py-2 px-4">
-                    <div className={tableStyles.clientContact}>
-                      {formatDate(row.issued_date)}
-                    </div>
-                  </td>
-                  <td className="py-2 px-4">
-                    <div className={tableStyles.clientContact}>
-                      {row?.user?.name || "N/A"}
-                    </div>
-                  </td>
-                  <td className="py-2 px-4">
-                    <div className={tableStyles.clientContact}>
-                      {row.paid_amt || 0}
-                    </div>
-                  </td>
-                  <td className="py-2 px-4">
-                    <div className={tableStyles.clientContact}>
-                      {row.total_amt || 0}
-                    </div>
-                  </td>
-                  <td className="py-2 px-4">
-                    <div
-                      className={`${tableStyles.clientContact} ${
-                        row.status.toLowerCase() === "paid"
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }`}
-                    >
-                      {row.status}
-                    </div>
-                  </td>
-                  <td className="py-2 px-4">
-                    <div className={tableStyles.clientContact}>
-                      <Link href={`/invoiceDetails?id=${row.id}`}>
-                        <span className="text-blue-600 hover:text-blue-800">
-                          View Details
-                        </span>
-                      </Link>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-        </tbody>
-      </table>
+      <div class="max-h-[500px] overflow-y-auto">
+        <table className="min-w-full bg-white">
+          <thead>
+            <tr>
+              <th className="py-5 px-4 border-b border-gray-200 text-left">
+                Sr.
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Invoice Issue Date
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Client
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Paid Amount
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Total Amount
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Status
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Action
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {loadingDetails
+              ? Array.from({ length: 5 }).map((_, index) => (
+                  <tr key={index} className="border-b border-gray-200">
+                    <td className="py-5 px-4">
+                      <Skeleton variant="rectangular" width={30} height={20} />
+                    </td>
+                    <td className="py-2 px-4">
+                      <Skeleton variant="rectangular" width={120} height={20} />
+                    </td>
+                    <td className="py-2 px-4">
+                      <Skeleton variant="rectangular" width={150} height={20} />
+                    </td>
+                    <td className="py-2 px-4">
+                      <Skeleton variant="rectangular" width={100} height={20} />
+                    </td>
+                    <td className="py-2 px-4">
+                      <Skeleton variant="rectangular" width={100} height={20} />
+                    </td>
+                    <td className="py-2 px-4">
+                      <Skeleton variant="rectangular" width={80} height={20} />
+                    </td>
+                    <td className="py-2 px-4">
+                      <Skeleton variant="rectangular" width={100} height={20} />
+                    </td>
+                  </tr>
+                ))
+              : invoiceList?.map((row, index) => (
+                  <tr key={index} className="border-b border-gray-200">
+                    <td className="py-5 px-4">{index + 1}</td>
+                    <td className="py-2 px-4">
+                      <div className={tableStyles.clientContact}>
+                        {formatDate(row.issued_date)}
+                      </div>
+                    </td>
+                    <td className="py-2 px-4">
+                      <div className={tableStyles.clientContact}>
+                        {row?.user?.name || "N/A"}
+                      </div>
+                    </td>
+                    <td className="py-2 px-4">
+                      <div className={tableStyles.clientContact}>
+                        {row.paid_amt || 0}
+                      </div>
+                    </td>
+                    <td className="py-2 px-4">
+                      <div className={tableStyles.clientContact}>
+                        {row.total_amt || 0}
+                      </div>
+                    </td>
+                    <td className="py-2 px-4">
+                      <div
+                        className={`${tableStyles.clientContact} ${
+                          row.status.toLowerCase() === "paid"
+                            ? "text-green-600"
+                            : "text-red-600"
+                        }`}
+                      >
+                        {row.status}
+                      </div>
+                    </td>
+                    <td className="py-2 px-4">
+                      <div className={tableStyles.clientContact}>
+                        <Link href={`/invoiceDetails?id=${row.id}`}>
+                          <span className="text-blue-600 hover:text-blue-800">
+                            View Details
+                          </span>
+                        </Link>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
