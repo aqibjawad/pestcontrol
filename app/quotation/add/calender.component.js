@@ -8,6 +8,7 @@ const CalendarComponent = ({
   isDateSelectable,
 }) => {
   const [selectedDates, setSelectedDates] = useState(initialDates);
+  const [startDate, setStartDate] = useState(new Date());
 
   useEffect(() => {
     if (JSON.stringify(selectedDates) !== JSON.stringify(initialDates)) {
@@ -25,20 +26,27 @@ const CalendarComponent = ({
   };
 
   const handleDateChange = (date) => {
-    if (!date) return;
-
-    const formattedDate = formatDate(date);
+    const formattedDate = formatDate(date); // Convert selected date to string
     let newDates;
 
-    if (selectedDates.includes(formattedDate)) {
-      // If date is already selected, remove it
-      newDates = selectedDates.filter((d) => d !== formattedDate);
+    console.log("Formatted date:", formattedDate);
+    console.log("Selected dates (before):", selectedDates);
+
+    // Ensure comparison is done on formatted dates
+    const formattedSelectedDates = selectedDates.map((d) => formatDate(d));
+
+    if (formattedSelectedDates.includes(formattedDate)) {
+      // Remove date if already selected
+      newDates = selectedDates.filter((d) => formatDate(d) !== formattedDate);
+      console.log("Removing date (if):", formattedDate);
     } else {
-      // If date is not selected, add it
-      newDates = [...selectedDates, formattedDate];
+      // Add date if not already selected
+      newDates = [...selectedDates, date];
+      console.log("Adding date (else):", formattedDate);
     }
 
     setSelectedDates(newDates);
+    console.log("Selected dates (after):", newDates);
     onDateChange(newDates);
   };
 
@@ -55,7 +63,7 @@ const CalendarComponent = ({
   return (
     <div className="w-full max-w-md mx-auto">
       <DatePicker
-        selected={null}
+        selected={startDate}
         onChange={handleDateChange}
         inline
         highlightDates={getHighlightedDates()}

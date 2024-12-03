@@ -94,6 +94,9 @@ const ListServiceTable = ({
               Client
             </th>
             <th className="py-2 px-4 border-b border-gray-200 text-left">
+              Reference
+            </th>
+            <th className="py-2 px-4 border-b border-gray-200 text-left">
               Paid Amount
             </th>
             <th className="py-2 px-4 border-b border-gray-200 text-left">
@@ -132,6 +135,9 @@ const ListServiceTable = ({
                   <td className="py-2 px-4">
                     <Skeleton variant="rectangular" width={100} height={20} />
                   </td>
+                  <td className="py-2 px-4">
+                    <Skeleton variant="rectangular" width={100} height={20} />
+                  </td>
                 </tr>
               ))
             : invoiceList?.map((row, index) => (
@@ -147,6 +153,12 @@ const ListServiceTable = ({
                       {row?.user?.name || "N/A"}
                     </div>
                   </td>
+                  <td className="py-2 px-4">
+                    <div className={tableStyles.clientContact}>
+                      {row?.user?.client?.referencable?.name || "N/A"}
+                    </div>
+                  </td>
+
                   <td className="py-2 px-4">
                     <div className={tableStyles.clientContact}>
                       {row.paid_amt || 0}

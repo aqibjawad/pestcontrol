@@ -1,5 +1,7 @@
-const baseURL =
-  "http://backend-pestcontrol.worldcitizenconsultants.com/new/public";
+// const baseURL =
+//   "http://backend-pestcontrol.worldcitizenconsultants.com/new/public";
+
+const baseURL = "https://api.dubaiaccuratepestcontrolservices.com";
 const apiPrefix = baseURL + "/api";
 
 export const login = apiPrefix + "/login";
@@ -73,4 +75,3 @@ export const supplierPayment = apiPrefix + "/add_payment";
 export const payments = apiPrefix + "/received_cash_record";
 
 export const admin = apiPrefix + "/ledger/get";
-
