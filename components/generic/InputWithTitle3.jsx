@@ -1,4 +1,3 @@
-"use client";
 import React, { useState } from "react";
 import { format, parseISO } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
@@ -23,7 +22,6 @@ const InputWithTitle3 = ({
 
   const handleDateChange = (date) => {
     if (!date) return;
-    // Format date to ISO string and only take the date part
     const formattedDate = format(date, "yyyy-MM-dd");
     onChange(name, formattedDate);
     setOpen(false);
@@ -32,7 +30,6 @@ const InputWithTitle3 = ({
   const formatDisplayDate = (dateString) => {
     try {
       if (!dateString) return "";
-      // Parse the ISO date string
       const date = parseISO(dateString);
       return format(date, "PPP");
     } catch (error) {
@@ -71,12 +68,19 @@ const InputWithTitle3 = ({
                 )}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
+            <PopoverContent 
+              className="w-auto p-0 z-50" 
+              align="start"
+              side="bottom"
+              sideOffset={4}
+              style={{ zIndex: 9999 }}
+            >
               <Calendar
                 mode="single"
                 selected={value ? parseISO(value) : undefined}
                 onSelect={handleDateChange}
                 initialFocus
+                className="rounded-md border shadow-md bg-white"
               />
             </PopoverContent>
           </Popover>

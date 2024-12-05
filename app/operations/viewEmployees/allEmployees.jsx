@@ -29,6 +29,8 @@ const AllEmployees = () => {
   const [expenseList, setEmployeesList] = useState([]);
   const [loading, setLoading] = useState({});
 
+  const [formData, setFormData] = useState({});
+
   useEffect(() => {
     getAllExpenses();
   }, []);
@@ -61,7 +63,7 @@ const AllEmployees = () => {
     if (currentStatus === 1) {
       const result = await Swal.fire({
         title: "Are you sure?",
-        text: `Do you want to fire ${employeeName}?`,
+        text: `Do you want to fire?`,
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
@@ -137,9 +139,9 @@ const AllEmployees = () => {
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Contact
               </th>
-              {/* <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Status
-              </th> */}
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Fired
+              </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Action
               </th>
@@ -175,7 +177,7 @@ const AllEmployees = () => {
                       {row.employee.phone_number || "null"}
                     </div>
                   </td>
-                  {/* <td className="py-2 px-4">
+                  <td className="py-2 px-4">
                     <div
                       className={tableStyles.clientContact}
                       style={{
@@ -194,11 +196,11 @@ const AllEmployees = () => {
                         size="small"
                         style={{ cursor: "pointer" }}
                       />
-                      // <span style={{ marginLeft: "4px" }}>
-                      //   {row.is_active === 1 ? "Inactive" : "Active"}
-                      // </span> 
+                      <span style={{ marginLeft: "4px" }}>
+                        {row.is_active === 1 ? "Inactive" : "Active"}
+                      </span>
                     </div>
-                  </td> */}
+                  </td>
                   <td className="py-2 px-4">
                     <div className={tableStyles.clientContact}>
                       <Link href={`/hr/employeeDetails?id=${row.id}`}>
@@ -242,10 +244,6 @@ const AllEmployees = () => {
   const handleClose = () => setOpen(false);
 
   const [productImage, setProductForImage] = useState();
-  const handleFileSelect = (file) => {
-    setProductForImage(file);
-    onChange("profile_image", file);
-  };
 
   const renderSkeleton = () => (
     <div className={tableStyles.tableContainer}>
@@ -306,6 +304,140 @@ const AllEmployees = () => {
     </div>
   );
 
+  // useEffect(() => {
+  //   if (selectedEmployee) {
+  //     setFormData({
+  //       eid_start: selectedEmployee?.employee?.eid_start || "",
+  //       eid_expiry: selectedEmployee?.employee?.eid_expiry || "",
+  //       passport_start: selectedEmployee?.employee?.passport_start || "",
+  //       passport_expiry: selectedEmployee?.employee?.passport_expiry || "",
+  //       hi_start: selectedEmployee?.employee?.hi_start || "",
+  //       hi_expiry: selectedEmployee?.employee?.hi_expiry || "",
+  //       ui_start: selectedEmployee?.employee?.ui_start || "",
+  //       ui_expiry: selectedEmployee?.employee?.ui_expiry || "",
+  //       dm_start: selectedEmployee?.employee?.dm_start || "",
+  //       dm_expiry: selectedEmployee?.employee?.dm_expiry || "",
+  //       labour_card_expiry:
+  //         selectedEmployee?.employee?.labour_card_expiry || "",
+  //       profile_image: selectedEmployee?.employee?.profile_image || null,
+  //     });
+  //   }
+  // }, [selectedEmployee]);
+
+  const handleFileSelect = (file) => {
+    setProductForImage(file);
+    setFormData((prev) => ({
+      ...prev,
+      profile_image: file,
+    }));
+  };
+
+  const onChange = (name, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // const handleSubmit = async () => {
+  //   try {
+  //     // Create FormData object for file upload
+  //     const formDataObj = new FormData();
+
+  //     // Append all form fields
+  //     Object.keys(formData).forEach((key) => {
+  //       if (formData[key] !== null && formData[key] !== "") {
+  //         formDataObj.append(key, formData[key]);
+  //       }
+  //     });
+
+  //     // Add employee ID
+  //     formDataObj.append("user_id", selectedEmployee.id);
+
+  //     const response = await api.postFormDataWithToken(
+  //       `${getAllEmpoyesUrl}/update`,
+  //       formDataObj
+  //     );
+
+  //     if (response.status === "success") {
+  //       await Swal.fire({
+  //         title: "Success",
+  //         text: "Employee details updated successfully",
+  //         icon: "success",
+  //         timer: 2000,
+  //         showConfirmButton: false,
+  //       });
+
+  //       handleClose();
+  //       getAllExpenses();
+  //     }
+  //   } catch (error) {
+  //     console.error("Error updating employee:", error);
+  //     await Swal.fire({
+  //       title: "Error",
+  //       text: "There was an error updating the employee details",
+  //       icon: "error",
+  //     });
+  //   }
+  // };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Use formData instead of selectedEmployee?.employee
+    const obj = {
+      user_id: selectedEmployee.id,
+      eid_start:
+        formData.eid_start || selectedEmployee?.employee?.eid_start || "",
+      eid_expiry:
+        formData.eid_expiry || selectedEmployee?.employee?.eid_expiry || "",
+      passport_start:
+        formData.passport_start ||
+        selectedEmployee?.employee?.passport_start ||
+        "",
+      passport_expiry:
+        formData.passport_expiry ||
+        selectedEmployee?.employee?.passport_expiry ||
+        "",
+      hi_start: formData.hi_start || selectedEmployee?.employee?.hi_start || "",
+      hi_expiry:
+        formData.hi_expiry || selectedEmployee?.employee?.hi_expiry || "",
+      ui_start: formData.ui_start || selectedEmployee?.employee?.ui_start || "",
+      ui_expiry:
+        formData.ui_expiry || selectedEmployee?.employee?.ui_expiry || "",
+      dm_start: formData.dm_start || selectedEmployee?.employee?.dm_start || "",
+      dm_expiry:
+        formData.dm_expiry || selectedEmployee?.employee?.dm_expiry || "",
+      labour_card_expiry:
+        formData.labour_card_expiry ||
+        selectedEmployee?.employee?.labour_card_expiry ||
+        "",
+      profile_image:
+        formData.profile_image ||
+        selectedEmployee?.employee?.profile_image ||
+        null,
+    };
+
+    const response = await api.postFormDataWithToken(
+      `${getAllEmpoyesUrl}/update`,
+      obj
+    );
+
+    if (response.status === "success") {
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Data has been added successfully!",
+      });
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: `${response.error.message}`,
+      });
+    }
+  };
+
   return (
     <div>
       <div className="flex">
@@ -345,7 +477,7 @@ const AllEmployees = () => {
                 type="date"
                 placeholder="EID Start"
                 name="eid_start"
-                value={selectedEmployee?.employee?.eid_start || ""}
+                value={formData.eid_start || ""}
                 onChange={(name, value) => onChange("eid_start", value)}
               />
             </Grid>
@@ -454,6 +586,10 @@ const AllEmployees = () => {
             <Grid item xs={12}>
               <Button variant="contained" onClick={handleClose}>
                 Close
+              </Button>
+
+              <Button variant="contained" onClick={handleSubmit}>
+                submit
               </Button>
             </Grid>
           </Grid>
