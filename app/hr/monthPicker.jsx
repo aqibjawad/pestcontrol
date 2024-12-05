@@ -1,43 +1,60 @@
 import React, { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  format,
+  startOfMonth,
+  endOfMonth,
+  addMonths,
+  isBefore,
+  isAfter,
+} from "date-fns";
 
 const MonthPicker = ({ onDateChange }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const currentDate = new Date();
 
   const formatDisplayDate = (date) => {
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      year: "numeric",
-    });
+    return format(date, "MMM yyyy");
   };
 
-  const formatDate = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    return `${year}-${month}`;
+  const getMonthDates = (date) => {
+    const start = startOfMonth(date);
+    const end = endOfMonth(date);
+
+    return {
+      startDate: format(start, "yyyy-MM-dd"),
+      endDate: format(end, "yyyy-MM-dd"),
+    };
   };
 
   const previousMonth = () => {
     setSelectedDate((prevDate) => {
-      const newDate = new Date(prevDate.getFullYear(), prevDate.getMonth() - 1);
-      onDateChange(formatDate(newDate));
+      const newDate = addMonths(prevDate, -1);
+      const dates = getMonthDates(newDate);
+      onDateChange(dates);
       return newDate;
     });
   };
 
   const nextMonth = () => {
     setSelectedDate((prevDate) => {
-      const newDate = new Date(prevDate.getFullYear(), prevDate.getMonth() + 1);
-      onDateChange(formatDate(newDate));
+      const newDate = addMonths(prevDate, 1);
+      const dates = getMonthDates(newDate);
+      onDateChange(dates);
       return newDate;
     });
   };
 
-  const canGoNext =
-    selectedDate.getFullYear() < currentDate.getFullYear() ||
-    (selectedDate.getFullYear() === currentDate.getFullYear() &&
-      selectedDate.getMonth() < currentDate.getMonth());
+  const canGoNext = isBefore(
+    startOfMonth(selectedDate),
+    startOfMonth(currentDate)
+  );
+
+  // Initialize with current month's dates
+  React.useEffect(() => {
+    const dates = getMonthDates(selectedDate);
+    onDateChange(dates);
+  }, []);
 
   return (
     <div className="h-[50px] bg-white rounded-lg shadow-sm flex items-center justify-between px-4">

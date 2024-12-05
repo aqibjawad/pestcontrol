@@ -55,18 +55,17 @@ const FinancialDashboard = () => {
   };
 
   // Fetch all financial data based on selected month
-  const fetchFinancialData = async () => {
+  const fetchFinancialData = async (startDate, endDate) => {
     setFetchingData(true);
-    const { startDate, endDate } = formatStartEndDates(selectedDate);
 
     try {
-      // Parallel API calls for different data points
+      // Parallel API calls with the received dates
       await Promise.all([
         getFinancial(startDate, endDate),
         getVehiclesExpense(startDate, endDate),
         getAllExpenses(startDate, endDate),
         getPending(startDate, endDate),
-        getBank(),
+        getBank(startDate, endDate),
         getPos(startDate, endDate),
         getCash(startDate, endDate),
       ]);
@@ -77,10 +76,11 @@ const FinancialDashboard = () => {
     }
   };
 
-  const handleExpenseDateChange = (start, end) => {
-    fetchFinancialData(start, end);
+  const handleDateChange = ({ startDate, endDate }) => {
+    // Will receive dates in format: "2024-12-01" and "2024-12-31"
+    console.log(startDate, endDate);
+    fetchFinancialData(startDate, endDate);
   };
-
   useEffect(() => {
     fetchFinancialData();
   }, [selectedDate]);
@@ -149,11 +149,13 @@ const FinancialDashboard = () => {
     }
   };
 
-  const getBank = async () => {
+  const getBank = async (startDate, endDate) => {
     try {
       const response = await api.getDataWithToken(
         `${dashboard}/bank_collection?start_date=${startDate}&end_date=${endDate}`
       );
+      console.log(response);
+
       setBankList(response.data);
     } catch (error) {
       console.error(error.message);
@@ -275,7 +277,10 @@ const FinancialDashboard = () => {
         <h1 className="text-2xl font-bold"> Financial Report </h1>
       </div>
 
-      <MonthPicker onDateChange={handleExpenseDateChange} />
+      <MonthPicker
+        onDateChange={handleDateChange}
+        onChange={(date) => setSelectedDate(date)}
+      />
 
       {fetchingData ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
