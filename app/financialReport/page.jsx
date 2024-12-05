@@ -5,6 +5,8 @@ import { Skeleton } from "@mui/material";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
+import MonthPicker from "../hr/monthPicker";
+
 import {
   dashboard,
   vehciles,
@@ -150,7 +152,7 @@ const FinancialDashboard = () => {
   const getBank = async () => {
     try {
       const response = await api.getDataWithToken(
-        `${dashboard}/bank_collection`
+        `${dashboard}/bank_collection?start_date=${startDate}&end_date=${endDate}`
       );
       setBankList(response.data);
     } catch (error) {
@@ -194,16 +196,27 @@ const FinancialDashboard = () => {
   ];
 
   const calculateClosingTotal = () => {
-    return closingData.reduce(
+    const includedCategories = [
+      "Paid Salaries",
+      "Paid Comissions",
+      "Vehicles Expense",
+      "Expenses",
+    ];
+
+    const filteredData = closingData.filter((item) =>
+      includedCategories.includes(item.category)
+    );
+
+    return filteredData.reduce(
       (sum, item) => sum + parseFloat(item.amount || 0),
       0
     );
   };
 
   const detailData = [
-    { category: "Cash", amount: cashList.total_cash },
-    { category: "POS", amount: posList.total_pos },
-    { category: "Bank", amount: bankList.total_cheque_transfer },
+    { category: "Cash", amount: cashList?.total_cash },
+    { category: "POS", amount: posList?.total_pos },
+    { category: "Bank", amount: bankList?.total_cheque_transfer },
     { category: "Pending Payments", amount: paymentList },
   ];
 
@@ -257,20 +270,12 @@ const FinancialDashboard = () => {
   return (
     <div className="max-w-6xl mx-auto p-6">
       {/* Header with Month Picker */}
-      <div
-        style={{
-          padding: "5px",
-          backgroundColor: "#32a92e",
-          borderRadius: "50px",
-          fontSize: "13px",
-          width:'15%'
-        }}
-      >
-        <DateFilters2 onDateChange={handleExpenseDateChange} />
-      </div>
+      <div></div>
       <div className="mt-5 bg-green-600 text-white p-4 rounded-lg mb-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold"> Financial Report </h1>
       </div>
+
+      <MonthPicker onDateChange={handleExpenseDateChange} />
 
       {fetchingData ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

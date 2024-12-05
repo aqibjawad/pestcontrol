@@ -155,7 +155,7 @@ const Page = () => {
         </Grid>
 
         {/* Add Customer */}
-        <Grid lg={12} item xs={12}>
+        {/* <Grid lg={12} item xs={12}>
           <div style={{ border: "1px solid black", padding: "10px" }}>
             <div
               style={{
@@ -198,7 +198,7 @@ const Page = () => {
               </Grid>
             </Grid>
           </div>
-        </Grid>
+        </Grid> */}
 
         {/* Add Clients */}
         <Grid lg={12} item xs={12}>

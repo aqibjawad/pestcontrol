@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-const MonthPicker = ({ onMonthChanged }) => {
+const MonthPicker = ({ onDateChange }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const currentDate = new Date();
 
@@ -21,7 +21,7 @@ const MonthPicker = ({ onMonthChanged }) => {
   const previousMonth = () => {
     setSelectedDate((prevDate) => {
       const newDate = new Date(prevDate.getFullYear(), prevDate.getMonth() - 1);
-      onMonthChanged(formatDate(newDate));
+      onDateChange(formatDate(newDate));
       return newDate;
     });
   };
@@ -29,7 +29,7 @@ const MonthPicker = ({ onMonthChanged }) => {
   const nextMonth = () => {
     setSelectedDate((prevDate) => {
       const newDate = new Date(prevDate.getFullYear(), prevDate.getMonth() + 1);
-      onMonthChanged(formatDate(newDate));
+      onDateChange(formatDate(newDate));
       return newDate;
     });
   };
