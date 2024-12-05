@@ -14,10 +14,15 @@ const CommissionCal = () => {
   const [fetchingData, setFetchingData] = useState(false);
   const [employeeList, setEmployeeList] = useState([]);
   const [processingPayments, setProcessingPayments] = useState({});
-
   const [selectedMonth, setSelectedMonth] = useState(
     new Date().toISOString().slice(0, 7)
   );
+
+  const handleDateChange = (dates) => {
+    // Convert the start date to YYYY-MM format for the API
+    const monthStr = dates.startDate.slice(0, 7);
+    setSelectedMonth(monthStr);
+  };
 
   const getAllEmployees = async () => {
     setFetchingData(true);
@@ -42,15 +47,11 @@ const CommissionCal = () => {
     getAllEmployees();
   }, [selectedMonth]);
 
-  useEffect(() => {
-    getAllEmployees();
-  }, []);
-
   return (
-    <div>
-      <MonthPicker onMonthChanged={(date) => setSelectedMonth(date)} />
+    <>
+      <MonthPicker onDateChange={handleDateChange} />
 
-      {fetchingData ? (
+       {fetchingData ? (
         <CircularProgress />
       ) : (
         <>
@@ -103,7 +104,7 @@ const CommissionCal = () => {
           </div>
         </>
       )}
-    </div>
+    </>
   );
 };
 

@@ -49,7 +49,7 @@ const MonthPicker = ({ onDateChange }) => {
     startOfMonth(selectedDate),
     startOfMonth(currentDate)
   );
-
+ 
   // Initialize with current month's dates
   React.useEffect(() => {
     const dates = getMonthDates(selectedDate);
