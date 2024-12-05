@@ -22,6 +22,10 @@ import { FaPencil } from "react-icons/fa6";
 import InputWithTitle3 from "../../../components/generic/InputWithTitle3";
 import UploadImagePlaceholder from "../../../components/generic/uploadImage";
 
+import GreenButton from "@/components/generic/GreenButton";
+
+import CircularProgress from "@mui/material/CircularProgress";
+
 const AllEmployees = () => {
   const api = new APICall();
 
@@ -30,6 +34,21 @@ const AllEmployees = () => {
   const [loading, setLoading] = useState({});
 
   const [formData, setFormData] = useState({});
+
+  const [eidStart, setEidStart] = useState("");
+  const [eidExpiry, setEidExpiry] = useState("");
+  const [passportStart, setPassportStart] = useState("");
+  const [passportExpiry, setPassportExpiry] = useState("");
+  const [hiStart, setHiStart] = useState("");
+  const [hiExpiry, setHiExpiry] = useState("");
+  const [uiStart, setUiStart] = useState("");
+  const [uiExpiry, setUiExpiry] = useState("");
+  const [dmStart, setDmStart] = useState("");
+  const [dmExpiry, setDmExpiry] = useState("");
+  const [labourCardExpiry, setLabourCardExpiry] = useState("");
+  const [profileImage, setProfileImage] = useState(null);
+
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
 
   useEffect(() => {
     getAllExpenses();
@@ -196,9 +215,6 @@ const AllEmployees = () => {
                         size="small"
                         style={{ cursor: "pointer" }}
                       />
-                      <span style={{ marginLeft: "4px" }}>
-                        {row.is_active === 1 ? "Inactive" : "Active"}
-                      </span>
                     </div>
                   </td>
                   <td className="py-2 px-4">
@@ -304,32 +320,8 @@ const AllEmployees = () => {
     </div>
   );
 
-  // useEffect(() => {
-  //   if (selectedEmployee) {
-  //     setFormData({
-  //       eid_start: selectedEmployee?.employee?.eid_start || "",
-  //       eid_expiry: selectedEmployee?.employee?.eid_expiry || "",
-  //       passport_start: selectedEmployee?.employee?.passport_start || "",
-  //       passport_expiry: selectedEmployee?.employee?.passport_expiry || "",
-  //       hi_start: selectedEmployee?.employee?.hi_start || "",
-  //       hi_expiry: selectedEmployee?.employee?.hi_expiry || "",
-  //       ui_start: selectedEmployee?.employee?.ui_start || "",
-  //       ui_expiry: selectedEmployee?.employee?.ui_expiry || "",
-  //       dm_start: selectedEmployee?.employee?.dm_start || "",
-  //       dm_expiry: selectedEmployee?.employee?.dm_expiry || "",
-  //       labour_card_expiry:
-  //         selectedEmployee?.employee?.labour_card_expiry || "",
-  //       profile_image: selectedEmployee?.employee?.profile_image || null,
-  //     });
-  //   }
-  // }, [selectedEmployee]);
-
   const handleFileSelect = (file) => {
-    setProductForImage(file);
-    setFormData((prev) => ({
-      ...prev,
-      profile_image: file,
-    }));
+    setProfileImage(file);
   };
 
   const onChange = (name, value) => {
@@ -339,101 +331,110 @@ const AllEmployees = () => {
     }));
   };
 
-  // const handleSubmit = async () => {
-  //   try {
-  //     // Create FormData object for file upload
-  //     const formDataObj = new FormData();
+  useEffect(() => {
+    if (selectedEmployee?.employee) {
+      setEidStart(selectedEmployee.employee.eid_start || "");
+      setEidExpiry(selectedEmployee.employee.eid_expiry || "");
+      setPassportStart(selectedEmployee.employee.passport_start || "");
+      setPassportExpiry(selectedEmployee.employee.passport_expiry || "");
+      setHiStart(selectedEmployee.employee.hi_start || "");
+      setHiExpiry(selectedEmployee.employee.hi_expiry || "");
+      setUiStart(selectedEmployee.employee.ui_start || "");
+      setUiExpiry(selectedEmployee.employee.ui_expiry || "");
+      setDmStart(selectedEmployee.employee.dm_start || "");
+      setDmExpiry(selectedEmployee.employee.dm_expiry || "");
+      setLabourCardExpiry(selectedEmployee.employee.labour_card_expiry || "");
+      setProfileImage(selectedEmployee.employee.profile_image || null);
+    }
+  }, [selectedEmployee]);
 
-  //     // Append all form fields
-  //     Object.keys(formData).forEach((key) => {
-  //       if (formData[key] !== null && formData[key] !== "") {
-  //         formDataObj.append(key, formData[key]);
-  //       }
-  //     });
+  const handleChange = (name, value) => {
+    switch (name) {
+      case "eid_start":
+        setEidStart(value);
+        break;
+      case "eid_expiry":
+        setEidExpiry(value);
+        break;
+      case "passport_start":
+        setPassportStart(value);
+        break;
+      case "passport_expiry":
+        setPassportExpiry(value);
+        break;
+      case "hi_start":
+        setHiStart(value);
+        break;
+      case "hi_expiry":
+        setHiExpiry(value);
+        break;
+      case "ui_start":
+        setUiStart(value);
+        break;
+      case "ui_expiry":
+        setUiExpiry(value);
+        break;
+      case "dm_start":
+        setDmStart(value);
+        break;
+      case "dm_expiry":
+        setDmExpiry(value);
+        break;
+      case "labour_card_expiry":
+        setLabourCardExpiry(value);
+        break;
+      default:
+        break;
+    }
+  };
 
-  //     // Add employee ID
-  //     formDataObj.append("user_id", selectedEmployee.id);
-
-  //     const response = await api.postFormDataWithToken(
-  //       `${getAllEmpoyesUrl}/update`,
-  //       formDataObj
-  //     );
-
-  //     if (response.status === "success") {
-  //       await Swal.fire({
-  //         title: "Success",
-  //         text: "Employee details updated successfully",
-  //         icon: "success",
-  //         timer: 2000,
-  //         showConfirmButton: false,
-  //       });
-
-  //       handleClose();
-  //       getAllExpenses();
-  //     }
-  //   } catch (error) {
-  //     console.error("Error updating employee:", error);
-  //     await Swal.fire({
-  //       title: "Error",
-  //       text: "There was an error updating the employee details",
-  //       icon: "error",
-  //     });
-  //   }
-  // };
-
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoadingSubmit(true);
 
-    // Use formData instead of selectedEmployee?.employee
-    const obj = {
+    const formData = {
       user_id: selectedEmployee.id,
-      eid_start:
-        formData.eid_start || selectedEmployee?.employee?.eid_start || "",
-      eid_expiry:
-        formData.eid_expiry || selectedEmployee?.employee?.eid_expiry || "",
-      passport_start:
-        formData.passport_start ||
-        selectedEmployee?.employee?.passport_start ||
-        "",
-      passport_expiry:
-        formData.passport_expiry ||
-        selectedEmployee?.employee?.passport_expiry ||
-        "",
-      hi_start: formData.hi_start || selectedEmployee?.employee?.hi_start || "",
-      hi_expiry:
-        formData.hi_expiry || selectedEmployee?.employee?.hi_expiry || "",
-      ui_start: formData.ui_start || selectedEmployee?.employee?.ui_start || "",
-      ui_expiry:
-        formData.ui_expiry || selectedEmployee?.employee?.ui_expiry || "",
-      dm_start: formData.dm_start || selectedEmployee?.employee?.dm_start || "",
-      dm_expiry:
-        formData.dm_expiry || selectedEmployee?.employee?.dm_expiry || "",
-      labour_card_expiry:
-        formData.labour_card_expiry ||
-        selectedEmployee?.employee?.labour_card_expiry ||
-        "",
-      profile_image:
-        formData.profile_image ||
-        selectedEmployee?.employee?.profile_image ||
-        null,
+      eid_start: eidStart,
+      eid_expiry: eidExpiry,
+      passport_start: passportStart,
+      passport_expiry: passportExpiry,
+      hi_start: hiStart,
+      hi_expiry: hiExpiry,
+      ui_start: uiStart,
+      ui_expiry: uiExpiry,
+      dm_start: dmStart,
+      dm_expiry: dmExpiry,
+      labour_card_expiry: labourCardExpiry,
+      profile_image: profileImage,
     };
 
-    const response = await api.postFormDataWithToken(
-      `${getAllEmpoyesUrl}/update`,
-      obj
-    );
+    try {
+      const response = await api.postFormDataWithToken(
+        `${getAllEmpoyesUrl}/update`,
+        formData
+      );
 
-    if (response.status === "success") {
-      Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: "Data has been added successfully!",
-      });
-    } else {
+      if (response.status === "success") {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Data has been added successfully!",
+        });
+        handleClose();
+        window.location.reload();
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: `${response.error.message}`,
+        });
+      }
+    } catch (error) {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: `${response.error.message}`,
+        text: "An error occurred while updating the data",
       });
     }
   };
@@ -468,7 +469,7 @@ const AllEmployees = () => {
           <UploadImagePlaceholder
             onFileSelect={handleFileSelect}
             title={"Profile Image"}
-            imageUrl={selectedEmployee?.employee?.profile_image}
+            imageUrl={profileImage}
           />
           <Grid container spacing={2}>
             <Grid item xs={3}>
@@ -477,8 +478,8 @@ const AllEmployees = () => {
                 type="date"
                 placeholder="EID Start"
                 name="eid_start"
-                value={formData.eid_start || ""}
-                onChange={(name, value) => onChange("eid_start", value)}
+                value={eidStart}
+                onChange={handleChange}
               />
             </Grid>
             <Grid item xs={3}>
@@ -487,8 +488,8 @@ const AllEmployees = () => {
                 type="date"
                 placeholder="EID End"
                 name="eid_expiry"
-                value={selectedEmployee?.employee?.eid_expiry || ""}
-                onChange={(name, value) => onChange("eid_expiry", value)}
+                value={eidExpiry}
+                onChange={handleChange}
               />
             </Grid>
             <Grid item xs={3}>
@@ -497,8 +498,8 @@ const AllEmployees = () => {
                 type="date"
                 placeholder="Passport Start"
                 name="passport_start"
-                value={selectedEmployee?.employee?.passport_start || ""}
-                onChange={(name, value) => onChange("passport_start", value)}
+                value={passportStart}
+                onChange={handleChange}
               />
             </Grid>
             <Grid item xs={3}>
@@ -507,8 +508,8 @@ const AllEmployees = () => {
                 type="date"
                 placeholder="Passport End"
                 name="passport_expiry"
-                value={selectedEmployee?.employee?.passport_expiry || ""}
-                onChange={(name, value) => onChange("passport_expiry", value)}
+                value={passportExpiry}
+                onChange={handleChange}
               />
             </Grid>
             <Grid item xs={3}>
@@ -517,8 +518,8 @@ const AllEmployees = () => {
                 type="date"
                 placeholder="Health Insurance Start"
                 name="hi_start"
-                value={selectedEmployee?.employee?.hi_start || ""}
-                onChange={(name, value) => onChange("hi_start", value)}
+                value={hiStart}
+                onChange={handleChange}
               />
             </Grid>
             <Grid item xs={3}>
@@ -527,8 +528,8 @@ const AllEmployees = () => {
                 type="date"
                 placeholder="Health Insurance End"
                 name="hi_expiry"
-                value={selectedEmployee?.employee?.hi_expiry || ""}
-                onChange={(name, value) => onChange("hi_expiry", value)}
+                value={hiExpiry}
+                onChange={handleChange}
               />
             </Grid>
             <Grid item xs={3}>
@@ -537,8 +538,8 @@ const AllEmployees = () => {
                 type="date"
                 placeholder="UnEmployment Start"
                 name="ui_start"
-                value={selectedEmployee?.employee?.ui_start || ""}
-                onChange={(name, value) => onChange("ui_start", value)}
+                value={uiStart}
+                onChange={handleChange}
               />
             </Grid>
             <Grid item xs={3}>
@@ -547,8 +548,8 @@ const AllEmployees = () => {
                 type="date"
                 placeholder="UnEmployment End"
                 name="ui_expiry"
-                value={selectedEmployee?.employee?.ui_expiry || ""}
-                onChange={(name, value) => onChange("ui_expiry", value)}
+                value={uiExpiry}
+                onChange={handleChange}
               />
             </Grid>
             <Grid item xs={3}>
@@ -557,8 +558,8 @@ const AllEmployees = () => {
                 type="date"
                 placeholder="DM Card Start"
                 name="dm_start"
-                value={selectedEmployee?.employee?.dm_start || ""}
-                onChange={(name, value) => onChange("dm_start", value)}
+                value={dmStart}
+                onChange={handleChange}
               />
             </Grid>
             <Grid item xs={3}>
@@ -567,8 +568,8 @@ const AllEmployees = () => {
                 type="date"
                 placeholder="DM Card Expiry"
                 name="dm_expiry"
-                value={selectedEmployee?.employee?.dm_expiry || ""}
-                onChange={(name, value) => onChange("dm_expiry", value)}
+                value={dmExpiry}
+                onChange={handleChange}
               />
             </Grid>
             <Grid item xs={3}>
@@ -577,19 +578,40 @@ const AllEmployees = () => {
                 type="date"
                 placeholder="Labour Card Expiry"
                 name="labour_card_expiry"
-                value={selectedEmployee?.employee?.labour_card_expiry || ""}
-                onChange={(name, value) =>
-                  onChange("labour_card_expiry", value)
-                }
+                value={labourCardExpiry}
+                onChange={handleChange}
               />
             </Grid>
-            <Grid item xs={12}>
-              <Button variant="contained" onClick={handleClose}>
+          </Grid>
+          <Grid
+            container
+            spacing={2}
+            justifyContent="flex-end"
+            alignItems="center"
+            className="mt-5"
+          >
+            {/* Submit Button */}
+            <Grid item lg={6}>
+              <GreenButton
+                onClick={handleSubmit}
+                title={
+                  loadingSubmit ? (
+                    <CircularProgress size={20} color="inherit" />
+                  ) : (
+                    "Submit"
+                  )
+                }
+                disabled={loadingSubmit}
+              />
+            </Grid>
+            {/* Close Button */}
+            <Grid item lg={6}>
+              <Button
+                sx={{ width: "100%" }}
+                variant="contained"
+                onClick={handleClose}
+              >
                 Close
-              </Button>
-
-              <Button variant="contained" onClick={handleSubmit}>
-                submit
               </Button>
             </Grid>
           </Grid>
