@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Switch } from "@mui/material";
 import { format } from "date-fns";
 import Swal from "sweetalert2";
+import CircularProgress from "@mui/material/CircularProgress"; // Import CircularProgress for loader
 
 const FiredEmployees = () => {
   const api = new APICall();
@@ -35,7 +36,7 @@ const FiredEmployees = () => {
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
         cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, fire employee!",
+        confirmButtonText: "Yes, Reactive employee again!",
       });
 
       if (!result.isConfirmed) {
@@ -48,13 +49,13 @@ const FiredEmployees = () => {
     try {
       if (currentStatus === 1) {
         const response = await api.getDataWithToken(
-          `${getAllEmpoyesUrl}/reactivate/${employeeId}`
+          `${getAllEmpoyesUrl}/reactive/${employeeId}`
         );
 
         if (response.status === "success") {
           await Swal.fire({
             title: "Employee Fired",
-            text: `${employeeName} has been fired successfully`,
+            text: `Employee has been Reactive again`,
             icon: "success",
             timer: 2000,
             showConfirmButton: false,
@@ -66,7 +67,7 @@ const FiredEmployees = () => {
       } else {
         // Handle status toggle for reactivation
         const response = await api.getDataWithToken(
-          `${getAllEmpoyesUrl}/reactivate/${employeeId}`
+          `${getAllEmpoyesUrl}/reactive/${employeeId}`
         );
 
         if (response.success) {
@@ -94,59 +95,62 @@ const FiredEmployees = () => {
   const jobTable = () => {
     return (
       <div className={styles.tableContainer}>
-        <table className="min-w-full bg-white">
-          <thead>
-            <tr>
-              <th className="py-5 px-4 border-b border-gray-200 text-left">
-                Name
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Fired At
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Active
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {vendorsData?.map((row, index) => (
-              <tr key={index} className="border-b border-gray-200">
-                <td className="py-5 px-4">
-                  <div className={styles.clientName}>{row.name}</div>
-                  <div className={styles.clientEmail}>{row.email}</div>
-                </td>
-                <td className="py-2 px-4">
-                  {row.fired_at
-                    ? format(new Date(row.fired_at), "yyyy-MM-dd")
-                    : "Not Fired"}
-                </td>
-                <td className="py-2 px-4">
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                    }}
-                  >
-                    <Switch
-                      checked={row.is_active === 0}
-                      onChange={(e) =>
-                        handleStatusToggle(e, row.id, row.is_active)
-                      }
-                      disabled={loading[row.id]}
-                      color="primary"
-                      size="small"
-                      style={{ cursor: "pointer" }}
-                    />
-                    <span style={{ marginLeft: "4px" }}>
-                      {row.is_active === 1 ? "Inactive" : "Active"}
-                    </span>
-                  </div>
-                </td>
+        {fetchingData ? (
+          <div className="flex justify-center py-10">
+            <CircularProgress />
+          </div>
+        ) : (
+          <table className="min-w-full bg-white">
+            <thead>
+              <tr>
+                <th className="py-5 px-4 border-b border-gray-200 text-left">
+                  Name
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 text-left">
+                  Fired At
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 text-left">
+                  Active
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {vendorsData?.map((row, index) => (
+                <tr key={index} className="border-b border-gray-200">
+                  <td className="py-5 px-4">
+                    <div className={styles.clientName}>{row.name}</div>
+                    <div className={styles.clientEmail}>{row.email}</div>
+                  </td>
+                  <td className="py-2 px-4">
+                    {row.fired_at
+                      ? format(new Date(row.fired_at), "yyyy-MM-dd")
+                      : "Not Fired"}
+                  </td>
+                  <td className="py-2 px-4">
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                      }}
+                    >
+                      <Switch
+                        checked={row.is_active === 0}
+                        onChange={(e) =>
+                          handleStatusToggle(e, row.id, row.is_active)
+                        }
+                        disabled={loading[row.id]}
+                        color="primary"
+                        size="small"
+                        style={{ cursor: "pointer" }}
+                      />
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     );
   };

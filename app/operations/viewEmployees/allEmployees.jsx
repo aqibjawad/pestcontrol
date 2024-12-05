@@ -106,7 +106,7 @@ const AllEmployees = () => {
         if (response.status === "success") {
           await Swal.fire({
             title: "Employee Fired",
-            text: `${employeeName} has been fired successfully`,
+            text: `Employee has been fired successfully`,
             icon: "success",
             timer: 2000,
             showConfirmButton: false,
