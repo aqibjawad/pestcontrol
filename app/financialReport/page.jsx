@@ -15,6 +15,8 @@ import {
 import APICall from "../../networkUtil/APICall";
 import withAuth from "@/utils/withAuth";
 
+import DateFilters2 from "@/components/generic/DateFilters2";
+
 const FinancialDashboard = () => {
   const api = new APICall();
 
@@ -71,6 +73,10 @@ const FinancialDashboard = () => {
     } finally {
       setFetchingData(false);
     }
+  };
+
+  const handleExpenseDateChange = (start, end) => {
+    fetchFinancialData(start, end);
   };
 
   useEffect(() => {
@@ -167,9 +173,18 @@ const FinancialDashboard = () => {
   };
 
   const closingData = [
-    { category: "Total Payable to suppliers", amount: allClientsList?.supplier_balance || 0 },
-    { category: "Selected Month Purchase", amount: allClientsList?.purchase_order || 0 },
-    { category: "Paid Salaries", amount: allClientsList?.paid_employee_salary || 0,},
+    {
+      category: "Total Payable to suppliers",
+      amount: allClientsList?.supplier_balance || 0,
+    },
+    {
+      category: "Selected Month Purchase",
+      amount: allClientsList?.purchase_order || 0,
+    },
+    {
+      category: "Paid Salaries",
+      amount: allClientsList?.paid_employee_salary || 0,
+    },
     {
       category: "Paid Comissions",
       amount: allClientsList?.paid_employee_comm || 0,
@@ -242,17 +257,19 @@ const FinancialDashboard = () => {
   return (
     <div className="max-w-6xl mx-auto p-6">
       {/* Header with Month Picker */}
+      <div
+        style={{
+          padding: "5px",
+          backgroundColor: "#32a92e",
+          borderRadius: "50px",
+          fontSize: "13px",
+          width:'15%'
+        }}
+      >
+        <DateFilters2 onDateChange={handleExpenseDateChange} />
+      </div>
       <div className="mt-5 bg-green-600 text-white p-4 rounded-lg mb-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold"> Financial Report </h1>
-        <div>
-          <DatePicker
-            selected={selectedDate}
-            onChange={(date) => setSelectedDate(date)}
-            dateFormat="MM/yyyy"
-            showMonthYearPicker
-            className="bg-white text-green-800 px-3 py-2 rounded"
-          />
-        </div>
       </div>
 
       {fetchingData ? (

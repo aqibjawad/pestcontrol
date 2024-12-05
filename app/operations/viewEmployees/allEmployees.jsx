@@ -1,6 +1,14 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Skeleton, Switch } from "@mui/material";
+import {
+  Skeleton,
+  Switch,
+  Modal,
+  Box,
+  Grid,
+  Typography,
+  Button,
+} from "@mui/material";
 import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
 import Link from "next/link";
 
@@ -9,11 +17,16 @@ import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
 
 import Swal from "sweetalert2";
 
+import { FaPencil } from "react-icons/fa6";
+
+import InputWithTitle3 from "../../../components/generic/InputWithTitle3";
+import UploadImagePlaceholder from "../../../components/generic/uploadImage";
+
 const AllEmployees = () => {
   const api = new APICall();
 
   const [fetchingData, setFetchingData] = useState(false);
-  const [expenseList, setExpenseList] = useState([]);
+  const [expenseList, setEmployeesList] = useState([]);
   const [loading, setLoading] = useState({});
 
   useEffect(() => {
@@ -24,7 +37,7 @@ const AllEmployees = () => {
     setFetchingData(true);
     try {
       const response = await api.getDataWithToken(`${getAllEmpoyesUrl}`);
-      setExpenseList(response.data);
+      setEmployeesList(response.data);
     } catch (error) {
       console.error("Error fetching employees:", error);
     } finally {
@@ -82,7 +95,7 @@ const AllEmployees = () => {
         }
       } else {
         if (response.success) {
-          setExpenseList((prevList) =>
+          setEmployeesList((prevList) =>
             prevList.map((employee) =>
               employee.id === employeeId
                 ? { ...employee, is_active: currentStatus === 1 ? 0 : 1 }
@@ -129,6 +142,9 @@ const AllEmployees = () => {
               </th> */}
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Action
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Update
               </th>
             </tr>
           </thead>
@@ -192,6 +208,14 @@ const AllEmployees = () => {
                       </Link>
                     </div>
                   </td>
+                  <td className="py-2 px-4">
+                    <div className={tableStyles.clientContact}>
+                      <FaPencil
+                        onClick={() => handleOpen(row)} // Pass the current employee data
+                        style={{ cursor: "pointer", color: "blue" }}
+                      />
+                    </div>
+                  </td>
                 </tr>
               ))
             ) : (
@@ -205,6 +229,22 @@ const AllEmployees = () => {
         </table>
       </div>
     );
+  };
+
+  const [open, setOpen] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+
+  const handleOpen = (employee) => {
+    setSelectedEmployee(employee);
+    setOpen(true);
+  };
+
+  const handleClose = () => setOpen(false);
+
+  const [productImage, setProductForImage] = useState();
+  const handleFileSelect = (file) => {
+    setProductForImage(file);
+    onChange("profile_image", file);
   };
 
   const renderSkeleton = () => (
@@ -275,6 +315,150 @@ const AllEmployees = () => {
       </div>
 
       {fetchingData ? renderSkeleton() : listServiceTable()}
+
+      <Modal open={open} onClose={handleClose}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "57%",
+            transform: "translate(-50%, -50%)",
+            width: 1300,
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+            borderRadius: 2,
+          }}
+        >
+          <Typography variant="h6" component="h2" mb={2}>
+            {selectedEmployee?.name}
+          </Typography>
+          <UploadImagePlaceholder
+            onFileSelect={handleFileSelect}
+            title={"Profile Image"}
+            imageUrl={selectedEmployee?.employee?.profile_image}
+          />
+          <Grid container spacing={2}>
+            <Grid item xs={3}>
+              <InputWithTitle3
+                title="EID Start"
+                type="date"
+                placeholder="EID Start"
+                name="eid_start"
+                value={selectedEmployee?.employee?.eid_start || ""}
+                onChange={(name, value) => onChange("eid_start", value)}
+              />
+            </Grid>
+            <Grid item xs={3}>
+              <InputWithTitle3
+                title="EID End"
+                type="date"
+                placeholder="EID End"
+                name="eid_expiry"
+                value={selectedEmployee?.employee?.eid_expiry || ""}
+                onChange={(name, value) => onChange("eid_expiry", value)}
+              />
+            </Grid>
+            <Grid item xs={3}>
+              <InputWithTitle3
+                title="Passport Start"
+                type="date"
+                placeholder="Passport Start"
+                name="passport_start"
+                value={selectedEmployee?.employee?.passport_start || ""}
+                onChange={(name, value) => onChange("passport_start", value)}
+              />
+            </Grid>
+            <Grid item xs={3}>
+              <InputWithTitle3
+                title="Passport End"
+                type="date"
+                placeholder="Passport End"
+                name="passport_expiry"
+                value={selectedEmployee?.employee?.passport_expiry || ""}
+                onChange={(name, value) => onChange("passport_expiry", value)}
+              />
+            </Grid>
+            <Grid item xs={3}>
+              <InputWithTitle3
+                title="Health Insurance Start"
+                type="date"
+                placeholder="Health Insurance Start"
+                name="hi_start"
+                value={selectedEmployee?.employee?.hi_start || ""}
+                onChange={(name, value) => onChange("hi_start", value)}
+              />
+            </Grid>
+            <Grid item xs={3}>
+              <InputWithTitle3
+                title="Health Insurance End"
+                type="date"
+                placeholder="Health Insurance End"
+                name="hi_expiry"
+                value={selectedEmployee?.employee?.hi_expiry || ""}
+                onChange={(name, value) => onChange("hi_expiry", value)}
+              />
+            </Grid>
+            <Grid item xs={3}>
+              <InputWithTitle3
+                title="UnEmployment Start"
+                type="date"
+                placeholder="UnEmployment Start"
+                name="ui_start"
+                value={selectedEmployee?.employee?.ui_start || ""}
+                onChange={(name, value) => onChange("ui_start", value)}
+              />
+            </Grid>
+            <Grid item xs={3}>
+              <InputWithTitle3
+                title="UnEmployment End"
+                type="date"
+                placeholder="UnEmployment End"
+                name="ui_expiry"
+                value={selectedEmployee?.employee?.ui_expiry || ""}
+                onChange={(name, value) => onChange("ui_expiry", value)}
+              />
+            </Grid>
+            <Grid item xs={3}>
+              <InputWithTitle3
+                title="DM Card Start"
+                type="date"
+                placeholder="DM Card Start"
+                name="dm_start"
+                value={selectedEmployee?.employee?.dm_start || ""}
+                onChange={(name, value) => onChange("dm_start", value)}
+              />
+            </Grid>
+            <Grid item xs={3}>
+              <InputWithTitle3
+                title="DM Card Expiry"
+                type="date"
+                placeholder="DM Card Expiry"
+                name="dm_expiry"
+                value={selectedEmployee?.employee?.dm_expiry || ""}
+                onChange={(name, value) => onChange("dm_expiry", value)}
+              />
+            </Grid>
+            <Grid item xs={3}>
+              <InputWithTitle3
+                title="Labour Card Expiry"
+                type="date"
+                placeholder="Labour Card Expiry"
+                name="labour_card_expiry"
+                value={selectedEmployee?.employee?.labour_card_expiry || ""}
+                onChange={(name, value) =>
+                  onChange("labour_card_expiry", value)
+                }
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Button variant="contained" onClick={handleClose}>
+                Close
+              </Button>
+            </Grid>
+          </Grid>
+        </Box>
+      </Modal>
     </div>
   );
 };
