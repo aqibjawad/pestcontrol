@@ -2,6 +2,17 @@ import React, { useState } from "react";
 import Popover from "@mui/material/Popover";
 import PropTypes from "prop-types";
 import styles from "../../styles/dateFilter.module.css";
+import {
+  format,
+  startOfDay,
+  endOfDay,
+  startOfMonth,
+  endOfMonth,
+  startOfYear,
+  endOfYear,
+  subMonths,
+  parseISO,
+} from "date-fns";
 
 const DateFilters = ({ onOptionChange, onDateChange }) => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -17,34 +28,21 @@ const DateFilters = ({ onOptionChange, onDateChange }) => {
 
     switch (option) {
       case "today":
-        start = end = formatDateForInput(today);
+        start = format(startOfDay(today), "yyyy-MM-dd");
+        end = format(endOfDay(today), "yyyy-MM-dd");
         break;
       case "This Month":
-        start = formatDateForInput(
-          new Date(today.getFullYear(), today.getMonth(), 1)
-        );
-        end = formatDateForInput(
-          new Date(today.getFullYear(), today.getMonth() + 1, 0)
-        );
+        start = format(startOfMonth(today), "yyyy-MM-dd");
+        end = format(endOfMonth(today), "yyyy-MM-dd");
         break;
       case "Last Month":
-        // Calculate the start and end date of the last month
-        const firstDayLastMonth = new Date(
-          today.getFullYear(),
-          today.getMonth() - 1,
-          1
-        );
-        const lastDayLastMonth = new Date(
-          today.getFullYear(),
-          today.getMonth(),
-          0
-        );
-        start = formatDateForInput(firstDayLastMonth);
-        end = formatDateForInput(lastDayLastMonth);
+        const lastMonth = subMonths(today, 1);
+        start = format(startOfMonth(lastMonth), "yyyy-MM-dd");
+        end = format(endOfMonth(lastMonth), "yyyy-MM-dd");
         break;
       case "This Year":
-        start = formatDateForInput(new Date(today.getFullYear(), 0, 1));
-        end = formatDateForInput(new Date(today.getFullYear(), 11, 31));
+        start = format(startOfYear(today), "yyyy-MM-dd");
+        end = format(endOfYear(today), "yyyy-MM-dd");
         break;
       case "dateRange":
         // Don't set dates here, let the user pick them
@@ -64,10 +62,6 @@ const DateFilters = ({ onOptionChange, onDateChange }) => {
         onDateChange(start, end);
       }
     }
-  };
-
-  const formatDateForInput = (date) => {
-    return date.toISOString().split("T")[0];
   };
 
   const handleStartDateChange = (event) => {
@@ -100,12 +94,8 @@ const DateFilters = ({ onOptionChange, onDateChange }) => {
 
   const formatDisplayDate = (dateString) => {
     if (!dateString) return "";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-GB", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
+    const date = parseISO(dateString);
+    return format(date, "dd/MM/yyyy");
   };
 
   const handleClick = (event) => {
