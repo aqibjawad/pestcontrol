@@ -268,7 +268,12 @@ const Page = () => {
                         transition: "box-shadow 0.3s",
                       }}
                     >
-                      <CardContent>
+                      <CardContent
+                        onClick={() => handleEditClick(employee)}
+                        style={{
+                          cursor: "pointer",
+                        }}
+                      >
                         <Stack
                           direction="row"
                           alignItems="center"
@@ -286,7 +291,7 @@ const Page = () => {
                           >
                             {employee.name}
                           </Typography>
-                          <FaPencil
+                          {/* <FaPencil
                             size={16}
                             onClick={() => handleEditClick(employee)}
                             style={{
@@ -300,7 +305,7 @@ const Page = () => {
                             onMouseOut={(e) =>
                               (e.currentTarget.style.color = "#4CAF50")
                             }
-                          />
+                          /> */}
                         </Stack>
 
                         <Box sx={{ mt: 2 }}>
