@@ -6,7 +6,6 @@ import AllEmployees from "@/app/operations/viewEmployees/allEmployees";
 import SalarCal from "../salaryCal/page";
 import CommissionCal from "../comCal/page";
 
-import MonthPicker from "../monthPicker";
 import withAuth from "@/utils/withAuth";
 
 const Page = () => {

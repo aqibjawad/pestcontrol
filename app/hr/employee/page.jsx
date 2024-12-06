@@ -19,8 +19,8 @@ const Page = () => {
   const [sendingData, setSendingData] = useState(false);
   const [tabNames] = useState([
     "Personal Information",
-    "Insurance",
     "Other Information",
+    // "Other Information",
   ]);
 
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -205,14 +205,14 @@ const Page = () => {
           </div>
 
           <div className={selectedIndex === 1 ? `block` : "hidden"}>
-            <Insurance
+            <OtherInfo
               data={formData}
-              errors={errors.insurance}
+              errors={errors.OtherInfo}
               onChange={(field, value) => handleInputChange(field, value)}
             />
           </div>
 
-          <div className={selectedIndex === 2 ? `block` : "hidden"}>
+          {/* <div className={selectedIndex === 2 ? `block` : "hidden"}>
             <OtherInfo
               data={formData}
               errors={errors.otherInfo}
@@ -220,7 +220,7 @@ const Page = () => {
               handleSubmit={handleSubmit}
               sendingData={sendingData}
             />
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

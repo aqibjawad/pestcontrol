@@ -180,19 +180,37 @@ const Page = () => {
             {invoiceData.companyDetails.name}
           </Typography>
           <Typography variant="body2">
-            Greece Cluster Building K12, Office 12, International City
+            Warehouse No 1 Plot No 247-289, Al Qusais Industrial Area 4 , Dubai
+            - UAE
           </Typography>
           <Typography variant="body2">info@accuratepestcontrol.ae</Typography>
 
-          <Typography className="mt-5" variant="body2">
-            Bill To
-          </Typography>
-          <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-            {invoiceList?.user?.name}
-          </Typography>
-          <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-            {invoiceList?.user?.email}
-          </Typography>
+          <div className="mt-5">
+            <Typography className="" variant="body2">
+              Bill To
+            </Typography>
+            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              {invoiceList?.user?.name}
+            </Typography>
+            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              {invoiceList?.user?.email}
+            </Typography>
+            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              TRN: {invoiceList?.invoiceable?.trn}
+            </Typography>
+          </div>
+
+          <div className="mt-5">
+            <Typography className="" variant="body2">
+              Contact Person
+            </Typography>
+            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              {invoiceList?.user?.name}
+            </Typography>
+            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              {invoiceList?.user?.client?.mobile_number}
+            </Typography>
+          </div>
         </Grid>
 
         <Grid item xs={6}>
@@ -223,12 +241,25 @@ const Page = () => {
                   >
                     Total Amount
                   </TableCell>
+                  <TableCell
+                    sx={{
+                      color: "black",
+                      padding: "4px 16px",
+                      lineHeight: "1rem",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    VAT (%)
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 <TableRow>
                   <TableCell align="right"> General Pest Control </TableCell>
                   <TableCell align="right">{invoiceList?.total_amt}</TableCell>
+                  <TableCell align="right">
+                    {invoiceList?.invoiceable?.vat_per}
+                  </TableCell>
                 </TableRow>
               </TableBody>
             </Table>

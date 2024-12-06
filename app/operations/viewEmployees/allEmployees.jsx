@@ -137,7 +137,7 @@ const AllEmployees = () => {
                 Contact
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Fired
+                Status
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Action
@@ -184,7 +184,7 @@ const AllEmployees = () => {
                       }}
                     >
                       <Switch
-                        checked={row.is_active === 0}
+                        checked={row.is_active === 1}
                         onChange={(e) =>
                           handleStatusToggle(e, row.id, row.is_active)
                         }

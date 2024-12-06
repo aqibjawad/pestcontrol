@@ -246,7 +246,8 @@ const Page = () => {
             aria-label="Main tabs"
           >
             <Tab label="Employees" />
-            <Tab label="Pending Payments" />
+            <Tab label="Pending" />
+            <Tab label="Reschedule" />
           </Tabs>
 
           <Box sx={{ p: 3 }}>
@@ -400,6 +401,7 @@ const Page = () => {
                 )}
               </div>
             )}
+
             {selectedIndexTabs === 1 && (
               <TableContainer component={Paper}>
                 <Table>
@@ -445,6 +447,8 @@ const Page = () => {
                 </Table>
               </TableContainer>
             )}
+
+            {selectedIndexTabs === 2 && "test"}
           </Box>
         </div>
       </div>

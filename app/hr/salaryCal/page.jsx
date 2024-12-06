@@ -27,15 +27,17 @@ const SalaryCal = () => {
   const [attendance_per, setAttendance] = useState("");
   const [selectedMonth, setSelectedMonth] = useState(
     new Date().toISOString().slice(0, 7)
-  ); // YYYY-MM format
+  );
 
-  console.log(selectedMonth);
-  
+  const handleDateChange = (dates) => {
+    const monthStr = dates.startDate.slice(0, 7);
+    setSelectedMonth(monthStr);
+  };
 
   // Modal state
   const [openModal, setOpenModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
-  
+
   const [loadingSubmit, setLoadingSubmit] = useState(false);
 
   const getAllEmployees = async () => {
@@ -125,7 +127,7 @@ const SalaryCal = () => {
         }).then(() => {
           const employeeId = selectedEmployee?.user?.id || selectedEmployee?.id;
           console.log(employeeId);
-          
+
           if (!employeeId) {
             console.error("Employee ID is missing");
             return;
@@ -150,7 +152,7 @@ const SalaryCal = () => {
 
   return (
     <div>
-      <MonthPicker onMonthChanged={(date) => setSelectedMonth(date)} />
+      <MonthPicker onDateChange={handleDateChange} />
       <div className="mt-10 mb-10">
         <div className="pageTitle">Salary Calculations</div>
 

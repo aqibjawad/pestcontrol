@@ -31,7 +31,7 @@ const ContractSummary = ({ quote }) => {
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <TableCell align="center">{quote.dis_per}</TableCell>
-              <TableCell align="center">{quote.vat || 0}</TableCell>
+              <TableCell align="center">{quote.vat_per || 0}</TableCell>
               <TableCell align="center">{quote.sub_total}</TableCell>
               <TableCell align="center">{quote.grand_total}</TableCell>
             </TableRow>

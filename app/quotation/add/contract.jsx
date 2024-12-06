@@ -3,26 +3,29 @@ import { Grid, Box, Typography } from "@mui/material";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 
 const ContractSummary = ({ grandTotal, setFormData, formData }) => {
-  const [discount, setDiscount] = useState(0);
-  const [vat, setVAT] = useState(0);
+  const [dis_per, setDiscount] = useState(0);
+  const [vat_per, setVAT] = useState(0);
   const [finalTotal, setFinalTotal] = useState(grandTotal);
 
   useEffect(() => {
-    const discountAmount = discount; // Treat discount as a fixed amount
-    const vatAmount = ((grandTotal - discountAmount) * vat) / 100;
+    const discountPercentage = (dis_per / grandTotal) * 100;
+
+    const discountAmount = dis_per; // This is already the amount
+
+    const vatAmount = ((grandTotal - discountAmount) * vat_per) / 100;
+
     const totalWithVAT = grandTotal - discountAmount + vatAmount;
     setFinalTotal(totalWithVAT);
 
-    // Update formData with calculated values
     setFormData((prev) => ({
       ...prev,
-      discount,
-      vat,
+      dis_per: discountPercentage, 
+      vat_per,
       discountAmount,
       vatAmount,
       finalTotal: totalWithVAT,
     }));
-  }, [discount, vat, grandTotal]);
+  }, [dis_per, vat_per, grandTotal]);
 
   return (
     <Box
@@ -66,7 +69,7 @@ const ContractSummary = ({ grandTotal, setFormData, formData }) => {
               type="text"
               name="discount"
               placeholder="Enter Discount"
-              value={discount}
+              value={dis_per}
               onChange={(value) => setDiscount(parseFloat(value) || 0)}
               inputStyle={{ width: "100px" }}
             />
@@ -83,7 +86,7 @@ const ContractSummary = ({ grandTotal, setFormData, formData }) => {
               type="text"
               name="vat"
               placeholder="Enter VAT"
-              value={vat}
+              value={vat_per}
               onChange={(value) => setVAT(parseFloat(value) || 0)}
               inputStyle={{ width: "100px" }}
             />
