@@ -9,6 +9,7 @@ import Contracts from "../../../components/Contracts";
 import Finance from "../dashboard/components/Finance";
 import Reports from "./components/Reports";
 import Scheduler from "./components/Scheduler";
+import { FaPencil } from "react-icons/fa6";
 
 import APICall from "@/networkUtil/APICall";
 import { getAllEmpoyesUrl, payments } from "@/networkUtil/Constants";
@@ -38,6 +39,8 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 
+import EmployeeUpdateModal from "../../../components/employeeUpdate";
+
 const Page = () => {
   const [tabNames, setTabNames] = useState([
     "Work management",
@@ -51,7 +54,19 @@ const Page = () => {
   const [paymentList, setPaymentsList] = useState([]);
   const [fetchingData, setFetchingData] = useState(false);
   const [employeeList, setEmployeeList] = useState([]);
-  const [loading, setLoading] = useState({});
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+
+  const handleEditClick = (employee) => {
+    setSelectedEmployee(employee);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedEmployee(null);
+  };
 
   const tabs = () => {
     return (
@@ -271,6 +286,21 @@ const Page = () => {
                           >
                             {employee.name}
                           </Typography>
+                          <FaPencil
+                            size={16}
+                            onClick={() => handleEditClick(employee)}
+                            style={{
+                              cursor: "pointer",
+                              color: "#4CAF50",
+                              marginLeft: "auto", // This will push the pencil to the right
+                            }}
+                            onMouseOver={(e) =>
+                              (e.currentTarget.style.color = "#45a049")
+                            }
+                            onMouseOut={(e) =>
+                              (e.currentTarget.style.color = "#4CAF50")
+                            }
+                          />
                         </Stack>
 
                         <Box sx={{ mt: 2 }}>
@@ -413,6 +443,12 @@ const Page = () => {
           </Box>
         </div>
       </div>
+      {/* Add the EmployeeUpdateModal component */}
+      <EmployeeUpdateModal
+        open={isModalOpen}
+        handleClose={handleCloseModal}
+        selectedEmployee={selectedEmployee}
+      />
     </div>
   );
 };
