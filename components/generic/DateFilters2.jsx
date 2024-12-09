@@ -30,6 +30,7 @@ const DateFilters2 = ({ onDateChange }) => {
         start = startOfMonth(today);
         end = endOfMonth(today);
         setCustomRange(false);
+        setAnchorEl(null); // Close popover for non-custom options
         break;
 
       case "Last Month":
@@ -37,18 +38,21 @@ const DateFilters2 = ({ onDateChange }) => {
         start = startOfMonth(lastMonth);
         end = endOfMonth(lastMonth);
         setCustomRange(false);
+        setAnchorEl(null); // Close popover for non-custom options
         break;
 
       case "This Week":
-        start = startOfWeek(today, { weekStartsOn: 1 }); // Monday as start of week
+        start = startOfWeek(today, { weekStartsOn: 1 });
         end = endOfWeek(today, { weekStartsOn: 1 });
         setCustomRange(false);
+        setAnchorEl(null); // Close popover for non-custom options
         break;
 
       case "Custom Range":
         setCustomRange(true);
         start = null;
         end = null;
+        // Don't close the popover here
         break;
 
       default:
@@ -61,13 +65,10 @@ const DateFilters2 = ({ onDateChange }) => {
     setTitle(option);
 
     if (onDateChange && start && end) {
-      // Format dates consistently
       const formattedStart = format(start, "yyyy-MM-dd");
       const formattedEnd = format(end, "yyyy-MM-dd");
       onDateChange(formattedStart, formattedEnd);
     }
-
-    setAnchorEl(null);
   };
 
   const formatDate = (date) => {

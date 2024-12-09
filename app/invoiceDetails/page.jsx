@@ -172,6 +172,36 @@ const Page = () => {
     return `Total Amount AED ${numAmount.toFixed(2)} (${amountInWords} Only)`;
   };
 
+  const getNextMonthDate = (issuedDate) => {
+    // Check if date is valid
+    if (!issuedDate) return null;
+
+    // Convert string to Date object
+    const date = new Date(issuedDate);
+
+    // Get the next month
+    date.setMonth(date.getMonth() + 1);
+
+    // Format date to YYYY-MM-DD
+    const nextDate = date.toISOString().split("T")[0];
+
+    return nextDate;
+  };
+
+  const commonStyles = {
+    width: "100%",
+    maxWidth: "600px", // Set a max-width to keep consistency
+    margin: "0 auto", // Center the components
+  };
+
+  const headerStyles = {
+    backgroundColor: "lightgreen",
+    padding: "8px",
+    lineHeight: "1rem",
+    marginBottom: "1rem",
+    borderRadius: "4px",
+  };
+
   return (
     <Layout>
       <Grid container spacing={2}>
@@ -228,27 +258,19 @@ const Page = () => {
               TRN: 1041368802200003
             </Typography>
           </div>
-          <Grid
-            style={{
-              backgroundColor: "lightgreen",
-              marginTop: "1rem",
-              marginBottom: "1rem",
-              padding: "4px 4px 4px 4px",
-              lineHeight: "1rem",
-            }}
-            container
-            spacing={2}
-          >
-            <Grid item xs={6}>
-              <div>Tax Invoice</div>
+          
+          <div style={{ ...commonStyles, ...headerStyles }}>
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <div>Tax Invoice</div>
+              </Grid>
+              <Grid item xs={6}>
+                <div>{invoiceList?.service_invoice_id}</div>
+              </Grid>
             </Grid>
+          </div>
 
-            <Grid item xs={6}>
-              {invoiceList?.service_invoice_id}
-            </Grid>
-          </Grid>
-
-          <TableContainer component={Paper}>
+          <TableContainer component={Paper} style={commonStyles}>
             <Table>
               <TableHead style={{ backgroundColor: "lightgreen" }}>
                 <TableRow>
@@ -287,11 +309,10 @@ const Page = () => {
               <TableBody>
                 <TableRow>
                   <TableCell align="right">
-                    {" "}
-                    {invoiceList?.issued_date}{" "}
+                    {invoiceList?.issued_date}
                   </TableCell>
                   <TableCell align="right">
-                    {invoiceList?.issued_date}
+                    {getNextMonthDate(invoiceList?.issued_date)}
                   </TableCell>
                   <TableCell align="right">{invoiceList?.total_amt}</TableCell>
                 </TableRow>
