@@ -190,11 +190,11 @@ const Page = () => {
               Bill To
             </Typography>
             <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-              {invoiceList?.user?.name}
+              {invoiceList?.user?.client?.firm_name}
             </Typography>
-            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+            {/* <Typography variant="body1" sx={{ fontWeight: "bold" }}>
               {invoiceList?.user?.email}
-            </Typography>
+            </Typography> */}
             <Typography variant="body1" sx={{ fontWeight: "bold" }}>
               TRN: {invoiceList?.invoiceable?.trn}
             </Typography>
@@ -205,7 +205,7 @@ const Page = () => {
               Contact Person
             </Typography>
             <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-              {invoiceList?.user?.name}
+              Manager
             </Typography>
             <Typography variant="body1" sx={{ fontWeight: "bold" }}>
               {invoiceList?.user?.client?.mobile_number}
@@ -225,7 +225,7 @@ const Page = () => {
               variant="body1"
               sx={{ fontWeight: "bold", textAlign: "right" }}
             >
-              TRN: {invoiceList?.invoiceable?.trn}
+              TRN: 1041368802200003
             </Typography>
           </div>
           <Grid
@@ -244,16 +244,7 @@ const Page = () => {
             </Grid>
 
             <Grid item xs={6}>
-              <div>
-                APCS{invoiceList?.user?.client?.referencable_id}PT
-                {invoiceList?.invoiceable?.billing_method === "monthly"
-                  ? 1
-                  : invoiceList?.invoiceable?.billing_method === "monthly"
-                  ? 2
-                  : invoiceList?.invoiceable?.billing_method === "service"
-                  ? 3
-                  : "unknown"}
-              </div>
+              {invoiceList?.service_invoice_id}
             </Grid>
           </Grid>
 
@@ -307,6 +298,17 @@ const Page = () => {
               </TableBody>
             </Table>
           </TableContainer>
+
+          <div style={{ textAlign: "right" }} className={styles.totalAmount}>
+            APCS{invoiceList?.user?.client?.referencable_id}PT
+            {invoiceList?.invoiceable?.billing_method === "monthly"
+              ? 1
+              : invoiceList?.invoiceable?.billing_method === "monthly"
+              ? 2
+              : invoiceList?.invoiceable?.billing_method === "service"
+              ? 3
+              : "unknown"}
+          </div>
         </Grid>
       </Grid>
 
@@ -324,16 +326,6 @@ const Page = () => {
                 >
                   Description
                 </TableCell>
-                {/* <TableCell
-                  sx={{
-                    color: "white",
-                    padding: "4px 16px",
-                    lineHeight: "1rem",
-                  }}
-                  align="right"
-                >
-                  Rate (AED)
-                </TableCell> */}
                 <TableCell
                   sx={{
                     color: "white",
@@ -368,14 +360,6 @@ const Page = () => {
                   {" "}
                   General Pest Control{" "}
                 </TableCell>
-                {/* <TableCell
-                  sx={{
-                    color: "black",
-                    padding: "4px 16px",
-                    lineHeight: "1rem",
-                  }}
-                  align="right"
-                ></TableCell> */}
                 <TableCell
                   sx={{
                     color: "black",
