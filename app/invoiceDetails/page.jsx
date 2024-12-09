@@ -233,7 +233,8 @@ const Page = () => {
               backgroundColor: "lightgreen",
               marginTop: "1rem",
               marginBottom: "1rem",
-              paddingBottom: "0.5rem",
+              padding: "4px 4px 4px 4px",
+              lineHeight: "1rem",
             }}
             container
             spacing={2}

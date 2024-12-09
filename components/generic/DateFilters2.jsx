@@ -85,11 +85,18 @@ const DateFilters2 = ({ onDateChange }) => {
 
   const handleCustomRangeSubmit = () => {
     if (startDate && endDate && onDateChange) {
-      onDateChange(startDate, endDate);
+      // Format dates to YYYY-MM-DD
+      const formattedStartDate = format(startDate, "yyyy-MM-dd");
+      const formattedEndDate = format(endDate, "yyyy-MM-dd");
+
+      onDateChange(formattedStartDate, formattedEndDate);
     }
+
+    // Update title with a more readable format
     setTitle(
-      `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`
+      `${format(startDate, "MM/dd/yyyy")} - ${format(endDate, "MM/dd/yyyy")}`
     );
+
     setAnchorEl(null);
     setCustomRange(false);
   };
