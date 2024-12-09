@@ -173,6 +173,34 @@ const Page = () => {
                     </TableCell>
                   </TableRow>
                 ))}
+            {!loading && (
+              <TableRow>
+                <TableCell colSpan={2} align="right">
+                  <strong>Total:</strong>
+                </TableCell>
+                <TableCell>
+                  <strong>
+                    {rowData
+                      .reduce(
+                        (acc, row) => acc + parseFloat(row.cr_amt || 0),
+                        0
+                      )
+                      .toFixed(2)}
+                  </strong>
+                </TableCell>
+                <TableCell>
+                  <strong>
+                    {rowData
+                      .reduce(
+                        (acc, row) => acc + parseFloat(row.dr_amt || 0),
+                        0
+                      )
+                      .toFixed(2)}
+                  </strong>
+                </TableCell>
+                <TableCell colSpan={2}></TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </TableContainer>
