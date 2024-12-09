@@ -214,9 +214,48 @@ const Page = () => {
         </Grid>
 
         <Grid item xs={6}>
-          <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+          <Typography
+            variant="body1"
+            sx={{ fontWeight: "bold", textAlign: "right" }}
+          >
             Tax Invoice
           </Typography>
+          <div>
+            <Typography
+              variant="body1"
+              sx={{ fontWeight: "bold", textAlign: "right" }}
+            >
+              TRN: {invoiceList?.invoiceable?.trn}
+            </Typography>
+          </div>
+          <Grid
+            style={{
+              backgroundColor: "lightgreen",
+              marginTop: "1rem",
+              marginBottom: "1rem",
+              paddingBottom: "0.5rem",
+            }}
+            container
+            spacing={2}
+          >
+            <Grid item xs={6}>
+              <div>Tax Invoice</div>
+            </Grid>
+
+            <Grid item xs={6}>
+              <div>
+                APCS{invoiceList?.user?.client?.referencable_id}PT
+                {invoiceList?.invoiceable?.billing_method === "monthly"
+                  ? 1
+                  : invoiceList?.invoiceable?.billing_method === "monthly"
+                  ? 2
+                  : invoiceList?.invoiceable?.billing_method === "service"
+                  ? 3
+                  : "unknown"}
+              </div>
+            </Grid>
+          </Grid>
+
           <TableContainer component={Paper}>
             <Table>
               <TableHead style={{ backgroundColor: "lightgreen" }}>
@@ -229,7 +268,7 @@ const Page = () => {
                       fontWeight: "bold",
                     }}
                   >
-                    Tax Invoice
+                    Date
                   </TableCell>
                   <TableCell
                     sx={{
@@ -239,7 +278,7 @@ const Page = () => {
                       fontWeight: "bold",
                     }}
                   >
-                    Total Amount
+                    Due Date
                   </TableCell>
                   <TableCell
                     sx={{
@@ -249,32 +288,24 @@ const Page = () => {
                       fontWeight: "bold",
                     }}
                   >
-                    VAT (%)
+                    Total
                   </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 <TableRow>
-                  <TableCell align="right"> General Pest Control </TableCell>
-                  <TableCell align="right">{invoiceList?.total_amt}</TableCell>
                   <TableCell align="right">
-                    {invoiceList?.invoiceable?.vat_per}
+                    {" "}
+                    {invoiceList?.issued_date}{" "}
                   </TableCell>
+                  <TableCell align="right">
+                    {invoiceList?.issued_date}
+                  </TableCell>
+                  <TableCell align="right">{invoiceList?.total_amt}</TableCell>
                 </TableRow>
               </TableBody>
             </Table>
           </TableContainer>
-
-          <div style={{ textAlign: "right" }} className={styles.totalAmount}>
-            APCS{invoiceList?.user?.client?.referencable_id}PT
-            {invoiceList?.invoiceable?.billing_method === "monthly"
-              ? 1
-              : invoiceList?.invoiceable?.billing_method === "monthly"
-              ? 2
-              : invoiceList?.invoiceable?.billing_method === "service"
-              ? 3
-              : "unknown"}
-          </div>
         </Grid>
       </Grid>
 
@@ -292,7 +323,7 @@ const Page = () => {
                 >
                   Description
                 </TableCell>
-                <TableCell
+                {/* <TableCell
                   sx={{
                     color: "white",
                     padding: "4px 16px",
@@ -301,6 +332,16 @@ const Page = () => {
                   align="right"
                 >
                   Rate (AED)
+                </TableCell> */}
+                <TableCell
+                  sx={{
+                    color: "white",
+                    padding: "4px 16px",
+                    lineHeight: "1rem",
+                  }}
+                  align="right"
+                >
+                  VAT (%)
                 </TableCell>
                 <TableCell
                   sx={{
@@ -315,40 +356,46 @@ const Page = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {invoiceList?.details?.map((item, index) => (
-                <TableRow key={index}>
-                  <TableCell
-                    sx={{
-                      color: "black",
-                      padding: "4px 16px",
-                      lineHeight: "1rem",
-                    }}
-                  >
-                    {" "}
-                    General Pest Control{" "}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      color: "black",
-                      padding: "4px 16px",
-                      lineHeight: "1rem",
-                    }}
-                    align="right"
-                  >
-                    {item.rate}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      color: "black",
-                      padding: "4px 16px",
-                      lineHeight: "1rem",
-                    }}
-                    align="right"
-                  >
-                    {item.sub_total}
-                  </TableCell>
-                </TableRow>
-              ))}
+              <TableRow>
+                <TableCell
+                  sx={{
+                    color: "black",
+                    padding: "4px 16px",
+                    lineHeight: "1rem",
+                  }}
+                >
+                  {" "}
+                  General Pest Control{" "}
+                </TableCell>
+                {/* <TableCell
+                  sx={{
+                    color: "black",
+                    padding: "4px 16px",
+                    lineHeight: "1rem",
+                  }}
+                  align="right"
+                ></TableCell> */}
+                <TableCell
+                  sx={{
+                    color: "black",
+                    padding: "4px 16px",
+                    lineHeight: "1rem",
+                  }}
+                  align="right"
+                >
+                  {invoiceList?.invoiceable?.vat_per}
+                </TableCell>
+                <TableCell
+                  sx={{
+                    color: "black",
+                    padding: "4px 16px",
+                    lineHeight: "1rem",
+                  }}
+                  align="right"
+                >
+                  {invoiceList?.total_amt}
+                </TableCell>
+              </TableRow>
             </TableBody>
           </Table>
         </TableContainer>
