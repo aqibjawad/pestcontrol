@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import styles from "../../styles/invoiceDetails.module.css";
 
-import { serviceInvoice } from "@/networkUtil/Constants";
+import { serviceInvoice, clients } from "@/networkUtil/Constants";
 
 import APICall from "@/networkUtil/APICall";
 import withAuth from "@/utils/withAuth";
@@ -57,8 +57,14 @@ const Page = () => {
   const api = new APICall();
 
   const [id, setId] = useState(null);
+
   const [fetchingData, setFetchingData] = useState(false);
+
   const [invoiceList, setQuoteList] = useState(null);
+
+  const [rowData, setRowData] = useState([]);
+
+  const [error, setError] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(true);
 
   useEffect(() => {
@@ -84,6 +90,27 @@ const Page = () => {
       console.error("Error fetching quotes:", error);
     } finally {
       setFetchingData(false);
+      setLoadingDetails(false);
+    }
+  };
+
+  useEffect(() => {
+    if (invoiceList?.user?.id) {
+      fetchData(invoiceList.user.id);
+    }
+  }, [invoiceList]);
+
+  const fetchData = async (id) => {
+    setLoadingDetails(true);
+    try {
+      const response = await api.getDataWithToken(
+        `${clients}/ledger/get/${invoiceList?.user?.id}`
+      );
+      const data = response.data.slice(-5);
+      setRowData(data);
+    } catch (error) {
+      setError(error.message);
+    } finally {
       setLoadingDetails(false);
     }
   };
@@ -258,7 +285,7 @@ const Page = () => {
               TRN: 1041368802200003
             </Typography>
           </div>
-          
+
           <div style={{ ...commonStyles, ...headerStyles }}>
             <Grid container spacing={2}>
               <Grid item xs={6}>
@@ -333,7 +360,7 @@ const Page = () => {
         </Grid>
       </Grid>
 
-      <div className="mt-5">
+      <div className="">
         <TableContainer component={Paper}>
           <Table>
             <TableHead style={{ backgroundColor: "#32A92E", color: "white" }}>
@@ -407,6 +434,106 @@ const Page = () => {
         </TableContainer>
       </div>
 
+      <div className="mt-2">
+        <Typography className="" variant="body2" sx={{ fontWeight: "bold" }}>
+          Ledger
+        </Typography>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead style={{ backgroundColor: "#32A92E", color: "white" }}>
+              <TableRow>
+                <TableCell
+                  sx={{
+                    color: "white",
+                    padding: "4px 16px",
+                    lineHeight: "1rem",
+                  }}
+                  align="right"
+                >
+                  Description
+                </TableCell>
+                <TableCell
+                  sx={{
+                    color: "white",
+                    padding: "4px 16px",
+                    lineHeight: "1rem",
+                  }}
+                  align="right"
+                >
+                  Credit
+                </TableCell>
+                <TableCell
+                  sx={{
+                    color: "white",
+                    padding: "4px 16px",
+                    lineHeight: "1rem",
+                  }}
+                  align="right"
+                >
+                  Debit
+                </TableCell>
+                <TableCell
+                  sx={{
+                    color: "white",
+                    padding: "4px 16px",
+                    lineHeight: "1rem",
+                  }}
+                  align="right"
+                >
+                  Balance
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {rowData.map((row, index) => (
+                <TableRow key={index}>
+                  <TableCell
+                    sx={{
+                      color: "black",
+                      padding: "4px 16px",
+                      lineHeight: "1rem",
+                    }}
+                    align="right"
+                  >
+                    {row.description}
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      color: "black",
+                      padding: "4px 16px",
+                      lineHeight: "1rem",
+                    }}
+                    align="right"
+                  >
+                    {row.cr_amt}
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      color: "black",
+                      padding: "4px 16px",
+                      lineHeight: "1rem",
+                    }}
+                    align="right"
+                  >
+                    {row.dr_amt}
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      color: "black",
+                      padding: "4px 16px",
+                      lineHeight: "1rem",
+                    }}
+                    align="right"
+                  >
+                    {row.cash_balance}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </div>
+
       <div>
         <div className={styles.totalAmount}>
           (
@@ -434,7 +561,7 @@ const Page = () => {
         <div className={`${styles.Bankdescrp} mt-5`}>Best Regards</div>
       </div>
 
-      <Grid className="mt-5" container spacing={2}>
+      <Grid className="" container spacing={2}>
         <Grid item xs={6}>
           <Typography variant="body1" sx={{ fontWeight: "bold" }}>
             {invoiceList?.user?.client?.firm_name}
@@ -448,7 +575,7 @@ const Page = () => {
         </Grid>
       </Grid>
 
-      <Grid className="mt-5" container spacing={2}>
+      <Grid className="" container spacing={2}>
         <Grid item xs={6}>
           <Typography variant="body1" sx={{ fontWeight: "bold" }}>
             _________________________

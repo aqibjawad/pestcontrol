@@ -96,6 +96,7 @@ const EmployeeUpdateModal = ({ open, handleClose, selectedEmployee }) => {
     e.preventDefault();
     setLoadingSubmit(true);
 
+    // Create base form data without image
     const formData = {
       user_id: selectedEmployee.id,
       eid_start: eidStart,
@@ -109,8 +110,12 @@ const EmployeeUpdateModal = ({ open, handleClose, selectedEmployee }) => {
       dm_start: dmStart,
       dm_expiry: dmExpiry,
       labour_card_expiry: labourCardExpiry,
-      profile_image: profileImage,
     };
+
+    // Only add profile_image if it exists and is not null
+    if (profileImage) {
+      formData.profile_image = profileImage;
+    }
 
     try {
       const response = await api.postFormDataWithToken(

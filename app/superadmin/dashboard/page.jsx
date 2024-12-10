@@ -11,6 +11,8 @@ import Reports from "./components/Reports";
 import Scheduler from "./components/Scheduler";
 import { FaPencil } from "react-icons/fa6";
 
+import RescheduleJobs from "../../rescheduleJobs/reschedule";
+
 import APICall from "@/networkUtil/APICall";
 import { getAllEmpoyesUrl, payments } from "@/networkUtil/Constants";
 import withAuth from "@/utils/withAuth";
@@ -246,7 +248,7 @@ const Page = () => {
             aria-label="Main tabs"
           >
             <Tab label="Employees" />
-            <Tab label="Pending" />
+            <Tab label="Payment Collected" />
             <Tab label="Reschedule" />
           </Tabs>
 
@@ -448,7 +450,7 @@ const Page = () => {
               </TableContainer>
             )}
 
-            {selectedIndexTabs === 2 && "test"}
+            {selectedIndexTabs === 2 && <RescheduleJobs />}
           </Box>
         </div>
       </div>

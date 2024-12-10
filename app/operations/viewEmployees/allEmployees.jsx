@@ -143,6 +143,9 @@ const AllEmployees = () => {
                 Action
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Add Documents
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Update
               </th>
             </tr>
@@ -200,6 +203,15 @@ const AllEmployees = () => {
                       <Link href={`/hr/employeeDetails?id=${row.id}`}>
                         <span className="text-blue-600 hover:text-blue-800">
                           View Details
+                        </span>
+                      </Link>
+                    </div>
+                  </td>
+                  <td className="py-2 px-4">
+                    <div className={tableStyles.clientContact}>
+                      <Link href={`/hr/empDocuments?id=${row.id}`}>
+                        <span className="text-blue-600 hover:text-blue-800">
+                          Add
                         </span>
                       </Link>
                     </div>
