@@ -7,8 +7,10 @@ import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
 import { Skeleton } from "@mui/material"; // Import Skeleton from MUI
 import Link from "next/link";
 
-import EmpUpcomingJobs from "../jobs/upComing"
+import EmpUpcomingJobs from "../jobs/upComing";
 import withAuth from "@/utils/withAuth";
+
+import { Eye } from "lucide-react";
 
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
@@ -53,12 +55,19 @@ const Page = () => {
       setEmployeeList(response.data);
 
       setEmployeeCompany(response.data.captain_all_jobs);
-
     } catch (error) {
       console.error("Error fetching employees:", error);
     } finally {
       setFetchingData(false);
     }
+  };
+
+  const [showImage, setShowImage] = useState(false);
+  const [selectedDoc, setSelectedDoc] = useState(null);
+
+  const handleViewDocument = (doc) => {
+    setSelectedDoc(doc);
+    setShowImage(true);
   };
 
   return (
@@ -111,6 +120,99 @@ const Page = () => {
               </tbody>
             </table>
           </div>
+        </div>
+      </div>
+
+      {/* Document Information */}
+      <div className="w-full">
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="text-xl font-semibold mb-4">Employee Documents</div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="p-3 text-left border">Document Name</th>
+                  <th className="p-3 text-left border">Start Date</th>
+                  <th className="p-3 text-left border">Expiry Date</th>
+                  <th className="p-3 text-left border">Status</th>
+                  <th className="p-3 text-left border">Action</th>
+                  <th className="p-3 text-left border">Update</th>
+                </tr>
+              </thead>
+              <tbody>
+                {employeeList?.employee?.documents.map((doc) => {
+                  const currentDate = new Date();
+                  const expiryDate = new Date(doc.expiry);
+                  const diffTime = expiryDate - currentDate;
+                  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Days until expiry
+
+                  let status = "Valid";
+                  let statusClass = "bg-green-100 text-green-600";
+
+                  if (diffDays < 0) {
+                    status = "Expired";
+                    statusClass = "bg-red-100 text-red-600";
+                  } else if (diffDays <= 10) {
+                    status = `Near to Expire (${diffDays} days left)`;
+                    statusClass = "bg-red-100 text-red-600";
+                  } else if (diffDays <= 30) {
+                    status = `Near to Expire (${diffDays} days left)`;
+                    statusClass = "bg-yellow-100 text-yellow-600";
+                  }
+
+                  return (
+                    <tr key={doc.id} className="hover:bg-gray-50">
+                      <td className="p-3 border">{doc.name}</td>
+                      <td className="p-3 border">{doc.start}</td>
+                      <td className="p-3 border">{doc.expiry}</td>
+                      <td className="p-3 border">
+                        <span className={`px-2 py-1 rounded ${statusClass}`}>
+                          {status}
+                        </span>
+                      </td>
+                      <td className="p-3 border">
+                        <button
+                          onClick={() => handleViewDocument(doc)}
+                          className="flex items-center text-blue-600 hover:text-blue-800"
+                        >
+                          <Eye className="w-4 h-4 mr-1" />
+                          View
+                        </button>
+                      </td>
+                      <td className="p-3 border">
+                        <Link href={`/hr/empDocuments?id=${doc.id}`}>
+                          Update
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {showImage && selectedDoc && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+              <div className="bg-white rounded-lg p-4 max-w-4xl w-full">
+                <div className="flex justify-between mb-4">
+                  <h3 className="text-lg font-semibold">{selectedDoc.name}</h3>
+                  <button
+                    onClick={() => setShowImage(false)}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <img
+                  src={selectedDoc.file}
+                  alt={selectedDoc.name}
+                  className=""
+                  style={{ height: "100px", width: "100px" }}
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -435,7 +537,7 @@ const Page = () => {
       <div className={styles.personalDetailsContainer}>
         <div className={styles.personalContainer}>
           <div className={styles.personalHead}>Jobs</div>
-            <EmpUpcomingJobs employeeCompany={employeeCompany} />
+          <EmpUpcomingJobs employeeCompany={employeeCompany} />
         </div>
       </div>
     </div>

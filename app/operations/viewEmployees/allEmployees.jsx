@@ -1,31 +1,44 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Skeleton, Switch } from "@mui/material";
-import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
 import Link from "next/link";
+import { FaPencil } from "react-icons/fa6";
+import Swal from "sweetalert2";
+import EmployeeUpdateModal from "../../../components/employeeUpdate";
 import APICall from "@/networkUtil/APICall";
 import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
-import Swal from "sweetalert2";
-import { FaPencil } from "react-icons/fa6";
-import EmployeeUpdateModal from "../../../components/employeeUpdate";
 
 const AllEmployees = () => {
   const api = new APICall();
 
   const [fetchingData, setFetchingData] = useState(false);
-  const [expenseList, setEmployeesList] = useState([]);
+  const [employeesList, setEmployeesList] = useState([]);
   const [loading, setLoading] = useState({});
   const [open, setOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
 
+  const allDocumentTypes = [
+    "Labor Card",
+    "Employment Letter",
+    "Offer Letter",
+    "Joining Letter",
+    "Visa",
+    "Medical Insurance",
+    "Driving License",
+    "DM Card",
+    "EHOC (Emergency Health Operations Certificate)",
+    "Visa Status",
+    "Asset and Vehicle Policy Confirmation",
+  ];
+
   useEffect(() => {
-    getAllExpenses();
+    fetchAllEmployees();
   }, []);
 
-  const getAllExpenses = async () => {
+  const fetchAllEmployees = async () => {
     setFetchingData(true);
     try {
-      const response = await api.getDataWithToken(`${getAllEmpoyesUrl}`);
+      const response = await api.getDataWithToken(getAllEmpoyesUrl);
       setEmployeesList(response.data);
     } catch (error) {
       console.error("Error fetching employees:", error);
@@ -38,30 +51,25 @@ const AllEmployees = () => {
     event,
     employeeId,
     currentStatus,
-    firedAt,
-    employeeName
+    firedAt
   ) => {
-    event.preventDefault();
+    if (firedAt || loading[employeeId]) return;
 
-    if (firedAt) return;
+    const confirmation =
+      currentStatus === 1 &&
+      (
+        await Swal.fire({
+          title: "Are you sure?",
+          text: "Do you want to fire this employee?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Yes, fire!",
+        })
+      ).isConfirmed;
 
-    if (loading[employeeId]) return;
-
-    if (currentStatus === 1) {
-      const result = await Swal.fire({
-        title: "Are you sure?",
-        text: `Do you want to fire?`,
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, fire employee!",
-      });
-
-      if (!result.isConfirmed) {
-        return;
-      }
-    }
+    if (currentStatus === 1 && !confirmation) return;
 
     setLoading((prev) => ({ ...prev, [employeeId]: true }));
 
@@ -70,36 +78,31 @@ const AllEmployees = () => {
         const response = await api.getDataWithToken(
           `${getAllEmpoyesUrl}/fired_at/${employeeId}`
         );
-
         if (response.status === "success") {
-          await Swal.fire({
-            title: "Employee Fired",
-            text: `Employee has been fired successfully`,
-            icon: "success",
-            timer: 2000,
-            showConfirmButton: false,
-          });
-
-          window.location.reload();
+          Swal.fire(
+            "Success",
+            "Employee has been fired successfully",
+            "success"
+          );
+          fetchAllEmployees();
         }
       } else {
+        const response = await api.patchDataWithToken(
+          `${getAllEmpoyesUrl}/toggle/${employeeId}`
+        );
         if (response.success) {
           setEmployeesList((prevList) =>
-            prevList.map((employee) =>
-              employee.id === employeeId
-                ? { ...employee, is_active: currentStatus === 1 ? 0 : 1 }
-                : employee
+            prevList.map((emp) =>
+              emp.id === employeeId
+                ? { ...emp, is_active: !emp.is_active }
+                : emp
             )
           );
         }
       }
     } catch (error) {
-      console.error("Error updating status:", error);
-      await Swal.fire({
-        title: "Error",
-        text: "There was an error processing your request",
-        icon: "error",
-      });
+      console.error("Error toggling status:", error);
+      Swal.fire("Error", "An error occurred while updating status", "error");
     } finally {
       setLoading((prev) => ({ ...prev, [employeeId]: false }));
     }
@@ -115,199 +118,113 @@ const AllEmployees = () => {
     setSelectedEmployee(null);
   };
 
-  const listServiceTable = () => {
-    return (
-      <div className={tableStyles.tableContainer}>
-        <table className="min-w-full bg-white mt-5">
-          <thead>
-            <tr>
-              <th className="py-5 px-4 border-b border-gray-200 text-left">
-                Sr.
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Picture
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Employee Name
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Employee Designation
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Contact
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Status
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Action
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Add Documents
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Update
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {expenseList?.length > 0 ? (
-              expenseList?.map((row, index) => (
-                <tr key={index} className="border-b border-gray-200">
-                  <td className="py-5 px-4">{index + 1}</td>
-                  <td className="py-2 px-4">
-                    <img
-                      style={{
-                        width: "50px",
-                        height: "50px",
-                        borderRadius: "50%",
-                      }}
-                      src={row?.employee?.profile_image}
-                      alt="Profile"
-                    />
-                  </td>
-                  <td className="py-2 px-4">
-                    <div className={tableStyles.clientContact}>{row.name}</div>
-                  </td>
-                  <td className="py-2 px-4">
-                    <div className={tableStyles.clientContact}>{row.email}</div>
-                  </td>
-                  <td className="py-2 px-4">
-                    <div className={tableStyles.clientContact}>
-                      {row.employee.phone_number || "null"}
-                    </div>
-                  </td>
-                  <td className="py-2 px-4">
-                    <div
-                      className={tableStyles.clientContact}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                      }}
-                    >
-                      <Switch
-                        checked={row.is_active === 1}
-                        onChange={(e) =>
-                          handleStatusToggle(e, row.id, row.is_active)
-                        }
-                        disabled={loading[row.id]}
-                        color="primary"
-                        size="small"
-                        style={{ cursor: "pointer" }}
-                      />
-                    </div>
-                  </td>
-                  <td className="py-2 px-4">
-                    <div className={tableStyles.clientContact}>
-                      <Link href={`/hr/employeeDetails?id=${row.id}`}>
-                        <span className="text-blue-600 hover:text-blue-800">
-                          View Details
-                        </span>
-                      </Link>
-                    </div>
-                  </td>
-                  <td className="py-2 px-4">
-                    <div className={tableStyles.clientContact}>
-                      <Link href={`/hr/empDocuments?id=${row.id}`}>
-                        <span className="text-blue-600 hover:text-blue-800">
-                          Add
-                        </span>
-                      </Link>
-                    </div>
-                  </td>
-                  <td className="py-2 px-4">
-                    <div className={tableStyles.clientContact}>
-                      <FaPencil
-                        onClick={() => handleOpen(row)}
-                        style={{ cursor: "pointer", color: "blue" }}
-                      />
-                    </div>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="7" className="py-5 px-4 text-center">
-                  No data available
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    );
+  const renderSkeleton = () => (
+    <div className="flex flex-wrap gap-4 mt-5">
+      {[...Array(5)].map((_, index) => (
+        <div key={index} className="w-72 p-4 bg-white rounded shadow-md">
+          <Skeleton variant="rectangular" height={150} />
+          <Skeleton width="60%" className="mt-4" />
+          <Skeleton width="80%" />
+          <Skeleton width="40%" className="mt-2" />
+          <Skeleton width="50%" />
+        </div>
+      ))}
+    </div>
+  );
+
+  const getMissingDocuments = (documents) => {
+    const existingDocs = new Set(documents?.map((doc) => doc.name) || []);
+    return allDocumentTypes.filter((docType) => !existingDocs.has(docType));
   };
 
-  const renderSkeleton = () => (
-    <div className={tableStyles.tableContainer}>
-      <table className="min-w-full bg-white mt-5">
-        <thead>
-          <tr>
-            <th className="py-5 px-4 border-b border-gray-200 text-left">
-              Sr.
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Picture
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Employee Name
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Employee Designation
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Contact
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Status
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Action
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {[...Array(5).keys()].map((_, index) => (
-            <tr key={index} className="border-b border-gray-200">
-              <td className="py-5 px-4">
-                <Skeleton width="50px" height="20px" />
-              </td>
-              <td className="py-2 px-4">
-                <Skeleton variant="circular" width={50} height={50} />
-              </td>
-              <td className="py-2 px-4">
-                <Skeleton width="150px" height="20px" />
-              </td>
-              <td className="py-2 px-4">
-                <Skeleton width="150px" height="20px" />
-              </td>
-              <td className="py-2 px-4">
-                <Skeleton width="100px" height="20px" />
-              </td>
-              <td className="py-2 px-4">
-                <Skeleton width="100px" height="20px" />
-              </td>
-              <td className="py-2 px-4">
-                <Skeleton width="150px" height="20px" />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+  const renderCards = () => (
+    <div className="flex flex-wrap gap-4 mt-5">
+      {employeesList.map((employee) => {
+        const missingDocs = getMissingDocuments(employee?.employee?.documents);
+        const existingDocs = employee?.employee?.documents || [];
+
+        return (
+          <div
+            key={employee.id}
+            className="w-96 p-4 bg-white rounded shadow-md"
+          >
+            <img
+              className="w-24 h-24 rounded-full mx-auto"
+              src={employee?.employee?.profile_image || "/default-avatar.png"}
+              alt={employee.name}
+            />
+            <div className="text-center mt-4">
+              <h3 className="font-semibold text-lg">{employee.name}</h3>
+              <p className="text-gray-600">{employee.email}</p>
+              <p className="text-gray-600">
+                {employee.employee?.phone_number || "N/A"}
+              </p>
+            </div>
+
+            {/* Documents Section */}
+            <div className="mt-4">
+              {/* <div className="mb-3">
+                <h4 className="font-semibold text-green-600">
+                  Available Documents
+                </h4>
+                <div className="max-h-32 overflow-y-auto">
+                  {existingDocs.map((doc) => (
+                    <div
+                      key={doc.id}
+                      className="text-sm p-2 my-1 bg-green-50 rounded"
+                    >
+                      {doc.name}
+                    </div>
+                  ))}
+                </div>
+              </div> */}
+
+              <div>
+                <h4 className="font-semibold text-red-600">
+                  Missing Documents
+                </h4>
+                <div className="max-h-32 overflow-y-auto">
+                  {missingDocs.map((docName) => (
+                    <div
+                      key={docName}
+                      className="text-sm p-2 my-1 bg-red-50 rounded"
+                    >
+                      {docName}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 flex justify-between items-center">
+              <Switch
+                checked={employee.is_active === 1}
+                onChange={(e) =>
+                  handleStatusToggle(e, employee.id, employee.is_active)
+                }
+                disabled={loading[employee.id]}
+                color="primary"
+                size="small"
+              />
+              <Link href={`/hr/empDocuments?id=${employee.id}`}>
+                <FaPencil className="text-blue-500 cursor-pointer" />
+              </Link>
+              <Link href={`/hr/employeeDetails?id=${employee.id}`}>
+                <span className="text-blue-600 hover:text-blue-800">
+                  View Details
+                </span>
+              </Link>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 
   return (
     <div>
-      <div className="flex">
-        <div className="flex flex-grow">
-          <div className="pageTitle">{"All Employees"}</div>
-        </div>
-      </div>
-
-      {fetchingData ? renderSkeleton() : listServiceTable()}
-
+      <h1 className="text-xl font-bold">All Employees</h1>
+      {fetchingData ? renderSkeleton() : renderCards()}
       <EmployeeUpdateModal
         open={open}
         handleClose={handleClose}
