@@ -20,7 +20,7 @@ const EmployeeDocuments = () => {
     description: "",
   });
 
-  const documents = [
+  const DOCUMENT_TYPES = [
     "Labor Card",
     "Employment Letter",
     "Offer Letter",
@@ -34,22 +34,29 @@ const EmployeeDocuments = () => {
   ];
 
   useEffect(() => {
-    const getIdFromUrl = (url) => {
+    const getParamsFromUrl = (url) => {
       const parts = url.split("?");
+      const params = {};
       if (parts.length > 1) {
         const queryParams = parts[1].split("&");
         for (const param of queryParams) {
           const [key, value] = param.split("=");
-          if (key === "id") {
-            return value;
-          }
+          params[key] = decodeURIComponent(value);
         }
       }
-      return null;
+      return params;
     };
 
-    const id = getIdFromUrl(window.location.href);
+    const { id, name } = getParamsFromUrl(window.location.href);
     setUserId(id);
+
+    // Preselect the dropdown if the name parameter exists and is valid
+    if (name && DOCUMENT_TYPES.includes(name)) {
+      setSelectedDocument((prev) => ({
+        ...prev,
+        type: name,
+      }));
+    }
   }, []);
 
   const handleDropdownChange = (value) => {
@@ -95,7 +102,6 @@ const EmployeeDocuments = () => {
 
       if (response.status === "success") {
         alert("Document uploaded successfully!");
-        // Reset form
         setSelectedDocument({
           type: "",
           start_date: "",
@@ -119,14 +125,29 @@ const EmployeeDocuments = () => {
       </Typography>
 
       <Grid container spacing={3} style={{ maxWidth: "1000px" }}>
-        <Grid item xs={6}>
-          <Dropdown
-            options={documents}
-            title="Select Document"
-            value={selectedDocument.type}
-            onChange={handleDropdownChange}
-          />
-        </Grid>
+        {/* Option 1: Show Dropdown with Pre-Selected Value */}
+        {!selectedDocument.type && (
+          <Grid item xs={6}>
+            <Dropdown
+              options={DOCUMENT_TYPES}
+              title="Select Document"
+              value={selectedDocument.type}
+              onChange={handleDropdownChange}
+            />
+          </Grid>
+        )}
+
+        {/* Option 2: Show the selected value directly (hide dropdown if pre-selected) */}
+        {selectedDocument.type && (
+          <Grid item xs={6}>
+            <Typography
+              variant="subtitle1"
+              style={{ fontWeight: "bold", fontSize: "18px" }}
+            >
+              {selectedDocument.type}
+            </Typography>
+          </Grid>
+        )}
       </Grid>
 
       {selectedDocument.type && (
@@ -135,7 +156,7 @@ const EmployeeDocuments = () => {
           spacing={3}
           style={{ maxWidth: "1000px", marginTop: "1rem" }}
         >
-          <Grid item xs={12}>
+          {/* <Grid item xs={12}>
             <Typography
               sx={{ fontWeight: "bold", fontSize: "20px" }}
               variant="subtitle1"
@@ -143,7 +164,7 @@ const EmployeeDocuments = () => {
             >
               {selectedDocument.type}
             </Typography>
-          </Grid>
+          </Grid> */}
           <Grid className="mt-2" item xs={6}>
             <InputWithTitle3
               title="Start Date"
@@ -162,17 +183,6 @@ const EmployeeDocuments = () => {
               onChange={(name, value) => handleFieldChange("end_date", value)}
             />
           </Grid>
-          {/* <Grid className="mt-2" item xs={12}>
-            <InputWithTitle3
-              title="Description"
-              type="text"
-              placeholder="Enter document description"
-              value={selectedDocument.description}
-              onChange={(name, value) =>
-                handleFieldChange("description", value)
-              }
-            />
-          </Grid> */}
           <Grid item xs={12}>
             <UploadImagePlaceholder
               onFileSelect={handleFileSelect}

@@ -70,6 +70,61 @@ const Page = () => {
     setShowImage(true);
   };
 
+  const requiredDocuments = [
+    "Labor Card",
+    "Employment Letter",
+    "Offer Letter",
+    "Joining Letter",
+    "Medical Insurance",
+    "Driving License",
+    "DM Card",
+    "EHOC (Emergency Health Operations Certificate)",
+    "Visa Status",
+    "Asset and Vehicle Policy Confirmation",
+  ];
+
+  // Helper function to render Skeleton rows for tables
+  const renderSkeletonRows = (count) => {
+    return Array.from({ length: count }).map((_, index) => (
+      <tr key={index} className="hover:bg-gray-50">
+        <td className="p-3 border">
+          <Skeleton variant="text" />
+        </td>
+        <td className="p-3 border">
+          <Skeleton variant="text" />
+        </td>
+        <td className="p-3 border">
+          <Skeleton variant="text" />
+        </td>
+        <td className="p-3 border">
+          <Skeleton variant="rectangular" width={80} height={20} />
+        </td>
+        <td className="p-3 border">
+          <Skeleton variant="text" width={60} />
+        </td>
+      </tr>
+    ));
+  };
+
+  const renderStockSkeletonRows = (count) => {
+    return Array.from({ length: count }).map((_, index) => (
+      <tr key={index} className="hover:bg-gray-50">
+        <td className="p-3 border">
+          <Skeleton variant="text" />
+        </td>
+        <td className="p-3 border">
+          <Skeleton variant="text" />
+        </td>
+        <td className="p-3 border">
+          <Skeleton variant="text" />
+        </td>
+        <td className="p-3 border">
+          <Skeleton variant="text" />
+        </td>
+      </tr>
+    ));
+  };
+
   return (
     <div>
       {/* Personal Information */}
@@ -86,7 +141,7 @@ const Page = () => {
           )}
         </div>
         <div className={styles.personalName}>
-          {fetchingData ? <Skeleton width="60%" /> : employeeList.name}
+          {fetchingData ? <Skeleton width="60%" /> : employeeList?.name}
         </div>
 
         <div className={styles.personalContainer}>
@@ -136,274 +191,84 @@ const Page = () => {
                   <th className="p-3 text-left border">Start Date</th>
                   <th className="p-3 text-left border">Expiry Date</th>
                   <th className="p-3 text-left border">Status</th>
-                  <th className="p-3 text-left border">Action</th>
                   <th className="p-3 text-left border">Update</th>
                 </tr>
               </thead>
               <tbody>
-                {employeeList?.employee?.documents.map((doc) => {
-                  const currentDate = new Date();
-                  const expiryDate = new Date(doc.expiry);
-                  const diffTime = expiryDate - currentDate;
-                  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Days until expiry
+                {fetchingData
+                  ? // Render Skeleton rows while data is loading
+                    renderSkeletonRows(5)
+                  : requiredDocuments.map((docName) => {
+                      const doc = employeeList?.employee?.documents.find(
+                        (d) => d.name === docName
+                      );
+                      if (doc) {
+                        // Document exists
+                        const currentDate = new Date();
+                        const expiryDate = new Date(doc.expiry);
+                        const diffTime = expiryDate - currentDate;
+                        const diffDays = Math.ceil(
+                          diffTime / (1000 * 60 * 60 * 24)
+                        );
 
-                  let status = "Valid";
-                  let statusClass = "bg-green-100 text-green-600";
+                        let status = "Valid";
+                        let statusClass = "bg-green-100 text-green-600";
 
-                  if (diffDays < 0) {
-                    status = "Expired";
-                    statusClass = "bg-red-100 text-red-600";
-                  } else if (diffDays <= 10) {
-                    status = `Near to Expire (${diffDays} days left)`;
-                    statusClass = "bg-red-100 text-red-600";
-                  } else if (diffDays <= 30) {
-                    status = `Near to Expire (${diffDays} days left)`;
-                    statusClass = "bg-yellow-100 text-yellow-600";
-                  }
+                        if (diffDays < 0) {
+                          status = "Expired";
+                          statusClass = "bg-red-100 text-red-600";
+                        } else if (diffDays <= 10) {
+                          status = `Near to Expire (${diffDays} days left)`;
+                          statusClass = "bg-red-100 text-red-600";
+                        } else if (diffDays <= 30) {
+                          status = `Near to Expire (${diffDays} days left)`;
+                          statusClass = "bg-yellow-100 text-yellow-600";
+                        }
 
-                  return (
-                    <tr key={doc.id} className="hover:bg-gray-50">
-                      <td className="p-3 border">{doc.name}</td>
-                      <td className="p-3 border">{doc.start}</td>
-                      <td className="p-3 border">{doc.expiry}</td>
-                      <td className="p-3 border">
-                        <span className={`px-2 py-1 rounded ${statusClass}`}>
-                          {status}
-                        </span>
-                      </td>
-                      <td className="p-3 border">
-                        <button
-                          onClick={() => handleViewDocument(doc)}
-                          className="flex items-center text-blue-600 hover:text-blue-800"
-                        >
-                          <Eye className="w-4 h-4 mr-1" />
-                          View
-                        </button>
-                      </td>
-                      <td className="p-3 border">
-                        <Link href={`/hr/empDocuments?id=${doc.id}`}>
-                          Update
-                        </Link>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          {showImage && selectedDoc && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-              <div className="bg-white rounded-lg p-4 max-w-4xl w-full">
-                <div className="flex justify-between mb-4">
-                  <h3 className="text-lg font-semibold">{selectedDoc.name}</h3>
-                  <button
-                    onClick={() => setShowImage(false)}
-                    className="text-gray-500 hover:text-gray-700"
-                  >
-                    ✕
-                  </button>
-                </div>
-                <img
-                  src={selectedDoc.file}
-                  alt={selectedDoc.name}
-                  className=""
-                  style={{ height: "100px", width: "100px" }}
-                />
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Identification Information */}
-      <div>
-        <div className={styles.personalContainer}>
-          <div className={styles.personalHead}> Identification </div>
-
-          <div className={styles.tableContainer}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>EID No</th>
-                  <th>Start Date</th>
-                  <th>Expiry Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    {fetchingData ? (
-                      <Skeleton width="80%" />
-                    ) : (
-                      employeeList?.employee?.eid_no
-                    )}
-                  </td>
-                  <td>
-                    {fetchingData ? (
-                      <Skeleton width="80%" />
-                    ) : (
-                      employeeList?.employee?.eid_start
-                    )}
-                  </td>
-                  <td>
-                    {fetchingData ? (
-                      <Skeleton width="80%" />
-                    ) : (
-                      employeeList?.employee?.eid_expiry
-                    )}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div className={styles.personalContainer}>
-          <div className={styles.personalHead}> Passport Details </div>
-
-          <div className={styles.tableContainer}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Passport No</th>
-                  <th>Start Date</th>
-                  <th>Expiry Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    {fetchingData ? (
-                      <Skeleton width="80%" />
-                    ) : (
-                      employeeList?.employee?.passport_no
-                    )}
-                  </td>
-                  <td>
-                    {fetchingData ? (
-                      <Skeleton width="80%" />
-                    ) : (
-                      employeeList?.employee?.passport_start
-                    )}
-                  </td>
-                  <td>
-                    {fetchingData ? (
-                      <Skeleton width="80%" />
-                    ) : (
-                      employeeList?.employee?.passport_expiry
-                    )}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      {/* Insurance */}
-      <div>
-        <div className={styles.personalContainer}>
-          <div className={styles.personalHead}> Health Insurance </div>
-
-          <div className={styles.tableContainer}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Health Insurance</th>
-                  <th>Start Date</th>
-                  <th>Expiry Date</th>
-                  <th> DM Card</th>
-                  <th> Card Start </th>
-                  <th> Card Expiry </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    {fetchingData ? (
-                      <Skeleton width="80%" />
-                    ) : (
-                      employeeList?.employee?.hi_status
-                    )}
-                  </td>
-                  <td>
-                    {fetchingData ? (
-                      <Skeleton width="80%" />
-                    ) : (
-                      employeeList?.employee?.hi_start
-                    )}
-                  </td>
-                  <td>
-                    {fetchingData ? (
-                      <Skeleton width="80%" />
-                    ) : (
-                      employeeList?.employee?.hi_expiry
-                    )}
-                  </td>
-                  <td>
-                    {fetchingData ? (
-                      <Skeleton width="80%" />
-                    ) : (
-                      employeeList?.employee?.dm_card
-                    )}
-                  </td>
-                  <td>
-                    {fetchingData ? (
-                      <Skeleton width="80%" />
-                    ) : (
-                      employeeList?.employee?.dm_start
-                    )}
-                  </td>
-                  <td>
-                    {fetchingData ? (
-                      <Skeleton width="80%" />
-                    ) : (
-                      employeeList?.employee?.hi_expiry
-                    )}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div className={styles.personalContainer}>
-          <div className={styles.personalHead}> Unemployment Insurance </div>
-
-          <div className={styles.tableContainer}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th> Unemployment Insurance status</th>
-                  <th> Start Date </th>
-                  <th> Expiry Date </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    {fetchingData ? (
-                      <Skeleton width="80%" />
-                    ) : (
-                      employeeList?.employee?.ui_status
-                    )}
-                  </td>
-                  <td>
-                    {fetchingData ? (
-                      <Skeleton width="80%" />
-                    ) : (
-                      employeeList?.employee?.ui_start
-                    )}
-                  </td>
-                  <td>
-                    {fetchingData ? (
-                      <Skeleton width="80%" />
-                    ) : (
-                      employeeList?.employee?.ui_expiry
-                    )}
-                  </td>
-                </tr>
+                        return (
+                          <tr key={doc.id} className="hover:bg-gray-50">
+                            <td className="p-3 border">{doc.name}</td>
+                            <td className="p-3 border">{doc.start}</td>
+                            <td className="p-3 border">{doc.expiry}</td>
+                            <td className="p-3 border">
+                              <span
+                                className={`px-2 py-1 rounded ${statusClass}`}
+                              >
+                                {status}
+                              </span>
+                            </td>
+                            <td className="p-3 border">
+                              <Link
+                                href={`/hr/empDocuments?id=${doc.id}&name=${doc.name}`}
+                              >
+                                Update
+                              </Link>
+                            </td>
+                          </tr>
+                        );
+                      } else {
+                        // Document missing
+                        return (
+                          <tr key={docName} className="hover:bg-gray-50">
+                            <td className="p-3 border">{docName}</td>
+                            <td className="p-3 border">-</td>
+                            <td className="p-3 border">-</td>
+                            <td className="p-3 border">
+                              <span className="px-2 py-1 rounded bg-red-100 text-red-600">
+                                Missing
+                              </span>
+                            </td>
+                            <td className="p-3 border">
+                              <Link
+                                href={`/hr/empDocuments?id=${employeeList.id}&name=${docName}`}
+                              >
+                                Update
+                              </Link>
+                            </td>
+                          </tr>
+                        );
+                      }
+                    })}
               </tbody>
             </table>
           </div>
@@ -495,6 +360,7 @@ const Page = () => {
         </div>
       </div>
 
+      {/* Stock Information */}
       <div className={styles.personalDetailsContainer}>
         <div className={styles.personalContainer}>
           <div className={styles.personalHead}>Stock</div>
@@ -510,34 +376,56 @@ const Page = () => {
                 </tr>
               </thead>
               <tbody>
-                {employeeList.stocks?.map((stock) => (
-                  <tr key={stock.id}>
-                    <td>{stock?.product?.product_name}</td>
-                    <td>{stock.total_qty}</td>
-                    <td>{stock.remaining_qty}</td>
-                    <td>
-                      <Link
-                        href={`/stock?id=${encodeURIComponent(
-                          employeeList.id
-                        )}&product_id=${encodeURIComponent(stock.product_id)}`}
-                      >
-                        <span className="text-blue-600 hover:text-blue-800">
-                          View Details
-                        </span>
-                      </Link>
+                {fetchingData ? (
+                  // Render Skeleton rows while data is loading
+                  renderStockSkeletonRows(3)
+                ) : employeeList.stocks?.length > 0 ? (
+                  employeeList.stocks.map((stock) => (
+                    <tr key={stock.id} className="hover:bg-gray-50">
+                      <td>{stock?.product?.product_name}</td>
+                      <td>{stock.total_qty}</td>
+                      <td>{stock.remaining_qty}</td>
+                      <td>
+                        <Link
+                          href={`/stock?id=${encodeURIComponent(
+                            employeeList.id
+                          )}&product_id=${encodeURIComponent(
+                            stock.product_id
+                          )}`}
+                        >
+                          <span className="text-blue-600 hover:text-blue-800">
+                            View Details
+                          </span>
+                        </Link>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="4" className="p-3 text-center">
+                      No stock information available.
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
         </div>
       </div>
 
+      {/* Jobs Information */}
       <div className={styles.personalDetailsContainer}>
         <div className={styles.personalContainer}>
           <div className={styles.personalHead}>Jobs</div>
-          <EmpUpcomingJobs employeeCompany={employeeCompany} />
+          {fetchingData ? (
+            // Render Skeleton while jobs are loading
+            <div>
+              <Skeleton variant="text" width="40%" height={30} />
+              <Skeleton variant="rectangular" width="100%" height={200} />
+            </div>
+          ) : (
+            <EmpUpcomingJobs employeeCompany={employeeCompany} />
+          )}
         </div>
       </div>
     </div>
