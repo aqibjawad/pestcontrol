@@ -46,8 +46,6 @@ const Page = () => {
     cancelEditing,
   } = useVehicles();
 
-  console.log("Current employeesList:", employeesList);
-
   const handleEditClick = (id, number) => {
     startEditing(id, number);
   };
