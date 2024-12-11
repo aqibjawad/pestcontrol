@@ -1,15 +1,23 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Grid, Typography, Button } from "@mui/material";
+import { Grid, Typography, Button, CircularProgress } from "@mui/material";
 import InputWithTitle3 from "@/components/generic/InputWithTitle3";
 import Dropdown from "../../../components/generic/Dropdown";
 import UploadImagePlaceholder from "../../../components/generic/uploadImage";
 import APICall from "../../../networkUtil/APICall"; // Import your API utility
 import { getAllEmpoyesUrl } from "../../../networkUtil/Constants"; // Assuming you have constants defined
-
+import GreenButton from "@/components/generic/GreenButton";
+import { AppAlerts } from "../../../Helper/AppAlerts";
+import { useRouter } from "next/navigation";
 const EmployeeDocuments = () => {
   const api = new APICall();
+
+  const appAlerts = new AppAlerts();
+
+  const router = useRouter();
+
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
 
   const [userId, setUserId] = useState(null);
   const [selectedDocument, setSelectedDocument] = useState({
@@ -78,8 +86,27 @@ const EmployeeDocuments = () => {
   };
 
   const handleSubmit = async () => {
+    setLoadingSubmit(true);
+
     if (!userId) {
-      alert("User ID not found!");
+      appAlerts.errorAlert("User ID not found!");
+      setLoadingSubmit(false);
+      return;
+    } else if (!selectedDocument.type) {
+      appAlerts.errorAlert("Document type is required!");
+      setLoadingSubmit(false);
+      return;
+    } else if (!selectedDocument.start_date) {
+      appAlerts.errorAlert("Start date is required!");
+      setLoadingSubmit(false);
+      return;
+    } else if (!selectedDocument.end_date) {
+      appAlerts.errorAlert("End date is required!");
+      setLoadingSubmit(false);
+      return;
+    } else if (!selectedDocument.image) {
+      appAlerts.errorAlert("Document image is required!");
+      setLoadingSubmit(false);
       return;
     }
 
@@ -101,16 +128,10 @@ const EmployeeDocuments = () => {
       );
 
       if (response.status === "success") {
-        alert("Document uploaded successfully!");
-        setSelectedDocument({
-          type: "",
-          start_date: "",
-          end_date: "",
-          image: null,
-          description: "",
-        });
+        appAlerts.successAlert("Document uploaded successfully!");
+        router.back();
       } else {
-        alert("Failed to upload document");
+        appAlerts.errorAlert("Failed to upload document.");
       }
     } catch (error) {
       console.error("Error uploading document:", error);
@@ -190,7 +211,18 @@ const EmployeeDocuments = () => {
             />
           </Grid>
           <Grid item xs={12}>
-            <Button
+            <GreenButton
+              onClick={handleSubmit}
+              title={
+                loadingSubmit ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : (
+                  "Submit"
+                )
+              }
+            />
+
+            {/* <Button
               variant="contained"
               color="primary"
               onClick={handleSubmit}
@@ -202,7 +234,7 @@ const EmployeeDocuments = () => {
               }
             >
               Submit Document
-            </Button>
+            </Button> */}
           </Grid>
         </Grid>
       )}

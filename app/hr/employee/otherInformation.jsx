@@ -106,7 +106,7 @@ const OtherInfo = ({ data, onChange, handleSubmit, sendingData }) => {
             onChange={(name, value) => onChange("commission_per", value)}
           />
         </Grid>
-        <Grid item xs={12} md={6}>
+        {/* <Grid item xs={12} md={6}>
           <InputWithTitle3
             title="Labour Card Expiry"
             type="date"
@@ -114,8 +114,7 @@ const OtherInfo = ({ data, onChange, handleSubmit, sendingData }) => {
             value={data.labour_card_expiry}
             onChange={(name, value) => onChange("labour_card_expiry", value)}
           />
-        </Grid>
-        s
+        </Grid> */}
       </Grid>
 
       <div className="mb-10"></div>
