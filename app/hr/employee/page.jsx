@@ -10,7 +10,6 @@ import APICall from "@/networkUtil/APICall";
 import { addEmployee } from "@/networkUtil/Constants";
 import { AppAlerts } from "@/Helper/AppAlerts";
 import { useRouter } from "next/navigation";
-import withAuth from "@/utils/withAuth";
 
 const Page = () => {
   const api = new APICall();
@@ -20,7 +19,6 @@ const Page = () => {
   const [tabNames] = useState([
     "Personal Information",
     "Other Information",
-    // "Other Information",
   ]);
 
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -39,15 +37,6 @@ const Page = () => {
     passport_no: "",
     passport_start: "",
     passport_expiry: "",
-    hi_status: "",
-    hi_start: "",
-    hi_expiry: "",
-    ui_status: "",
-    ui_start: "",
-    ui_expiry: "",
-    dm_card: "",
-    dm_start: "",
-    dm_expiry: "",
     relative_name: "",
     relation: "",
     emergency_contact: "",
@@ -55,13 +44,12 @@ const Page = () => {
     allowance: "",
     other: "",
     total_salary: "",
-    commission_per:"",
+    commission_per: "",
     labour_card_expiry: ""
   });
 
   const [errors, setErrors] = useState({
     personalInfo: {},
-    insurance: {},
     otherInfo: {},
   });
 
@@ -103,52 +91,6 @@ const Page = () => {
     if (formData.email && !isValidEmail(formData.email)) {
       return "Invalid email address";
     }
-    if (!formData.hi_status) {
-      return "Health Insurance status is required";
-    }
-    if (!formData.ui_status) {
-      return "Unemployment status is required";
-    }
-    if (formData.hi_status === "Active") {
-      if (!formData.hi_start)
-        return "Health Insurance start date is required when status is Active";
-      if (!formData.hi_expiry)
-        return "Health Insurance expiry date is required when status is Active";
-    }
-    if (formData.ui_status === "Active") {
-      if (!formData.ui_start)
-        return "Unemployment Insurance start date is required when status is Active";
-      if (!formData.ui_expiry)
-        return "Unemployment Insurance expiry date is required when status is Active";
-    }
-    for (const [key, value] of Object.entries(formData)) {
-      if (value === "" || value === null) {
-        if (
-          (key === "hi_start" || key === "hi_expiry") &&
-          formData.hi_status !== "Active"
-        ) {
-          continue;
-        }
-        if (
-          (key === "ui_start" || key === "ui_expiry") &&
-          formData.ui_status !== "Active"
-        ) {
-          continue;
-        }
-        switch (key) {
-          case "ui_start":
-            return "Unemployment Insurance start date is required";
-          case "ui_expiry":
-            return "Unemployment Insurance expiry date is required";
-          case "hi_start":
-            return "Health Insurance start date is required";
-          case "hi_expiry":
-            return "Health Insurance expiry date is required";
-          default:
-            return `${key.replace("_", " ")} is required`;
-        }
-      }
-    }
     return null;
   };
 
@@ -163,7 +105,7 @@ const Page = () => {
         console.log(response);
         if (response.status === "success") {
           alert.successAlert(response.message);
-          router.replace("/operations/viewEmployees");
+          router.replace("/hr/hr");
         } else {
           alert.errorAlert(response.error.message);
         }
@@ -204,15 +146,15 @@ const Page = () => {
             />
           </div>
 
-          <div className={selectedIndex === 1 ? `block` : "hidden"}>
-            <OtherInfo
+          {/* <div className={selectedIndex === 1 ? `block` : "hidden"}>
+            <Insurance
               data={formData}
-              errors={errors.OtherInfo}
+              errors={errors.insurance}
               onChange={(field, value) => handleInputChange(field, value)}
             />
-          </div>
+          </div> */}
 
-          {/* <div className={selectedIndex === 2 ? `block` : "hidden"}>
+          <div className={selectedIndex === 1 ? `block` : "hidden"}>
             <OtherInfo
               data={formData}
               errors={errors.otherInfo}
@@ -220,11 +162,11 @@ const Page = () => {
               handleSubmit={handleSubmit}
               sendingData={sendingData}
             />
-          </div> */}
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default withAuth(Page);
+export default Page;

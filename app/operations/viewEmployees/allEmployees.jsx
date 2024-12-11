@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Skeleton, Switch } from "@mui/material";
+import { Skeleton, Switch, Tabs, Tab } from "@mui/material";
 import Link from "next/link";
 import { FaPencil } from "react-icons/fa6";
 import Swal from "sweetalert2";
@@ -13,9 +13,20 @@ const AllEmployees = () => {
 
   const [fetchingData, setFetchingData] = useState(false);
   const [employeesList, setEmployeesList] = useState([]);
+  const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [loading, setLoading] = useState({});
   const [open, setOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [selectedRole, setSelectedRole] = useState(0); // Default to "All"
+
+  const roles = [
+    { label: "All", value: 0 },
+    { label: "HR-Manager", value: 2 },
+    { label: "Operations", value: 3 },
+    { label: "Office Staff", value: 4 },
+    { label: "Sales-Manager", value: 5 },
+    { label: "Accountant", value: 6 },
+  ];
 
   const allDocumentTypes = [
     "Labor Card",
@@ -34,6 +45,17 @@ const AllEmployees = () => {
   useEffect(() => {
     fetchAllEmployees();
   }, []);
+
+  useEffect(() => {
+    // Filter employees when selectedRole changes
+    if (selectedRole === 0) {
+      setFilteredEmployees(employeesList);
+    } else {
+      setFilteredEmployees(
+        employeesList.filter((emp) => emp.role?.id === selectedRole)
+      );
+    }
+  }, [selectedRole, employeesList]);
 
   const fetchAllEmployees = async () => {
     setFetchingData(true);
@@ -139,7 +161,7 @@ const AllEmployees = () => {
 
   const renderCards = () => (
     <div className="flex flex-wrap gap-4 mt-5">
-      {employeesList.map((employee) => {
+      {filteredEmployees.map((employee) => {
         const missingDocs = getMissingDocuments(employee?.employee?.documents);
         const existingDocs = employee?.employee?.documents || [];
 
@@ -161,38 +183,17 @@ const AllEmployees = () => {
               </p>
             </div>
 
-            {/* Documents Section */}
             <div className="mt-4">
-              {/* <div className="mb-3">
-                <h4 className="font-semibold text-green-600">
-                  Available Documents
-                </h4>
-                <div className="max-h-32 overflow-y-auto">
-                  {existingDocs.map((doc) => (
-                    <div
-                      key={doc.id}
-                      className="text-sm p-2 my-1 bg-green-50 rounded"
-                    >
-                      {doc.name}
-                    </div>
-                  ))}
-                </div>
-              </div> */}
-
-              <div>
-                <h4 className="font-semibold text-red-600">
-                  Missing Documents
-                </h4>
-                <div className="max-h-32 overflow-y-auto">
-                  {missingDocs.map((docName) => (
-                    <div
-                      key={docName}
-                      className="text-sm p-2 my-1 bg-red-50 rounded"
-                    >
-                      {docName}
-                    </div>
-                  ))}
-                </div>
+              <h4 className="font-semibold text-red-600">Missing Documents</h4>
+              <div className="max-h-32 overflow-y-auto">
+                {missingDocs.map((docName) => (
+                  <div
+                    key={docName}
+                    className="text-sm p-2 my-1 bg-red-50 rounded"
+                  >
+                    {docName}
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -224,6 +225,19 @@ const AllEmployees = () => {
   return (
     <div>
       <h1 className="text-xl font-bold">All Employees</h1>
+      <Tabs
+        value={selectedRole}
+        onChange={(e, newValue) => setSelectedRole(newValue)}
+        indicatorColor="primary"
+        textColor="primary"
+        variant="scrollable"
+        scrollButtons="auto"
+        className="mt-4"
+      >
+        {roles.map((role) => (
+          <Tab key={role.value} label={role.label} value={role.value} />
+        ))}
+      </Tabs>
       {fetchingData ? renderSkeleton() : renderCards()}
       <EmployeeUpdateModal
         open={open}

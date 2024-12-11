@@ -8,17 +8,21 @@ import { Box, FormControl, Grid, Typography } from "@mui/material";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
+import Dropdown from "@/components/generic/Dropdown";
 
 const PersonalInformation = ({ data, onChange }) => {
+  const [brands, setBrandList] = useState([]);
+
   const [productImage, setProductForImage] = useState();
+
   const roles = [
-    { label: "Admin", value: 1 },
     { label: "HR-Manager", value: 2 },
-    { label: "Operation-Manager", value: 3 },
-    { label: "Operation Team", value: 4 },
-    { label: "Sales-Manger", value: 5 },
+    { label: "Operations", value: 3 },
+    { label: "Office Staff", value: 4 },
+    { label: "Sales-Manger", value: 4 },
     { label: "Accountant", value: 6 },
   ];
+
   const handleFileSelect = (file) => {
     setProductForImage(file);
     onChange("profile_image", file);
@@ -27,6 +31,25 @@ const PersonalInformation = ({ data, onChange }) => {
   const setSelectedRole = (value) => {
     onChange("role_id", value);
   };
+
+  const [selectedProfession, setSelectedProfession] = useState("");
+
+  const handleProfessionChange = (value) => {
+    setSelectedProfession(value);
+    console.log("Selected Profession:", value);
+  };
+
+  const professions = [
+    "HR Manager",
+    "Accountant",
+    "Operation Manager",
+    "Agriculture Engineer",
+    "Sales Manager",
+    "Pesticides Technician",
+    "Sales Officer",
+    "Receptionist",
+    "Office Boy",
+  ];
 
   return (
     <div>
@@ -38,7 +61,7 @@ const PersonalInformation = ({ data, onChange }) => {
 
       <div>
         <FormControl>
-          <div className="roleText">Select Role</div>
+          <div className="roleText">Select Designation</div>
           <RadioGroup
             aria-label="roles"
             name="roles"
@@ -132,13 +155,19 @@ const PersonalInformation = ({ data, onChange }) => {
           />
         </Grid>
         <Grid item lg={6} xs={12} md={6}>
-          <InputWithTitle2
+          {/* <InputWithTitle2
             title="Profession"
             type="text"
             placeholder="Profession"
             value={data.profession}
             name="profession"
             onChange={(name, value) => onChange("profession", value)}
+          /> */}
+
+          <Dropdown
+            onChange={handleProfessionChange}
+            title={"Select Profession"}
+            options={professions}
           />
         </Grid>
       </Grid>
