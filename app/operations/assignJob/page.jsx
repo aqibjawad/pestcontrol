@@ -52,15 +52,13 @@ const Page = () => {
   const [fetchingData, setFetchingData] = useState(false);
   const [jobList, setJobList] = useState({});
   const [salesManagers, setSalesManagers] = useState([]);
-  const [selectedManagerId, setSelectedManagerId] = useState("");
   const [managerNames, setManagerNames] = useState([]);
-  const [selectedManagers, setSelectedManagers] = useState(new Set());
   const [loadingDetails, setLoadingDetails] = useState(true);
   const [loadingManagers, setLoadingManagers] = useState(true);
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [jobStatus, setJobStatus] = useState("not_started");
   const [selectedCaptainId, setSelectedCaptainId] = useState(null);
-  const [selectedCaptainName, setSelectedCaptainName] = useState("")
+  const [selectedCaptainName, setSelectedCaptainName] = useState("");
 
   useEffect(() => {
     const currentUrl = window.location.href;
@@ -316,6 +314,19 @@ const Page = () => {
               value={formData.job_instructions}
               onChange={handleJobInstructionsChange}
             />
+
+            <div>
+              {jobList.reschedule_dates?.length > 1 ? (
+                // Show a time input field instead of "Reschedule"
+                <input
+                  type="time"
+                  style={{ fontSize: "15px" }}
+                  placeholder="Select Time"
+                />
+              ) : (
+                <span style={{ fontSize: "15px" }}>Regular Job</span>
+              )}
+            </div>
           </Grid>
 
           <Grid item lg={12} xs={12} md={4}>

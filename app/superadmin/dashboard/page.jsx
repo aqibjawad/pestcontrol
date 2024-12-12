@@ -56,6 +56,8 @@ const Page = () => {
   const [paymentList, setPaymentsList] = useState([]);
   const [fetchingData, setFetchingData] = useState(false);
   const [employeeList, setEmployeeList] = useState([]);
+  
+  console.log("employee list", employeeList)
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -294,21 +296,6 @@ const Page = () => {
                           >
                             {employee.name}
                           </Typography>
-                          {/* <FaPencil
-                            size={16}
-                            onClick={() => handleEditClick(employee)}
-                            style={{
-                              cursor: "pointer",
-                              color: "#4CAF50",
-                              marginLeft: "auto", // This will push the pencil to the right
-                            }}
-                            onMouseOver={(e) =>
-                              (e.currentTarget.style.color = "#45a049")
-                            }
-                            onMouseOut={(e) =>
-                              (e.currentTarget.style.color = "#4CAF50")
-                            }
-                          /> */}
                         </Stack>
 
                         <Box sx={{ mt: 2 }}>
@@ -451,7 +438,7 @@ const Page = () => {
             )}
 
             {selectedIndexTabs === 2 && <RescheduleJobs />}
-          </Box>
+          </Box> 
         </div>
       </div>
       {/* Add the EmployeeUpdateModal component */}

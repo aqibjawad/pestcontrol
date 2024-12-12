@@ -13,6 +13,7 @@ import {
   TableRow,
   TableContainer,
   Paper,
+  CircularProgress,
 } from "@mui/material";
 import styles from "../../styles/invoiceDetails.module.css";
 
@@ -20,6 +21,8 @@ import { serviceInvoice, clients } from "@/networkUtil/Constants";
 
 import APICall from "@/networkUtil/APICall";
 import withAuth from "@/utils/withAuth";
+
+import { format } from "date-fns";
 
 const invoiceData = {
   companyDetails: {
@@ -57,13 +60,9 @@ const Page = () => {
   const api = new APICall();
 
   const [id, setId] = useState(null);
-
   const [fetchingData, setFetchingData] = useState(false);
-
   const [invoiceList, setQuoteList] = useState(null);
-
   const [rowData, setRowData] = useState([]);
-
   const [error, setError] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(true);
 
@@ -228,6 +227,23 @@ const Page = () => {
     marginBottom: "1rem",
     borderRadius: "4px",
   };
+
+  if (loadingDetails) {
+    return (
+      <Layout>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -434,6 +450,31 @@ const Page = () => {
         </TableContainer>
       </div>
 
+      <div>
+        <div className={styles.totalAmount}>
+          (
+          {invoiceList?.total_amt && formatAmountDisplay(invoiceList.total_amt)}
+          )
+        </div>
+
+        <div className={styles.descrp}>
+          Payment will be paid after receiving of invoice within 30 days period.
+        </div>
+
+        <div className={styles.totalAmount}>Bank Details:</div>
+
+        <div className={styles.Bankdescrp}>
+          Account Holder : ACCURATE PEST CONTROL SERVICES L.L.C IBAN:
+          AE980400000883216722001
+        </div>
+
+        <div className={styles.Bankdescrp}>
+          Account: 0883216722001 Bank Name : RAK BANK
+        </div>
+
+        <div className={styles.Bankdescrp}>Branch: DRAGON MART, DUBAI</div>
+      </div>
+
       <div className="mt-2">
         <Typography className="" variant="body2" sx={{ fontWeight: "bold" }}>
           Ledger
@@ -448,7 +489,17 @@ const Page = () => {
                     padding: "4px 16px",
                     lineHeight: "1rem",
                   }}
-                  align="right"
+                  align="center"
+                >
+                  Date
+                </TableCell>
+                <TableCell
+                  sx={{
+                    color: "white",
+                    padding: "4px 16px",
+                    lineHeight: "1rem",
+                  }}
+                  align="center"
                 >
                   Description
                 </TableCell>
@@ -458,7 +509,7 @@ const Page = () => {
                     padding: "4px 16px",
                     lineHeight: "1rem",
                   }}
-                  align="right"
+                  align="center"
                 >
                   Credit
                 </TableCell>
@@ -468,7 +519,7 @@ const Page = () => {
                     padding: "4px 16px",
                     lineHeight: "1rem",
                   }}
-                  align="right"
+                  align="center"
                 >
                   Debit
                 </TableCell>
@@ -493,7 +544,17 @@ const Page = () => {
                       padding: "4px 16px",
                       lineHeight: "1rem",
                     }}
-                    align="right"
+                    align="left"
+                  >
+                    {format(new Date(row.updated_at), "yyyy-MM-dd")}
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      color: "black",
+                      padding: "4px 16px",
+                      lineHeight: "1rem",
+                    }}
+                    align="left"
                   >
                     {row.description}
                   </TableCell>
@@ -503,7 +564,7 @@ const Page = () => {
                       padding: "4px 16px",
                       lineHeight: "1rem",
                     }}
-                    align="right"
+                    align="left"
                   >
                     {row.cr_amt}
                   </TableCell>
@@ -513,7 +574,7 @@ const Page = () => {
                       padding: "4px 16px",
                       lineHeight: "1rem",
                     }}
-                    align="right"
+                    align="left"
                   >
                     {row.dr_amt}
                   </TableCell>
@@ -523,7 +584,7 @@ const Page = () => {
                       padding: "4px 16px",
                       lineHeight: "1rem",
                     }}
-                    align="right"
+                    align="left"
                   >
                     {row.cash_balance}
                   </TableCell>
@@ -532,33 +593,6 @@ const Page = () => {
             </TableBody>
           </Table>
         </TableContainer>
-      </div>
-
-      <div>
-        <div className={styles.totalAmount}>
-          (
-          {invoiceList?.total_amt && formatAmountDisplay(invoiceList.total_amt)}
-          )
-        </div>
-
-        <div className={styles.descrp}>
-          Payment will be paid after receiving of invoice within 30 days period.
-        </div>
-
-        <div className={styles.totalAmount}>Bank Details:</div>
-
-        <div className={styles.Bankdescrp}>
-          Account Holder : ACCURATE PEST CONTROL SERVICES L.L.C IBAN:
-          AE980400000883216722001
-        </div>
-
-        <div className={styles.Bankdescrp}>
-          Account: 0883216722001 Bank Name : RAK BANK
-        </div>
-
-        <div className={styles.Bankdescrp}>Branch: DRAGON MART, DUBAI</div>
-
-        <div className={`${styles.Bankdescrp} mt-5`}>Best Regards</div>
       </div>
 
       <Grid className="" container spacing={2}>

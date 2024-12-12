@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Layout from "../../components/layout";
-import { Box, Grid, Typography, Paper } from "@mui/material";
-import styles from "../../styles/invoiceDetails.module.css";
+import { Grid, Typography, Paper, Skeleton } from "@mui/material";
 
 import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
 
@@ -46,10 +45,23 @@ const Page = () => {
 
   const [id, setId] = useState(null);
   const [fetchingData, setFetchingData] = useState(false);
-  const [invoiceList, setQuoteList] = useState(null);
+  const [invoiceList, setQuoteList] = useState([]);
   const [loadingDetails, setLoadingDetails] = useState(true);
 
   const [amount, setAmount] = useState(true);
+
+  const getQueryParam = (url, param) => {
+    const searchParams = new URLSearchParams(new URL(url).search);
+    return searchParams.get(param);
+  };
+
+  // Get current month in YYYY-MM format
+  const getCurrentMonth = () => {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    return `${year}-${month}`;
+  };
 
   useEffect(() => {
     // Get the current URL
@@ -58,9 +70,6 @@ const Page = () => {
     // Extract id and amount
     const urlId = getQueryParam(currentUrl, "id");
     const urlAmount = getQueryParam(currentUrl, "amount");
-
-    console.log("ID:", urlId);
-    console.log("Amount:", urlAmount);
 
     setId(urlId);
     setAmount(urlAmount); // Assuming setAmount is defined in your component
@@ -72,11 +81,14 @@ const Page = () => {
     }
   }, [id]);
 
-  const getAllQuotes = async () => {
+  const getAllQuotes = async (employeeId) => {
     setFetchingData(true);
     try {
-      const response = await api.getDataWithToken(`${getAllEmpoyesUrl}/${id}`);
-      setQuoteList(response.data);
+      const currentMonth = getCurrentMonth();
+      const response = await api.getDataWithToken(
+        `${getAllEmpoyesUrl}/salary/get?employee_user_id=${employeeId}&salary_month=${currentMonth}`
+      );
+      setQuoteList(response.data[0]);
     } catch (error) {
       console.error("Error fetching quotes:", error);
     } finally {
@@ -171,6 +183,7 @@ const Page = () => {
 
   return (
     <Layout>
+      
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <Typography variant="body1" sx={{ fontWeight: "bold" }}>
@@ -186,29 +199,149 @@ const Page = () => {
             Pay Slip To
           </Typography>
           <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-            {invoiceList?.name}
+            {invoiceList?.user?.name}
           </Typography>
           <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-            {invoiceList?.email}
+            {invoiceList?.user?.email}
           </Typography>
         </Grid>
       </Grid>
 
       <div className="mt-5">
-        <Grid container spacing={2} sx={{ padding: 2 }}>
-          <Grid item xs={5}>
-            <Grid container spacing={2} component={Paper} sx={{ padding: 2 }}>
+        {fetchingData ? (
+          <Skeleton variant="rectangular" width="100%" height="400px" />
+        ) : (
+          <div>
+            <Grid container spacing={2} sx={{ padding: 2 }}>
+              {/* Left Section */}
+              <Grid item xs={5}>
+                <Grid
+                  container
+                  spacing={2}
+                  component={Paper}
+                  sx={{ padding: 2 }}
+                >
+                  {/* Header Row */}
+                  <Grid item xs={6}>
+                    <Typography
+                      variant="h6"
+                      sx={{ fontWeight: "bold", color: "#32A92E" }}
+                    >
+                      Basic
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontWeight: "bold",
+                        color: "#32A92E",
+                        textAlign: "right",
+                      }}
+                    >
+                      Allowance
+                    </Typography>
+                  </Grid>
+                  {/* Data Row */}
+                  <Grid item xs={6}>
+                    <Typography
+                      sx={{
+                        color: "black",
+                        padding: "4px 16px",
+                        lineHeight: "1rem",
+                      }}
+                    >
+                      {invoiceList?.basic_salary}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Typography
+                      sx={{
+                        color: "black",
+                        padding: "4px 16px",
+                        lineHeight: "1rem",
+                        textAlign: "right",
+                      }}
+                    >
+                      {invoiceList?.allowance}
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </Grid>
+              {/* Right Section */}
+              <Grid className="ml-20" item xs={5}>
+                <Grid
+                  container
+                  spacing={2}
+                  component={Paper}
+                  sx={{ padding: 2 }}
+                >
+                  {/* Header Row */}
+                  <Grid item xs={6}>
+                    <Typography
+                      variant="h6"
+                      sx={{ fontWeight: "bold", color: "#32A92E" }}
+                    >
+                      Other
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontWeight: "bold",
+                        color: "#32A92E",
+                        textAlign: "right",
+                      }}
+                    >
+                      Payable
+                    </Typography>
+                  </Grid>
+                  {/* Data Row */}
+                  <Grid item xs={6}>
+                    <Typography
+                      sx={{
+                        color: "black",
+                        padding: "4px 16px",
+                        lineHeight: "1rem",
+                      }}
+                    >
+                      {invoiceList?.other}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Typography
+                      sx={{
+                        color: "black",
+                        padding: "4px 16px",
+                        lineHeight: "1rem",
+                        textAlign: "right",
+                      }}
+                    >
+                      {invoiceList?.paid_total_salary}
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
+
+            <Grid
+              className="mt-5"
+              container
+              spacing={2}
+              component={Paper}
+              sx={{ padding: 2 }}
+            >
               {/* Header Row */}
-              <Grid item xs={6}>
+              <Grid item xs={4}>
                 <Typography
                   variant="h6"
                   sx={{ fontWeight: "bold", color: "#32A92E" }}
                 >
-                  Basic
+                  Comission
                 </Typography>
               </Grid>
-
-              <Grid item xs={6}>
+              <Grid item xs={4}>
                 <Typography
                   variant="h6"
                   sx={{
@@ -217,51 +350,10 @@ const Page = () => {
                     textAlign: "right",
                   }}
                 >
-                  Allowance
+                  Total Fines (AED)
                 </Typography>
               </Grid>
-
-              {/* Data Row */}
-              <Grid item xs={6}>
-                <Typography
-                  sx={{
-                    color: "black",
-                    padding: "4px 16px",
-                    lineHeight: "1rem",
-                  }}
-                >
-                  {invoiceList?.employee?.basic_salary}
-                </Typography>
-              </Grid>
-
-              <Grid item xs={6}>
-                <Typography
-                  sx={{
-                    color: "black",
-                    padding: "4px 16px",
-                    lineHeight: "1rem",
-                    textAlign: "right",
-                  }}
-                >
-                  {invoiceList?.employee?.allowance}
-                </Typography>
-              </Grid>
-            </Grid>
-          </Grid>
-
-          <Grid className="ml-20" item xs={5}>
-            <Grid container spacing={2} component={Paper} sx={{ padding: 2 }}>
-              {/* Header Row */}
-              <Grid item xs={6}>
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: "bold", color: "#32A92E" }}
-                >
-                  Other
-                </Typography>
-              </Grid>
-
-              <Grid item xs={6}>
+              <Grid item xs={4}>
                 <Typography
                   variant="h6"
                   sx={{
@@ -270,12 +362,11 @@ const Page = () => {
                     textAlign: "right",
                   }}
                 >
-                  Payable
+                  Advance Payments
                 </Typography>
               </Grid>
-
               {/* Data Row */}
-              <Grid item xs={6}>
+              <Grid item xs={4}>
                 <Typography
                   sx={{
                     color: "black",
@@ -283,11 +374,10 @@ const Page = () => {
                     lineHeight: "1rem",
                   }}
                 >
-                  {invoiceList?.employee?.other}
+                  {invoiceList?.commission_per || 0}
                 </Typography>
               </Grid>
-
-              <Grid item xs={6}>
+              <Grid item xs={4}>
                 <Typography
                   sx={{
                     color: "black",
@@ -296,73 +386,30 @@ const Page = () => {
                     textAlign: "right",
                   }}
                 >
-                  {amount}
+                  {invoiceList?.total_fines}
+                </Typography>
+              </Grid>
+              <Grid item xs={4}>
+                <Typography
+                  sx={{
+                    color: "black",
+                    padding: "4px 16px",
+                    lineHeight: "1rem",
+                    textAlign: "right",
+                  }}
+                >
+                  {invoiceList?.adv_paid || 0}
                 </Typography>
               </Grid>
             </Grid>
-          </Grid>
-        </Grid>
-
-        <Grid
-          className="mt-5"
-          container
-          spacing={2}
-          component={Paper}
-          sx={{ padding: 2 }}
-        >
-          {/* Header Row */}
-          <Grid item xs={6}>
-            <Typography
-              variant="h6"
-              sx={{ fontWeight: "bold", color: "#32A92E" }}
-            >
-              Comission
-            </Typography>
-          </Grid>
-
-          <Grid item xs={6}>
-            <Typography
-              variant="h6"
-              sx={{ fontWeight: "bold", color: "#32A92E", textAlign: "right" }}
-            >
-              Total Salary (AED)
-            </Typography>
-          </Grid>
-
-          {/* Data Row */}
-          <Grid item xs={6}>
-            <Typography
-              sx={{ color: "black", padding: "4px 16px", lineHeight: "1rem" }}
-            >
-              {invoiceList?.employee?.commission_per}
-            </Typography>
-          </Grid>
-
-          <Grid item xs={6}>
-            <Typography
-              sx={{
-                color: "black",
-                padding: "4px 16px",
-                lineHeight: "1rem",
-                textAlign: "right",
-              }}
-            >
-              {invoiceList?.employee?.total_salary &&
-              invoiceList?.employee?.commission_per
-                ? (
-                    invoiceList?.employee?.total_salary *
-                    (1 + invoiceList?.employee?.commission_per / 100)
-                  ).toFixed(2)
-                : "0.00"}
-            </Typography>
-          </Grid>
-        </Grid>
+          </div>
+        )}
       </div>
 
       <Grid className="mt-5" container spacing={2}>
         <Grid item xs={6}>
           <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-            {invoiceList?.name}
+            {invoiceList?.user?.name}
           </Typography>
         </Grid>
 
@@ -392,6 +439,7 @@ const Page = () => {
           <Typography variant="body2">Date :</Typography>
         </Grid>
       </Grid>
+
     </Layout>
   );
 };

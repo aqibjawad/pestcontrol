@@ -161,7 +161,7 @@ const Page = () => {
                     {fetchingData ? (
                       <Skeleton width="80%" />
                     ) : (
-                      employeeList.email
+                      employeeList?.email
                     )}
                   </td>
                   <td>

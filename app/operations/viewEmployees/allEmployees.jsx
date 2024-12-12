@@ -161,7 +161,7 @@ const AllEmployees = () => {
 
   const renderCards = () => (
     <div className="flex flex-wrap gap-4 mt-5">
-      {filteredEmployees.map((employee) => {
+      {filteredEmployees?.map((employee) => {
         const missingDocs = getMissingDocuments(employee?.employee?.documents);
         const existingDocs = employee?.employee?.documents || [];
 
