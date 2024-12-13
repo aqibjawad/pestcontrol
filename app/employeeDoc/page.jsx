@@ -34,6 +34,23 @@ const tabData = [
 ];
 
 const InsuranceForm = () => {
+  const [formDaata, setFormData] = useState({
+    name: "",
+    employment_letter: "",
+    offer_letter: "",
+    labor_insurance: "",
+    labor_payment: "",
+    entry_permit_inside: "",
+    change_status: "",
+    medical: "",
+    finger_print: "",
+    emirates_id: "",
+    contract_submission: "",
+    visa_stamping: "",
+    towjeeh: "",
+    iloe_insurance: "",
+  });
+
   const [activeTab, setActiveTab] = useState(0);
   const [statusCompleted, setStatusCompleted] = useState(
     Array(tabData.length).fill(false)

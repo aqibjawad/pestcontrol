@@ -11,6 +11,7 @@ import GreenButton from "@/components/generic/GreenButton";
 import Swal from "sweetalert2";
 import CircularProgress from "@mui/material/CircularProgress";
 import withAuth from "@/utils/withAuth";
+import Grid from "@mui/material/Grid";
 
 import { useRouter } from "next/navigation";
 import MonthPicker from "../monthPicker";
@@ -25,6 +26,13 @@ const SalaryCal = () => {
 
   const [employeeCompany, setEmployeeCompany] = useState([]);
   const [attendance_per, setAttendance] = useState("");
+
+  const [adv_received, setAdvRec] = useState("");
+
+  const [description, setDescription] = useState("");
+
+  const [adv_paid, setAdvPaid] = useState("");
+
   const [selectedMonth, setSelectedMonth] = useState(
     new Date().toISOString().slice(0, 7)
   );
@@ -36,6 +44,8 @@ const SalaryCal = () => {
 
   // Modal state
   const [openModal, setOpenModal] = useState(false);
+  const [openAdvModal, setOpenAdvModal] = useState(false);
+
   const [selectedEmployee, setSelectedEmployee] = useState(null);
 
   const [loadingSubmit, setLoadingSubmit] = useState(false);
@@ -79,12 +89,25 @@ const SalaryCal = () => {
 
   const handleOpenModal = (employee) => {
     setSelectedEmployee(employee);
-    setAttendance(employee.attendance_per || ""); // Pre-fill current attendance
+    setAttendance(employee.attendance_per || "");
+    setAdvRec(employee.adv_received || "");
     setOpenModal(true);
   };
 
   const handleCloseModal = () => {
     setOpenModal(false);
+    setSelectedEmployee(null);
+    setAttendance(""); // Reset attendance input
+  };
+
+  const handleOpenAdvModal = (employee) => {
+    setAdvPaid(employee.adv_paid || "");
+    setSelectedEmployee(employee);
+    setOpenAdvModal(true);
+  };
+
+  const handleClosAdveModal = () => {
+    setOpenAdvModal(false);
     setSelectedEmployee(null);
     setAttendance(""); // Reset attendance input
   };
@@ -110,6 +133,7 @@ const SalaryCal = () => {
     const obj = {
       employee_salary_id: selectedEmployee.id,
       attendance_per: attendance_per,
+      adv_received: adv_received,
     };
 
     try {
@@ -126,8 +150,6 @@ const SalaryCal = () => {
           text: "Attendance has been updated success  fully!",
         }).then(() => {
           const employeeId = selectedEmployee?.user?.id || selectedEmployee?.id;
-          console.log(employeeId);
-
           if (!employeeId) {
             console.error("Employee ID is missing");
             return;
@@ -135,11 +157,63 @@ const SalaryCal = () => {
           router.push(`/paySlip?id=${employeeId}`);
         });
       } else {
+        handleCloseModal();
         throw new Error(
           response.error?.message || "Failed to update attendance"
         );
       }
     } catch (error) {
+      handleCloseModal();
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.message || "Unexpected error occurred",
+      });
+    } finally {
+      setLoadingSubmit(false);
+    }
+  };
+
+  const handleSubmitAdv = async () => {
+    if (!selectedEmployee) return;
+
+    setLoadingSubmit(true);
+
+    const obj = {
+      employee_salary_id: selectedEmployee.id,
+      adv_paid: adv_paid,
+      description: description,
+    };
+
+    try {
+      const response = await api.postFormDataWithToken(
+        `${getAllEmpoyesUrl}/salary/advance`,
+        obj
+      );
+
+      if (response.status === "success") {
+        handleClosAdveModal();
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Attendance has been updated success  fully!",
+        }).then(() => {
+          const employeeId = selectedEmployee?.user?.id || selectedEmployee?.id;
+
+          if (!employeeId) {
+            console.error("Employee ID is missing");
+            return;
+          }
+        });
+        window.location.reload();
+      } else {
+        handleClosAdveModal();
+        throw new Error(
+          response.error?.message || "Failed to update attendance"
+        );
+      }
+    } catch (error) {
+      handleClosAdveModal();
       Swal.fire({
         icon: "error",
         title: "Error",
@@ -173,6 +247,9 @@ const SalaryCal = () => {
                   Attendance (%)
                 </th>
                 <th className="py-2 px-4 border-b border-gray-200 text-left">
+                  Advance
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 text-left">
                   Total Fines
                 </th>
                 <th className="py-2 px-4 border-b border-gray-200 text-left">
@@ -183,6 +260,9 @@ const SalaryCal = () => {
                 </th>
                 <th className="py-2 px-4 border-b border-gray-200 text-left">
                   Status
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 text-left">
+                  Advance Payment
                 </th>
                 <th className="py-2 px-4 border-b border-gray-200 text-left">
                   Update Attendence
@@ -209,10 +289,19 @@ const SalaryCal = () => {
                       <td className="py-5 px-4">{row?.user?.name}</td>
                       <td className="py-5 px-4">{row.allowance}</td>
                       <td className="py-5 px-4">{row.attendance_per}%</td>
+                      <td className="py-5 px-4">{row.adv_paid}</td>
                       <td className="py-5 px-4">{row.total_fines}</td>
                       <td className="py-5 px-4">{row.basic_salary}</td>
                       <td className="py-5 px-4">{row.paid_total_salary}</td>
                       <td className="py-5 px-4">{row.status}</td>
+                      <td className="py-5 px-4">
+                        <Button
+                          variant="outlined"
+                          onClick={() => handleOpenAdvModal(row)}
+                        >
+                          Add
+                        </Button>
+                      </td>
                       <td className="py-5 px-4">
                         <Button
                           variant="outlined"
@@ -242,18 +331,87 @@ const SalaryCal = () => {
             Update Attendance for {selectedEmployee?.user?.name}
           </div>
           <div className={styles.modalContent}>
-            <InputWithTitle
-              type="number"
-              title="Attendance Percentage"
-              placeholder="Enter attendance percentage (0-100)"
-              value={attendance_per}
-              onChange={(value) => setAttendance(value)}
-              min="0"
-              max="100"
-            />
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <InputWithTitle
+                  type="text"
+                  title="Attendance Percentage"
+                  placeholder="Enter attendance percentage (0-100)"
+                  value={attendance_per}
+                  onChange={(value) => setAttendance(value)}
+                  min="0"
+                  max="100"
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <InputWithTitle
+                  type="text"
+                  title="Advance Deduction"
+                  placeholder="Enter advance Deduction"
+                  value={adv_received}
+                  onChange={(value) => setAdvRec(value)}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <InputWithTitle
+                  type="text"
+                  title="Description"
+                  placeholder="Enter description"
+                  value={description}
+                  onChange={(value) => setDescription(value)}
+                />
+              </Grid>
+            </Grid>
+
             <div className="mt-5">
               <GreenButton
                 onClick={handleSubmit}
+                title={
+                  loadingSubmit ? (
+                    <CircularProgress size={20} color="inherit" />
+                  ) : (
+                    "Submit"
+                  )
+                }
+                disabled={loadingSubmit}
+              />
+            </div>
+          </div>
+        </Box>
+      </Modal>
+
+      <Modal open={openAdvModal} onClose={handleClosAdveModal}>
+        <Box className={styles.modalBox}>
+          <div className={styles.modalHead}>
+            Add Advance Payment for {selectedEmployee?.user?.name}
+          </div>
+          <div className={styles.modalContent}>
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <InputWithTitle
+                  type="text"
+                  title="Advance Payment"
+                  placeholder="Enter Advance Payment"
+                  value={adv_paid}
+                  onChange={(value) => setAdvPaid(value)}
+                  min="0"
+                  max="100"
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <InputWithTitle
+                  type="text"
+                  title="Description"
+                  placeholder="Enter description"
+                  value={description}
+                  onChange={(value) => setDescription(value)}
+                />
+              </Grid>
+            </Grid>
+
+            <div className="mt-5">
+              <GreenButton
+                onClick={handleSubmitAdv}
                 title={
                   loadingSubmit ? (
                     <CircularProgress size={20} color="inherit" />
