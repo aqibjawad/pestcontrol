@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import styles from "../../../styles/ledger.module.css";
 import {
   Skeleton,
@@ -40,6 +40,7 @@ const getParamsFromUrl = (url) => {
 };
 
 const Page = () => {
+  
   const api = new APICall();
 
   const [id, setId] = useState(null);

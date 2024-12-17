@@ -12,15 +12,8 @@ import {
   Typography,
   Skeleton,
 } from "@mui/material";
-import {
-  format,
-  subMonths,
-  startOfMonth,
-  endOfMonth,
-  isWithinInterval,
-  isBefore,
-} from "date-fns";
-import { serviceInvoice } from "@/networkUtil/Constants";
+import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
+import { outstandings } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
 import Link from "next/link";
 import withAuth from "@/utils/withAuth";
@@ -69,18 +62,9 @@ const Page = () => {
     setLoadingDetails(true);
 
     try {
-      const response = await api.getDataWithToken(`${serviceInvoice}`);
-      const dateRanges = calculateDateRanges();
+      const response = await api.getDataWithToken(`${outstandings}`);
 
-      let filteredData = response.data;
-      if (statusFilter !== "all") {
-        filteredData = response.data.filter(
-          (invoice) => invoice.status.toLowerCase() === statusFilter
-        );
-      }
-
-      setInvoiceList(filteredData);
-      processInvoiceData(filteredData, dateRanges);
+      setInvoiceList(response.data);
     } catch (error) {
       console.error("Error fetching quotes:", error);
       setInvoiceList([]);
@@ -91,86 +75,9 @@ const Page = () => {
     }
   };
 
-  const processInvoiceData = (data, dateRanges) => {
-    if (!Array.isArray(data)) return;
-
-    const summary = {
-      thisMonth: { total: 0, count: 0, ...dateRanges.thisMonth },
-      lastMonth: { total: 0, count: 0, ...dateRanges.lastMonth },
-      lastThreeMonths: { total: 0, count: 0, ...dateRanges.lastThreeMonths },
-      olderThanThreeMonths: {
-        total: 0,
-        count: 0,
-        end: dateRanges.olderThanThreeMonths.end,
-      },
-    };
-
-    try {
-      data.forEach((invoice) => {
-        if (!invoice?.issued_date) return;
-
-        const issueDate = new Date(invoice.issued_date);
-        const amount = parseFloat(invoice.total_amt) || 0;
-
-        // This Month
-        if (
-          isWithinInterval(issueDate, {
-            start: dateRanges.thisMonth.start,
-            end: dateRanges.thisMonth.end,
-          })
-        ) {
-          summary.thisMonth.total += amount;
-          summary.thisMonth.count++;
-          return;
-        }
-
-        // Last Month
-        if (
-          isWithinInterval(issueDate, {
-            start: dateRanges.lastMonth.start,
-            end: dateRanges.lastMonth.end,
-          })
-        ) {
-          summary.lastMonth.total += amount;
-          summary.lastMonth.count++;
-          return;
-        }
-
-        // Last 3 Months
-        if (
-          isWithinInterval(issueDate, {
-            start: dateRanges.lastThreeMonths.start,
-            end: dateRanges.lastThreeMonths.end,
-          })
-        ) {
-          summary.lastThreeMonths.total += amount;
-          summary.lastThreeMonths.count++;
-          return;
-        }
-
-        // Older than 3 months
-        if (isBefore(issueDate, dateRanges.olderThanThreeMonths.end)) {
-          summary.olderThanThreeMonths.total += amount;
-          summary.olderThanThreeMonths.count++;
-        }
-      });
-
-      setSummaryData(summary);
-    } catch (error) {
-      console.error("Error processing invoice data:", error);
-    }
-  };
-
   useEffect(() => {
     getAllQuotes();
-  }, [statusFilter]);
-
-  const formatCurrency = (amount) => {
-    return amount.toLocaleString(undefined, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
-  };
+  }, []);
 
   const headerCellStyle = {
     fontWeight: "bold",
@@ -260,89 +167,41 @@ const Page = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          <TableRow hover>
-            <TableCell sx={bodyCellStyle}>This Month</TableCell>
-            <TableCell sx={{ ...bodyCellStyle, textAlign: "right" }}>
-              {summaryData.thisMonth.count}
-            </TableCell>
-            <TableCell sx={{ ...bodyCellStyle, ...amountCellStyle }}>
-              {formatCurrency(summaryData.thisMonth.total)}
-            </TableCell>
-            <TableCell sx={{ ...bodyCellStyle, textAlign: "right" }}>
-              <Link
-                href={`/invoice?start=${format(
-                  summaryData.thisMonth.start,
-                  "yyyy-MM-dd"
-                )}&end=${format(summaryData.thisMonth.end, "yyyy-MM-dd")}`}
-                style={linkStyle}
-              >
-                View Details
-              </Link>
-            </TableCell>
-          </TableRow>
-          <TableRow hover>
-            <TableCell sx={bodyCellStyle}>Last Month</TableCell>
-            <TableCell sx={{ ...bodyCellStyle, textAlign: "right" }}>
-              {summaryData.lastMonth.count}
-            </TableCell>
-            <TableCell sx={{ ...bodyCellStyle, ...amountCellStyle }}>
-              {formatCurrency(summaryData.lastMonth.total)}
-            </TableCell>
-            <TableCell sx={{ ...bodyCellStyle, textAlign: "right" }}>
-              <Link
-                href={`/invoice?start=${format(
-                  summaryData.lastMonth.start,
-                  "yyyy-MM-dd"
-                )}&end=${format(summaryData.lastMonth.end, "yyyy-MM-dd")}`}
-                style={linkStyle}
-              >
-                View Details
-              </Link>
-            </TableCell>
-          </TableRow>
-          <TableRow hover>
-            <TableCell sx={bodyCellStyle}>Last 3 Months</TableCell>
-            <TableCell sx={{ ...bodyCellStyle, textAlign: "right" }}>
-              {summaryData.lastThreeMonths.count}
-            </TableCell>
-            <TableCell sx={{ ...bodyCellStyle, ...amountCellStyle }}>
-              {formatCurrency(summaryData.lastThreeMonths.total)}
-            </TableCell>
-            <TableCell sx={{ ...bodyCellStyle, textAlign: "right" }}>
-              <Link
-                href={`/invoice?start=${format(
-                  summaryData.lastThreeMonths.start,
-                  "yyyy-MM-dd"
-                )}&end=${format(
-                  summaryData.lastThreeMonths.end,
-                  "yyyy-MM-dd"
-                )}`}
-                style={linkStyle}
-              >
-                View Details
-              </Link>
-            </TableCell>
-          </TableRow>
-          <TableRow hover>
-            <TableCell sx={bodyCellStyle}>Older Than 3 Months</TableCell>
-            <TableCell sx={{ ...bodyCellStyle, textAlign: "right" }}>
-              {summaryData.olderThanThreeMonths.count}
-            </TableCell>
-            <TableCell sx={{ ...bodyCellStyle, ...amountCellStyle }}>
-              {formatCurrency(summaryData.olderThanThreeMonths.total)}
-            </TableCell>
-            <TableCell sx={{ ...bodyCellStyle, textAlign: "right" }}>
-              <Link
-                href={`/invoice?start=&end=${format(
-                  summaryData.olderThanThreeMonths.end,
-                  "yyyy-MM-dd"
-                )}`}
-                style={linkStyle}
-              >
-                View Details
-              </Link>
-            </TableCell>
-          </TableRow>
+          {invoiceList.map((row, index) => (
+            <TableRow key={index} hover>
+              <TableCell sx={bodyCellStyle}>{row.title}</TableCell>
+              <TableCell sx={{ ...bodyCellStyle, textAlign: "right" }}>
+                {row.count}
+              </TableCell>
+              <TableCell sx={{ ...bodyCellStyle, ...amountCellStyle }}>
+                {parseFloat(row.total_amt).toLocaleString("en-US", {
+                  style: "currency",
+                  currency: "AED",
+                })}
+              </TableCell>
+              <TableCell sx={{ ...bodyCellStyle, textAlign: "right" }}>
+                {/* <Link
+                  href={`/invoice?start=${
+                    row.title === "Older Than 3 Months"
+                      ? ""
+                      : format(
+                          summaryData[
+                            row.title.replace(/\s+/g, "").toLowerCase()
+                          ].start,
+                          "yyyy-MM-dd"
+                        )
+                  }&end=${format(
+                    summaryData[row.title.replace(/\s+/g, "").toLowerCase()]
+                      .end || new Date(),
+                    "yyyy-MM-dd"
+                  )}`}
+                  style={linkStyle}
+                >
+                  View Details
+                </Link> */}
+              </TableCell>
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
     </TableContainer>

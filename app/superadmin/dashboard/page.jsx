@@ -6,10 +6,14 @@ import AllJobs from "../../allJobs/page";
 import Vendors from "../../allVendors/page";
 import Quotation from "../../viewQuote/page";
 import Contracts from "../../../components/Contracts";
-import Finance from "../dashboard/components/Finance";
+// import Finance from "../dashboard/components/Finance";
 import Reports from "./components/Reports";
 import Scheduler from "./components/Scheduler";
 import { FaPencil } from "react-icons/fa6";
+
+import dynamic from 'next/dynamic'
+
+const Finance = dynamic(() => import('../dashboard/components/Finance'))
 
 import RescheduleJobs from "../../rescheduleJobs/reschedule";
 

@@ -89,6 +89,8 @@ const Operations = () => {
         `${dashboard}/count_clients?${queryParams.join("&")}`
       );
       setClientsList(response);
+      console.log("test client");
+      
     } catch (error) {
       console.error(error.message);
     } finally {

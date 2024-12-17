@@ -17,6 +17,8 @@ import { useRouter } from "next/navigation";
 import MonthPicker from "../monthPicker";
 import Link from "next/link";
 
+import "./index.css";
+
 const SalaryCal = () => {
   const api = new APICall();
   const router = useRouter();
@@ -26,12 +28,19 @@ const SalaryCal = () => {
 
   const [employeeCompany, setEmployeeCompany] = useState([]);
   const [attendance_per, setAttendance] = useState("");
+  const [paid_salary, setPaidSalary] = useState("");
 
   const [adv_received, setAdvRec] = useState("");
 
   const [description, setDescription] = useState("");
 
   const [adv_paid, setAdvPaid] = useState("");
+
+  const [paymentType, setPaymentType] = useState(null);
+
+  const handlePaymentType = (type) => {
+    setPaymentType(type);
+  };
 
   const [selectedMonth, setSelectedMonth] = useState(
     new Date().toISOString().slice(0, 7)
@@ -113,27 +122,87 @@ const SalaryCal = () => {
   };
 
   const handleSubmit = async () => {
-    if (!selectedEmployee) return;
-    if (
-      !attendance_per ||
-      isNaN(attendance_per) ||
-      attendance_per < 0 ||
-      attendance_per > 100
-    ) {
+    setLoadingSubmit(true);
+
+    // Validation checks
+    if (!selectedEmployee?.id) {
       Swal.fire({
         icon: "error",
-        title: "Invalid Input",
-        text: "Please enter a valid attendance percentage (0-100)",
+        title: "Error",
+        text: "Please select an employee.",
+        customClass: {
+          container: "swal-container-class", // Add this class
+          popup: "swal-popup-class", // Add this class
+        },
       });
+      setLoadingSubmit(false);
       return;
     }
 
-    setLoadingSubmit(true);
+    if (!attendance_per || attendance_per < 0 || attendance_per > 100) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Please provide a valid attendance percentage between 0 and 100.",
+        customClass: {
+          container: "swal-container-class",
+          popup: "swal-popup-class",
+        },
+      });
+      setLoadingSubmit(false);
+      return;
+    }
 
+    if (!adv_received || isNaN(adv_received) || adv_received < 0) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Please provide a valid advance received amount.",
+        customClass: {
+          container: "swal-container-class",
+          popup: "swal-popup-class",
+        },
+      });
+      setLoadingSubmit(false);
+      return;
+    }
+
+    if (!paid_salary || isNaN(paid_salary) || paid_salary <= 0) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Please provide a valid paid salary amount.",
+        customClass: {
+          container: "swal-container-class",
+          popup: "swal-popup-class",
+        },
+      });
+      setLoadingSubmit(false);
+      return;
+    }
+
+    if (!paymentType) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Please select a payment type.",
+        customClass: {
+          container: "swal-container-class",
+          popup: "swal-popup-class",
+        },
+      });
+      setLoadingSubmit(false);
+      return;
+    }
+
+    // Object to send in the API request
     const obj = {
       employee_salary_id: selectedEmployee.id,
       attendance_per: attendance_per,
       adv_received: adv_received,
+      description: description || "", // Optional field
+      paid_salary: paid_salary,
+      transection_type: paymentType,
     };
 
     try {
@@ -143,11 +212,13 @@ const SalaryCal = () => {
       );
 
       if (response.status === "success") {
-        handleCloseModal();
         Swal.fire({
           icon: "success",
           title: "Success",
-          text: "Attendance has been updated success  fully!",
+          text: "Attendance has been updated successfully!",
+          customClass: {
+            popup: "my-custom-popup-class",
+          },
         }).then(() => {
           const employeeId = selectedEmployee?.user?.id || selectedEmployee?.id;
           if (!employeeId) {
@@ -157,55 +228,57 @@ const SalaryCal = () => {
           router.push(`/paySlip?id=${employeeId}`);
         });
       } else {
-        handleCloseModal();
         throw new Error(
           response.error?.message || "Failed to update attendance"
         );
       }
     } catch (error) {
-      handleCloseModal();
       Swal.fire({
         icon: "error",
         title: "Error",
         text: error.message || "Unexpected error occurred",
+        customClass: {
+          popup: "my-custom-popup-class",
+        },
       });
     } finally {
       setLoadingSubmit(false);
     }
   };
 
+  const [attendance, setAttendancePer] = useState('');
+
+  const handleAttendanceChange = (value) => {
+    // Allow only numbers and decimal point
+    const numericValue = value.replace(/[^0-9.]/g, '');
+    
+    // Ensure value is between 0 and 100
+    if (numericValue === '' || (parseFloat(numericValue) >= 0 && parseFloat(numericValue) <= 100)) {
+      setAttendancePer(numericValue);
+    }
+  };
+
+
   const handleSubmitAdv = async () => {
-    if (!selectedEmployee) return;
+    if (!selectedEmployee || !attendance) return; // Ensure required fields are provided
 
     setLoadingSubmit(true);
-
-    const obj = {
-      employee_salary_id: selectedEmployee.id,
-      adv_paid: adv_paid,
-      description: description,
-    };
-
     try {
-      const response = await api.postFormDataWithToken(
-        `${getAllEmpoyesUrl}/salary/advance`,
-        obj
-      );
+      // Append `adv_paid` to the URL
+      const attendancePercentage = attendance; // Percentage value
+      const apiUrl = `${getAllEmpoyesUrl}/set_salary_on_per/${selectedEmployee.id}/${attendancePercentage}`;
+
+      const response = await api.postFormDataWithToken(apiUrl);
 
       if (response.status === "success") {
         handleClosAdveModal();
         Swal.fire({
           icon: "success",
           title: "Success",
-          text: "Attendance has been updated success  fully!",
+          text: "Attendance has been updated successfully!",
         }).then(() => {
-          const employeeId = selectedEmployee?.user?.id || selectedEmployee?.id;
-
-          if (!employeeId) {
-            console.error("Employee ID is missing");
-            return;
-          }
+          window.location.reload();
         });
-        window.location.reload();
       } else {
         handleClosAdveModal();
         throw new Error(
@@ -262,10 +335,10 @@ const SalaryCal = () => {
                   Status
                 </th>
                 <th className="py-2 px-4 border-b border-gray-200 text-left">
-                  Advance Payment
+                  Update Attendence
                 </th>
                 <th className="py-2 px-4 border-b border-gray-200 text-left">
-                  Update Attendence
+                  Pay
                 </th>
                 <th className="py-2 px-4 border-b border-gray-200 text-left">
                   View Slip
@@ -325,25 +398,36 @@ const SalaryCal = () => {
         </div>
       </div>
 
-      <Modal open={openModal} onClose={handleCloseModal}>
+      <Modal
+        open={openModal}
+        onClose={handleCloseModal}
+        style={{ zIndex: 1000 }}
+      >
         <Box className={styles.modalBox}>
           <div className={styles.modalHead}>
-            Update Attendance for {selectedEmployee?.user?.name}
+            Update Salary for {selectedEmployee?.user?.name}
           </div>
           <div className={styles.modalContent}>
             <Grid container spacing={2}>
-              <Grid item xs={6}>
+              <Grid item xs={4}>
+                <InputWithTitle
+                  type="text"
+                  title="Amount to be Paid"
+                  placeholder="Enter Amount"
+                  value={paid_salary}
+                  onChange={(value) => setPaidSalary(value)}
+                />
+              </Grid>
+              <Grid item xs={4}>
                 <InputWithTitle
                   type="text"
                   title="Attendance Percentage"
                   placeholder="Enter attendance percentage (0-100)"
                   value={attendance_per}
                   onChange={(value) => setAttendance(value)}
-                  min="0"
-                  max="100"
                 />
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={4}>
                 <InputWithTitle
                   type="text"
                   title="Advance Deduction"
@@ -352,7 +436,7 @@ const SalaryCal = () => {
                   onChange={(value) => setAdvRec(value)}
                 />
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={8}>
                 <InputWithTitle
                   type="text"
                   title="Description"
@@ -360,6 +444,27 @@ const SalaryCal = () => {
                   value={description}
                   onChange={(value) => setDescription(value)}
                 />
+              </Grid>
+
+              <Grid item xs={4}>
+                <div className="mt-5 flex gap-4">
+                  <button
+                    onClick={() => handlePaymentType("wps")}
+                    className={`${styles.paymentButton} ${
+                      paymentType === "wps" ? styles.selected : ""
+                    }`}
+                  >
+                    WPS
+                  </button>
+                  <button
+                    onClick={() => handlePaymentType("cash")}
+                    className={`${styles.paymentButton} ${
+                      paymentType === "cash" ? styles.selected : ""
+                    }`}
+                  >
+                    Cash
+                  </button>
+                </div>
               </Grid>
             </Grid>
 
@@ -383,28 +488,20 @@ const SalaryCal = () => {
       <Modal open={openAdvModal} onClose={handleClosAdveModal}>
         <Box className={styles.modalBox}>
           <div className={styles.modalHead}>
-            Add Advance Payment for {selectedEmployee?.user?.name}
+            Update Attendence for {selectedEmployee?.user?.name}
           </div>
           <div className={styles.modalContent}>
             <Grid container spacing={2}>
               <Grid item xs={6}>
-                <InputWithTitle
-                  type="text"
-                  title="Advance Payment"
-                  placeholder="Enter Advance Payment"
-                  value={adv_paid}
-                  onChange={(value) => setAdvPaid(value)}
+                <input
+                  type="number"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter attendance (0-100)"
+                  value={attendance}
+                  onChange={(e) => handleAttendanceChange(e.target.value)}
                   min="0"
                   max="100"
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <InputWithTitle
-                  type="text"
-                  title="Description"
-                  placeholder="Enter description"
-                  value={description}
-                  onChange={(value) => setDescription(value)}
+                  step="0.01"
                 />
               </Grid>
             </Grid>
@@ -425,6 +522,17 @@ const SalaryCal = () => {
           </div>
         </Box>
       </Modal>
+
+      {/* Add these styles to your CSS file */}
+      <style jsx global>{`
+        .swal-container-class {
+          z-index: 1500 !important; // Higher z-index for error modals
+        }
+
+        .swal-popup-class {
+          z-index: 1500 !important; // Higher z-index for error modals
+        }
+      `}</style>
     </div>
   );
 };

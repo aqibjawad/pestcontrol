@@ -16,3 +16,16 @@
   font-weight: 500;
   font-size: 20px;
 }
+
+.paymentButton {
+  padding: 10px 20px;
+  border: 1px solid #ccc;
+  background-color: white;
+  cursor: pointer;
+}
+
+.selected {
+  background-color: #4caf50; /* Green */
+  color: white;
+  border-color: #4caf50;
+}
