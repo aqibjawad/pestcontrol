@@ -11,9 +11,9 @@ import Reports from "./components/Reports";
 import Scheduler from "./components/Scheduler";
 import { FaPencil } from "react-icons/fa6";
 
-import dynamic from 'next/dynamic'
+import dynamic from "next/dynamic";
 
-const Finance = dynamic(() => import('../dashboard/components/Finance'))
+const Finance = dynamic(() => import("../dashboard/components/Finance"));
 
 import RescheduleJobs from "../../rescheduleJobs/reschedule";
 
@@ -60,8 +60,8 @@ const Page = () => {
   const [paymentList, setPaymentsList] = useState([]);
   const [fetchingData, setFetchingData] = useState(false);
   const [employeeList, setEmployeeList] = useState([]);
-  
-  console.log("employee list", employeeList)
+
+  console.log("employee list", employeeList);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -203,7 +203,7 @@ const Page = () => {
           </div>
 
           <div className={selectedIndex === 1 ? `block` : "hidden"}>
-            <Finance />
+            <Finance isVisible={selectedIndex === 1} />
           </div>
 
           <div className={selectedIndex === 2 ? `block` : "hidden"}>
@@ -442,7 +442,7 @@ const Page = () => {
             )}
 
             {selectedIndexTabs === 2 && <RescheduleJobs />}
-          </Box> 
+          </Box>
         </div>
       </div>
       {/* Add the EmployeeUpdateModal component */}

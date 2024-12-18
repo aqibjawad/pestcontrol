@@ -9,7 +9,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Swal from "sweetalert2";
 import MonthPicker from "../monthPicker";
 
-const CommissionCal = () => {
+const CommissionCal = ({ isVisible }) => {
   const api = new APICall();
   const [fetchingData, setFetchingData] = useState(false);
   const [employeeList, setEmployeeList] = useState([]);
@@ -44,14 +44,22 @@ const CommissionCal = () => {
   };
 
   useEffect(() => {
-    getAllEmployees();
+    if (isVisible) {
+      getAllEmployees();
+    }
   }, [selectedMonth]);
+
+  useEffect(() => {
+    if (isVisible) {
+      getAllEmployees();
+    }
+  }, [isVisible]);
 
   return (
     <>
       <MonthPicker onDateChange={handleDateChange} />
 
-       {fetchingData ? (
+      {fetchingData ? (
         <CircularProgress />
       ) : (
         <>

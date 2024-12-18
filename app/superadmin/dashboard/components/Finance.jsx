@@ -13,7 +13,7 @@ import Invoices from "@/app/invoice/invoices";
 
 import All from "../../../accountant/all/page";
 
-const Finance = () => {
+const Finance = ({ isVisible }) => {
   const totalExpenses = () => {
     return (
       <div className={styles.itemContainer}>
@@ -261,7 +261,7 @@ const Finance = () => {
         <div className="col-span-6 ">{bankCollection()}</div>
       </div> */}
 
-      <CommissionCal  />
+      <CommissionCal isVisible={isVisible} />
       <div className="mt-10 mb-10">{accountStatement()}</div>
 
       <div className="grid grid-cols-12 gap-4">
