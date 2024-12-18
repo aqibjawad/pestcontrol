@@ -16,6 +16,7 @@ const ListServiceTable = ({
   endDate,
   updateTotalAmount,
   statusFilter,
+  isVisible
 }) => {
   const api = new APICall();
   const [fetchingData, setFetchingData] = useState(false);
@@ -77,7 +78,7 @@ const ListServiceTable = ({
   // Call getAllQuotes when component mounts or when dependencies change
   useEffect(() => {
     getAllQuotes();
-  }, [startDate, endDate, statusFilter]);
+  }, [startDate, endDate, statusFilter, isVisible]);
 
   return (
     <div className={tableStyles.tableContainer}>
@@ -197,7 +198,7 @@ const ListServiceTable = ({
   );
 };
 
-const Invoices = () => {
+const Invoices = ({ isVisible }) => {
   const getDateParamsFromUrl = () => {
     if (typeof window !== "undefined") {
       const searchParams = new URL(window.location.href).searchParams;
@@ -212,12 +213,14 @@ const Invoices = () => {
     }
     return { startDate: null, endDate: null };
   };
+
   const { startDate: urlStartDate, endDate: urlEndDate } =
     getDateParamsFromUrl();
   const [startDate, setStartDate] = useState(urlStartDate);
   const [endDate, setEndDate] = useState(urlEndDate);
   const [totalAmount, setTotalAmount] = useState(0);
   const [statusFilter, setStatusFilter] = useState("all");
+
   useEffect(() => {
     if (urlStartDate && urlEndDate) {
       setStartDate(urlStartDate);

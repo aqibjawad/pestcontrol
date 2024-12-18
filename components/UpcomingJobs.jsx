@@ -14,6 +14,7 @@ const UpcomingJobs = ({
   isLoading,
   handleFilter,
   currentFilter,
+  isVisible
 }) => {
   const pathname = usePathname();
   const router = useRouter();

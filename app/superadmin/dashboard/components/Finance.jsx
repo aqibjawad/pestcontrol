@@ -2,12 +2,7 @@ import React from "react";
 import styles from "../../../../styles/superAdmin/finanaceStyles.module.css";
 import tableStyles from "../../../../styles/upcomingJobsStyles.module.css";
 import DateFilters from "@/components/generic/DateFilters";
-import SearchInput from "@/components/generic/SearchInput";
-import GreenButton from "@/components/generic/GreenButton";
 
-import AllClients from "../../../clients/all";
-
-import AllPayments from "../../../amounts/allAmounts";
 import CommissionCal from "@/app/hr/comCal/page";
 import Invoices from "@/app/invoice/invoices";
 
@@ -266,7 +261,7 @@ const Finance = ({ isVisible }) => {
 
       <div className="grid grid-cols-12 gap-4">
         <div className="col-span-12 ">
-          <Invoices />
+          <Invoices isVisible={isVisible} />
         </div>
         {/* <div className="col-span-6 ">{paymentReceipt()}</div>
         <div className="col-span-6 ">{paymentVouchers()}</div> */}

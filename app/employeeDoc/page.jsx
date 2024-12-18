@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import { Upload } from "lucide-react";
 
-const tabData = [
+const tabData = [ 
   "Offer Letter",
   "Labour Insurance",
   "Labour Payment",

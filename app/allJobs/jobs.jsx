@@ -7,14 +7,14 @@ import APICall from "@/networkUtil/APICall";
 import { job } from "@/networkUtil/Constants";
 import { format } from "date-fns";
 
-const AllJobs = () => {
+const AllJobs = ({ isVisible }) => {
   const api = new APICall();
   const [fetchingData, setFetchingData] = useState(false);
   const [jobsList, setJobsList] = useState([]);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [filteredList, setFilteredList] = useState([]);
-  const [filterType, setFilterType] = useState('all');
+  const [filterType, setFilterType] = useState("all");
 
   const handleDateChange = (start, end) => {
     setStartDate(start);
@@ -24,18 +24,18 @@ const AllJobs = () => {
   const handleFilter = (type) => {
     setFilterType(type);
     let filtered;
-    
-    switch(type) {
-      case 'assigned':
-        filtered = jobsList.filter(job => job.captain?.name);
+
+    switch (type) {
+      case "assigned":
+        filtered = jobsList.filter((job) => job.captain?.name);
         break;
-      case 'not-assigned':
-        filtered = jobsList.filter(job => !job.captain?.name);
+      case "not-assigned":
+        filtered = jobsList.filter((job) => !job.captain?.name);
         break;
       default:
         filtered = jobsList;
     }
-    
+
     setFilteredList(filtered);
   };
 
@@ -66,7 +66,9 @@ const AllJobs = () => {
       );
 
       // Sort jobsList by date in descending order
-      const sortedData = response.data.sort((a, b) => new Date(b.date) - new Date(a.date));
+      const sortedData = response.data.sort(
+        (a, b) => new Date(b.date) - new Date(a.date)
+      );
 
       setJobsList(sortedData);
     } catch (error) {
@@ -77,16 +79,17 @@ const AllJobs = () => {
   };
 
   return (
-    <div> 
-      <div className="pageTitle" style={{marginTop:"3rem"}}>
+    <div>
+      <div className="pageTitle" style={{ marginTop: "3rem" }}>
         Upcoming Jobs
       </div>
-      <UpcomingJobs 
-        jobsList={filteredList.length > 0 ? filteredList : jobsList} 
+      <UpcomingJobs
+        isVisible={isVisible}
+        jobsList={filteredList.length > 0 ? filteredList : jobsList}
         handleDateChange={handleDateChange}
-        handleFilter={handleFilter}  // Changed from handleAssignmentFilter to handleFilter
+        handleFilter={handleFilter} // Changed from handleAssignmentFilter to handleFilter
         currentFilter={filterType}
-        isLoading={fetchingData} 
+        isLoading={fetchingData}
       />
     </div>
   );

@@ -6,14 +6,13 @@ import AllJobs from "../../allJobs/page";
 import Vendors from "../../allVendors/page";
 import Quotation from "../../viewQuote/page";
 import Contracts from "../../../components/Contracts";
-// import Finance from "../dashboard/components/Finance";
 import Reports from "./components/Reports";
-import Scheduler from "./components/Scheduler";
-import { FaPencil } from "react-icons/fa6";
 
 import dynamic from "next/dynamic";
 
 const Finance = dynamic(() => import("../dashboard/components/Finance"));
+const Scheduler = dynamic(() => import("./components/Scheduler"));
+
 
 import RescheduleJobs from "../../rescheduleJobs/reschedule";
 
@@ -60,8 +59,6 @@ const Page = () => {
   const [paymentList, setPaymentsList] = useState([]);
   const [fetchingData, setFetchingData] = useState(false);
   const [employeeList, setEmployeeList] = useState([]);
-
-  console.log("employee list", employeeList);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -207,7 +204,7 @@ const Page = () => {
           </div>
 
           <div className={selectedIndex === 2 ? `block` : "hidden"}>
-            <Scheduler />
+            <Scheduler isVisible={selectedIndex === 2} />
           </div>
 
           <div className={selectedIndex === 3 ? `block` : "hidden"}>
