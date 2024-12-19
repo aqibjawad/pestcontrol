@@ -333,7 +333,7 @@ const Page = () => {
               sx={{ padding: 2 }}
             >
               {/* Header Row */}
-              <Grid item xs={4}>
+              <Grid item xs={3}>
                 <Typography
                   variant="h6"
                   sx={{ fontWeight: "bold", color: "#32A92E" }}
@@ -341,7 +341,7 @@ const Page = () => {
                   Comission
                 </Typography>
               </Grid>
-              <Grid item xs={4}>
+              <Grid item xs={3}>
                 <Typography
                   variant="h6"
                   sx={{
@@ -353,7 +353,7 @@ const Page = () => {
                   Total Fines (AED)
                 </Typography>
               </Grid>
-              <Grid item xs={4}>
+              <Grid item xs={3}>
                 <Typography
                   variant="h6"
                   sx={{
@@ -365,8 +365,21 @@ const Page = () => {
                   Advance Payments
                 </Typography>
               </Grid>
+
+              <Grid item xs={3}>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: "bold",
+                    color: "#32A92E",
+                    textAlign: "right",
+                  }}
+                >
+                  Hold Salary
+                </Typography>
+              </Grid>
               {/* Data Row */}
-              <Grid item xs={4}>
+              <Grid item xs={3}>
                 <Typography
                   sx={{
                     color: "black",
@@ -377,7 +390,7 @@ const Page = () => {
                   {invoiceList?.commission_per || 0}
                 </Typography>
               </Grid>
-              <Grid item xs={4}>
+              <Grid item xs={3}>
                 <Typography
                   sx={{
                     color: "black",
@@ -389,7 +402,7 @@ const Page = () => {
                   {invoiceList?.total_fines}
                 </Typography>
               </Grid>
-              <Grid item xs={4}>
+              <Grid item xs={3}>
                 <Typography
                   sx={{
                     color: "black",
@@ -399,6 +412,19 @@ const Page = () => {
                   }}
                 >
                   {invoiceList?.adv_paid || 0}
+                </Typography>
+              </Grid>
+
+              <Grid item xs={3}>
+                <Typography
+                  sx={{
+                    color: "black",
+                    padding: "4px 16px",
+                    lineHeight: "1rem",
+                    textAlign: "right",
+                  }}
+                >
+                  {invoiceList?.user?.employee?.hold_salary || 0}
                 </Typography>
               </Grid>
             </Grid>

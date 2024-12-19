@@ -55,6 +55,8 @@ const SalaryCal = () => {
   const [openModal, setOpenModal] = useState(false);
   const [openAdvModal, setOpenAdvModal] = useState(false);
 
+  const [openAdvPayModal, setOpenAdvPayModal] = useState(false);
+
   const [selectedEmployee, setSelectedEmployee] = useState(null);
 
   const [loadingSubmit, setLoadingSubmit] = useState(false);
@@ -119,6 +121,18 @@ const SalaryCal = () => {
     setOpenAdvModal(false);
     setSelectedEmployee(null);
     setAttendance(""); // Reset attendance input
+  };
+
+  const handleOpenAdvPayModal = (employee) => {
+    setAdvPaid(employee.adv_paid || "");
+    setSelectedEmployee(employee);
+    setOpenAdvPayModal(true);
+  };
+
+  const handleClosAdvePayModal = () => {
+    setOpenAdvPayModal(false);
+    setSelectedEmployee(null);
+    setAdvPaid(""); // Reset attendance input
   };
 
   const handleSubmit = async () => {
@@ -246,18 +260,20 @@ const SalaryCal = () => {
     }
   };
 
-  const [attendance, setAttendancePer] = useState('');
+  const [attendance, setAttendancePer] = useState("");
 
   const handleAttendanceChange = (value) => {
     // Allow only numbers and decimal point
-    const numericValue = value.replace(/[^0-9.]/g, '');
-    
+    const numericValue = value.replace(/[^0-9.]/g, "");
+
     // Ensure value is between 0 and 100
-    if (numericValue === '' || (parseFloat(numericValue) >= 0 && parseFloat(numericValue) <= 100)) {
+    if (
+      numericValue === "" ||
+      (parseFloat(numericValue) >= 0 && parseFloat(numericValue) <= 100)
+    ) {
       setAttendancePer(numericValue);
     }
   };
-
 
   const handleSubmitAdv = async () => {
     if (!selectedEmployee || !attendance) return; // Ensure required fields are provided
@@ -291,6 +307,61 @@ const SalaryCal = () => {
         icon: "error",
         title: "Error",
         text: error.message || "Unexpected error occurred",
+      });
+    } finally {
+      setLoadingSubmit(false);
+    }
+  };
+
+  const handleAdvPaid = (event) => {
+    setAdvPaid(event.target.value);
+  };
+
+  const handleAdvePay = async () => {
+    setLoadingSubmit(true);
+
+    // Object to send in the API request
+    const obj = {
+      employee_salary_id: selectedEmployee.id,
+      adv_paid: adv_paid,
+      description: description || "", // Optional field
+    };
+
+    try {
+      const response = await api.postFormDataWithToken(
+        `${getAllEmpoyesUrl}/salary/advance`,
+        obj
+      );
+
+      if (response.status === "success") {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Attendance has been updated successfully!",
+          customClass: {
+            popup: "my-custom-popup-class",
+          },
+        }).then(() => {
+          const employeeId = selectedEmployee?.user?.id || selectedEmployee?.id;
+          if (!employeeId) {
+            console.error("Employee ID is missing");
+            return;
+          }
+          router.push(`/paySlip?id=${employeeId}`);
+        });
+      } else {
+        throw new Error(
+          response.error?.message || "Failed to update attendance"
+        );
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.message || "Unexpected error occurred",
+        customClass: {
+          popup: "my-custom-popup-class",
+        },
       });
     } finally {
       setLoadingSubmit(false);
@@ -338,6 +409,9 @@ const SalaryCal = () => {
                   Update Attendence
                 </th>
                 <th className="py-2 px-4 border-b border-gray-200 text-left">
+                  Add Advance
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 text-left">
                   Pay
                 </th>
                 <th className="py-2 px-4 border-b border-gray-200 text-left">
@@ -371,6 +445,14 @@ const SalaryCal = () => {
                         <Button
                           variant="outlined"
                           onClick={() => handleOpenAdvModal(row)}
+                        >
+                          Add
+                        </Button>
+                      </td>
+                      <td className="py-5 px-4">
+                        <Button
+                          variant="outlined"
+                          onClick={() => handleOpenAdvPayModal(row)}
                         >
                           Add
                         </Button>
@@ -509,6 +591,41 @@ const SalaryCal = () => {
             <div className="mt-5">
               <GreenButton
                 onClick={handleSubmitAdv}
+                title={
+                  loadingSubmit ? (
+                    <CircularProgress size={20} color="inherit" />
+                  ) : (
+                    "Submit"
+                  )
+                }
+                disabled={loadingSubmit}
+              />
+            </div>
+          </div>
+        </Box>
+      </Modal>
+
+      <Modal open={openAdvPayModal} onClose={handleClosAdvePayModal}>
+        <Box className={styles.modalBox}>
+          <div className={styles.modalHead}>
+            Add Advance for {selectedEmployee?.user?.name}
+          </div>
+          <div className={styles.modalContent}>
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <input
+                  type="number"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter attendance (0-100)"
+                  value={adv_paid}
+                  onChange={handleAdvPaid}
+                />
+              </Grid>
+            </Grid>
+
+            <div className="mt-5">
+              <GreenButton
+                onClick={handleAdvePay}
                 title={
                   loadingSubmit ? (
                     <CircularProgress size={20} color="inherit" />
