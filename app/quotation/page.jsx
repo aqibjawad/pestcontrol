@@ -120,12 +120,14 @@ const Page = () => {
   const getAllQuotes = async () => {
     setFetchingData(true);
     try {
-      const response = await api.getDataWithToken(`${quotation}/${id}`);
-      safeSetFormData({
-        ...response.data,
-        manage_type: "update",
-        quote_id: id,
-      });
+      if (id !== null) {
+        const response = await api.getDataWithToken(`${quotation}/${id}`);
+        safeSetFormData({
+          ...response.data,
+          manage_type: "update",
+          quote_id: id,
+        });
+      }
     } catch (error) {
       console.error("Error fetching quotes:", error);
     } finally {
@@ -147,10 +149,7 @@ const Page = () => {
 
   return (
     <div>
-      <div className="quote-main-head">Quotes</div>
-      <div className="quote-main-decrp">
-        Us to meet your needs. We look forward to serving you with excellence.
-      </div>
+      <div className="quote-main-head pageTitle">Create Quote</div>
 
       <BasicQuote setFormData={safeSetFormData} formData={formData} />
       <ServiceAgreement

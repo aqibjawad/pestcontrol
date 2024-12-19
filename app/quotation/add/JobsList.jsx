@@ -13,11 +13,14 @@ const JobsList = ({
   allServices,
   updateJobList,
   duration_in_months,
+  numberOfJobs,
 }) => {
+  console.log(JSON.stringify(jobData));
+
   const [rate, setRate] = useState(jobData.rate || 0);
   const [open, setOpen] = useState(false);
   const [selectedJobType, setSelectedJobType] = useState(jobData.jobType || "");
-  const [selectedDates, setSelectedDates] = useState(jobData.dates || []);
+  const [selectedDates, setSelectedDates] = useState(numberOfJobs || []);
   const [subTotal, setSubTotal] = useState(jobData.subTotal || 0);
   const [intervalDays, setIntervalDays] = useState(5);
   const [allGeneratedDates, setAllGeneratedDates] = useState([]);
@@ -26,8 +29,7 @@ const JobsList = ({
   const [dayWiseSelection, setDayWiseSelection] = useState([]);
   const [allDatesSelect, setAllDatesSelect] = useState([]);
 
-  console.log(allDatesSelect);
-  
+  console.log(numberOfJobs);
 
   const jobTypes = [
     { label: "One Time", value: "one_time" },
@@ -37,41 +39,6 @@ const JobsList = ({
     { label: "Weekly", value: "weekly" },
     { label: "Custom", value: "custom" },
   ];
-
-  // const generateDates = (initialDates) => {
-  //   if (!initialDates || initialDates.length === 0) return [];
-
-  //   const result = [...initialDates];
-
-  //   if (selectedJobType === "monthly") {
-  //     // For each selected date, add corresponding dates for subsequent months
-  //     initialDates.forEach((initialDate) => {
-  //       const date = new Date(initialDate);
-
-  //       for (let i = 1; i < duration_in_months; i++) {
-  //         const newDate = new Date(date);
-  //         newDate.setMonth(newDate.getMonth() + i);
-
-  //         // Check if the day exists in the target month
-  //         // For example, March 31 doesn't exist in April
-  //         const targetMonth = newDate.getMonth();
-  //         newDate.setDate(1); // Reset to first of month
-  //         newDate.setMonth(targetMonth + 1); // Go to first of next month
-  //         newDate.setDate(0); // Back up one day to last of target month
-
-  //         const lastDayOfMonth = newDate.getDate();
-  //         const originalDay = date.getDate();
-
-  //         newDate.setMonth(targetMonth);
-  //         newDate.setDate(Math.min(originalDay, lastDayOfMonth));
-
-  //         result.push(newDate.toISOString().slice(0, 10));
-  //       }
-  //     });
-  //   }
-
-  //   return result.sort();
-  // };
 
   // Function to calculate subtotal
   const calculateSubTotal = (numberOfJobs, currentRate) => {
@@ -139,8 +106,6 @@ const JobsList = ({
     if (selectedJobType === "monthly" && allDates.length > 0) {
       finalDates = generateFutureDates(allDates, "monthly", duration_in_months);
       setAllDatesSelect(finalDates.length);
-      console.log("kfdj",finalDates.length);
-      
     }
 
     // Calculate subtotals
@@ -357,7 +322,7 @@ const JobsList = ({
 
         <Grid item lg={3} xs={4}>
           <InputWithTitle
-            title="No of Jobs"
+            title={`No of Jobs`}
             type="text"
             name="noOfJobs"
             placeholder="No of Jobs"

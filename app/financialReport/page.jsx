@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import { Skeleton } from "@mui/material";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-
 import MonthPicker from "../hr/monthPicker";
 
 import {
@@ -77,13 +76,8 @@ const FinancialDashboard = () => {
   };
 
   const handleDateChange = ({ startDate, endDate }) => {
-    // Will receive dates in format: "2024-12-01" and "2024-12-31"
-    console.log(startDate, endDate);
     fetchFinancialData(startDate, endDate);
   };
-  useEffect(() => {
-    fetchFinancialData();
-  }, [selectedDate]);
 
   const getFinancial = async (startDate, endDate) => {
     try {

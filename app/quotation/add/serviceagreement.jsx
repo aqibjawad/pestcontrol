@@ -39,6 +39,28 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
     }
   };
 
+  const getUniqueServiceDays = (quoteServiceDates) => {
+    const uniqueDays = new Set(); // Track unique day numbers
+    const uniqueDates = []; // Store unique dates as strings
+
+    quoteServiceDates.forEach((dateObj) => {
+      const date = new Date(dateObj.service_date);
+      const day = date.getDate();
+
+      if (!uniqueDays.has(day)) {
+        uniqueDays.add(day);
+
+        // Format the date as YYYY-MM-DD
+        const formattedDate = `${date.getFullYear()}-${String(
+          date.getMonth() + 1
+        ).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        uniqueDates.push(formattedDate);
+      }
+    });
+
+    return uniqueDates;
+  };
+
   // Transform quote_services data for JobsList
   useEffect(() => {
     if (
@@ -210,6 +232,9 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
           >
             <JobsList
               jobData={job}
+              numberOfJobs={getUniqueServiceDays(
+                formData.quote_services[index].quote_service_dates
+              )}
               allServices={allServices}
               updateJobList={(updatedJob) => updateJobList(index, updatedJob)}
               duration_in_months={formData.duration_in_months}
