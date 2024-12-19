@@ -80,9 +80,6 @@ const AllJobs = ({ isVisible }) => {
 
   return (
     <div>
-      <div className="pageTitle" style={{ marginTop: "3rem" }}>
-        Upcoming Jobs
-      </div>
       <UpcomingJobs
         isVisible={isVisible}
         jobsList={filteredList.length > 0 ? filteredList : jobsList}

@@ -318,7 +318,7 @@ const Page = () => {
                         textAlign: "right",
                       }}
                     >
-                      {invoiceList?.paid_total_salary}
+                      {invoiceList?.payable_salary}
                     </Typography>
                   </Grid>
                 </Grid>

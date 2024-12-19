@@ -266,9 +266,9 @@ const SalaryCal = () => {
     try {
       // Append `adv_paid` to the URL
       const attendancePercentage = attendance; // Percentage value
-      const apiUrl = `${getAllEmpoyesUrl}/set_salary_on_per/${selectedEmployee.id}/${attendancePercentage}`;
+      const apiUrl = `${getAllEmpoyesUrl}/salary/set_salary_on_per/${selectedEmployee.id}/${attendancePercentage}`;
 
-      const response = await api.postFormDataWithToken(apiUrl);
+      const response = await api.getDataWithToken(apiUrl);
 
       if (response.status === "success") {
         handleClosAdveModal();
@@ -365,7 +365,7 @@ const SalaryCal = () => {
                       <td className="py-5 px-4">{row.adv_paid}</td>
                       <td className="py-5 px-4">{row.total_fines}</td>
                       <td className="py-5 px-4">{row.basic_salary}</td>
-                      <td className="py-5 px-4">{row.paid_total_salary}</td>
+                      <td className="py-5 px-4">{row.payable_salary}</td>
                       <td className="py-5 px-4">{row.status}</td>
                       <td className="py-5 px-4">
                         <Button

@@ -182,7 +182,7 @@ const AllEmployees = () => {
                 {employee.employee?.phone_number || "N/A"}
               </p>
             </div>
-
+ 
             <div className="mt-4">
               <h4 className="font-semibold text-red-600">Missing Documents</h4>
               <div className="max-h-32 overflow-y-auto">
@@ -210,7 +210,7 @@ const AllEmployees = () => {
               <Link href={`/hr/empDocuments?id=${employee.id}`}>
                 <FaPencil className="text-blue-500 cursor-pointer" />
               </Link>
-              <Link href={`/hr/employeeDetails?id=${employee.id}`}>
+              <Link href={`/employeeDoc?id=${employee.id}`}>
                 <span className="text-blue-600 hover:text-blue-800">
                   View Details
                 </span>
