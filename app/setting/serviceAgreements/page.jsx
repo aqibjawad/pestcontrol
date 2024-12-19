@@ -103,7 +103,13 @@ const Page = () => {
                     <TableRow key={index}>
                       <TableCell>{item?.pest_name}</TableCell>
                       <TableCell>{item?.service_title}</TableCell>
-                      <TableCell>{item?.term_and_conditions}</TableCell>
+                      <TableCell>
+                        <div
+                          dangerouslySetInnerHTML={{
+                            __html: item?.term_and_conditions,
+                          }}
+                        />
+                      </TableCell>
                       <TableCell>
                         <Button
                           variant="contained"
@@ -140,7 +146,7 @@ const Page = () => {
 
           <div className="mt-5">
             <Editor
-              apiKey="zpa6jhahb7wr51wcc4yrbt91xeuizav1kudmrtpziohibpz4"
+              apiKey="gz7lzl53pn7erx245ajl5zprzl79zhcadvybrd9hzbil53sv"
               onInit={(evt, editor) => (editorRef.current = editor)}
               initialValue="<p>Add your scope of work here...</p>"
               init={{
@@ -150,12 +156,15 @@ const Page = () => {
                   "advlist autolink lists link image charmap print preview anchor",
                   "searchreplace visualblocks code fullscreen",
                   "insertdatetime media table paste code help wordcount",
-                  "image imagetools",
+                  "image imagetools lists",
                 ],
-                toolbar:
-                  "undo redo | formatselect | bold italic backcolor | \
-                  alignleft aligncenter alignright alignjustify | \
-                  bullist numlist outdent indent | removeformat | link image",
+                toolbar: [
+                  "undo redo | formatselect | bold italic backcolor",
+                  "alignleft aligncenter alignright alignjustify",
+                  "numlist bullist | outdent indent",
+                  "removeformat | link image",
+                ].join(" | "),
+                lists_indent_on_tab: true,
                 automatic_uploads: true,
                 images_upload_url: "/api/upload-image",
                 file_picker_types: "image",

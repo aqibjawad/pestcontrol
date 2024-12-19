@@ -14,11 +14,21 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-const InputWithTitle2 = ({ title, type, value, placeholder, onChange, ...rest }) => {
+const InputWithTitle2 = ({
+  title,
+  type,
+  value,
+  placeholder,
+  onChange,
+  readOnly = false,
+  ...rest
+}) => {
   const [open, setOpen] = useState(false);
 
   const handleDateChange = (date) => {
-    onChange("name",format(date, "yyyy-MM-dd"));
+    if (onChange) {
+      onChange("name", format(date, "yyyy-MM-dd"));
+    }
     setOpen(false);
   };
 
@@ -32,6 +42,7 @@ const InputWithTitle2 = ({ title, type, value, placeholder, onChange, ...rest })
               <Button
                 variant="outline"
                 className={`w-full justify-start text-left font-normal ${styles.inputField}`}
+                disabled={readOnly} // Disable the button if readOnly
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 {value ? (
@@ -41,14 +52,16 @@ const InputWithTitle2 = ({ title, type, value, placeholder, onChange, ...rest })
                 )}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
-              <Calendar
-                mode="single"
-                selected={value ? new Date(value) : undefined}
-                onSelect={handleDateChange}
-                initialFocus
-              />
-            </PopoverContent>
+            {!readOnly && (
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={value ? new Date(value) : undefined}
+                  onSelect={handleDateChange}
+                  initialFocus
+                />
+              </PopoverContent>
+            )}
           </Popover>
         ) : (
           <input
@@ -56,7 +69,10 @@ const InputWithTitle2 = ({ title, type, value, placeholder, onChange, ...rest })
             type={type}
             className={`w-full ${styles.inputField}`}
             placeholder={placeholder}
-            onChange={(e) => onChange(e.target.name, e.target.value)}
+            onChange={(e) =>
+              onChange && onChange(e.target.name, e.target.value)
+            }
+            readOnly={readOnly}
             {...rest}
           />
         )}

@@ -32,12 +32,35 @@ const QuoteServiceDates = ({ quote }) => {
   const firstDate = new Date(sortedDates[0]?.service_date);
 
   // Filter dates for the first month only
-  const firstMonthDates = sortedDates.filter((dateObj) => {
-    const currentDate = new Date(dateObj.service_date);
-    return (
-      currentDate.getMonth() === firstDate.getMonth() &&
-      currentDate.getFullYear() === firstDate.getFullYear()
-    );
+  // const firstMonthDates = sortedDates.filter((dateObj) => {
+  //   const currentDate = new Date(dateObj.service_date);
+  //   return (
+  //     currentDate.getMonth() === firstDate.getMonth() &&
+  //     currentDate.getFullYear() === firstDate.getFullYear()
+  //   );
+  // });
+
+  const getUniqueServiceDays = (quoteServiceDates) => {
+    // Create a set to store unique day numbers
+    const uniqueDays = new Set();
+
+    // Iterate over each date object and add the day to the set
+    quoteServiceDates.forEach((dateObj) => {
+      const day = new Date(dateObj.service_date).getDate();
+      uniqueDays.add(day);
+    });
+
+    // Convert the set back to an array and return it
+    return [...uniqueDays];
+  };
+
+  const uniqueDays = getUniqueServiceDays(
+    quote.quote_services[0].quote_service_dates
+  );
+
+  // Assuming formatDate is a function to format date correctly
+  const firstMonthDates = uniqueDays.map((day) => {
+    return { service_date: day }; // Just returning the day number
   });
 
   return (
@@ -48,17 +71,15 @@ const QuoteServiceDates = ({ quote }) => {
         padding: "16px",
       }}
     >
-      <Typography variant="h6">
-        Service Dates
-      </Typography>
+      <Typography variant="h6">Service Dates</Typography>
       <Grid container spacing={2}>
         {firstMonthDates.map((dateObj, index) => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
             <FormControlLabel
               control={<CustomCheckbox checked={true} disabled={true} />}
               label={
-                <Typography variant="body2" style={{ fontSize: '12px' }}>
-                  {formatDate(dateObj.service_date)}
+                <Typography variant="body2" style={{ fontSize: "12px" }}>
+                  {dateObj.service_date} of the month
                 </Typography>
               }
             />

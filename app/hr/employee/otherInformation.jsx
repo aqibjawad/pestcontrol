@@ -88,15 +88,15 @@ const OtherInfo = ({ data, onChange, handleSubmit, sendingData }) => {
             onChange={(name, value) => onChange("other", value)}
           />
         </Grid>
-        <Grid item xs={12} md={6}>
+        {/* <Grid item xs={12} md={6}>
           <InputWithTitle2
             title="Total Salary"
             type="text"
             placeholder="Total Salary"
             value={data.total_salary}
-            onChange={(name, value) => onChange("total_salary", value)}
+            readOnly={true}
           />
-        </Grid>
+        </Grid> */}
         <Grid item xs={12} md={6}>
           <InputWithTitle2
             title="Comission %"

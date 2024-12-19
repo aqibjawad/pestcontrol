@@ -18,7 +18,7 @@ const PersonalInformation = ({ data, onChange }) => {
   const roles = [
     { label: "HR-Manager", value: 2 },
     { label: "Operations", value: 3 },
-    { label: "Office Staff", value: 4 },
+    { label: "Office Staff", value: 8 },
     { label: "Sales-Manger", value: 4 },
     { label: "Accountant", value: 6 },
   ];
@@ -36,6 +36,7 @@ const PersonalInformation = ({ data, onChange }) => {
 
   const handleProfessionChange = (value) => {
     setSelectedProfession(value);
+    onChange("profession", value);
     console.log("Selected Profession:", value);
   };
 
@@ -61,7 +62,7 @@ const PersonalInformation = ({ data, onChange }) => {
 
       <div>
         <FormControl>
-          <div className="roleText">Select Designation</div>
+          <div className="roleText">Select Role</div>
           <RadioGroup
             aria-label="roles"
             name="roles"
@@ -114,7 +115,7 @@ const PersonalInformation = ({ data, onChange }) => {
             onChange={(name, value) => onChange("email", value)}
           />
         </Grid>
-        <Grid item lg={6} xs={12} md={6}>
+        {/* <Grid item lg={6} xs={12} md={6}>
           <InputWithTitle2
             title="EID Number"
             type="text"
@@ -123,10 +124,10 @@ const PersonalInformation = ({ data, onChange }) => {
             value={data.eid_no}
             onChange={(name, value) => onChange("eid_no", value)}
           />
-        </Grid>
+        </Grid> */}
         <Grid item lg={6} xs={12} md={6}>
           <InputWithTitle2
-            title="Target"
+            title="Sales Target"
             type="text"
             placeholder="Target"
             name="target"
@@ -134,7 +135,7 @@ const PersonalInformation = ({ data, onChange }) => {
             onChange={(name, value) => onChange("target", value)}
           />
         </Grid>
-        <Grid item lg={6} xs={12} md={6}>
+        {/* <Grid item lg={6} xs={12} md={6}>
           <InputWithTitle3
             title="EID Start"
             type="date"
@@ -153,7 +154,7 @@ const PersonalInformation = ({ data, onChange }) => {
             value={data.eid_expiry}
             onChange={(name, value) => onChange("eid_expiry", value)}
           />
-        </Grid>
+        </Grid> */}
         <Grid item lg={6} xs={12} md={6}>
           {/* <InputWithTitle2
             title="Profession"
@@ -171,8 +172,7 @@ const PersonalInformation = ({ data, onChange }) => {
           />
         </Grid>
       </Grid>
-
-      <Typography variant="h6" gutterBottom className="passport-head">
+      {/* <Typography variant="h6" gutterBottom className="passport-head">
         Passport Information
       </Typography>
 
@@ -207,7 +207,7 @@ const PersonalInformation = ({ data, onChange }) => {
             onChange={(name, value) => onChange("passport_expiry", value)}
           />
         </Grid>
-      </Grid>
+      </Grid> */}
     </div>
   );
 };

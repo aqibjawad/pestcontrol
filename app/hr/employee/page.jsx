@@ -16,10 +16,7 @@ const Page = () => {
   const alert = new AppAlerts();
   const router = useRouter();
   const [sendingData, setSendingData] = useState(false);
-  const [tabNames] = useState([
-    "Personal Information",
-    "Other Information",
-  ]);
+  const [tabNames] = useState(["Personal Information", "Other Information"]);
 
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -29,10 +26,10 @@ const Page = () => {
     email: "",
     role_id: "1",
     phone_number: "",
-    eid_no: "",
+    eid_no: "1234",
     target: "",
-    eid_start: "",
-    eid_expiry: "",
+    eid_start: "temp",
+    eid_expiry: "temp",
     profession: "",
     passport_no: "",
     passport_start: "",
@@ -45,7 +42,7 @@ const Page = () => {
     other: "",
     total_salary: "",
     commission_per: "",
-    labour_card_expiry: "abc"
+    labour_card_expiry: "abc",
   });
 
   const [errors, setErrors] = useState({
@@ -65,32 +62,113 @@ const Page = () => {
   }, [formData]);
 
   const validateForm = () => {
-    const isValidNumberString = (str) => /^[0-9+\-]+$/.test(str);
-    const isValidNumber = (str) => /^\d+$/.test(str);
-    const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const normalizeInput = (str) => (str ? str.trim() : "");
 
-    if (formData.phone_number && !isValidNumberString(formData.phone_number)) {
-      return "Phone number can only contain numbers, +, and -";
+    // Clean phone number of all non-digit characters including +, -, and any invisible unicode
+    const cleanPhoneNumber = (phone) => {
+      return phone ? phone.replace(/[^\d]/g, "") : "";
+    };
+
+    const isValidPhoneNumber = (str) => {
+      const cleanedNumber = cleanPhoneNumber(str);
+      return cleanedNumber.length >= 9 && cleanedNumber.length <= 15; // standard phone number length
+    };
+
+    const isValidNumber = (str) => /^\d+$/.test(normalizeInput(str));
+    const isValidEmail = (email) =>
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizeInput(email));
+    const isValidString = (str) =>
+      typeof str === "string" && normalizeInput(str).length > 1;
+
+    // Name validation
+    if (!isValidString(formData.name)) {
+      return "Please enter a valid name";
     }
-    if (formData.passport_no && !isValidNumberString(formData.passport_no)) {
-      return "Passport number can only contain numbers, +, and -";
+
+    // Phone number validation
+    if (!isValidPhoneNumber(formData.phone_number)) {
+      return "Please enter a valid phone number (9-15 digits)";
     }
-    if (formData.eid_no && !isValidNumberString(formData.eid_no)) {
-      return "EID number can only contain numbers, +, and -";
+
+    // Email validation
+    if (!formData.email || !isValidEmail(formData.email)) {
+      return "Please enter a valid email address";
     }
-    for (const field of [
-      "total_salary",
-      "other",
-      "allowance",
-      "basic_salary",
-    ]) {
-      if (formData[field] && !isValidNumber(formData[field])) {
-        return `${field.replace("_", " ")} must be a number`;
-      }
+
+    // Target validation
+    if (!isValidNumber(formData.target)) {
+      return "Please enter a valid target number";
     }
-    if (formData.email && !isValidEmail(formData.email)) {
-      return "Invalid email address";
+
+    // Profession validation
+    if (!isValidString(formData.profession)) {
+      return "Please enter a valid profession";
     }
+
+    // Emergency contact validation
+    if (!isValidPhoneNumber(formData.emergency_contact)) {
+      return "Please enter a valid emergency contact number (9-15 digits)";
+    }
+
+    if (!formData.basic_salary || formData.basic_salary.trim() === "") {
+      return "Basic salary is required";
+    }
+
+    if (!isValidNumber(formData.basic_salary)) {
+      return "Basic salary must be a valid number";
+    }
+
+    if (!formData.other || formData.other.trim() === "") {
+      return "Please enter a valid other number or 0";
+    }
+
+    if (!isValidNumber(formData.other)) {
+      return "Please enter a valid other number";
+    }
+
+    if (!formData.other || formData.other.trim() === "") {
+      return "Please enter a valid amount in Other or 0";
+    }
+
+    if (!isValidNumber(formData.other)) {
+      return "Please enter a valid amount in Other or 0";
+    }
+
+    if (!formData.allowance || formData.allowance.trim() === "") {
+      return "Please enter a valid amount in Allowance or 0";
+    }
+
+    if (!isValidNumber(formData.allowance)) {
+      return "Please enter a valid amount in Allowance or 0";
+    }
+
+    const other = parseInt(normalizeInput(formData.other) || 0, 0);
+    const allowance = parseInt(normalizeInput(formData.allowance) || 0, 0);
+    const basicSalary = parseInt(
+      normalizeInput(formData.basic_salary) || 0,
+      10
+    );
+
+    if (
+      !isValidNumber(other.toString()) ||
+      !isValidNumber(allowance.toString()) ||
+      !isValidNumber(basicSalary.toString())
+    ) {
+      return "Other, allowance, and basic salary must be valid numbers";
+    }
+
+    formData.total_salary = other + allowance + basicSalary;
+
+    if (normalizeInput(formData.relative_name) === "") {
+      return "Please enter a relative name";
+    }
+    if (normalizeInput(formData.relation) === "") {
+      return "Please enter a relation";
+    }
+    if (normalizeInput(formData.emergency_contact) === "") {
+      return "Please enter an emergency contact";
+    }
+
     return null;
   };
 

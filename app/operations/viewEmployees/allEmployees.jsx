@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { Skeleton, Switch, Tabs, Tab } from "@mui/material";
 import Link from "next/link";
 import { FaPencil } from "react-icons/fa6";
@@ -7,17 +7,19 @@ import Swal from "sweetalert2";
 import EmployeeUpdateModal from "../../../components/employeeUpdate";
 import APICall from "@/networkUtil/APICall";
 import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
+import GreenButton from "@/components/generic/GreenButton";
+import { useRouter } from "next/navigation";
 
 const AllEmployees = () => {
   const api = new APICall();
-
+  const router = useRouter();
   const [fetchingData, setFetchingData] = useState(false);
   const [employeesList, setEmployeesList] = useState([]);
   const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [loading, setLoading] = useState({});
   const [open, setOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
-  const [selectedRole, setSelectedRole] = useState(0); // Default to "All"
+  const [selectedRole, setSelectedRole] = useState("All");
 
   const roles = [
     { label: "All", value: 0 },
@@ -48,11 +50,11 @@ const AllEmployees = () => {
 
   useEffect(() => {
     // Filter employees when selectedRole changes
-    if (selectedRole === 0) {
+    if (selectedRole === "All") {
       setFilteredEmployees(employeesList);
     } else {
       setFilteredEmployees(
-        employeesList.filter((emp) => emp.role?.id === selectedRole)
+        employeesList.filter((emp) => emp.employee?.profession === selectedRole)
       );
     }
   }, [selectedRole, employeesList]);
@@ -154,6 +156,10 @@ const AllEmployees = () => {
     </div>
   );
 
+  const addEmployee = () => {
+    router.push("/hr/employee/");
+  };
+
   const getMissingDocuments = (documents) => {
     const existingDocs = new Set(documents?.map((doc) => doc.name) || []);
     return allDocumentTypes.filter((docType) => !existingDocs.has(docType));
@@ -182,7 +188,7 @@ const AllEmployees = () => {
                 {employee.employee?.phone_number || "N/A"}
               </p>
             </div>
- 
+
             <div className="mt-4">
               <h4 className="font-semibold text-red-600">Missing Documents</h4>
               <div className="max-h-32 overflow-y-auto">
@@ -210,11 +216,17 @@ const AllEmployees = () => {
               <Link href={`/hr/empDocuments?id=${employee.id}`}>
                 <FaPencil className="text-blue-500 cursor-pointer" />
               </Link>
-              <Link href={`/employeeDoc?id=${employee.id}`}>
+              <Link href={`/hr/employeeDetails?id=${employee.id}`}>
                 <span className="text-blue-600 hover:text-blue-800">
                   View Details
                 </span>
               </Link>
+
+              {/* <Link href={`/employeeDoc?id=${employee.id}`}>
+                <span className="text-blue-600 hover:text-blue-800">
+                  View Details
+                </span>
+              </Link> */}
             </div>
           </div>
         );
@@ -222,9 +234,29 @@ const AllEmployees = () => {
     </div>
   );
 
+  const professions = [
+    "All", // Add "All" as the first option
+    "HR Manager",
+    "Accountant",
+    "Operation Manager",
+    "Agriculture Engineer",
+    "Sales Manager",
+    "Pesticides Technician",
+    "Sales Officer",
+    "Receptionist",
+    "Office Boy",
+  ];
+
   return (
     <div>
-      <h1 className="text-xl font-bold">All Employees</h1>
+      <div className="flex">
+        <div className="flex-grow">
+          <h1 className="text-xl font-bold">All Employees</h1>
+        </div>
+        <div>
+          <GreenButton onClick={() => addEmployee()} title={"+ Employee"} />
+        </div>
+      </div>
       <Tabs
         value={selectedRole}
         onChange={(e, newValue) => setSelectedRole(newValue)}
@@ -234,8 +266,8 @@ const AllEmployees = () => {
         scrollButtons="auto"
         className="mt-4"
       >
-        {roles.map((role) => (
-          <Tab key={role.value} label={role.label} value={role.value} />
+        {professions.map((role) => (
+          <Tab key={role} label={role} value={role} />
         ))}
       </Tabs>
       {fetchingData ? renderSkeleton() : renderCards()}
@@ -244,6 +276,9 @@ const AllEmployees = () => {
         handleClose={handleClose}
         selectedEmployee={selectedEmployee}
       />
+      <div className="mt-5"></div>
+      <hr />
+      <div className="mt-5"></div>
     </div>
   );
 };

@@ -41,6 +41,20 @@ const getIdFromUrl = (url) => {
   return null;
 };
 
+const getNameFromUrl = (url) => {
+  const parts = url.split("?");
+  if (parts.length > 1) {
+    const queryParams = parts[1].split("&");
+    for (const param of queryParams) {
+      const [key, value] = param.split("=");
+      if (key === "name") {
+        return value;
+      }
+    }
+  }
+  return null;
+};
+
 const Page = () => {
   const api = new APICall();
   const router = useRouter();
@@ -70,6 +84,7 @@ const Page = () => {
   const [cheque_no, setChequeNo] = useState("");
   const [cheque_date, setChequeDate] = useState("");
   const [transection_id, setTransactionId] = useState("");
+  const [clientName, setClientName] = useState("");
 
   useEffect(() => {
     getAllBanks();
@@ -107,7 +122,7 @@ const Page = () => {
         const unpaidInvoices = response.data
           .filter((invoice) => invoice.status === "unpaid")
           .slice(0, 10); // Get the first 10 unpaid invoices
-
+        setClientName(response.data[0].user.name);
         setAllInvoiceList(unpaidInvoices);
       }
     } catch (error) {
@@ -262,7 +277,9 @@ const Page = () => {
         alert("Service Invoice Payment Added Successfully");
         clearFormState();
         getAllServices(id);
-        router.push(`/paymentInvoice?id=${selectedInvoice.id}&userId=${selectedInvoice.userId}`);
+        router.push(
+          `/paymentInvoice?id=${selectedInvoice.id}&userId=${selectedInvoice.userId}`
+        );
       } else {
         alert(`${response.error.message}`);
       }
@@ -281,6 +298,10 @@ const Page = () => {
 
   return (
     <div>
+      <div className="mt-5"></div>
+      <div className="pageTitle">Client</div>
+      <div className="pageTitle">{clientName}</div>
+      <div className="mt-5"></div>
       <Grid item lg={6} xs={12}>
         {fetchingData ? (
           <Skeleton variant="rectangular" width="100%" height={200} />
@@ -290,7 +311,7 @@ const Page = () => {
               <TableHead>
                 <TableRow>
                   <TableCell padding="checkbox">
-                    <Checkbox
+                    {/* <Checkbox
                       indeterminate={
                         selectedInvoices.length > 0 &&
                         selectedInvoices.length < allInvoiceList.length
@@ -300,7 +321,7 @@ const Page = () => {
                         selectedInvoices.length === allInvoiceList.length
                       }
                       onChange={handleSelectAllClick}
-                    />
+                    /> */}
                   </TableCell>
                   <TableCell>
                     <Typography variant="subtitle1" fontWeight="bold">

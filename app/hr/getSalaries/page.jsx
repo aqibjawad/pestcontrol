@@ -23,7 +23,9 @@ const Page = () => {
   const getAllExpenses = async () => {
     setFetchingData(true);
     try {
-      const response = await api.getDataWithToken(`${getAllEmpoyesUrl}/salary/get`);
+      const response = await api.getDataWithToken(
+        `${getAllEmpoyesUrl}/salary/get`
+      );
       setExpenseList(response.data);
     } catch (error) {
       console.error("Error fetching employees:", error);
@@ -160,7 +162,7 @@ const Page = () => {
     <div>
       <div className="flex">
         <div className="flex flex-grow">
-          <div className="pageTitle">{"All Employees"}</div>
+          <div className="pageTitle">{""}</div>
         </div>
         <div className="flex">
           <div className="mr-10">

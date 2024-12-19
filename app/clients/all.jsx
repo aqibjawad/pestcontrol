@@ -194,7 +194,11 @@ const AllClients = () => {
                   </Link>
                 </td>
                 <td>
-                  <Link href={`/serviceInvoices/add?id=${row.id}`}>
+                  <Link
+                    href={`/serviceInvoices/add?id=${
+                      row.id
+                    }&name=${encodeURIComponent(row.name)}`}
+                  >
                     <span className="text-blue-600 hover:text-blue-800">
                       Add Payment
                     </span>

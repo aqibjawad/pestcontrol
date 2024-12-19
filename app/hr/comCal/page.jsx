@@ -9,7 +9,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Swal from "sweetalert2";
 import MonthPicker from "../monthPicker";
 
-const CommissionCal = ({ isVisible }) => {
+const CommissionCal = () => {
   const api = new APICall();
   const [fetchingData, setFetchingData] = useState(false);
   const [employeeList, setEmployeeList] = useState([]);
@@ -44,28 +44,27 @@ const CommissionCal = ({ isVisible }) => {
   };
 
   useEffect(() => {
-    if (isVisible) {
-      getAllEmployees();
-    }
+    getAllEmployees();
   }, [selectedMonth]);
 
-  useEffect(() => {
-    if (isVisible) {
-      getAllEmployees();
-    }
-  }, [isVisible]);
+  // useEffect(() => {
+  //   if (isVisible) {
+  //     getAllEmployees();
+  //   }
+  // }, [isVisible]);
 
   return (
     <>
-      <MonthPicker onDateChange={handleDateChange} />
-
       {fetchingData ? (
         <CircularProgress />
       ) : (
         <>
+          <hr />
           <div className="mt-10 mb-10">
             <div className="pageTitle"> Sales By Employees </div>
-
+            <div className="mt-5"></div>
+            <MonthPicker onDateChange={handleDateChange} />
+            <div className="mt-5"></div>
             <div className={tableStyles.tableContainer}>
               <table className="min-w-full bg-white">
                 <thead>
@@ -98,7 +97,9 @@ const CommissionCal = ({ isVisible }) => {
                       <td className="py-5 px-4">{row.commission_per}%</td>
                       <td className="py-5 px-4">
                         {row.target && row.sale
-                          ? ((row.sale / row.target) * 100).toFixed(2)
+                          ? isNaN((row.sale / row.target) * 100)
+                            ? 0
+                            : ((row.sale / row.target) * 100).toFixed(2)
                           : 0}
                         %
                       </td>

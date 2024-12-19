@@ -293,7 +293,7 @@ const Page = () => {
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6} md={4} lg={3}>
                 <div className={styles.addProd}>
-                  <Link href="/hr/employee">Add Emplyees</Link>
+                  <Link href="/hr/employee">Add Employee</Link>
                 </div>
               </Grid>
 
@@ -305,7 +305,9 @@ const Page = () => {
 
               <Grid className="" item xs={12} sm={6} md={4} lg={3}>
                 <div className={styles.addProd}>
-                  <Link href="/operations/firedEmployees">View Fired Emloyees</Link>
+                  <Link href="/operations/firedEmployees">
+                    View Fired Emloyees
+                  </Link>
                 </div>
               </Grid>
             </Grid>

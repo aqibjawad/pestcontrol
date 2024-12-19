@@ -370,10 +370,11 @@ const SalaryCal = () => {
 
   return (
     <div>
-      <MonthPicker onDateChange={handleDateChange} />
       <div className="mt-10 mb-10">
         <div className="pageTitle">Salary Calculations</div>
-
+        <div className="mt-5"></div>
+        <MonthPicker onDateChange={handleDateChange} />
+        <div className="mt-5"></div>
         <div className={tableStyles.tableContainer}>
           <table className="min-w-full bg-white">
             <thead>
@@ -441,12 +442,12 @@ const SalaryCal = () => {
                       <td className="py-5 px-4">{row.basic_salary}</td>
                       <td className="py-5 px-4">{row.payable_salary}</td>
                       <td className="py-5 px-4">{row.status}</td>
-                      <td className="py-5 px-4">
+                      <td className="py-5 px-4 flex justify-center items-center">
                         <Button
                           variant="outlined"
                           onClick={() => handleOpenAdvModal(row)}
                         >
-                          Add
+                          Update
                         </Button>
                       </td>
                       <td className="py-5 px-4">
