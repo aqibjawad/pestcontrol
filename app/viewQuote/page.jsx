@@ -20,6 +20,7 @@ import DateFilters from "@/components/generic/DateFilters";
 import { format } from "date-fns";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import withAuth from "@/utils/withAuth";
+import DateSelectionModal from "./DateSelectionModal";
 
 const Quotation = () => {
   const router = useRouter();
@@ -36,26 +37,65 @@ const Quotation = () => {
   const [endDate, setEndDate] = useState(null);
   const [filterValue, setFilterValue] = useState("");
 
+  // New state variables for modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedDates, setSelectedDates] = useState([]);
+  const [selectedJobType, setSelectedJobType] = useState("");
+  const [activeTab, setActiveTab] = useState(0);
+  const [dayWiseSelection, setDayWiseSelection] = useState([]);
+  const [intervalDays, setIntervalDays] = useState(5);
+  const [currentQuoteId, setCurrentQuoteId] = useState(null);
+
+  const [selectedQuoteData, setSelectedQuoteData] = useState(null);
+
   const handleDateChange = (start, end) => {
     setStartDate(start);
     setEndDate(end);
   };
 
-  const handleApprove = async (id) => {
-    setIsApproving((prev) => ({ ...prev, [id]: true }));
+  const handleApprove = (id) => {
+    setCurrentQuoteId(id);
+    setIsModalOpen(true);
+
+    // Find the specific quote data using the selected quote ID
+    const selectedQuote = quoteList.find((quote) => quote.id === id);
+
+    // Pass the selected quote data to the modal (you can store it in a new state)
+    setSelectedQuoteData(selectedQuote);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setSelectedDates([]);
+    setSelectedJobType("");
+    setCurrentQuoteId(null);
+  };
+
+  const handleDateSelectionComplete = async () => {
+    if (!currentQuoteId) return;
+
+    setIsApproving((prev) => ({ ...prev, [currentQuoteId]: true }));
     try {
-      await api.getDataWithToken(`${quotation}/move/contract/${id}`);
+      await api.getDataWithToken(
+        `${quotation}/move/contract/${currentQuoteId}`,
+        {
+          dates: selectedDates,
+          jobType: selectedJobType,
+        }
+      );
+
       const updateQuotes = (prevList) =>
         prevList.map((quote) =>
-          quote.id === id ? { ...quote, is_contracted: 1 } : quote
+          quote.id === currentQuoteId ? { ...quote, is_contracted: 1 } : quote
         );
       setQuoteList(updateQuotes);
       setAllQuoteList(updateQuotes);
+      handleModalClose();
       router.push("/contracts");
     } catch (error) {
       console.error("Error approving quote:", error);
     } finally {
-      setIsApproving((prev) => ({ ...prev, [id]: false }));
+      setIsApproving((prev) => ({ ...prev, [currentQuoteId]: false }));
     }
   };
 
@@ -116,10 +156,6 @@ const Quotation = () => {
     });
 
     setQuoteList(sortedQuotes);
-  };
-
-  const handleEditQuote = () => {
-    router.push(`/quotation?id=${quoteList.id}`);
   };
 
   const listServiceTable = () => {
@@ -196,7 +232,6 @@ const Quotation = () => {
                 </TableSortLabel>
               </TableCell>
               <TableCell className="contractHeader">Actions</TableCell>
-              <TableCell className="contractHeader">Edit</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -268,15 +303,6 @@ const Quotation = () => {
                         </button>
                       )}
                     </div>
-                  </TableCell>
-                  <TableCell className="contractTable">
-                    {row?.is_contracted === 0 ? (
-                      <Link href={`/quotation?id=${row?.id}`}>Edit</Link>
-                    ) : (
-                      <span className="text-gray-400 cursor-not-allowed">
-                        Edit
-                      </span>
-                    )}
                   </TableCell>
                 </TableRow>
               ))
@@ -368,6 +394,23 @@ const Quotation = () => {
       <div className="grid grid-cols-12 gap-4">
         <div className="col-span-12">{listServiceTable()}</div>
       </div>
+
+      <DateSelectionModal
+        open={isModalOpen}
+        onClose={handleModalClose}
+        selectedJobType={selectedJobType}
+        duration_in_months={12}
+        selectedDates={selectedDates}
+        onDateChange={(dates) => setSelectedDates(dates)}
+        activeTab={activeTab}
+        onTabChange={(event, newValue) => setActiveTab(newValue)}
+        dayWiseSelection={dayWiseSelection}
+        onDayWiseSelectionChange={setDayWiseSelection}
+        intervalDays={intervalDays}
+        onIntervalDaysChange={(value) => setIntervalDays(value)}
+        onSave={handleDateSelectionComplete}
+        quoteData={selectedQuoteData} 
+      />
     </div>
   );
 };

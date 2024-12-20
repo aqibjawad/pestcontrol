@@ -81,8 +81,15 @@ const FinancialDashboard = () => {
 
   const getFinancial = async (startDate, endDate) => {
     try {
+      // Extract year and month from startDate
+      const date = new Date(startDate);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0"); // Add 1 because months are 0-based
+
+      const monthParam = `${year}-${month}`;
+
       const response = await api.getDataWithToken(
-        `${dashboard}/monthly_financial_report?start_date=${startDate}&end_date=${endDate}`
+        `${dashboard}/monthly_financial_report/?month=${monthParam}`
       );
       setAllClientsList(response.data);
     } catch (error) {
@@ -213,7 +220,7 @@ const FinancialDashboard = () => {
     { category: "Cash", amount: cashList?.total_cash },
     { category: "POS", amount: posList?.total_pos },
     { category: "Bank", amount: bankList?.total_cheque_transfer },
-    { category: "Pending Payments", amount: paymentList },
+    { category: "Unapproved Payments", amount: paymentList },
   ];
 
   const calculateDetailTotal = () => {

@@ -10,6 +10,7 @@ import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
 import GreenButton from "@/components/generic/GreenButton";
 import { useRouter } from "next/navigation";
 
+
 const AllEmployees = () => {
   const api = new APICall();
   const router = useRouter();
@@ -213,9 +214,9 @@ const AllEmployees = () => {
                 color="primary"
                 size="small"
               />
-              <Link href={`/hr/empDocuments?id=${employee.id}`}>
+              {/* <Link href={`/hr/empDocuments?id=${employee.id}`}>
                 <FaPencil className="text-blue-500 cursor-pointer" />
-              </Link>
+              </Link> */}
               <Link href={`/hr/employeeDetails?id=${employee.id}`}>
                 <span className="text-blue-600 hover:text-blue-800">
                   View Details

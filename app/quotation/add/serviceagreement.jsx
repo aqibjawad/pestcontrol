@@ -38,13 +38,24 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
       setIsLoading(false);
     }
   };
+  const getUniqueServiceDates = (quoteServiceDates) => {
+    // Return empty array if quoteServiceDates is undefined or null
+    if (!quoteServiceDates || !Array.isArray(quoteServiceDates)) {
+      return [];
+    }
 
-  const getUniqueServiceDays = (quoteServiceDates) => {
     const uniqueDays = new Set(); // Track unique day numbers
     const uniqueDates = []; // Store unique dates as strings
 
     quoteServiceDates.forEach((dateObj) => {
+      // Skip if dateObj or service_date is undefined
+      if (!dateObj?.service_date) return;
+
       const date = new Date(dateObj.service_date);
+
+      // Skip invalid dates
+      if (isNaN(date.getTime())) return;
+
       const day = date.getDate();
 
       if (!uniqueDays.has(day)) {
@@ -84,19 +95,13 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
           service_name: quoteService.service.pest_name,
           jobType: quoteService.job_type,
           rate: parseFloat(quoteService.rate),
-          dates: quoteService.quote_service_dates.map(
-            (date) => date.service_date
-          ),
-          no_of_services: quoteService.no_of_services,
+          no_of_jobs: quoteService.no_of_jobs,
           subTotal: parseFloat(quoteService.sub_total),
           detail: [
             {
               job_type: quoteService.job_type,
               rate: parseFloat(quoteService.rate),
-              dates: quoteService.quote_service_dates.map(
-                (date) => date.service_date
-              ),
-              no_of_services: quoteService.no_of_services,
+              no_of_jobs: quoteService.no_of_jobs,
             },
           ],
         })
@@ -137,14 +142,14 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
       jobType: "",
       rate: "",
       dates: [],
-      no_of_services: 0,
+      no_of_jobs: 0,
       subTotal: 0,
       detail: [
         {
           job_type: "",
           rate: "",
           dates: [],
-          no_of_services: 0,
+          no_of_jobs: 0,
         },
       ],
     };
@@ -182,12 +187,13 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
       newServices[index] = {
         ...newServices[index],
         ...updatedJob,
+        subTotal: updatedJob.no_of_jobs * updatedJob.rate, // Ensure subtotal is calculated correctly
         detail: [
           {
             job_type: updatedJob.jobType,
             rate: updatedJob.rate,
             dates: updatedJob.dates,
-            no_of_services: updatedJob.no_of_services,
+            no_of_jobs: updatedJob.no_of_jobs,
           },
         ],
       };
@@ -196,7 +202,7 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
   };
 
   const grandTotal = (formData.services || []).reduce(
-    (total, job) => total + job.subTotal,
+    (total, job) => total + (job.subTotal || 0),
     0
   );
 
@@ -232,9 +238,11 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
           >
             <JobsList
               jobData={job}
-              numberOfJobs={getUniqueServiceDays(
-                formData.quote_services[index].quote_service_dates
-              )}
+              numberOfJobs={
+                getUniqueServiceDates(
+                  formData?.quote_services?.[index]?.quote_service_dates
+                ).length
+              }
               allServices={allServices}
               updateJobList={(updatedJob) => updateJobList(index, updatedJob)}
               duration_in_months={formData.duration_in_months}

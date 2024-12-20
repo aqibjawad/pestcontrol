@@ -28,31 +28,45 @@ const Method = ({ setFormData, formData }) => {
     getAllServices();
   }, []);
 
+  // Helper function to convert tm_ids to array
+  const parseTmIds = (tmIds) => {
+    if (Array.isArray(tmIds)) {
+      return tmIds;
+    }
+
+    if (typeof tmIds === "string") {
+      try {
+        // First attempt: Parse as JSON
+        return JSON.parse(tmIds);
+      } catch {
+        // Second attempt: Clean and split string
+        return tmIds
+          .replace(/[\[\]\s]/g, "")
+          .split(",")
+          .map(Number)
+          .filter((id) => !isNaN(id));
+      }
+    }
+
+    return [];
+  };
+
   useEffect(() => {
     if (service.length > 0) {
+      // Convert tm_ids to array format when component mounts
+      if (formData.tm_ids && typeof formData.tm_ids === "string") {
+        const parsedIds = parseTmIds(formData.tm_ids);
+        setFormData((prev) => ({
+          ...prev,
+          tm_ids: parsedIds,
+        }));
+      }
       makeServicesList();
     }
   }, [service, formData.tm_ids]);
 
   const makeServicesList = () => {
-    // Handle different types of tm_ids input
-    let currentTmIds = [];
-
-    if (Array.isArray(formData.tm_ids)) {
-      currentTmIds = formData.tm_ids;
-    } else if (typeof formData.tm_ids === "string") {
-      // Handle string input like "[12,11,10,9]"
-      try {
-        currentTmIds = JSON.parse(formData.tm_ids);
-      } catch {
-        // If JSON.parse fails, try splitting the string
-        currentTmIds = formData.tm_ids
-          .replace(/[\[\]\s]/g, "") // Remove brackets and whitespace
-          .split(",")
-          .map((id) => Number(id))
-          .filter((id) => !isNaN(id)); // Filter out any invalid numbers
-      }
-    }
+    const currentTmIds = parseTmIds(formData.tm_ids);
 
     const servicesWithCheck = service.map((item) => ({
       id: item.id,
@@ -76,7 +90,7 @@ const Method = ({ setFormData, formData }) => {
       // Update the form data with the selected IDs array
       setFormData((prevData) => ({
         ...prevData,
-        tm_ids: selectedIds,
+        tm_ids: selectedIds, // Always store as array
       }));
 
       return updatedServices;
@@ -120,3 +134,4 @@ const Method = ({ setFormData, formData }) => {
 };
 
 export default Method;
+ 

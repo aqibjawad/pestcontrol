@@ -13,7 +13,6 @@ import Invoice from "./invoices";
 import ContractSummary from "./contract";
 import Terms from "./terms";
 import Treatment from "./methods";
-import QuoteServiceDates from "./QuoteServiceDates";
 
 import Layout from "../../components/layout"
 
@@ -110,24 +109,6 @@ const getAllQuotes = async () => {
   return (
     <Layout>
 
-      {/* <div>
-        <Grid container spacing={3}>
-          <Grid item lg={6} xs={12} sm={6} md={4}>
-            <img src="/logo-black.png" alt="Logo" />
-          </Grid>
-          <Grid item lg={6} xs={12} sm={6} md={4}>
-            <div className="flex">
-              <div className="flex-grow"></div>
-              <div>
-                <div className={styles.heading}>
-                  {isApproved ? "Contracted" : "Quotes"}
-                </div>
-              </div>
-            </div>
-          </Grid>
-        </Grid>
-      </div> */}
-
       <div className="">
         {loadingDetails ? (
           <div className="space-y-4">
@@ -142,59 +123,12 @@ const getAllQuotes = async () => {
           <>
             <CustomerDetails quote={quoteList} />
             <ServiceProduct quote={quoteList} />
-            <QuoteServiceDates quote={quoteList} />
             <Treatment quote={quoteList} />
             <Invoice quote={quoteList} />
             <ContractSummary quote={quoteList} />
-            {/* <Terms quote={quoteList} /> */}
           </>
         )}
       </div>
-
-
-      {/* <Grid container spacing={3}>
-        <Grid item lg={6} xs={12} sm={6} md={4}>
-          {isApproved && (
-            <div
-              style={{ cursor: "pointer" }}
-              onClick={handlePrint}
-              className={styles.approveDiv}
-            >
-              Print
-            </div>
-          )}
-        </Grid>
-
-        <Grid item lg={6} xs={12} sm={6} md={4}>
-          <div className="flex">
-            <div className="flex-grow"></div>
-            <div>
-              {!isApproved && (
-                <div
-                  style={{ cursor: "pointer" }}
-                  onClick={handleSubmit}
-                  className={styles.approveDiv}
-                >
-                  {isApproving ? (
-                    <CircularProgress size={24} /> // Show CircularProgress when approving
-                  ) : (
-                    "Approve"
-                  )}
-                </div>
-              )}
-
-              {isApproved && (
-                <div
-                  style={{ cursor: "pointer" }}
-                  className={styles.approveDiv}
-                >
-                  Approved
-                </div>
-              )}
-            </div>
-          </div>
-        </Grid>
-      </Grid> */}
     </Layout>
   );
 };
