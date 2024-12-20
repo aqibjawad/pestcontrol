@@ -188,6 +188,9 @@ const AllEmployees = () => {
               <p className="text-gray-600">
                 {employee.employee?.phone_number || "N/A"}
               </p>
+              <p className="text-gray-400">
+                Employee ID : {employee.employee?.id || "N/A"}
+              </p>
             </div>
 
             <div className="mt-4">

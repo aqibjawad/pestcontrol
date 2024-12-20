@@ -9,7 +9,6 @@ import DeleteIcon from "@mui/icons-material/Delete";
 
 import withAuth from "@/utils/withAuth";
 
-
 import {
   getAllSuppliers,
   product,
@@ -246,7 +245,6 @@ const Page = () => {
     ]);
   };
 
-  
   const handleOrderDateChange = (name, value) => {
     setOrderDate(value);
   };
@@ -379,7 +377,7 @@ const Page = () => {
           </Grid>
         </Grid>
 
-        <Grid container spacing={2} className="mt-5">
+        {/* <Grid container spacing={2} className="mt-5">
           <Grid item lg={9} xs={12} sm={6} md={4}>
             <div className={styles.subHead}>Discount</div>
           </Grid>
@@ -391,7 +389,7 @@ const Page = () => {
               />
             </div>
           </Grid>
-        </Grid>
+        </Grid> */}
 
         <Grid container spacing={2} className="mt-5">
           <Grid item lg={6} xs={12} sm={6} md={4}>
