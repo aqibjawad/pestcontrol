@@ -17,9 +17,10 @@ import { outstandings } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
 import Link from "next/link";
 import withAuth from "@/utils/withAuth";
-
+import { useRouter } from "next/navigation";
 const Page = () => {
   const api = new APICall();
+  const router = useRouter();
   const [invoiceList, setInvoiceList] = useState([]);
   const [fetchingData, setFetchingData] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(true);
@@ -143,68 +144,107 @@ const Page = () => {
     );
   }
 
+  const handleNavigation = (index) => {
+    let dateRange = {
+      start: "",
+      end: "",
+    };
+    if (index === 3) {
+      const today = new Date();
+      const fourthMonth = subMonths(today, 3);
+      const startDate = startOfMonth(fourthMonth);
+
+      dateRange = {
+        start: format(startDate, "yyyy-M-dd"),
+        end: "2023-9-31",
+      };
+    } else {
+      const today = new Date();
+      const targetMonth = subMonths(today, index);
+      const startDate = startOfMonth(targetMonth);
+      const endDate = endOfMonth(targetMonth);
+
+      dateRange = {
+        start: format(startDate, "yyyy-M-dd"),
+        end: format(endDate, "yyyy-M-dd"),
+      };
+    }
+
+    // Navigate to invoice page with date parameters
+    router.push(`/invoice?start=${dateRange.start}&end=${dateRange.end}`);
+  };
+
   return (
-    <TableContainer component={Paper} elevation={1}>
-      <Typography
-        variant="h6"
-        sx={{ p: 2, borderBottom: "1px solid rgba(224, 224, 224, 1)" }}
-      >
-        Outstandings
-      </Typography>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell sx={headerCellStyle}>Period</TableCell>
-            <TableCell sx={{ ...headerCellStyle, textAlign: "right" }}>
-              Invoices
-            </TableCell>
-            <TableCell sx={{ ...headerCellStyle, textAlign: "right" }}>
-              Total Amount
-            </TableCell>
-            <TableCell sx={{ ...headerCellStyle, textAlign: "right" }}>
-              View Details
-            </TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {invoiceList.map((row, index) => (
-            <TableRow key={index} hover>
-              <TableCell sx={bodyCellStyle}>{row.title}</TableCell>
-              <TableCell sx={{ ...bodyCellStyle, textAlign: "right" }}>
-                {row.count}
+    <>
+      <TableContainer component={Paper} elevation={1}>
+        <Typography
+          variant="h6"
+          sx={{ p: 2, borderBottom: "1px solid rgba(224, 224, 224, 1)" }}
+        >
+          Outstandings
+        </Typography>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell sx={headerCellStyle}>Period</TableCell>
+              <TableCell sx={{ ...headerCellStyle, textAlign: "right" }}>
+                Invoices
               </TableCell>
-              <TableCell sx={{ ...bodyCellStyle, ...amountCellStyle }}>
-                {parseFloat(row.total_amt).toLocaleString("en-US", {
-                  style: "currency",
-                  currency: "AED",
-                })}
+              <TableCell sx={{ ...headerCellStyle, textAlign: "right" }}>
+                Total Amount
               </TableCell>
-              <TableCell sx={{ ...bodyCellStyle, textAlign: "right" }}>
-                {/* <Link
-                  href={`/invoice?start=${
-                    row.title === "Older Than 3 Months"
-                      ? ""
-                      : format(
-                          summaryData[
-                            row.title.replace(/\s+/g, "").toLowerCase()
-                          ].start,
-                          "yyyy-MM-dd"
-                        )
-                  }&end=${format(
-                    summaryData[row.title.replace(/\s+/g, "").toLowerCase()]
-                      .end || new Date(),
-                    "yyyy-MM-dd"
-                  )}`}
-                  style={linkStyle}
-                >
-                  View Details
-                </Link> */}
+              <TableCell sx={{ ...headerCellStyle, textAlign: "right" }}>
+                View Details
               </TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+          </TableHead>
+          <TableBody>
+            {invoiceList.map((row, index) => (
+              <TableRow key={index} hover>
+                <TableCell sx={bodyCellStyle}>{row.title}</TableCell>
+                <TableCell sx={{ ...bodyCellStyle, textAlign: "right" }}>
+                  {row.count}
+                </TableCell>
+                <TableCell sx={{ ...bodyCellStyle, ...amountCellStyle }}>
+                  {parseFloat(row.total_amt).toLocaleString("en-US", {
+                    style: "currency",
+                    currency: "AED",
+                  })}
+                </TableCell>
+                <TableCell sx={{ ...bodyCellStyle, textAlign: "right" }}>
+                  <button
+                    onClick={() => handleNavigation(index)}
+                    style={linkStyle}
+                  >
+                    View Details
+                  </button>
+
+                  {/* <Link
+                    href={`/invoice?start=${
+                      row.title === "Older Than 3 Months"
+                        ? ""
+                        : format(
+                            summaryData[
+                              row.title.replace(/\s+/g, "").toLowerCase()
+                            ].start,
+                            "yyyy-MM-dd"
+                          )
+                    }&end=${format(
+                      summaryData[row.title.replace(/\s+/g, "").toLowerCase()]
+                        .end || new Date(),
+                      "yyyy-MM-dd"
+                    )}`}
+                    style={linkStyle}
+                  >
+                    View Details
+                  </Link> */}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </>
   );
 };
 

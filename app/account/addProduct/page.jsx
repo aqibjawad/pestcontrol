@@ -274,7 +274,7 @@ const Page = () => {
           <>
             <div className="mt-10">
               <Dropdown
-                options={["Powder", "Liquid", "Gel", "Pieces"]}
+                options={["Powder", "Liquid", "Gel"]}
                 title={"Product Type"}
                 onChange={(value) => setProductType(value)}
                 value={product_type}
@@ -286,7 +286,7 @@ const Page = () => {
                 <div className="flex-grow">
                   <Dropdown
                     title={"Unit"}
-                    options={["ML", "GRAM"]}
+                    options={["ML", "GRAM", "Pieces"]}
                     onChange={(value) => setUnit(value)}
                     value={unit}
                   />
