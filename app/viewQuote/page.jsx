@@ -31,6 +31,9 @@ const Quotation = () => {
   const [fetchingData, setFetchingData] = useState(false);
   const [quoteList, setQuoteList] = useState([]);
 
+  console.log(quoteList);
+  
+
   const [allQuoteList, setAllQuoteList] = useState([]);
   const [isApproving, setIsApproving] = useState({});
   const [startDate, setStartDate] = useState(null);
@@ -157,6 +160,8 @@ const Quotation = () => {
 
     setQuoteList(sortedQuotes);
   };
+
+  const [savedDates, setSavedDates] = useState([]);
 
   const listServiceTable = () => {
     return (
@@ -328,6 +333,10 @@ const Quotation = () => {
     }
   }, [filterValue, allQuoteList]);
 
+  const handleSaveDates = (dates) => {
+    setSavedDates(dates);
+  };
+
   return (
     <div>
       <div style={{ padding: "30px", borderRadius: "10px" }}>
@@ -397,20 +406,12 @@ const Quotation = () => {
 
       <DateSelectionModal
         open={isModalOpen}
-        onClose={handleModalClose}
-        selectedJobType={selectedJobType}
-        duration_in_months={12}
-        selectedDates={selectedDates}
-        onDateChange={(dates) => setSelectedDates(dates)}
-        activeTab={activeTab}
-        onTabChange={(event, newValue) => setActiveTab(newValue)}
-        dayWiseSelection={dayWiseSelection}
-        onDayWiseSelectionChange={setDayWiseSelection}
-        intervalDays={intervalDays}
-        onIntervalDaysChange={(value) => setIntervalDays(value)}
-        onSave={handleDateSelectionComplete}
+        onClose={() => setIsModalOpen(false)}
+        initialDates={savedDates}
+        onSave={handleSaveDates}
         quoteData={selectedQuoteData} 
       />
+
     </div>
   );
 };

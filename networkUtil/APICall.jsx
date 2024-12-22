@@ -30,7 +30,9 @@ class APICall {
         config.data = data;
       }
     }
-
+    console.log("shfsdljkjfdljkdfjlk", data);
+    
+    console.log("jkdjkdjkdj",config);
     try {
       const response = await axios(config);
       if (response.status === 200 || response.status === 204) {
@@ -65,6 +67,11 @@ class APICall {
   async postFormDataWithToken(url, data) {
     return this.makeRequest("post", url, data, true, true);
   }
+
+  async postDataToken(url, data) {
+    return this.makeRequest("post", url, data, true, false);
+  }
+
 
   async getDataWithToken(url) {
     return this.makeRequest("get", url, null, true);

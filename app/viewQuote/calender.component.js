@@ -1,20 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-const CalendarComponent = ({
-  onDateChange,
-  initialDates = [],
-  isDateSelectable,
-}) => {
+const CalendarComponent = ({ onDateChange, initialDates = [] }) => {
   const [selectedDates, setSelectedDates] = useState(initialDates);
-  const [startDate, setStartDate] = useState(new Date());
-
-  useEffect(() => {
-    if (JSON.stringify(selectedDates) !== JSON.stringify(initialDates)) {
-      setSelectedDates(initialDates);
-    }
-  }, [initialDates]);
 
   const formatDate = (date) => {
     if (!date) return "";
@@ -26,18 +15,15 @@ const CalendarComponent = ({
   };
 
   const handleDateChange = (date) => {
-    const formattedDate = formatDate(date); // Convert selected date to string
+    const formattedDate = formatDate(date);
     let newDates;
 
-    // Ensure comparison is done on formatted dates
-    const formattedSelectedDates = selectedDates.map((d) => formatDate(d));
-
-    if (formattedSelectedDates.includes(formattedDate)) {
+    if (selectedDates.includes(formattedDate)) {
       // Remove date if already selected
-      newDates = selectedDates.filter((d) => formatDate(d) !== formattedDate);
+      newDates = selectedDates.filter((d) => d !== formattedDate);
     } else {
       // Add date if not already selected
-      newDates = [...selectedDates, date];
+      newDates = [...selectedDates, formattedDate];
     }
 
     setSelectedDates(newDates);
@@ -48,36 +34,27 @@ const CalendarComponent = ({
     return selectedDates.map((dateStr) => new Date(dateStr));
   };
 
-  const getDisplayDates = () => {
-    return selectedDates
-      .map((dateStr) => new Date(dateStr).toLocaleDateString())
-      .join(", ");
-  };
-
   return (
     <div className="w-full max-w-md mx-auto">
       <DatePicker
-        selected={startDate}
         onChange={handleDateChange}
         inline
         highlightDates={getHighlightedDates()}
-        dateFormat="yyyy-MM-dd"
-        showTimeSelect={false} // Ensure no time selection
-        dayClassName={(date) => {
-          return selectedDates.includes(formatDate(date))
-            ? "selected-date"
-            : undefined;
-        }}
-        filterDate={isDateSelectable}
       />
-      <p className="mt-4 text-gray-700">
-        Selected Dates: {getDisplayDates() || "None"}
-      </p>
+      <div className="mt-4">
+        <h3 className="font-medium">Selected Dates:</h3>
+        <ul>
+          {selectedDates.map((date, index) => (
+            <li key={index} className="text-sm text-gray-700">
+              {date}
+            </li>
+          ))}
+        </ul>
+      </div>
       <style jsx>{`
-        .selected-date {
+        .react-datepicker__day--highlighted {
           background-color: #007bff !important;
           color: white !important;
-          border-radius: 0.25rem;
         }
         .react-datepicker {
           font-family: inherit;

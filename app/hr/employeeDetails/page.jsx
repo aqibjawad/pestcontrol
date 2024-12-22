@@ -123,7 +123,6 @@ const Page = () => {
     setActiveTab(tab);
   };
 
-
   return (
     <div>
       {/* Personal Information */}
@@ -174,6 +173,47 @@ const Page = () => {
               </tbody>
             </table>
           </div>
+        </div>
+      </div>
+
+      <div className={styles.personalContainer}>
+        <div className={styles.personalHead}> Emergency Contact </div>
+
+        <div className={styles.tableContainer}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th> Name </th>
+                <th> Relation </th>
+                <th> Contact </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  {fetchingData ? (
+                    <Skeleton width="80%" />
+                  ) : (
+                    employeeList?.employee?.relative_name
+                  )}
+                </td>
+                <td>
+                  {fetchingData ? (
+                    <Skeleton width="80%" />
+                  ) : (
+                    employeeList?.employee?.relation
+                  )}
+                </td>
+                <td>
+                  {fetchingData ? (
+                    <Skeleton width="80%" />
+                  ) : (
+                    employeeList?.employee?.emergency_contact
+                  )}
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -373,6 +413,7 @@ const Page = () => {
           <div className={styles.personalContainer}>
             <div className={styles.personalHead}>Jobs</div>
             {fetchingData ? (
+              // Render Skeleton while jobs are loading
               <div>
                 <Skeleton variant="text" width="40%" height={30} />
                 <Skeleton variant="rectangular" width="100%" height={200} />

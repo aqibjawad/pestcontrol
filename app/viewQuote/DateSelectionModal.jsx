@@ -1,213 +1,305 @@
-import React, { useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import { Tabs, Tab, Box, Button, Alert } from "@mui/material";
+import {
+  Button,
+  Tabs,
+  Tab,
+  FormGroup,
+  FormControlLabel,
+  Checkbox,
+} from "@mui/material";
 import CalendarComponent from "./calender.component";
-import InputWithTitle from "../../components/generic/InputWithTitle";
+import Swal from "sweetalert2";
+import APICall from "@/networkUtil/APICall";
+import { quotation } from "@/networkUtil/Constants";
+import {
+  addMonths,
+  format,
+  parse,
+  startOfMonth,
+  setDate,
+  addWeeks,
+  addDays,
+  getDate,
+} from "date-fns";
 
-const DateSelectionModal = ({
-  open,
-  onClose,
-  selectedJobType,
-  duration_in_months,
-  selectedDates,
-  onDateChange,
-  activeTab,
-  onTabChange,
-  dayWiseSelection,
-  onDayWiseSelectionChange,
-  intervalDays,
-  onIntervalDaysChange,
-  quoteServices,
-  quoteData,
-}) => {
+const DateSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
+  const api = new APICall();
+  const [selectedDates, setSelectedDates] = useState(initialDates || []);
+  const [tabIndex, setTabIndex] = useState(0);
+  const [generatedDates, setGeneratedDates] = useState([]);
+  const [weeklySelection, setWeeklySelection] = useState({
+    week1: {
+      mon: false,
+      tue: false,
+      wed: false,
+      thu: false,
+      fri: false,
+      sat: false,
+      sun: false,
+    },
+    week2: {
+      mon: false,
+      tue: false,
+      wed: false,
+      thu: false,
+      fri: false,
+      sat: false,
+      sun: false,
+    },
+    week3: {
+      mon: false,
+      tue: false,
+      wed: false,
+      thu: false,
+      fri: false,
+      sat: false,
+      sun: false,
+    },
+    week4: {
+      mon: false,
+      tue: false,
+      wed: false,
+      thu: false,
+      fri: false,
+      sat: false,
+      sun: false,
+    },
+  });
 
-  console.log(quoteData?.duration_in_months, "duration in months");
+  useEffect(() => {
+    if (selectedDates.length > 0 && quoteData?.duration_in_months) {
+      generateDatesForDuration();
+    }
+  }, [selectedDates, quoteData?.duration_in_months]);
 
-  const quoteServi = quoteData?.quote_services || [];
+  // Add new useEffect for weeklySelection
+  useEffect(() => {
+    if (quoteData?.duration_in_months) {
+      const dates = generateWeeklyDates();
+      setGeneratedDates(dates);
+    }
+  }, [weeklySelection, quoteData?.duration_in_months]);
 
-  const noOfServicesArray = quoteServi.map((service) => ({
-    name: service.name, // Assuming 'name' is the property for the service name
-    no_of_services: service.no_of_services, // Keeping the existing property
-  }));
+  const generateDatesForDuration = () => {
+    if (selectedDates.length === 0) return;
 
-  console.log(noOfServicesArray, "Array of no_of_services");
+    try {
+      const allDates = [];
 
-  // Calculate max services per month
-  const maxServicesPerMonth = useMemo(() => {
-    if (!quoteServices?.length || !duration_in_months) return 0;
+      const selectedDaysOfMonth = selectedDates.map((date) => {
+        const dateObj = new Date(date);
+        return dateObj.getDate();
+      });
 
-    const totalServices = quoteServices.reduce(
-      (sum, service) =>
-        sum + (service.job_type === "monthly" ? service.no_of_services : 0),
-      0
-    );
+      const firstDate = new Date(selectedDates[0]);
+      const startMonth = firstDate.getMonth();
+      const startYear = firstDate.getFullYear();
 
-    return Math.floor(totalServices / duration_in_months);
-  }, [quoteServices, duration_in_months]);
+      for (
+        let monthOffset = 0;
+        monthOffset < quoteData.duration_in_months;
+        monthOffset++
+      ) {
+        selectedDaysOfMonth.forEach((dayOfMonth) => {
+          const newDate = new Date(
+            startYear,
+            startMonth + monthOffset,
+            dayOfMonth
+          );
+          allDates.push(format(newDate, "yyyy-MM-dd"));
+        });
+      }
 
-  // Check if selected dates exceed max services per month
-  const exceedsMonthlyLimit = useMemo(() => {
-    if (!selectedDates?.length || !maxServicesPerMonth) return false;
-
-    // Group dates by month and check if any month exceeds limit
-    const monthCounts = selectedDates.reduce((acc, date) => {
-      const monthYear = new Date(date).toISOString().slice(0, 7);
-      acc[monthYear] = (acc[monthYear] || 0) + 1;
-      return acc;
-    }, {});
-
-    return Object.values(monthCounts).some(
-      (count) => count > maxServicesPerMonth
-    );
-  }, [selectedDates, maxServicesPerMonth]);
-
-  const handleDateChange = (dates) => {
-    // Group new dates by month
-    const monthCounts = dates.reduce((acc, date) => {
-      const monthYear = date.toISOString().slice(0, 7);
-      acc[monthYear] = (acc[monthYear] || 0) + 1;
-      return acc;
-    }, {});
-
-    // Only allow date selection if it doesn't exceed monthly limit
-    if (
-      Object.values(monthCounts).every((count) => count <= maxServicesPerMonth)
-    ) {
-      onDateChange(dates);
+      allDates.sort();
+      setGeneratedDates(allDates);
+    } catch (error) {
+      console.error("Error generating dates:", error);
     }
   };
 
-  const renderDayWiseSelection = () => {
-    const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-    const weeks = ["1st Week", "2nd Week", "3rd Week", "4th Week"];
+  const handleDateChange = (dates) => {
+    setSelectedDates(dates);
+  };
+
+  const handleTabChange = (event, newValue) => {
+    setTabIndex(newValue);
+    // Reset generatedDates when switching tabs
+    setGeneratedDates([]);
+  };
+
+  const handleWeekDayChange = (week, day) => {
+    setWeeklySelection((prev) => ({
+      ...prev,
+      [week]: {
+        ...prev[week],
+        [day]: !prev[week][day],
+      },
+    }));
+  };
+
+  const generateWeeklyDates = () => {
+    const selectedDays = [];
+    const now = new Date();
+    const monthStart = startOfMonth(now);
+    const dayMap = { mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6, sun: 0 };
+
+    // First generate base dates for the first month
+    const baseDates = [];
+    Object.entries(weeklySelection).forEach(([week, days], weekIndex) => {
+      Object.entries(days).forEach(([day, isSelected]) => {
+        if (isSelected) {
+          const dayNumber = dayMap[day];
+          let targetDate = addWeeks(monthStart, weekIndex);
+
+          while (targetDate.getDay() !== dayNumber) {
+            targetDate = addDays(targetDate, 1);
+          }
+
+          baseDates.push(targetDate);
+        }
+      });
+    });
+
+    // Now generate dates for all months based on duration_in_months
+    if (baseDates.length > 0 && quoteData?.duration_in_months) {
+      for (
+        let monthOffset = 0;
+        monthOffset < quoteData.duration_in_months;
+        monthOffset++
+      ) {
+        baseDates.forEach((baseDate) => {
+          const newDate = addMonths(baseDate, monthOffset);
+          selectedDays.push(format(newDate, "yyyy-MM-dd"));
+        });
+      }
+    }
+
+    return selectedDays.sort();
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    let dataToSend = {
+      quote_services: [
+        {
+          quote_service_id: 40,
+          dates: generatedDates,
+        },
+      ],
+    };
+
+    try {
+      const response = await api.postDataToken(
+        `${quotation}/move/contract/${quoteData.id}`,
+        dataToSend
+      );
+
+      if (response.status === "success") {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Data has been added successfully!",
+        });
+        onClose();
+      } else {
+        throw new Error(response.error?.message || "Unknown error occurred");
+      }
+    } catch (error) {
+      console.error("API Error:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text:
+          error.message || "Failed to process the request. Please try again.",
+      });
+    }
+  };
+
+  const renderWeekSelection = (weekNum) => {
+    const days = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+    const weekKey = `week${weekNum}`;
 
     return (
-      <div className="day-wise-selection">
-        {maxServicesPerMonth > 0 && (
-          <Alert severity="info" className="mb-4">
-            Maximum {maxServicesPerMonth} services allowed per month
-          </Alert>
-        )}
-        <table>
-          <thead>
-            <tr>
-              <th></th>
-              {days.map((day) => (
-                <th key={day}>{day}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {weeks.map((week, weekIndex) => (
-              <tr key={week}>
-                <td>{week}</td>
-                {days.map((day, dayIndex) => (
-                  <td key={`${week}-${day}`}>
-                    <Button
-                      variant={
-                        dayWiseSelection.some(
-                          (item) =>
-                            item.week === weekIndex && item.day === dayIndex
-                        )
-                          ? "contained"
-                          : "outlined"
-                      }
-                      onClick={() => {
-                        let newSelection = [];
-                        if (selectedJobType === "daily") {
-                          newSelection = [{ week: weekIndex, day: dayIndex }];
-                        } else {
-                          newSelection = [...dayWiseSelection];
-                          const isSelected = newSelection.some(
-                            (item) =>
-                              item.week === weekIndex && item.day === dayIndex
-                          );
-                          if (isSelected) {
-                            const index = newSelection.findIndex(
-                              (item) =>
-                                item.week === weekIndex && item.day === dayIndex
-                            );
-                            if (index !== -1) newSelection.splice(index, 1);
-                          } else if (
-                            newSelection.length < maxServicesPerMonth
-                          ) {
-                            newSelection.push({
-                              week: weekIndex,
-                              day: dayIndex,
-                            });
-                          }
-                        }
-                        onDayWiseSelectionChange(newSelection);
-                      }}
-                    >
-                      {day}
-                    </Button>
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="mb-4 p-4 border rounded">
+        <h3 className="mb-2 font-medium">Week {weekNum}</h3>
+        <div className="grid grid-cols-7 gap-2">
+          {days.map((day) => (
+            <FormControlLabel
+              key={`${weekKey}-${day}`}
+              control={
+                <Checkbox
+                  checked={weeklySelection[weekKey][day]}
+                  onChange={() => handleWeekDayChange(weekKey, day)}
+                  size="small"
+                />
+              }
+              label={day.charAt(0).toUpperCase() + day.slice(1)}
+              className="m-0"
+            />
+          ))}
+        </div>
       </div>
     );
   };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>
-        {selectedJobType === "monthly" || selectedJobType === "daily"
-          ? `Select Dates (Will repeat for ${duration_in_months} months)`
-          : selectedJobType === "daily"
-          ? "Select Date (Only one date allowed)"
-          : "Select Dates"}
-      </DialogTitle>
+      <DialogTitle>Select Dates</DialogTitle>
       <DialogContent>
-        {exceedsMonthlyLimit && (
-          <Alert severity="error" className="mb-4">
-            Maximum {maxServicesPerMonth} services allowed per month
-          </Alert>
+        <Tabs
+          value={tabIndex}
+          onChange={handleTabChange}
+          indicatorColor="primary"
+          textColor="primary"
+          variant="fullWidth"
+        >
+          <Tab label="Date" />
+          <Tab label="Weekly" />
+        </Tabs>
+
+        {tabIndex === 0 && (
+          <>
+            <CalendarComponent
+              initialDates={selectedDates}
+              onDateChange={handleDateChange}
+            />
+            {generatedDates.length > 0 && (
+              <div className="mt-4 p-4 bg-gray-50 rounded">
+                <p className="font-medium mb-2">Generated Dates:</p>
+                <div className="max-h-40 overflow-y-auto">
+                  {generatedDates.map((date, index) => (
+                    <p key={index}>{date}</p>
+                  ))}
+                </div>
+                <p className="mt-2">Total Dates: {generatedDates.length}</p>
+              </div>
+            )}
+          </>
         )}
 
-        {(selectedJobType === "weekly" ||
-          selectedJobType === "daily" ||
-          selectedJobType === "monthly") && (
-          <Tabs value={activeTab} onChange={onTabChange}>
-            <Tab label="Date" />
-            <Tab label="Day-wise" />
-          </Tabs>
-        )}
-        <Box sx={{ p: 2 }}>
-          {activeTab === 0 && (
-            <CalendarComponent
-              initialDates={selectedDates?.map((date) => new Date(date))}
-              onDateChange={handleDateChange}
-              minDate={selectedJobType === "daily" ? new Date() : undefined}
-              maxSelectable={selectedJobType === "daily" ? 1 : undefined}
-            />
-          )}
-          {activeTab === 1 && renderDayWiseSelection()}
-        </Box>
-        {selectedJobType === "custom" && (
-          <InputWithTitle
-            title="Interval Days"
-            type="number"
-            name="intervalDays"
-            placeholder="Enter interval days"
-            value={intervalDays}
-            onChange={onIntervalDaysChange}
-          />
+        {tabIndex === 1 && (
+          <div className="mt-4">
+            {[1, 2, 3, 4].map((weekNum) => renderWeekSelection(weekNum))}
+
+            <div className="mt-4 p-4 bg-gray-50 rounded">
+              <p className="font-medium mb-2">Selected Days Preview:</p>
+              <div className="max-h-40 overflow-y-auto">
+                {generatedDates.map((date, index) => (
+                  <p key={index}>{date}</p>
+                ))}
+              </div>
+            </div>
+          </div>
         )}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button
-          onClick={onClose}
-          color="primary"
-          disabled={exceedsMonthlyLimit}
-        >
+        <Button onClick={handleSubmit} color="primary">
           Save Dates
         </Button>
       </DialogActions>
