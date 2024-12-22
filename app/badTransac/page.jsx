@@ -151,12 +151,13 @@ const Page = () => {
     };
     if (index === 3) {
       const today = new Date();
-      const fourthMonth = subMonths(today, 3);
-      const startDate = startOfMonth(fourthMonth);
+      const startDate = endOfMonth(today);
+      const fourthMonth = subMonths(today, 4);
+      const endDate = endOfMonth(fourthMonth);
 
       dateRange = {
-        start: format(startDate, "yyyy-M-dd"),
-        end: "2023-9-31",
+        start: "2023-9-31",
+        end: format(endDate, "yyyy-M-dd"),
       };
     } else {
       const today = new Date();
