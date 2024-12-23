@@ -14,7 +14,7 @@ const UpcomingJobs = ({
   isLoading,
   handleFilter,
   currentFilter,
-  isVisible
+  isVisible,
 }) => {
   const pathname = usePathname();
   const router = useRouter();
@@ -77,9 +77,56 @@ const UpcomingJobs = ({
         <td>
           <div className={styles.teamCaptainName}>
             {row.reschedule_dates?.length > 1 ? (
-              <span style={{ color: "red", fontSize:"15px" }}>Reschedule</span>
+              <td>
+                <div className={styles.teamCaptainName}>
+                  {row.reschedule_dates?.length > 1 ? (
+                    <span style={{ color: "red", fontSize: "15px" }}>
+                      <div style={{textAlign:"center"}}> Reschedule </div>
+                      <br />
+                      {new Date(
+                        row.reschedule_dates[
+                          row.reschedule_dates.length - 1
+                        ].job_date
+                      ).toLocaleString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  ) : (
+                    <span style={{ fontSize: "15px" }}>
+                      Regular 
+                      <br />
+                      {new Date(
+                        row.reschedule_dates[0].job_date
+                      ).toLocaleString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  )}
+                </div>
+              </td>
             ) : (
-              <span style={{ fontSize:"15px" }}>Regular Job</span>
+              <span style={{ fontSize: "15px" }}>
+                Regular
+                <br />
+                {new Date(row.reschedule_dates[0].job_date).toLocaleString(
+                  "en-US",
+                  {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  }
+                )}
+              </span>
             )}
           </div>
         </td>
@@ -181,7 +228,7 @@ const UpcomingJobs = ({
                 "Job Name",
                 "Status",
                 "Priority",
-                "Reschedule",
+                "Job Schedule",
                 "Assign Job",
                 "View Details",
               ].map((header, index) => (

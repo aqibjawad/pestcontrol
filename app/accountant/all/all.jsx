@@ -8,8 +8,23 @@ import Skeleton from "@mui/material/Skeleton";
 import { serviceInvoice, dashboard } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
 import DateFilters2 from "@/components/generic/DateFilters2";
-
 import Link from "next/link";
+
+// Replace `dayjs` with your date handling logic (assuming custom logic for dates)
+const formatDate = (date) => {
+  const d = new Date(date);
+  return d.toISOString().split("T")[0];
+};
+
+const getDefaultDateRange = () => {
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  return {
+    start: formatDate(startOfMonth),
+    end: formatDate(endOfMonth),
+  };
+};
 
 const All = () => {
   const api = new APICall();
@@ -26,21 +41,22 @@ const All = () => {
   const [totalAmount, setTotalAmount] = useState(0);
   const [unPaidList, setUnPaidList] = useState([]);
   const [unPaidTotalAmount, setUnPaidTotalAmount] = useState(0);
+  const [cashList, setCashList] = useState([]);
+  const [fetchingData, setFetchingData] = useState(false);
+
+  // Default date range (current month)
+  const defaultDateRange = getDefaultDateRange();
 
   const fetchPaidInvoices = async (startDate, endDate) => {
     setLoadingStates((prev) => ({ ...prev, paid: true }));
     try {
-      const queryParams = [];
-      if (startDate && endDate) {
-        queryParams.push(`start_date=${startDate}`);
-        queryParams.push(`end_date=${endDate}`);
-      }
+      const finalStartDate = startDate || defaultDateRange.start;
+      const finalEndDate = endDate || defaultDateRange.end;
 
       const response = await api.getDataWithToken(
-        `${serviceInvoice}${
-          queryParams.length ? "?" + queryParams.join("&") : ""
-        }`
+        `${serviceInvoice}?start_date=${finalStartDate}&end_date=${finalEndDate}`
       );
+
       const paidInvoices = response.data.filter(
         (invoice) => invoice.status === "paid"
       );
@@ -61,17 +77,13 @@ const All = () => {
   const fetchUnpaidInvoices = async (startDate, endDate) => {
     setLoadingStates((prev) => ({ ...prev, unpaid: true }));
     try {
-      const queryParams = [];
-      if (startDate && endDate) {
-        queryParams.push(`start_date=${startDate}`);
-        queryParams.push(`end_date=${endDate}`);
-      }
+      const finalStartDate = startDate || defaultDateRange.start;
+      const finalEndDate = endDate || defaultDateRange.end;
 
       const response = await api.getDataWithToken(
-        `${serviceInvoice}${
-          queryParams.length ? "?" + queryParams.join("&") : ""
-        }`
+        `${serviceInvoice}?start_date=${finalStartDate}&end_date=${finalEndDate}`
       );
+
       const unpaidInvoices = response.data.filter(
         (invoice) => invoice.status === "unpaid"
       );
@@ -92,16 +104,11 @@ const All = () => {
   const fetchExpenses = async (startDate, endDate) => {
     setLoadingStates((prev) => ({ ...prev, expense: true }));
     try {
-      const queryParams = [];
-      if (startDate && endDate) {
-        queryParams.push(`start_date=${startDate}`);
-        queryParams.push(`end_date=${endDate}`);
-      }
+      const finalStartDate = startDate || defaultDateRange.start;
+      const finalEndDate = endDate || defaultDateRange.end;
 
       const response = await api.getDataWithToken(
-        `${dashboard}/expense_collection${
-          queryParams.length ? "?" + queryParams.join("&") : ""
-        }`
+        `${dashboard}/expense_collection?start_date=${finalStartDate}&end_date=${finalEndDate}`
       );
       setExpenseList(response.data);
     } catch (error) {
@@ -111,18 +118,46 @@ const All = () => {
     }
   };
 
-  // Separate handlers for each date filter
-  const handleExpenseDateChange = (start, end) => {
-    fetchExpenses(start, end);
+  const getCash = async (startDate, endDate) => {
+    try {
+      const finalStartDate = startDate || defaultDateRange.start;
+      const finalEndDate = endDate || defaultDateRange.end;
+
+      const response = await api.getDataWithToken(
+        `${dashboard}/cash_collection?start_date=${finalStartDate}&end_date=${finalEndDate}`
+      );
+      setCashList(response.data);
+    } catch (error) {
+      console.error(error.message);
+    }
   };
 
-  const handlePaidDateChange = (start, end) => {
-    console.log("Paid date change", start);
-    fetchPaidInvoices(start, end);
+  const fetchFinancialData = async (startDate, endDate) => {
+    setFetchingData(true);
+    try {
+      // Parallel API calls with the received dates
+      await Promise.all([getCash(startDate, endDate)]);
+    } catch (error) {
+      console.error("Error fetching financial data:", error);
+    } finally {
+      setFetchingData(false);
+    }
   };
 
-  const handleUnpaidDateChange = (start, end) => {
-    fetchUnpaidInvoices(start, end);
+  const handleExpenseDateChange = (startDate, endDate) => {
+    fetchExpenses(startDate, endDate);
+  };
+
+  const handlePaidDateChange = (startDate, endDate) => {
+    fetchPaidInvoices(startDate, endDate);
+  };
+
+  const handleUnpaidDateChange = (startDate, endDate) => {
+    fetchUnpaidInvoices(startDate, endDate);
+  };
+
+  const handleDateChange = ({ startDate, endDate }) => {
+    fetchFinancialData(startDate, endDate);
   };
 
   return (
@@ -173,7 +208,7 @@ const All = () => {
               }}
             >
               <div style={{ fontSize: "17px", fontWeight: "500" }}>
-                Recieved Payments
+                Received
               </div>
               <div
                 style={{
@@ -195,8 +230,7 @@ const All = () => {
                   justifyContent: "space-between",
                 }}
               >
-                <div>Total Amount: {(totalAmount || 0).toFixed(2)}</div>
-
+                <div>Total Amount: {totalAmount.toFixed(2)}</div>
                 <div>
                   <Link href="/amounts">View Details</Link>
                 </div>
@@ -218,7 +252,7 @@ const All = () => {
               }}
             >
               <div style={{ fontSize: "17px", fontWeight: "500" }}>
-                Recieveable Amounts
+                Receivable Amounts
               </div>
               <div
                 style={{
@@ -240,13 +274,11 @@ const All = () => {
                   justifyContent: "space-between",
                 }}
               >
-                <div>Total Amount: {(unPaidTotalAmount || 0).toFixed(2)}</div>
-
+                <div>Total Amount: {unPaidTotalAmount.toFixed(2)}</div>
                 <div>
                   <Link href="/amounts">View Details</Link>
                 </div>
               </div>
-              // <div>Total Amount: {(unPaidTotalAmount || 0).toFixed(2)}</div>
             )}
           </CardContent>
         </Card>

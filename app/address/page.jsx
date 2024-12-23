@@ -47,6 +47,7 @@ const Page = () => {
     lang: "",
     country: "Dubai",
     state: "Dubai",
+    area: "",
   });
 
   useEffect(() => {
@@ -66,6 +67,7 @@ const Page = () => {
       address: newAddressData.address || "",
       lat: newAddressData.lat || "",
       lang: newAddressData.lang || "",
+      area: newAddressData.area || "",
     }));
   };
 
@@ -82,6 +84,7 @@ const Page = () => {
         lang: formData.lang,
         country: formData.country,
         state: formData.state,
+        area: formData.area,
       };
 
       const response = await api.postDataWithTokn(
