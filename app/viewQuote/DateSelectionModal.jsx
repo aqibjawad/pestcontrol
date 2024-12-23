@@ -11,6 +11,7 @@ import {
   FormControlLabel,
   Checkbox,
   TextField,
+  CircularProgress
 } from "@mui/material";
 import CalendarComponent from "./calender.component";
 import Swal from "sweetalert2";
@@ -40,6 +41,8 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
   const [servicesPerMonth, setServicesPerMonth] = useState(0);
   const [monthlyDateCounts, setMonthlyDateCounts] = useState({});
   const [isValidSelection, setIsValidSelection] = useState(true);
+  const [isValidTotalDates, setIsValidTotalDates] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const [selectedDates, setSelectedDates] = useState(initialDates || []);
   const [selectedTime, setSelectedTime] = useState("09:00");
@@ -97,47 +100,18 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
     }
   }, [quoteData]);
 
-  const countDatesPerMonth = (dates) => {
-    const counts = {};
-    dates.forEach((date) => {
-      const dateObj = parseISO(date);
-      const monthKey = `${getYear(dateObj)}-${getMonth(dateObj) + 1}`;
-      counts[monthKey] = (counts[monthKey] || 0) + 1;
-    });
-    return counts;
-  };
-
-  const validateMonthlyDates = (dates) => {
-    if (!dates.length) return true;
-
-    const monthCounts = countDatesPerMonth(dates);
-    setMonthlyDateCounts(monthCounts);
-
-    const isValid = Object.values(monthCounts).every((count) => {
-      return count <= servicesPerMonth;
-    });
-
-    setIsValidSelection(isValid);
-
-    if (!isValid) {
-      const invalidMonths = Object.entries(monthCounts)
-        .filter(([_, count]) => count > servicesPerMonth)
-        .map(([month]) => {
-          const [year, monthNum] = month.split("-");
-          return `${monthNum}/${year}`;
-        });
-
-      Swal.fire({
-        icon: "error",
-        title: "Too Many Dates Selected",
-        text: `You can only select up to ${servicesPerMonth} dates per month. Months exceeding limit: ${invalidMonths.join(
-          ", "
-        )}`,
-      });
+  useEffect(() => {
+    if (totalServices && generatedDates.length > 0) {
+      setIsValidTotalDates(generatedDates.length === totalServices);
+      if (generatedDates.length > totalServices) {
+        setErrorMessage(
+          `Too many dates selected. Please select only ${totalServices} dates.`
+        );
+      } else {
+        setErrorMessage("");
+      }
     }
-
-    return isValid;
-  };
+  }, [generatedDates, totalServices]);
 
   useEffect(() => {
     if (selectedDates.length > 0 && durationMonths) {
@@ -154,6 +128,42 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
       setGeneratedDates(dates);
     }
   }, [weeklySelection, durationMonths]);
+
+  const countDatesPerMonth = (dates) => {
+    const counts = {};
+    dates.forEach((date) => {
+      const dateObj = parseISO(date);
+      const monthKey = `${getYear(dateObj)}-${getMonth(dateObj) + 1}`;
+      counts[monthKey] = (counts[monthKey] || 0) + 1;
+    });
+    return counts;
+  };
+
+  const validateMonthlyDates = (dates) => {
+    if (!dates.length) return true;
+
+    const monthCounts = countDatesPerMonth(dates);
+    setMonthlyDateCounts(monthCounts);
+
+    const isMonthlyValid = Object.values(monthCounts).every(
+      (count) => count <= servicesPerMonth
+    );
+
+    if (tabIndex === 0) {
+      // For date-wise tab, affect button state
+      setIsValidSelection(isMonthlyValid);
+    } else {
+      // For day-wise tab, always keep button enabled
+      setIsValidSelection(true);
+
+      // But prevent checkbox selection if monthly limit would be exceeded
+      if (!isMonthlyValid) {
+        return false; // This will prevent checkbox from being selected
+      }
+    }
+
+    return true;
+  };
 
   const handleTimeChange = (event) => {
     const newTime = event.target.value;
@@ -218,6 +228,8 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
     setGeneratedDates([]);
     setMonthlyDateCounts({});
     setIsValidSelection(true);
+    setIsValidTotalDates(false);
+    setErrorMessage("");
   };
 
   const handleWeekDayChange = (week, day) => {
@@ -233,11 +245,12 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
       selectedTime,
       newWeeklySelection
     );
+    // Only update weekly selection if monthly validation passes
     if (validateMonthlyDates(potentialDates)) {
       setWeeklySelection(newWeeklySelection);
     }
+    // If validation fails, the checkbox won't be updated
   };
-
   const generateWeeklyDates = (timeString, weekSelection = weeklySelection) => {
     const selectedDays = [];
     const now = new Date();
@@ -275,10 +288,18 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
     return selectedDays.sort();
   };
 
+  const [loading, setLoading] = useState(false);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); // Set loading to true when the API call starts
 
-    if (!validateMonthlyDates(generatedDates)) {
+    // For day-wise selection, we don't check isValidTotalDates
+    if (
+      !validateMonthlyDates(generatedDates) ||
+      (tabIndex === 0 && !isValidTotalDates)
+    ) {
+      setLoading(false); // Reset loading state if validation fails
       return;
     }
 
@@ -289,6 +310,7 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
         title: "Error",
         text: "Service ID is missing or undefined. Cannot proceed.",
       });
+      setLoading(false); // Reset loading state if service ID is missing
       return;
     }
 
@@ -325,6 +347,8 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
         text:
           error.message || "Failed to process the request. Please try again.",
       });
+    } finally {
+      setLoading(false); // Reset loading state after request completes
     }
   };
 
@@ -351,28 +375,6 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
             />
           ))}
         </div>
-      </div>
-    );
-  };
-
-  const renderMonthlyDateCounts = () => {
-    return (
-      <div className="mt-2 text-sm">
-        <p className="font-medium">
-          Monthly Breakdown (Limit: {servicesPerMonth} per month):
-        </p>
-        {Object.entries(monthlyDateCounts).map(([month, count]) => {
-          const [year, monthNum] = month.split("-");
-          const isOverLimit = count > servicesPerMonth;
-          return (
-            <p
-              key={month}
-              className={`${isOverLimit ? "text-red-500" : "text-green-500"}`}
-            >
-              {`Month ${monthNum}/${year}: ${count} dates`}
-            </p>
-          );
-        })}
       </div>
     );
   };
@@ -406,54 +408,61 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
           textColor="primary"
           variant="fullWidth"
         >
-          <Tab label="Date" />
-          <Tab label="Weekly" />
+          <Tab label="Date Wise" />
+          <Tab label="Day Wise" />
         </Tabs>
 
         {tabIndex === 0 && (
-          <>
+          <div className="mt-3">
             <CalendarComponent
               initialDates={selectedDates}
               onDateChange={handleDateChange}
             />
-            {generatedDates.length > 0 && (
-              <div className="mt-4 p-4 bg-gray-50 rounded">
-                <p className="font-medium mb-2">Generated Dates:</p>
-                <div className="max-h-40 overflow-y-auto">
-                  {generatedDates.map((date, index) => (
-                    <p key={index}>{date}</p>
-                  ))}
-                </div>
-                {renderMonthlyDateCounts()}
-              </div>
-            )}
-          </>
+            <div className="mt-2 text-sm text-gray-600">
+              Total services required: {totalServices}
+              <br />
+              Currently selected: {generatedDates.length}
+              <br />
+              Maximum {servicesPerMonth} services allowed per month
+              {errorMessage && (
+                <div className="text-red-500 mt-1">{errorMessage}</div>
+              )}
+            </div>
+          </div>
         )}
 
         {tabIndex === 1 && (
           <div className="mt-4">
-            {[1, 2, 3, 4].map((weekNum) => renderWeekSelection(weekNum))}
-
-            <div className="mt-4 p-4 bg-gray-50 rounded">
-              <p className="font-medium mb-2">Selected Days Preview:</p>
-              <div className="max-h-40 overflow-y-auto">
-                {generatedDates.map((date, index) => (
-                  <p key={index}>{date}</p>
-                ))}
-              </div>
-              {renderMonthlyDateCounts()}
+            <div className="mb-4 text-sm text-gray-600">
+              Currently selected dates: {generatedDates.length}
+              <br />
+              Maximum {servicesPerMonth} services allowed per month
             </div>
+            {renderWeekSelection(1)}
+            {renderWeekSelection(2)}
+            {renderWeekSelection(3)}
+            {renderWeekSelection(4)}
           </div>
         )}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
+        {/* <Button
+          onClick={handleSubmit}
+          color="primary"
+          disabled={tabIndex === 0 ? !isValidTotalDates : !isValidSelection}
+        >
+          Save Dates
+        </Button> */}
         <Button
           onClick={handleSubmit}
           color="primary"
-          disabled={!isValidSelection || generatedDates.length === 0}
+          disabled={
+            tabIndex === 0 ? !isValidTotalDates : !isValidSelection || loading
+          } // Disable button if loading
         >
-          Save Dates
+          {loading ? <CircularProgress size={24} /> : "Save Dates"}{" "}
+          {/* Show loader when loading */}
         </Button>
       </DialogActions>
     </Dialog>
