@@ -29,10 +29,7 @@ const Quotation = () => {
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("");
   const [fetchingData, setFetchingData] = useState(false);
-  const [quoteList, setQuoteList] = useState([]);
-
-  console.log(quoteList);
-  
+  const [quoteList, setQuoteList] = useState([]);  
 
   const [allQuoteList, setAllQuoteList] = useState([]);
   const [isApproving, setIsApproving] = useState({});

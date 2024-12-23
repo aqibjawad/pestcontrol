@@ -10,6 +10,7 @@ import {
   FormGroup,
   FormControlLabel,
   Checkbox,
+  TextField,
 } from "@mui/material";
 import CalendarComponent from "./calender.component";
 import Swal from "sweetalert2";
@@ -24,11 +25,24 @@ import {
   addWeeks,
   addDays,
   getDate,
+  setHours,
+  setMinutes,
+  parseISO,
+  getMonth,
+  getYear,
 } from "date-fns";
 
-const DateSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
+const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
   const api = new APICall();
+
+  const [totalServices, setTotalServices] = useState(0);
+  const [durationMonths, setDurationMonths] = useState(0);
+  const [servicesPerMonth, setServicesPerMonth] = useState(0);
+  const [monthlyDateCounts, setMonthlyDateCounts] = useState({});
+  const [isValidSelection, setIsValidSelection] = useState(true);
+
   const [selectedDates, setSelectedDates] = useState(initialDates || []);
+  const [selectedTime, setSelectedTime] = useState("09:00");
   const [tabIndex, setTabIndex] = useState(0);
   const [generatedDates, setGeneratedDates] = useState([]);
   const [weeklySelection, setWeeklySelection] = useState({
@@ -71,85 +85,168 @@ const DateSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
   });
 
   useEffect(() => {
-    if (selectedDates.length > 0 && quoteData?.duration_in_months) {
-      generateDatesForDuration();
+    if (
+      quoteData?.quote_services?.[0]?.no_of_services &&
+      quoteData?.duration_in_months
+    ) {
+      const total = quoteData.quote_services[0].no_of_services;
+      const duration = quoteData.duration_in_months;
+      setTotalServices(total);
+      setDurationMonths(duration);
+      setServicesPerMonth(Math.floor(total / duration));
     }
-  }, [selectedDates, quoteData?.duration_in_months]);
+  }, [quoteData]);
 
-  // Add new useEffect for weeklySelection
+  const countDatesPerMonth = (dates) => {
+    const counts = {};
+    dates.forEach((date) => {
+      const dateObj = parseISO(date);
+      const monthKey = `${getYear(dateObj)}-${getMonth(dateObj) + 1}`;
+      counts[monthKey] = (counts[monthKey] || 0) + 1;
+    });
+    return counts;
+  };
+
+  const validateMonthlyDates = (dates) => {
+    if (!dates.length) return true;
+
+    const monthCounts = countDatesPerMonth(dates);
+    setMonthlyDateCounts(monthCounts);
+
+    const isValid = Object.values(monthCounts).every((count) => {
+      return count <= servicesPerMonth;
+    });
+
+    setIsValidSelection(isValid);
+
+    if (!isValid) {
+      const invalidMonths = Object.entries(monthCounts)
+        .filter(([_, count]) => count > servicesPerMonth)
+        .map(([month]) => {
+          const [year, monthNum] = month.split("-");
+          return `${monthNum}/${year}`;
+        });
+
+      Swal.fire({
+        icon: "error",
+        title: "Too Many Dates Selected",
+        text: `You can only select up to ${servicesPerMonth} dates per month. Months exceeding limit: ${invalidMonths.join(
+          ", "
+        )}`,
+      });
+    }
+
+    return isValid;
+  };
+
   useEffect(() => {
-    if (quoteData?.duration_in_months) {
-      const dates = generateWeeklyDates();
+    if (selectedDates.length > 0 && durationMonths) {
+      const newDates = generateDatesForDuration(selectedDates, selectedTime);
+      validateMonthlyDates(newDates);
+      setGeneratedDates(newDates);
+    }
+  }, [selectedDates, durationMonths]);
+
+  useEffect(() => {
+    if (durationMonths) {
+      const dates = generateWeeklyDates(selectedTime);
+      validateMonthlyDates(dates);
       setGeneratedDates(dates);
     }
-  }, [weeklySelection, quoteData?.duration_in_months]);
+  }, [weeklySelection, durationMonths]);
 
-  const generateDatesForDuration = () => {
-    if (selectedDates.length === 0) return;
+  const handleTimeChange = (event) => {
+    const newTime = event.target.value;
+    setSelectedTime(newTime);
+
+    if (tabIndex === 0) {
+      const newDates = generateDatesForDuration(selectedDates, newTime);
+      validateMonthlyDates(newDates);
+      setGeneratedDates(newDates);
+    } else {
+      const dates = generateWeeklyDates(newTime);
+      validateMonthlyDates(dates);
+      setGeneratedDates(dates);
+    }
+  };
+
+  const generateDatesForDuration = (dates, timeString) => {
+    if (dates.length === 0) return [];
 
     try {
       const allDates = [];
+      const [hours, minutes] = timeString.split(":").map(Number);
 
-      const selectedDaysOfMonth = selectedDates.map((date) => {
+      const selectedDaysOfMonth = dates.map((date) => {
         const dateObj = new Date(date);
         return dateObj.getDate();
       });
 
-      const firstDate = new Date(selectedDates[0]);
+      const firstDate = new Date(dates[0]);
       const startMonth = firstDate.getMonth();
       const startYear = firstDate.getFullYear();
 
-      for (
-        let monthOffset = 0;
-        monthOffset < quoteData.duration_in_months;
-        monthOffset++
-      ) {
+      for (let monthOffset = 0; monthOffset < durationMonths; monthOffset++) {
         selectedDaysOfMonth.forEach((dayOfMonth) => {
-          const newDate = new Date(
+          let newDate = new Date(
             startYear,
             startMonth + monthOffset,
             dayOfMonth
           );
-          allDates.push(format(newDate, "yyyy-MM-dd"));
+          newDate = setHours(newDate, hours);
+          newDate = setMinutes(newDate, minutes);
+          allDates.push(format(newDate, "yyyy-MM-dd HH:mm:ss"));
         });
       }
 
-      allDates.sort();
-      setGeneratedDates(allDates);
+      return allDates.sort();
     } catch (error) {
       console.error("Error generating dates:", error);
+      return [];
     }
   };
 
   const handleDateChange = (dates) => {
-    setSelectedDates(dates);
+    const potentialDates = generateDatesForDuration(dates, selectedTime);
+    if (validateMonthlyDates(potentialDates)) {
+      setSelectedDates(dates);
+    }
   };
 
   const handleTabChange = (event, newValue) => {
     setTabIndex(newValue);
-    // Reset generatedDates when switching tabs
     setGeneratedDates([]);
+    setMonthlyDateCounts({});
+    setIsValidSelection(true);
   };
 
   const handleWeekDayChange = (week, day) => {
-    setWeeklySelection((prev) => ({
-      ...prev,
+    const newWeeklySelection = {
+      ...weeklySelection,
       [week]: {
-        ...prev[week],
-        [day]: !prev[week][day],
+        ...weeklySelection[week],
+        [day]: !weeklySelection[week][day],
       },
-    }));
+    };
+
+    const potentialDates = generateWeeklyDates(
+      selectedTime,
+      newWeeklySelection
+    );
+    if (validateMonthlyDates(potentialDates)) {
+      setWeeklySelection(newWeeklySelection);
+    }
   };
 
-  const generateWeeklyDates = () => {
+  const generateWeeklyDates = (timeString, weekSelection = weeklySelection) => {
     const selectedDays = [];
     const now = new Date();
     const monthStart = startOfMonth(now);
     const dayMap = { mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6, sun: 0 };
+    const [hours, minutes] = timeString.split(":").map(Number);
 
-    // First generate base dates for the first month
     const baseDates = [];
-    Object.entries(weeklySelection).forEach(([week, days], weekIndex) => {
+    Object.entries(weekSelection).forEach(([week, days], weekIndex) => {
       Object.entries(days).forEach(([day, isSelected]) => {
         if (isSelected) {
           const dayNumber = dayMap[day];
@@ -159,21 +256,18 @@ const DateSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
             targetDate = addDays(targetDate, 1);
           }
 
+          targetDate = setHours(targetDate, hours);
+          targetDate = setMinutes(targetDate, minutes);
           baseDates.push(targetDate);
         }
       });
     });
 
-    // Now generate dates for all months based on duration_in_months
-    if (baseDates.length > 0 && quoteData?.duration_in_months) {
-      for (
-        let monthOffset = 0;
-        monthOffset < quoteData.duration_in_months;
-        monthOffset++
-      ) {
+    if (baseDates.length > 0 && durationMonths) {
+      for (let monthOffset = 0; monthOffset < durationMonths; monthOffset++) {
         baseDates.forEach((baseDate) => {
           const newDate = addMonths(baseDate, monthOffset);
-          selectedDays.push(format(newDate, "yyyy-MM-dd"));
+          selectedDays.push(format(newDate, "yyyy-MM-dd HH:mm:ss"));
         });
       }
     }
@@ -184,10 +278,24 @@ const DateSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    let dataToSend = {
+    if (!validateMonthlyDates(generatedDates)) {
+      return;
+    }
+
+    let serviceId = quoteData?.quote_services[0]?.service_id;
+    if (!serviceId) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Service ID is missing or undefined. Cannot proceed.",
+      });
+      return;
+    }
+
+    const dataToSend = {
       quote_services: [
         {
-          quote_service_id: 40,
+          quote_service_id: serviceId,
           dates: generatedDates,
         },
       ],
@@ -247,10 +355,50 @@ const DateSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
     );
   };
 
+  const renderMonthlyDateCounts = () => {
+    return (
+      <div className="mt-2 text-sm">
+        <p className="font-medium">
+          Monthly Breakdown (Limit: {servicesPerMonth} per month):
+        </p>
+        {Object.entries(monthlyDateCounts).map(([month, count]) => {
+          const [year, monthNum] = month.split("-");
+          const isOverLimit = count > servicesPerMonth;
+          return (
+            <p
+              key={month}
+              className={`${isOverLimit ? "text-red-500" : "text-green-500"}`}
+            >
+              {`Month ${monthNum}/${year}: ${count} dates`}
+            </p>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>Select Dates</DialogTitle>
+      <DialogTitle>
+        Select Dates and Time (Maximum {servicesPerMonth} services per month)
+      </DialogTitle>
       <DialogContent>
+        <div className="mb-4 mt-4">
+          <TextField
+            type="time"
+            label="Select Time"
+            value={selectedTime}
+            onChange={handleTimeChange}
+            fullWidth
+            InputLabelProps={{
+              shrink: true,
+            }}
+            inputProps={{
+              step: 300, // 5 min
+            }}
+          />
+        </div>
+
         <Tabs
           value={tabIndex}
           onChange={handleTabChange}
@@ -276,7 +424,7 @@ const DateSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
                     <p key={index}>{date}</p>
                   ))}
                 </div>
-                <p className="mt-2">Total Dates: {generatedDates.length}</p>
+                {renderMonthlyDateCounts()}
               </div>
             )}
           </>
@@ -293,13 +441,18 @@ const DateSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
                   <p key={index}>{date}</p>
                 ))}
               </div>
+              {renderMonthlyDateCounts()}
             </div>
           </div>
         )}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleSubmit} color="primary">
+        <Button
+          onClick={handleSubmit}
+          color="primary"
+          disabled={!isValidSelection || generatedDates.length === 0}
+        >
           Save Dates
         </Button>
       </DialogActions>
@@ -307,4 +460,4 @@ const DateSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
   );
 };
 
-export default DateSelectionModal;
+export default DateTimeSelectionModal;

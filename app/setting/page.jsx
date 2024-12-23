@@ -239,12 +239,6 @@ const Page = () => {
                 </div>
               </Grid>
 
-              <Grid item xs={12} sm={6} md={4} lg={3}>
-                <div className={styles.addProd}>
-                  <Link href="/createJob">Add Job</Link>
-                </div>
-              </Grid>
-
               <Grid className="" item xs={12} sm={6} md={4} lg={3}>
                 <div className={styles.addProd}>
                   <Link href="/viewQuote">View Quote</Link>

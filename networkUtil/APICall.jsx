@@ -30,9 +30,6 @@ class APICall {
         config.data = data;
       }
     }
-    console.log("shfsdljkjfdljkdfjlk", data);
-    
-    console.log("jkdjkdjkdj",config);
     try {
       const response = await axios(config);
       if (response.status === 200 || response.status === 204) {

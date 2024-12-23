@@ -126,29 +126,6 @@ const Page = () => {
       oil_change_limit,
     };
 
-    // Add fields based on the active payment type
-    // if (activeTab === "cash") {
-    //   vehicleObj = {
-    //     ...vehicleObj,
-    //     amount,
-    //   };
-    // } else if (activeTab === "cheque") {
-    //   vehicleObj = {
-    //     ...vehicleObj,
-    //     bank_id: selectedBankId,
-    //     cheque_amount,
-    //     cheque_no,
-    //     cheque_date,
-    //   };
-    // } else if (activeTab === "online") {
-    //   vehicleObj = {
-    //     ...vehicleObj,
-    //     bank_id: selectedBankId,
-    //     amount,
-    //     transection_id,
-    //   };
-    // }
-
     return vehicleObj;
   };
 
@@ -194,7 +171,7 @@ const Page = () => {
 
   const bankOptions = allVehiclesList.map((vehcilees) => ({
     value: vehcilees.id,
-    label: `${vehcilees.vehicle_number} - ${vehcilees.modal_name}- ${vehcilees?.user?.namne}`,
+    label: `${vehcilees.vehicle_number} - ${vehcilees.modal_name}- ${vehcilees?.user?.name}`,
   }));
   
   const handleDateChange = (name, value) => {
