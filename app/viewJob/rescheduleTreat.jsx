@@ -16,6 +16,7 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
   const router = useRouter();
 
   const [job_date, setJobDate] = useState("");
+  const [job_time, setJobTime] = useState("");
   const [reason, setReason] = useState("");
   const [isLoading, setLoading] = useState(false);
   const [jobStatus, setJobStatus] = useState(jobList?.is_completed || 0);
@@ -26,9 +27,13 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
 
   const handleFormSubmit = async () => {
     setLoading(true);
+
+    // Combine date and time into the desired format: "YYYY-MM-DD HH:mm:ss"
+    const combinedDateTime = `${job_date} ${job_time}:00`;
+
     const formData = {
       job_id: jobId,
-      job_date: job_date,
+      job_date: combinedDateTime, // Send combined date and time in "YYYY-MM-DD HH:mm:ss" format
       reason: reason,
     };
 
@@ -85,7 +90,7 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
           confirmButtonText: "Ok",
         }).then(() => {
           if (response.status === "success") {
-            window.location.reload(); // Reload the page on success
+            window.location.reload();
           }
         });
       } else if (jobStatus === 0) {
@@ -103,7 +108,7 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
           confirmButtonText: "Ok",
         }).then(() => {
           if (response.status === "success") {
-            window.location.reload(); // Reload the page on success
+            window.location.reload();
           }
         });
       }
@@ -205,6 +210,10 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
     setJobDate(value);
   };
 
+  const handleTimeChange = (name, value) => {
+    setJobTime(value);
+  };
+
   return (
     <div style={{ marginTop: "2rem" }} className={styles.mainDivTreat}>
       {jobStatus === 0 && (
@@ -218,7 +227,7 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
           </Grid>
           <div className={styles.formReschedule}>
             <Grid container spacing={2}>
-              <Grid item lg={6} sm={12} xs={12} md={4}>
+              <Grid item lg={4} sm={12} xs={12} md={4}>
                 <InputWithTitle3
                   onChange={handleDateChange}
                   value={job_date}
@@ -227,7 +236,16 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
                 />
               </Grid>
 
-              <Grid item lg={6} sm={12} xs={12} md={4}>
+              <Grid item lg={4} sm={12} xs={12} md={4}>
+                <InputWithTitle3
+                  onChange={handleTimeChange}
+                  value={job_time}
+                  title={"Time"}
+                  type={"time"}
+                />
+              </Grid>
+
+              <Grid item lg={4} sm={12} xs={12} md={4}>
                 <div className="">
                   <InputWithTitle
                     onChange={(value) => setReason(value)}
