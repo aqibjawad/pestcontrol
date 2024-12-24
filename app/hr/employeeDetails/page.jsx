@@ -278,7 +278,7 @@ const Page = () => {
                               </td>
                               <td className="p-3 border">
                                 <Link
-                                  href={`/hr/empDocuments?id=${doc.id}&name=${doc.name}`}
+                                  href={`/employeeDoc?id=${doc.id}`}
                                 >
                                   Update
                                 </Link>
@@ -298,7 +298,7 @@ const Page = () => {
                               </td>
                               <td className="p-3 border">
                                 <Link
-                                  href={`/hr/empDocuments?id=${employeeList.id}&name=${docName}`}
+                                  href={`/employeeDoc?id=${employeeList.id}`}
                                 >
                                   Update
                                 </Link>

@@ -38,11 +38,6 @@ const JobsList = ({
     { label: "Weekly", value: "weekly" },
   ];
 
-  // Function to calculate subtotal
-  const calculateSubTotal = (numberOfJobs, currentRate) => {
-    return numberOfJobs * parseFloat(currentRate || 0);
-  };
-
   useEffect(() => {
     const calculatedTotalJobs = noJobs * duration_in_months;
     setTotalJobs(calculatedTotalJobs);

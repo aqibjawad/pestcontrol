@@ -49,15 +49,16 @@ const Method = ({ setFormData }) => {
         i === index ? { ...service, isChecked: !service.isChecked } : service
       );
 
-      // Get the IDs of the checked services
+      // Get the IDs of checked services and join them with commas
       const selectedIds = updatedServices
         .filter((service) => service.isChecked)
-        .map((service) => service.id);
+        .map((service) => service.id)
+        .join(",");
 
-      // Update the form data with the selected IDs
+      // Update form data with comma-separated string of IDs
       setFormData((prevData) => ({
         ...prevData,
-        tm_ids: selectedIds,
+        tm_ids: selectedIds || "", // Use empty string if no selections
       }));
 
       return updatedServices;

@@ -1,224 +1,331 @@
 "use client";
-
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import styles from "../../styles/loginStyles.module.css";
-import InputWithTitle from "@/components/generic/InputWithTitle";
-import Dropdown from "@/components/generic/Dropdown";
-import Grid from "@mui/material/Grid"; // Import Grid from Material-UI
-import MultilineInput from "@/components/generic/MultilineInput";
-
+import InputWithTitle from "../../components/generic/InputWithTitle";
+import MultilineInput from "../../components/generic/MultilineInput";
 import { clients } from "../../networkUtil/Constants";
 import APICall from "../../networkUtil/APICall";
-import { Skeleton } from "@mui/material";
+import { Grid, Skeleton } from "@mui/material";
 
 const CustomerDetails = ({ setFormData, formData }) => {
-  const [name, setFullName] = useState("");
   const api = new APICall();
 
   const [allBrandsList, setAllBrandsList] = useState([]);
   const [allClients, setAllClients] = useState([]);
-  const [selectedBrand, setSelectedClientId] = useState(null);
-  const [contractReference, setContractReference] = useState("");
+  const [selectedBrand, setSelectedClientId] = useState("");
   const [firmName, setFirmName] = useState("");
   const [addresses, setAddresses] = useState([]);
   const [referenceName, setReferenceName] = useState("");
   const [selectedAddress, setSelectedAddress] = useState("");
-  const [loadingClients, setLoadingClients] = useState(true); // Add loading state
+  const [loadingClients, setLoadingClients] = useState(true);
 
   useEffect(() => {
     getAllClients();
   }, []);
 
+  // Handle pre-selected client data
+  useEffect(() => {
+    if (formData?.user) {
+      const user = formData.user;
+      setSelectedClientId(user.id.toString());
+
+      if (user.client) {
+        setFirmName(user.client.firm_name || "");
+
+        // Set reference name from the nested referencable
+        if (user.client.referencable?.name) {
+          setReferenceName(user.client.referencable.name);
+        }
+      }
+
+      // Pre-select the address if client_address_id is provided
+      if (formData.client_address_id) {
+        setSelectedAddress(formData.client_address_id.toString());
+      }
+
+      // Update form data with the pre-selected user
+      setFormData((prev) => ({
+        ...prev,
+        user_id: user.id,
+      }));
+    }
+  }, [formData?.user]);
+
   const getAllClients = async () => {
-    setLoadingClients(true); // Set loading to true before fetching
+    setLoadingClients(true);
     try {
       const response = await api.getDataWithToken(clients);
       setAllClients(response.data);
+
+      // Transform clients data
       const transformedClients = response.data.map((client) => ({
         value: client.id,
         label: client.name || client.client?.firm_name || "Unknown Client",
-        data: client, // Save the entire client object for later use
+        data: client,
       }));
       setAllBrandsList(transformedClients);
+
+      // If we have a pre-selected client, set their addresses
+      if (formData?.user?.id) {
+        const selectedClient = response.data.find(
+          (client) => client.id === formData.user.id
+        );
+        if (selectedClient?.client?.addresses) {
+          const clientAddresses = selectedClient.client.addresses.map(
+            (address) => ({
+              value: address.id,
+              label: address.address,
+            })
+          );
+          setAddresses(clientAddresses);
+        }
+      }
     } catch (error) {
       console.error("Error fetching clients:", error);
     } finally {
-      setLoadingClients(false); // Stop loading after fetching
+      setLoadingClients(false);
     }
   };
 
-  const handleClientChange = (value) => {
-    const selectedClient = allClients.find((client) => client.id === value);
+  const handleClientChange = (e) => {
+    const value = e.target.value;
+    const selectedClient = allClients.find(
+      (client) => client.id === Number(value)
+    );
 
     if (selectedClient) {
       setSelectedClientId(value);
       setFormData((prev) => ({
         ...prev,
         user_id: selectedClient.id,
-      })); // Set user ID
+      }));
 
-      // Update fields
-      const clientData = selectedClient.client;
-      if (clientData && clientData.referencable) {
-        const referenceData = clientData.referencable;
-        setReferenceName(referenceData.name);
-      } else {
-        setReferenceName(""); // Clear if not available
+      if (selectedClient.client) {
+        setFirmName(selectedClient.client.firm_name || "");
+
+        if (selectedClient.client.referencable?.name) {
+          setReferenceName(selectedClient.client.referencable.name);
+        }
+
+        if (selectedClient.client.addresses) {
+          const clientAddresses = selectedClient.client.addresses.map(
+            (address) => ({
+              value: address.id,
+              label: address.address,
+            })
+          );
+          setAddresses(clientAddresses);
+        }
       }
-
-      setFirmName(clientData.firm_name || "");
-
-      setAddresses(
-        clientData.addresses.map((address) => ({
-          value: address.id,
-          label: address.address,
-        }))
-      );
     }
   };
 
-  const [priority, setPriority] = useState([
-    { label: "High", value: "high" },
-    { label: "Low", value: "low" },
-    { label: "Medium", value: "medium" },
-  ]);
-
-  const handleAddressChange = (value) => {
+  const handleAddressChange = (e) => {
+    const value = e.target.value;
     const selectedAddressObj = addresses.find(
-      (address) => address.value === value
+      (address) => address.value === Number(value)
     );
-    setSelectedAddress(value); // Update the selected address state
+    setSelectedAddress(value);
     setFormData((prev) => ({
       ...prev,
-      client_address_id: selectedAddressObj ? selectedAddressObj.value : "", // Set client address ID
-      selectedAddress: selectedAddressObj ? selectedAddressObj.label : "", // Update formData with address
+      client_address_id: selectedAddressObj ? selectedAddressObj.value : "",
+      selectedAddress: selectedAddressObj ? selectedAddressObj.label : "",
     }));
   };
+
+  const handleDateChange = useCallback(
+    (dateValue) => {
+      setFormData((prev) => {
+        // Get current time or default to 00:00:00
+        const currentTime = prev.job_date
+          ? prev.job_date.split(" ")[1] || "00:00:00"
+          : "00:00:00";
+
+        // Combine date with existing time
+        const newDateTime = `${dateValue} ${currentTime}`;
+
+        return { ...prev, job_date: newDateTime };
+      });
+    },
+    [setFormData]
+  );
+
+  const handleTimeChange = useCallback(
+    (timeValue) => {
+      setFormData((prev) => {
+        // Get current date or default to today
+        const currentDate = prev.job_date
+          ? prev.job_date.split(" ")[0]
+          : new Date().toISOString().split("T")[0];
+
+        // Ensure time has seconds
+        const formattedTime = timeValue.includes(":")
+          ? timeValue.split(":").length === 2
+            ? `${timeValue}:00`
+            : timeValue
+          : `${timeValue}:00:00`;
+
+        // Combine existing date with new time
+        const newDateTime = `${currentDate} ${formattedTime}`;
+
+        return { ...prev, job_date: newDateTime };
+      });
+    },
+    [setFormData]
+  );
+
   return (
-    <div>
-      <Grid container spacing={2} style={{ fontSize: "16px" }}>
-        <Grid className="" item lg={4} xs={12} md={6}>
+    <div
+      className={styles.userFormContainer}
+      style={{ fontSize: "16px", margin: "auto" }}
+    >
+      <Grid container spacing={2}>
+        <Grid className="" item lg={4} xs={12} md={6} mt={2}>
           {loadingClients ? (
             <Skeleton variant="rectangular" width="100%" height={50} />
           ) : (
-            <Dropdown
-              title={"select Client"}
-              options={allBrandsList}
-              onChange={handleClientChange}
-              value={allBrandsList.find(
-                (option) => option.value === selectedBrand
-              )}
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Select Client
+              </label>
+              <select
+                className="mt-1 block w-full px-3 py-2 text-base border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                onChange={handleClientChange}
+                value={selectedBrand || ""}
+              >
+                <option value="">Select a client</option>
+                {allBrandsList.map((client) => (
+                  <option key={client.value} value={client.value}>
+                    {client.label}
+                  </option>
+                ))}
+              </select>
+            </div>
           )}
         </Grid>
 
-        <Grid item lg={4} xs={12}>
+        <Grid item lg={4} xs={12} md={6} mt={2}>
           <InputWithTitle
-            title={"Reference"}
+            title={"Contract Reference"}
             type={"text"}
-            name="firmName"
-            placeholder={"Reference"}
+            placeholder={"Contract Reference"}
             value={referenceName}
+            defaultValue={referenceName}
             disable
           />
         </Grid>
 
-        <Grid item lg={4} xs={12} md={6}>
-          <Dropdown
-            title={"Select address"}
-            options={addresses}
-            onChange={handleAddressChange}
-            value={selectedAddress} // Bind the selected address
-          />
+        <Grid item lg={4} xs={12} md={6} mt={2}>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Select Address
+            </label>
+            <select
+              className="mt-1 block w-full px-3 py-2 text-base border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              onChange={handleAddressChange}
+              value={selectedAddress || ""}
+            >
+              <option value="">Select an address</option>
+              {addresses.map((address) => (
+                <option key={address.value} value={address.value}>
+                  {address.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </Grid>
 
-        <Grid lg={4} item xs={12}>
+        <Grid item lg={4} xs={12} md={6} mt={2}>
           <InputWithTitle
-            title={"Job Title"}
+            title={"Job title"}
             type={"text"}
-            name="firmName"
-            placeholder={"Job Title"}
+            placeholder={"Job title"}
+            value={formData.job_title}
             onChange={(value) => {
               setFormData((prev) => ({ ...prev, job_title: value }));
             }}
           />
         </Grid>
 
-        <Grid item lg={4} xs={12}>
+        <Grid item lg={4} xs={12} md={6} mt={2}>
           <InputWithTitle
-            title={"Select Date"}
-            type={"date"}
-            name="date"
-            onChange={(value) => {
-              setFormData((prev) => ({ ...prev, job_date: value }));
-            }}
+            title="Job Date"
+            type="date"
+            placeholder="Job Date"
+            value={formData.job_date ? formData.job_date.split(" ")[0] : ""}
+            onChange={(e) => handleDateChange(e)}
           />
         </Grid>
 
-        <Grid item lg={4} xs={12}>
-          <Dropdown
-            title={"Priority"}
-            options={priority}
-            onChange={(value) => {
-              setFormData((prev) => ({ ...prev, priority: value }));
-            }}
+        <Grid item lg={4} xs={12} md={6} mt={2}>
+          <InputWithTitle
+            title="Job Time"
+            type="time"
+            step="1"
+            placeholder="Job Time"
+            value={
+              formData.job_date
+                ? formData.job_date.split(" ")[1].substring(0, 5)
+                : ""
+            }
+            onChange={(e) => handleTimeChange(e)}
           />
         </Grid>
 
-        <Grid item lg={4} xs={12}>
+        <Grid item lg={4} xs={12} md={6} mt={2}>
           <InputWithTitle
             title={"Subject"}
             type={"text"}
-            name="firmName"
             placeholder={"Subject"}
+            value={formData.subject}
             onChange={(value) => {
               setFormData((prev) => ({ ...prev, subject: value }));
             }}
           />
         </Grid>
 
-        <Grid item lg={4} xs={12}>
+        <Grid item lg={4} xs={12} md={6} mt={2}>
           <InputWithTitle
-            title={"TAG"}
+            title={"Tag"}
             type={"text"}
-            name="firmName"
-            placeholder={"TAG"}
+            placeholder={"Tag"}
+            value={formData.tag}
             onChange={(value) => {
               setFormData((prev) => ({ ...prev, tag: value }));
             }}
           />
         </Grid>
 
-        <Grid item lg={4} xs={12}>
+        <Grid item lg={4} xs={12} md={6} mt={2}>
           <InputWithTitle
-            title={"trn"}
+            title={"TRN"}
             type={"text"}
-            name="TRN"
             placeholder={"TRN"}
+            value={formData.trn}
             onChange={(value) => {
               setFormData((prev) => ({ ...prev, trn: value }));
             }}
           />
         </Grid>
 
-        <Grid item lg={4} xs={12}>
+        <Grid item lg={4} xs={12} md={6} mt={2}>
           <InputWithTitle
-            title={"Vat"}
+            title={"VAT"}
             type={"text"}
-            name="vat"
-            placeholder={"Vat"}
+            placeholder={"VAT"}
+            value={formData.vat_per}
             onChange={(value) => {
               setFormData((prev) => ({ ...prev, vat_per: value }));
             }}
           />
         </Grid>
 
-        <Grid item lg={4} xs={12}>
+        <Grid item lg={4} xs={12} md={6} mt={2}>
           <InputWithTitle
             title={"Discount"}
             type={"text"}
-            name="vat"
             placeholder={"Discount"}
+            value={formData.dis_per}
             onChange={(value) => {
               setFormData((prev) => ({ ...prev, dis_per: value }));
             }}
@@ -226,15 +333,27 @@ const CustomerDetails = ({ setFormData, formData }) => {
         </Grid>
 
         <Grid item lg={4} xs={12} md={6} mt={2}>
+          <InputWithTitle
+            title={"Service Rate"}
+            type={"text"}
+            placeholder={"Service Rate"}
+            value={formData.service_rates}
+            onChange={(value) => {
+              setFormData((prev) => ({ ...prev, service_rates: value }));
+            }}
+          />
+        </Grid>
+
+        <Grid className="mt-5" item lg={4} xs={12} md={6} mt={2}>
           <div>
             <label className="block font-bold mb-2">Food Watch Account</label>
             <button
               onClick={() => {
-                setFormData((prev) => ({ ...prev, is_food_watch_account: "yes" }));
+                setFormData((prev) => ({ ...prev, isFoodWatchAccount: "yes" }));
               }}
               className={`px-4 py-2 rounded ${
-                formData.is_food_watch_account === "yes"
-                  ? "bg-blue-500 text-white"
+                formData.isFoodWatchAccount === "yes"
+                  ? "bg-green-500 text-white"
                   : "bg-gray-300 text-black"
               }`}
             >
@@ -242,11 +361,11 @@ const CustomerDetails = ({ setFormData, formData }) => {
             </button>
             <button
               onClick={() => {
-                setFormData((prev) => ({ ...prev, is_food_watch_account: "no" }));
+                setFormData((prev) => ({ ...prev, isFoodWatchAccount: "no" }));
               }}
               className={`px-4 py-2 rounded ml-2 ${
-                formData.is_food_watch_account === "no"
-                  ? "bg-blue-500 text-white"
+                formData.isFoodWatchAccount === "no"
+                  ? "bg-green-500 text-white"
                   : "bg-gray-300 text-black"
               }`}
             >
@@ -255,42 +374,16 @@ const CustomerDetails = ({ setFormData, formData }) => {
           </div>
         </Grid>
 
-        <Grid item lg={12} xs={12}>
+        <Grid item lg={12} xs={12} mt={5}>
           <MultilineInput
             title={"Description"}
-            type={"text"}
             placeholder={"Enter description"}
+            value={formData.description}
             onChange={(value) => {
               setFormData((prev) => ({ ...prev, description: value }));
             }}
           />
         </Grid>
-
-        {/* <Grid item xs={12}>
-          <Grid container spacing={2}>
-            <Grid item xs={4}>
-              <Dropdown
-                onChange={handleBrandChange}
-                title={"Day"}
-                options={brands}
-              />
-            </Grid>
-            <Grid item xs={4}>
-              <Dropdown
-                onChange={handleBrandChange}
-                title={"Month"}
-                options={brands}
-              />
-            </Grid>
-            <Grid item xs={4}>
-              <Dropdown
-                onChange={handleBrandChange}
-                title={"Year"}
-                options={brands}
-              />
-            </Grid>
-          </Grid>
-        </Grid> */}
       </Grid>
     </div>
   );
