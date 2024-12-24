@@ -181,7 +181,7 @@ const UpcomingJobs = ({
                   />
                 </Link>
               ) : (
-                <Link href={`/serviceReportPdf?id=${row?.report?.id}`}>
+                <Link href={`/serviceRpoertPdf?id=${row?.report?.id}`}>
                   <GreenButton onClick={assignedJob} title="View Report" />
                 </Link>
               )
