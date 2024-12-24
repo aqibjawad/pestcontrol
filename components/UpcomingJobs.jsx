@@ -19,22 +19,43 @@ const UpcomingJobs = ({
   const pathname = usePathname();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedArea, setSelectedArea] = useState("");
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [uniqueAreas, setUniqueAreas] = useState([]);
 
   const isDashboard = pathname.includes("/superadmin/dashboard");
 
+  // Extract unique areas from jobsList
   useEffect(() => {
-    const filtered = jobsList?.filter((job) =>
-      job?.user?.name?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    if (jobsList) {
+      const areas = jobsList
+        .map((job) => job?.client_address?.area)
+        .filter((area) => area !== null && area !== undefined && area !== "")
+        .filter((area, index, self) => self.indexOf(area) === index)
+        .sort();
+      setUniqueAreas(areas || []);
+    }
+  }, [jobsList]);
+
+  // Filter jobs based on search term and selected area
+  useEffect(() => {
+    const filtered = jobsList?.filter((job) => {
+      const nameMatch = job?.user?.name
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const areaMatch =
+        !selectedArea || job?.client_address?.area === selectedArea;
+      return nameMatch && areaMatch;
+    });
+
     const limitedJobs = isDashboard ? filtered?.slice(0, 10) : filtered;
     setFilteredJobs(limitedJobs);
 
     setTimeout(() => {
       setLoading(false);
     }, 300);
-  }, [searchTerm, jobsList, isDashboard]);
+  }, [searchTerm, selectedArea, jobsList, isDashboard]);
 
   const showLoading = loading || isLoading;
 
@@ -44,6 +65,10 @@ const UpcomingJobs = ({
 
   const handleSearch = (value) => {
     setSearchTerm(value);
+  };
+
+  const handleAreaChange = (e) => {
+    setSelectedArea(e.target.value);
   };
 
   const renderJobRows = () =>
@@ -61,6 +86,9 @@ const UpcomingJobs = ({
           </div>
           <div className={styles.clientPhone}>
             {row?.user?.client?.phone_number}
+          </div>
+          <div className={styles.clientArea}>
+            {row?.client_address?.area || "No Area Specified"}
           </div>
         </td>
         <td>{row.job_title}</td>
@@ -81,7 +109,7 @@ const UpcomingJobs = ({
                 <div className={styles.teamCaptainName}>
                   {row.reschedule_dates?.length > 1 ? (
                     <span style={{ color: "red", fontSize: "15px" }}>
-                      <div style={{textAlign:"center"}}> Reschedule </div>
+                      <div style={{ textAlign: "center" }}> Reschedule </div>
                       <br />
                       {new Date(
                         row.reschedule_dates[
@@ -97,7 +125,7 @@ const UpcomingJobs = ({
                     </span>
                   ) : (
                     <span style={{ fontSize: "15px" }}>
-                      Regular 
+                      Regular
                       <br />
                       {new Date(
                         row.reschedule_dates[0].job_date
@@ -116,16 +144,17 @@ const UpcomingJobs = ({
               <span style={{ fontSize: "15px" }}>
                 Regular
                 <br />
-                {new Date(row.reschedule_dates[0].job_date).toLocaleString(
-                  "en-US",
-                  {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  }
-                )}
+                {row.reschedule_dates?.[0]?.job_date &&
+                  new Date(row.reschedule_dates[0].job_date).toLocaleString(
+                    "en-US",
+                    {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    }
+                  )}
               </span>
             )}
           </div>
@@ -169,7 +198,7 @@ const UpcomingJobs = ({
   const renderSkeletonRows = () =>
     [...Array(5)].map((_, index) => (
       <tr key={index} className="border-b border-gray-200">
-        {[...Array(7)].map((_, colIdx) => (
+        {[...Array(8)].map((_, colIdx) => (
           <td key={colIdx} className="py-2 px-4">
             <Skeleton width={100 + colIdx * 10} height={25} />
           </td>
@@ -205,6 +234,21 @@ const UpcomingJobs = ({
       <div className="flex justify-between items-center mb-4">
         {!isDashboard && <div className="pageTitle">Upcoming Jobs</div>}
         <div className="flex items-center">
+          <div className="mr-3">
+            <select
+              value={selectedArea}
+              onChange={handleAreaChange}
+              className="ml-3 h-10 px-3 border border-green-500 rounded-lg focus:outline-none focus:border-green-700 bg-white"
+            >
+              <option value="">All Areas</option>
+              {uniqueAreas.map((area) => (
+                <option key={area} value={area}>
+                  {area}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <SearchInput onSearch={handleSearch} />
           <div className="flex items-center border border-green-500 rounded-lg h-10 w-36 ml-3 px-2 mr-3">
             <img
