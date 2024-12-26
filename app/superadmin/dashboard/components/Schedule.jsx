@@ -5,14 +5,18 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
-import interactionPlugin from "@fullcalendar/interaction"; // For drag & drop
-import { startOfMonth, endOfMonth } from "date-fns"; // Import date-fns functions
+import interactionPlugin from "@fullcalendar/interaction";
+import { startOfMonth, endOfMonth } from "date-fns";
+import { Eye, Link } from "lucide-react";
+import { Modal, Box, Typography, Divider, Grid, Paper } from "@mui/material";
 
 const MyCalendar = () => {
   const api = new APICall();
   const [fetchingData, setFetchingData] = useState(false);
   const [quoteList, setQuoteList] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     getAllQuotes();
@@ -21,7 +25,6 @@ const MyCalendar = () => {
   const getAllQuotes = async () => {
     setFetchingData(true);
     try {
-      // Get start and end of the current month
       const startDate = startOfMonth(selectedDate).toISOString().split("T")[0];
       const endDate = endOfMonth(selectedDate).toISOString().split("T")[0];
 
@@ -39,17 +42,31 @@ const MyCalendar = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case 0:
-        return "#FF4444"; // Red for not completed
+        return "#FF4444";
       case 1:
-        return "#FFD700"; // Yellow for in progress
+        return "#FFD700";
       case 2:
-        return "#4CAF50"; // Green for completed
+        return "#4CAF50";
       default:
-        return "#FF4444"; // Default red
+        return "#FF4444";
     }
   };
 
-  const events = quoteList.map((job) => ({
+  const getStatusText = (status) => {
+    switch (status) {
+      case 0:
+        return "Not Completed";
+      case 1:
+        return "In Progress";
+      case 2:
+        return "Completed";
+      default:
+        return "Unknown";
+    }
+  };
+
+  const events = quoteList?.map((job) => ({
+    id: job.id,
     title: job.job_title,
     start:
       job.job_date +
@@ -59,10 +76,7 @@ const MyCalendar = () => {
     backgroundColor: getStatusColor(job.is_completed),
     borderColor: getStatusColor(job.is_completed),
     extendedProps: {
-      description: job.description,
-      priority: job.priority,
-      client: job.user?.client?.firm_name,
-      address: job.client_address?.address,
+      jobData: job, // Store the entire job object here
     },
     editable: true,
   }));
@@ -71,8 +85,14 @@ const MyCalendar = () => {
     alert(`${info.event.title} was dropped on ${info.event.startStr}`);
   };
 
+  const handleEventClick = (info) => {
+    const eventData = info.event.extendedProps.jobData;
+    setSelectedEvent(eventData);
+    setIsModalOpen(true);
+  };
+
   const renderEventContent = (eventInfo) => {
-    const { extendedProps } = eventInfo.event;
+    const jobData = eventInfo.event.extendedProps.jobData;
     return (
       <div
         className="p-2 rounded-lg shadow-sm bg-white border hover:shadow-md"
@@ -82,14 +102,60 @@ const MyCalendar = () => {
           borderLeft: `4px solid ${eventInfo.event.backgroundColor}`,
         }}
       >
-        <div className="text-xs text-gray-600">{extendedProps.client}</div>
+        <div className="text-xs text-gray-600">
+          {jobData?.user?.client?.firm_name || "No Client Name"}
+        </div>
       </div>
     );
   };
 
+  const modalStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: "80%", // Increased width for grid layout
+    maxWidth: "900px",
+    bgcolor: "background.paper",
+    boxShadow: 24,
+    p: 4,
+    borderRadius: 2,
+    maxHeight: "90vh",
+    overflow: "auto",
+    borderColor: "none",
+  };
+
+  const handleDatesSet = (dateInfo) => {
+    const startDate = dateInfo.start;
+    const endDate = dateInfo.end;
+
+    console.log("View Start Date:", startDate.toISOString().split("T")[0]);
+    console.log("View End Date:", endDate.toISOString().split("T")[0]);
+  };
+
+  const JobDetailItem = ({ label, value, fullWidth = false }) => (
+    <Grid item xs={12} md={fullWidth ? 12 : 6}>
+      <Paper
+        elevation={0}
+        sx={{
+          p: 2,
+          height: "100%",
+          backgroundColor: "#f5f5f5",
+          borderRadius: 2,
+        }}
+      >
+        <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+          {label}
+        </Typography>
+        <Typography variant="body1">{value || "N/A"}</Typography>
+      </Paper>
+    </Grid>
+  );
+
   return (
     <div className="p-4">
       <FullCalendar
+        datesSet={handleDatesSet}
         plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
         initialView="dayGridMonth"
         height="600px"
@@ -98,6 +164,7 @@ const MyCalendar = () => {
         droppable={true}
         eventDrop={handleEventDrop}
         eventContent={renderEventContent}
+        eventClick={handleEventClick}
         headerToolbar={{
           left: "prev,next today",
           center: "title",
@@ -113,6 +180,95 @@ const MyCalendar = () => {
         slotMinTime="08:00:00"
         slotMaxTime="20:00:00"
       />
+      <Modal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        aria-labelledby="job-details-modal"
+      >
+        <Box sx={modalStyle}>
+          {selectedEvent && (
+            <>
+              <Typography variant="h5" component="h2" gutterBottom>
+                Job Details
+              </Typography>
+              <Divider sx={{ my: 2 }} />
+
+              <Grid container spacing={3}>
+                <JobDetailItem
+                  label="Job Title"
+                  value={selectedEvent.job_title}
+                  fullWidth
+                />
+
+                <JobDetailItem
+                  label="Description"
+                  value={selectedEvent.description}
+                  fullWidth
+                />
+
+                <JobDetailItem
+                  label="Client"
+                  value={selectedEvent.user?.client?.firm_name}
+                />
+
+                <JobDetailItem
+                  label="Address"
+                  value={selectedEvent.client_address?.address}
+                />
+
+                <JobDetailItem
+                  label="Status"
+                  value={
+                    <Box
+                      sx={{
+                        bgcolor: getStatusColor(selectedEvent.is_completed),
+                        color:
+                          selectedEvent.is_completed === 1 ? "black" : "white",
+                        py: 0.5,
+                        px: 2,
+                        borderRadius: 10,
+                        display: "inline-block",
+                      }}
+                    >
+                      {getStatusText(selectedEvent.is_completed)}
+                    </Box>
+                  }
+                />
+
+                <JobDetailItem
+                  label="Priority"
+                  value={selectedEvent.priority}
+                />
+
+                <JobDetailItem
+                  label="Start Time"
+                  value={selectedEvent.job_start_time || "09:00 AM"}
+                />
+
+                <JobDetailItem
+                  label="End Time"
+                  value={selectedEvent.job_end_time || "10:00 AM"}
+                />
+
+                <JobDetailItem label="Date" value={selectedEvent.job_date} />
+
+                <JobDetailItem
+                  label="Total Amount"
+                  value={
+                    selectedEvent.grand_total
+                      ? `$${selectedEvent.grand_total}`
+                      : "N/A"
+                  }
+                />
+              </Grid>
+
+              <div>
+                <Link href="/">View Details</Link>
+              </div>
+            </>
+          )}
+        </Box>
+      </Modal>
     </div>
   );
 };

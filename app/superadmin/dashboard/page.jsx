@@ -13,7 +13,6 @@ import dynamic from "next/dynamic";
 const Finance = dynamic(() => import("../dashboard/components/Finance"));
 const Schedule = dynamic(() => import("./components/Schedule"));
 
-
 import RescheduleJobs from "../../rescheduleJobs/reschedule";
 
 import APICall from "@/networkUtil/APICall";
@@ -50,7 +49,7 @@ const Page = () => {
   const [tabNames, setTabNames] = useState([
     "Work management",
     "Finance Management",
-    "Scheduler",
+    "Schedule",
     "Reports",
   ]);
 
