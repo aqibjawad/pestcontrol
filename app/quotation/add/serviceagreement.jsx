@@ -7,7 +7,9 @@ import { Button } from "@mui/material";
 
 import Scope from "./scope";
 
-const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
+const ServiceAgreement = ({ setFormData, formData }) => {  
+
+
   const api = new APICall();
   const [allServices, setAllServices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -22,7 +24,6 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
       }));
       setAllServices(servicesWithChecked);
 
-      // Update checkbox states based on quote_services
       if (formData.quote_services && Array.isArray(formData.quote_services)) {
         const updatedServices = servicesWithChecked.map((service) => ({
           ...service,
@@ -38,22 +39,20 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
       setIsLoading(false);
     }
   };
+
   const getUniqueServiceDates = (quoteServiceDates) => {
-    // Return empty array if quoteServiceDates is undefined or null
     if (!quoteServiceDates || !Array.isArray(quoteServiceDates)) {
       return [];
     }
 
-    const uniqueDays = new Set(); // Track unique day numbers
-    const uniqueDates = []; // Store unique dates as strings
+    const uniqueDays = new Set(); 
+    const uniqueDates = []; 
 
     quoteServiceDates.forEach((dateObj) => {
-      // Skip if dateObj or service_date is undefined
       if (!dateObj?.service_date) return;
 
       const date = new Date(dateObj.service_date);
 
-      // Skip invalid dates
       if (isNaN(date.getTime())) return;
 
       const day = date.getDate();
@@ -61,7 +60,6 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
       if (!uniqueDays.has(day)) {
         uniqueDays.add(day);
 
-        // Format the date as YYYY-MM-DD
         const formattedDate = `${date.getFullYear()}-${String(
           date.getMonth() + 1
         ).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
@@ -72,7 +70,6 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
     return uniqueDates;
   };
 
-  // Transform quote_services data for JobsList
   useEffect(() => {
     if (
       formData.quote_services &&
@@ -246,6 +243,7 @@ const ServiceAgreement = ({ setFormData, formData, duration_in_months }) => {
               allServices={allServices}
               updateJobList={(updatedJob) => updateJobList(index, updatedJob)}
               duration_in_months={formData.duration_in_months}
+              formData={formData}
             />
             <Button
               variant="outlined"

@@ -18,12 +18,11 @@ const Invoice = ({ setFormData, formData }) => {
 
   const handleBillingFrequencyChange = (value) => {
     setBillingFrequency(value);
-    setSelectedBillingMethod(""); // Clear selected radio option
-
+    setSelectedBillingMethod("");
     setFormData((prev) => ({
       ...prev,
       no_of_installments: value,
-      billing_method: "installments", // Set billing method to "installment" when billing frequency is entered
+      billing_method: "installments", 
     }));
   };
 
@@ -35,8 +34,8 @@ const Invoice = ({ setFormData, formData }) => {
 
     setFormData((prev) => ({
       ...prev,
-      no_of_installments: 0, // Clear the billing frequency when a radio button is selected
-      billing_method: value, // Set selected billing method
+      no_of_installments: 0, 
+      billing_method: value,
     }));
   };
 
@@ -46,16 +45,8 @@ const Invoice = ({ setFormData, formData }) => {
       style={{ fontSize: "16px", margin: "auto" }}
     >
       <div className="mt-5 border border-gray-300">
-        {/* <div className="p-2.5 font-semibold text-lg">Invoice</div> */}
 
         <div className="flex gap-4 pl-4 pb-4">
-          {/* <div className="w-1/2">
-            <InputWithTitle
-              title={"Billing Frequency"}
-              value={formData.no_of_installments}
-              onChange={handleBillingFrequencyChange}
-            />
-          </div> */}
 
           <div className="w-1/2">
             <div className="text-lg font-semibold mb-4 p-2.5">Billing Methods</div>

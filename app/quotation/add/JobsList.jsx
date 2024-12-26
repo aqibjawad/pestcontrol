@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from "react";
 import InputWithTitle from "../../../components/generic/InputWithTitle";
-import CalendarComponent from "./calender.component";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
-import { Grid, Tabs, Tab, Box, Button } from "@mui/material";
+import { Grid } from "@mui/material";
 import Dropdown2 from "@/components/generic/DropDown2";
 
 const JobsList = ({
@@ -14,8 +9,15 @@ const JobsList = ({
   updateJobList,
   duration_in_months,
   numberOfJobs,
+  formData
 }) => {
+  
+  console.log("form Data",formData.quote_services.no_of_services);
+
+
   const [totalJobs, setTotalJobs] = useState(0);
+
+  const [divisionResult, setDivisionResult] = useState(null);
 
   const [rate, setRate] = useState(jobData.rate || 0);
   const [noJobs, setNoJobs] = useState(jobData.no);
@@ -23,12 +25,6 @@ const JobsList = ({
   const [selectedJobType, setSelectedJobType] = useState(jobData.jobType || "");
   const [selectedDates, setSelectedDates] = useState(numberOfJobs || []);
   const [subTotal, setSubTotal] = useState(jobData.subTotal || 0);
-  const [intervalDays, setIntervalDays] = useState(5);
-  const [allGeneratedDates, setAllGeneratedDates] = useState([]);
-  const [generatedSubTotal, setGeneratedSubTotal] = useState(0);
-  const [activeTab, setActiveTab] = useState(0);
-  const [dayWiseSelection, setDayWiseSelection] = useState([]);
-  const [allDatesSelect, setAllDatesSelect] = useState([]);
 
   const jobTypes = [
     { label: "One Time", value: "one_time" },
@@ -55,13 +51,12 @@ const JobsList = ({
       serviceName: jobData.serviceName,
       no_of_jobs: totalJobs, // Make sure to pass the number of jobs
     });
-  }, [selectedDates, rate, selectedJobType, duration_in_months, noJobs]); // Added noJobs to dependencies
+  }, [selectedDates, rate, selectedJobType, duration_in_months, noJobs]); 
 
   const handleJobTypeChange = (value) => {
     setSelectedJobType(value);
     if (value === "monthly" || value === "daily") {
       setSelectedDates([]);
-      setAllGeneratedDates([]);
     }
     if (value === "daily") {
       const today = new Date();

@@ -11,7 +11,7 @@ import {
   FormControlLabel,
   Checkbox,
   TextField,
-  CircularProgress
+  CircularProgress,
 } from "@mui/material";
 import CalendarComponent from "./calender.component";
 import Swal from "sweetalert2";
@@ -31,6 +31,7 @@ import {
   parseISO,
   getMonth,
   getYear,
+  Grid,
 } from "date-fns";
 
 const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
@@ -391,7 +392,6 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
             label="Select Time"
             value={selectedTime}
             onChange={handleTimeChange}
-            fullWidth
             InputLabelProps={{
               shrink: true,
             }}
@@ -399,6 +399,10 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
               step: 300, // 5 min
             }}
           />
+
+          <TextField className="ml-10" type="text" label="TRN" />
+
+          <TextField className="ml-10" type="text" label="Select Time" />
         </div>
 
         <Tabs
@@ -447,22 +451,14 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        {/* <Button
-          onClick={handleSubmit}
-          color="primary"
-          disabled={tabIndex === 0 ? !isValidTotalDates : !isValidSelection}
-        >
-          Save Dates
-        </Button> */}
         <Button
           onClick={handleSubmit}
           color="primary"
           disabled={
             tabIndex === 0 ? !isValidTotalDates : !isValidSelection || loading
-          } // Disable button if loading
+          }
         >
           {loading ? <CircularProgress size={24} /> : "Save Dates"}{" "}
-          {/* Show loader when loading */}
         </Button>
       </DialogActions>
     </Dialog>

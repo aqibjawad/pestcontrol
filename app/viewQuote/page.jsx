@@ -29,7 +29,7 @@ const Quotation = () => {
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("");
   const [fetchingData, setFetchingData] = useState(false);
-  const [quoteList, setQuoteList] = useState([]);  
+  const [quoteList, setQuoteList] = useState([]);
 
   const [allQuoteList, setAllQuoteList] = useState([]);
   const [isApproving, setIsApproving] = useState({});
@@ -234,6 +234,7 @@ const Quotation = () => {
                 </TableSortLabel>
               </TableCell>
               <TableCell className="contractHeader">Actions</TableCell>
+              <TableCell className="contractHeader">Edit</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -305,6 +306,15 @@ const Quotation = () => {
                         </button>
                       )}
                     </div>
+                  </TableCell>
+                  <TableCell className="contractTable">
+                    {row?.is_contracted === 0 ? (
+                      <Link href={`/quotation?id=${row?.id}`}>Edit</Link>
+                    ) : (
+                      <span className="text-gray-400 cursor-not-allowed">
+                        Edit
+                      </span>
+                    )}
                   </TableCell>
                 </TableRow>
               ))
@@ -406,9 +416,8 @@ const Quotation = () => {
         onClose={() => setIsModalOpen(false)}
         initialDates={savedDates}
         onSave={handleSaveDates}
-        quoteData={selectedQuoteData} 
+        quoteData={selectedQuoteData}
       />
-
     </div>
   );
 };

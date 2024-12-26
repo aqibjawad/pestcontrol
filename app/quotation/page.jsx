@@ -49,33 +49,27 @@ const Page = () => {
     is_food_watch_account: false,
     billing_method: "",
     services: [],
-    processedQuoteServices: false, // Flag to track if quote services have been processed
+    processedQuoteServices: false,
   });
 
   const [loading, setLoading] = useState(false);
   const [fetchingData, setFetchingData] = useState(false);
 
-  // Safe state update function
   const safeSetFormData = (updates) => {
     setFormData((prev) => {
-      // If updates is a function, call it with prev
       if (typeof updates === "function") {
         const newState = updates(prev);
-        // console.log("New Form State:", newState); // Debug log
         return newState;
       }
 
-      // If updates is an object, merge it with prev
       const newState = {
         ...prev,
         ...updates,
-        // Ensure services array is properly merged
         services: Array.isArray(updates.services)
           ? [...(prev.services || []), ...updates.services]
           : prev.services,
       };
 
-      // console.log("New Form State:", newState); // Debug log
       return newState;
     });
   };

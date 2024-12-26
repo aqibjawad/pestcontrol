@@ -91,6 +91,7 @@ const UpcomingJobs = ({
             {row?.client_address?.area || "No Area Specified"}
           </div>
         </td>
+        <td>{row?.user?.client?.firm_name}</td>
         <td>{row.job_title}</td>
         <td>
           <div className={styles.statusContainer}>
@@ -269,6 +270,7 @@ const UpcomingJobs = ({
               {[
                 "Sr No",
                 "Client Name",
+                "Firm Name",
                 "Job Name",
                 "Status",
                 "Priority",

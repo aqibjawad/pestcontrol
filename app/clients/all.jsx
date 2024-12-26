@@ -43,7 +43,7 @@ const AllClients = () => {
   const [phone_number, setPhoneNumber] = useState("");
   const [mobile_number, setMobNumber] = useState("");
   const [industry_name, setIndustryName] = useState("");
-  const [opening_balance, setOpeningBalance] = useState("");
+  const [opening_balance, setOpeningBalance] = useState(0);
 
   // State for form inputs
   const handleClickOpen = () => {
@@ -298,7 +298,7 @@ const AllClients = () => {
       industry_name,
       referencable_id: formData.referencable_id,
       referencable_type: formData.referencable_type,
-      opening_balance,
+      opening_balance: 0,
     };
     const response = await api.postFormDataWithToken(`${clients}/create`, obj);
 
@@ -320,17 +320,6 @@ const AllClients = () => {
         text: `${response.error.message}`,
       });
     }
-
-    // try {
-    //   // await api.postFormDataWithToken(`${clients}/create`, formData);
-    //   // // Optionally, refresh the client list after submission
-    //   // await getAllClients();
-    //   // handleClose();
-    // } catch (error) {
-    //   console.error("Error submitting form:", error);
-    // } finally {
-    //   setSendingData(false);
-    // }
   };
 
   return (
@@ -449,7 +438,7 @@ const AllClients = () => {
                   placeholder="Please enter Phone Number"
                 />
               </Grid>
-              <Grid item lg={12}>
+              <Grid item lg={6}>
                 <InputWithTitle
                   title={"Mobile Number"}
                   label="Mobile Number"
@@ -461,21 +450,7 @@ const AllClients = () => {
                   placeholder="Please enter Mobile Number"
                 />
               </Grid>
-            </Grid>
 
-            <Grid item container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <InputWithTitle
-                  title={"Opening Balance"}
-                  label="Opening Balance"
-                  name="opening_balance"
-                  value={opening_balance}
-                  onChange={setOpeningBalance}
-                  variant="outlined"
-                  fullWidth
-                  placeholder="Opening Balance"
-                />
-              </Grid>
               <Grid item xs={12} sm={6}>
                 <InputWithTitle
                   title={"Industry Name"}
@@ -488,6 +463,9 @@ const AllClients = () => {
                   placeholder="Industry Name"
                 />
               </Grid>
+            </Grid>
+
+            <Grid item container spacing={2}>
               <Grid item lg={12} xs={12} sm={6}>
                 <Dropdown
                   title="Select Reference"
