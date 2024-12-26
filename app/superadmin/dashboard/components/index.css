@@ -1,0 +1,16 @@
+.custom-day-cell {
+  height: auto !important; /* Allow the height to adjust automatically */
+  min-height: 150px; /* Set a reasonable minimum height */
+  overflow: visible; /* Ensure no content is hidden */
+  padding: 5px;
+}
+
+.event-item {
+  background-color: #007bff; /* Match the event item's color */
+  color: white;
+  padding: 5px;
+  margin: 2px 0;
+  border-radius: 4px;
+  font-size: 12px;
+  text-align: center;
+}

@@ -11,7 +11,7 @@ import Reports from "./components/Reports";
 import dynamic from "next/dynamic";
 
 const Finance = dynamic(() => import("../dashboard/components/Finance"));
-const Scheduler = dynamic(() => import("./components/Scheduler"));
+const Schedule = dynamic(() => import("./components/Schedule"));
 
 
 import RescheduleJobs from "../../rescheduleJobs/reschedule";
@@ -204,7 +204,7 @@ const Page = () => {
           </div>
 
           <div className={selectedIndex === 2 ? `block` : "hidden"}>
-            <Scheduler isVisible={selectedIndex === 2} />
+            <Schedule isVisible={selectedIndex === 2} />
           </div>
 
           <div className={selectedIndex === 3 ? `block` : "hidden"}>

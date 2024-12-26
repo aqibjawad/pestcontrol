@@ -31,12 +31,18 @@ import {
   parseISO,
   getMonth,
   getYear,
-  Grid,
 } from "date-fns";
 
 const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
   const api = new APICall();
 
+  // New state variables
+  const [trn, setTrn] = useState("");
+  const [licenseNo, setLicenseNo] = useState("");
+  const [isFoodWatchAccount, setIsFoodWatchAccount] = useState(false);
+  const [foodWatchStatus, setFoodWatchStatus] = useState("unlinked"); // 'linked' or 'unlinked'
+
+  // Existing state variables
   const [totalServices, setTotalServices] = useState(0);
   const [durationMonths, setDurationMonths] = useState(0);
   const [servicesPerMonth, setServicesPerMonth] = useState(0);
@@ -44,7 +50,7 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
   const [isValidSelection, setIsValidSelection] = useState(true);
   const [isValidTotalDates, setIsValidTotalDates] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-
+  const [loading, setLoading] = useState(false);
   const [selectedDates, setSelectedDates] = useState(initialDates || []);
   const [selectedTime, setSelectedTime] = useState("09:00");
   const [tabIndex, setTabIndex] = useState(0);
@@ -88,6 +94,26 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
     },
   });
 
+  // New handlers
+  const handleTrnChange = (e) => {
+    setTrn(e.target.value);
+  };
+
+  const handleLicenseNoChange = (e) => {
+    setLicenseNo(e.target.value);
+  };
+
+  const handleFoodWatchLink = () => {
+    setFoodWatchStatus("linked");
+    setIsFoodWatchAccount(true);
+  };
+
+  const handleFoodWatchUnlink = () => {
+    setFoodWatchStatus("unlinked");
+    setIsFoodWatchAccount(false);
+  };
+
+  // Existing useEffects
   useEffect(() => {
     if (
       quoteData?.quote_services?.[0]?.no_of_services &&
@@ -130,6 +156,7 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
     }
   }, [weeklySelection, durationMonths]);
 
+  // Existing helper functions
   const countDatesPerMonth = (dates) => {
     const counts = {};
     dates.forEach((date) => {
@@ -151,15 +178,11 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
     );
 
     if (tabIndex === 0) {
-      // For date-wise tab, affect button state
       setIsValidSelection(isMonthlyValid);
     } else {
-      // For day-wise tab, always keep button enabled
       setIsValidSelection(true);
-
-      // But prevent checkbox selection if monthly limit would be exceeded
       if (!isMonthlyValid) {
-        return false; // This will prevent checkbox from being selected
+        return false;
       }
     }
 
@@ -246,12 +269,11 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
       selectedTime,
       newWeeklySelection
     );
-    // Only update weekly selection if monthly validation passes
     if (validateMonthlyDates(potentialDates)) {
       setWeeklySelection(newWeeklySelection);
     }
-    // If validation fails, the checkbox won't be updated
   };
+
   const generateWeeklyDates = (timeString, weekSelection = weeklySelection) => {
     const selectedDays = [];
     const now = new Date();
@@ -289,18 +311,16 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
     return selectedDays.sort();
   };
 
-  const [loading, setLoading] = useState(false);
-
+  // Updated handleSubmit with new fields
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // Set loading to true when the API call starts
+    setLoading(true);
 
-    // For day-wise selection, we don't check isValidTotalDates
     if (
       !validateMonthlyDates(generatedDates) ||
       (tabIndex === 0 && !isValidTotalDates)
     ) {
-      setLoading(false); // Reset loading state if validation fails
+      setLoading(false);
       return;
     }
 
@@ -311,11 +331,14 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
         title: "Error",
         text: "Service ID is missing or undefined. Cannot proceed.",
       });
-      setLoading(false); // Reset loading state if service ID is missing
+      setLoading(false);
       return;
     }
 
     const dataToSend = {
+      trn: trn,
+      license_no: licenseNo,
+      is_food_watch_account: isFoodWatchAccount,
       quote_services: [
         {
           quote_service_id: serviceId,
@@ -349,7 +372,7 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
           error.message || "Failed to process the request. Please try again.",
       });
     } finally {
-      setLoading(false); // Reset loading state after request completes
+      setLoading(false);
     }
   };
 
@@ -396,15 +419,54 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
               shrink: true,
             }}
             inputProps={{
-              step: 300, // 5 min
+              step: 300,
             }}
           />
 
-          <TextField className="ml-10" type="text" label="TRN" />
+          <TextField
+            className="ml-10"
+            type="text"
+            label="TRN"
+            value={trn}
+            onChange={handleTrnChange}
+          />
 
-          <TextField className="ml-10" type="text" label="Select Time" />
+          <TextField
+            className="ml-10"
+            type="text"
+            label="License No"
+            value={licenseNo}
+            onChange={handleLicenseNoChange}
+          />
+
+          <div className="mt-4">
+            <label className="block font-bold mb-2">Food Watch Account</label>
+            <div className="space-x-4">
+              <Button
+                variant="contained"
+                onClick={handleFoodWatchLink}
+                style={{
+                  backgroundColor:
+                    foodWatchStatus === "linked" ? "#4CAF50" : "#1976d2",
+                  color: "white",
+                }}
+              >
+                Link
+              </Button>
+              <Button
+                variant="contained"
+                onClick={handleFoodWatchUnlink}
+                style={{
+                  backgroundColor:
+                    foodWatchStatus === "unlinked" ? "#4CAF50" : "#1976d2",
+                  color: "white",
+                }}
+              >
+                Unlink
+              </Button>
+            </div>
+          </div>
         </div>
-
         <Tabs
           value={tabIndex}
           onChange={handleTabChange}
