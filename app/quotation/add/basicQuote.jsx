@@ -229,7 +229,7 @@ const BasicQuote = ({ setFormData, formData }) => {
           />
         </Grid>
 
-        <Grid item lg={6} xs={12} md={6} mt={2}>
+        {/* <Grid item lg={6} xs={12} md={6} mt={2}>
           <InputWithTitle
             title={"TRN"}
             type={"text"}
@@ -239,7 +239,7 @@ const BasicQuote = ({ setFormData, formData }) => {
               setFormData((prev) => ({ ...prev, trn: value }));
             }}
           />
-        </Grid>
+        </Grid> */}
 
         <Grid item lg={6} xs={12} md={6} mt={2}>
           <InputWithTitle
@@ -265,7 +265,7 @@ const BasicQuote = ({ setFormData, formData }) => {
           />
         </Grid>
 
-        <Grid className="mt-5" item lg={6} xs={12} md={6} mt={2}>
+        {/* <Grid className="mt-5" item lg={6} xs={12} md={6} mt={2}>
           <div>
             <label className="block font-bold mb-2">Food Watch Account</label>
             <button
@@ -293,7 +293,7 @@ const BasicQuote = ({ setFormData, formData }) => {
               Unlink
             </button>
           </div>
-        </Grid>
+        </Grid> */}
 
         <Grid item lg={12} xs={12} mt={5}>
           <MultilineInput
