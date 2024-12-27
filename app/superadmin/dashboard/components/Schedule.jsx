@@ -32,9 +32,14 @@ const MyCalendar = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const [viewStartDate, setViewStartDate] = useState(null);
+  const [viewEndDate, setViewEndDate] = useState(null);
+
   useEffect(() => {
-    getAllQuotes();
-  }, [selectedDate]);
+    if (viewStartDate && viewEndDate) {
+      getAllQuotes();
+    }
+  }, [viewStartDate, viewEndDate]);
 
   const getAllQuotes = async () => {
     setFetchingData(true);
@@ -43,7 +48,7 @@ const MyCalendar = () => {
       const endDate = endOfMonth(selectedDate).toISOString().split("T")[0];
 
       const response = await api.getDataWithToken(
-        `${job}/all?start_date=${startDate}&end_date=${endDate}`
+        `${job}/all?start_date=${viewStartDate}&end_date=${viewEndDate}`
       );
       setQuoteList(response.data);
     } catch (error) {
@@ -239,7 +244,12 @@ const MyCalendar = () => {
   );
 
   const handleDatesSet = (dateInfo) => {
-    setSelectedDate(dateInfo.start);
+    const startDate = dateInfo.start.toISOString().split("T")[0];
+    const endDate = dateInfo.end.toISOString().split("T")[0];
+    setViewStartDate(startDate);
+    setViewEndDate(endDate);
+    console.log("View Start Date:", startDate);
+    console.log("View End Date:", endDate);
   };
 
   const handleRedirect = (jobId) => {
