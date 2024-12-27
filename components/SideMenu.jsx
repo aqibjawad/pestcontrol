@@ -14,7 +14,6 @@ import styles from "../styles/sideMenu.module.css";
 import { useRouter } from "next/navigation";
 import User from "../networkUtil/user";
 import { IoIosStats } from "react-icons/io";
-
 import {
   MdOutlineProductionQuantityLimits,
   MdInventory,
@@ -76,7 +75,8 @@ const MyAppBar = styled(AppBar, {
 
 export default function SideMenu({ children }) {
   const router = useRouter();
-  const [open, setOpen] = useState(true);
+  // Changed initial state to false so drawer is closed by default
+  const [open, setOpen] = useState(false);
   const [roleId, setRoleId] = useState(null);
 
   const allPermissions = [
@@ -86,11 +86,8 @@ export default function SideMenu({ children }) {
     { name: "Quotes", url: "viewQuote", icon: "/quotes.png" },
     { name: "Clients", url: "clients", icon: "/clients.png" },
     { name: "Invoices", url: "invoice", icon: "/operations.png" },
-    // { name: "Sales", url: "sales/allSales", icon: "/sales.png" },
-    // { name: "Pay Roll", url: "payRoll", icon: <FaAlipay /> },
     { name: "Outstandings", url: "badTransac", icon: <MdOutlineQueryStats /> },
     { name: "HR", url: "hr/hr", icon: "/hr.png" },
-    // { name: "Company setup", url: "company_setup", icon: "/comnpany.png" },
     {
       name: "Financial Report",
       url: "financialReport/",
@@ -146,7 +143,6 @@ export default function SideMenu({ children }) {
           url: "badTransac",
           icon: <MdOutlineQueryStats />,
         },
-
         {
           name: "Add Inventory",
           url: "account/addProduct/",
@@ -167,12 +163,6 @@ export default function SideMenu({ children }) {
           url: "account/purchaseOrders/",
           icon: <MdOutlineInventory />,
         },
-
-        // {
-        //   name: "View Sales",
-        //   url: "sales/allSales",
-        //   icon: <IoPersonCircle />,
-        // },
         {
           name: "Clients",
           url: "clients",
@@ -193,7 +183,6 @@ export default function SideMenu({ children }) {
           url: "account/addSuppliers/",
           icon: <IoIosPerson />,
         },
-
         {
           name: "View Suppliers",
           url: "account/viewSuppliers/",
@@ -204,10 +193,6 @@ export default function SideMenu({ children }) {
           url: "operations/addSupplierExpense/",
           icon: <MdOutlinePayments />,
         },
-
-        // { name: "Add Customers", url: "customers", icon: "/jobs.png" },
-        // { name: "View Customers", url: "allCustomers", icon: "/jobs.png" },
-
         {
           name: "Transactions",
           url: "accountant/viewTransactions",
@@ -224,7 +209,6 @@ export default function SideMenu({ children }) {
           url: "operations/addExpense",
           icon: "/jobs.png",
         },
-
         {
           name: "Expense Category",
           url: "operations/expense_category",
@@ -254,6 +238,9 @@ export default function SideMenu({ children }) {
 
   const handleNext = (item, index) => {
     setSelectedIndex(index);
+    // Close the drawer when clicking any menu item
+    setOpen(false);
+
     if (item.isLogout) {
       logOut();
     } else {
@@ -332,7 +319,6 @@ export default function SideMenu({ children }) {
                     : styles.menuItem
                 }
               >
-                {/* Render the icon */}
                 <span style={{ marginRight: "10px" }}>
                   {typeof item.icon === "string" ? (
                     <img
