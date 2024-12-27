@@ -4,11 +4,14 @@ import APICall from "../../../networkUtil/APICall";
 import JobsList from "./JobsList";
 import ContractSummary from "./contract";
 import { Button } from "@mui/material";
+import { Grid } from "@mui/material";
 
 import Scope from "./scope";
 
-const ServiceAgreement = ({ setFormData, formData }) => {  
+import Invoice from "./invoice";
 
+const ServiceAgreement = ({ setFormData, formData }) => {
+  
 
   const api = new APICall();
   const [allServices, setAllServices] = useState([]);
@@ -45,8 +48,8 @@ const ServiceAgreement = ({ setFormData, formData }) => {
       return [];
     }
 
-    const uniqueDays = new Set(); 
-    const uniqueDates = []; 
+    const uniqueDays = new Set();
+    const uniqueDates = [];
 
     quoteServiceDates.forEach((dateObj) => {
       if (!dateObj?.service_date) return;
@@ -263,7 +266,14 @@ const ServiceAgreement = ({ setFormData, formData }) => {
         </Button>
       </div>
 
-      <ContractSummary setFormData={setFormData} grandTotal={grandTotal} />
+      <Grid container spacing={3}>
+        <Grid item lg={6} xs={12} sm={6} md={4}>
+          <ContractSummary setFormData={setFormData} grandTotal={grandTotal} />
+        </Grid>
+        <Grid item lg={6} xs={12} sm={6} md={4}>
+          <Invoice formData={formData} setFormData={setFormData} />
+        </Grid>
+      </Grid>
 
       <Scope selectedServices={selectedServices} />
     </div>

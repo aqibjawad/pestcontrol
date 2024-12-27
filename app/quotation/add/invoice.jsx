@@ -6,7 +6,14 @@ import InputWithTitle from "@/components/generic/InputWithTitle";
 import { FormGroup, FormControlLabel, Radio, RadioGroup } from "@mui/material";
 
 const Invoice = ({ setFormData, formData }) => {
+  console.log("formData recives data", formData);
+
   const [billingFrequency, setBillingFrequency] = useState(0);
+
+  const hasQuarterlyService = formData.services?.some((service) =>
+    service.detail?.some((detail) => detail.job_type === "installments")
+  );
+
   const [selectedBillingMethod, setSelectedBillingMethod] = useState(
     formData.billing_method || ""
   );
@@ -22,7 +29,7 @@ const Invoice = ({ setFormData, formData }) => {
     setFormData((prev) => ({
       ...prev,
       no_of_installments: value,
-      billing_method: "installments", 
+      billing_method: "installments",
     }));
   };
 
@@ -34,7 +41,7 @@ const Invoice = ({ setFormData, formData }) => {
 
     setFormData((prev) => ({
       ...prev,
-      no_of_installments: 0, 
+      no_of_installments: 0,
       billing_method: value,
     }));
   };
@@ -45,21 +52,30 @@ const Invoice = ({ setFormData, formData }) => {
       style={{ fontSize: "16px", margin: "auto" }}
     >
       <div className="mt-5 border border-gray-300">
-
         <div className="flex gap-4 pl-4 pb-4">
-
           <div className="w-1/2">
-            <div className="text-lg font-semibold mb-4 p-2.5">Billing Methods</div>
+            <div className="text-lg font-semibold mb-4 p-2.5">
+              Billing Methods
+            </div>
             <RadioGroup
               row
               value={selectedBillingMethod}
               onChange={handleRadioChange}
             >
-              <FormControlLabel
-                control={<Radio />}
-                label="Monthly"
-                value="monthly"
-              />
+              {!hasQuarterlyService && (
+                <FormControlLabel
+                  control={<Radio />}
+                  label="Monthly"
+                  value="monthly"
+                />
+              )}
+              {hasQuarterlyService && (
+                <FormControlLabel
+                  control={<Radio />}
+                  label="Quarterly"
+                  value="installments"
+                />
+              )}
               <FormControlLabel
                 control={<Radio />}
                 label="Service"

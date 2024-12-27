@@ -9,29 +9,20 @@ const JobsList = ({
   updateJobList,
   duration_in_months,
   numberOfJobs,
-  formData
 }) => {
-  
-  console.log("form Data",formData.quote_services.no_of_services);
-
 
   const [totalJobs, setTotalJobs] = useState(0);
 
-  const [divisionResult, setDivisionResult] = useState(null);
-
   const [rate, setRate] = useState(jobData.rate || 0);
   const [noJobs, setNoJobs] = useState(jobData.no);
-  const [open, setOpen] = useState(false);
   const [selectedJobType, setSelectedJobType] = useState(jobData.jobType || "");
   const [selectedDates, setSelectedDates] = useState(numberOfJobs || []);
   const [subTotal, setSubTotal] = useState(jobData.subTotal || 0);
 
   const jobTypes = [
-    { label: "One Time", value: "one_time" },
     { label: "Yearly", value: "yearly" },
     { label: "Monthly", value: "monthly" },
-    { label: "Daily", value: "daily" },
-    { label: "Weekly", value: "weekly" },
+    { label: "Quaterly", value: "installments" },
   ];
 
   useEffect(() => {
@@ -62,13 +53,6 @@ const JobsList = ({
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       setSelectedDates([today.toISOString().slice(0, 10)]);
-    }
-    if (
-      ["one_time", "yearly", "monthly", "weekly", "custom", "daily"].includes(
-        value
-      )
-    ) {
-      setOpen(true);
     }
   };
 

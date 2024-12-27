@@ -52,6 +52,8 @@ const Page = () => {
     processedQuoteServices: false,
   });
 
+  console.log("main page formData", formData);
+
   const [loading, setLoading] = useState(false);
   const [fetchingData, setFetchingData] = useState(false);
 
@@ -75,6 +77,16 @@ const Page = () => {
   };
 
   const handleSubmit = async () => {
+    // Check the condition for duration_in_months
+    if (formData.duration_in_months % 3 !== 0) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Duration in months must be a Quartarly",
+      });
+      return; // Stop further execution if the condition is not met
+    }
+
     setLoading(true);
     try {
       const endpoint = `${quotation}/manage`;
@@ -152,7 +164,7 @@ const Page = () => {
         formData={formData}
       />
       <Method setFormData={safeSetFormData} formData={formData} />
-      <Invoice setFormData={safeSetFormData} formData={formData} />
+      {/* <Invoice setFormData={safeSetFormData} formData={formData} /> */}
       <TermConditions setFormData={safeSetFormData} formData={formData} />
 
       <div className="mt-10">

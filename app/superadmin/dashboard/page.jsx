@@ -441,12 +441,6 @@ const Page = () => {
           </Box>
         </div>
       </div>
-      {/* Add the EmployeeUpdateModal component */}
-      <EmployeeUpdateModal
-        open={isModalOpen}
-        handleClose={handleCloseModal}
-        selectedEmployee={selectedEmployee}
-      />
     </div>
   );
 };
