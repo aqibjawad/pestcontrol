@@ -8,11 +8,24 @@ import listPlugin from "@fullcalendar/list";
 import interactionPlugin from "@fullcalendar/interaction";
 import { startOfMonth, endOfMonth, format } from "date-fns";
 import { Eye, Link } from "lucide-react";
-import { Modal, Box, Typography, Divider, Grid, Paper } from "@mui/material";
+import {
+  Modal,
+  Box,
+  Typography,
+  Divider,
+  Grid,
+  Paper,
+  Button,
+} from "@mui/material";
 import Swal from "sweetalert2";
+
+import { useRouter } from "next/navigation";
 
 const MyCalendar = () => {
   const api = new APICall();
+
+  const router = useRouter();
+
   const [fetchingData, setFetchingData] = useState(false);
   const [quoteList, setQuoteList] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -158,6 +171,7 @@ const MyCalendar = () => {
   };
 
   const handleEventClick = (info) => {
+    console.log("Event Data:", info.event.extendedProps.jobData);
     const eventData = info.event.extendedProps.jobData;
     setSelectedEvent(eventData);
     setIsModalOpen(true);
@@ -226,6 +240,10 @@ const MyCalendar = () => {
 
   const handleDatesSet = (dateInfo) => {
     setSelectedDate(dateInfo.start);
+  };
+
+  const handleRedirect = (jobId) => {
+    router.push(`/viewJob/?id=${jobId}`); // Adjust the path as per your routing
   };
 
   return (
@@ -365,6 +383,23 @@ const MyCalendar = () => {
                   />
                 )}
               </Grid>
+
+              {/* View Details Button inside the modal */}
+              <Box mt={3} textAlign="center">
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => {
+                    console.log(
+                      "Selected Job ID:",
+                      selectedEvent.job_id || selectedEvent.id
+                    ); // Adjust field name if needed
+                    handleRedirect(selectedEvent.job_id || selectedEvent.id);
+                  }}
+                >
+                  View Details
+                </Button>
+              </Box>
             </>
           )}
         </Box>
