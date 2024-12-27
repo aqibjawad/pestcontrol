@@ -6,9 +6,10 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
 import interactionPlugin from "@fullcalendar/interaction";
-import { startOfMonth, endOfMonth } from "date-fns";
+import { startOfMonth, endOfMonth, format } from "date-fns";
 import { Eye, Link } from "lucide-react";
 import { Modal, Box, Typography, Divider, Grid, Paper } from "@mui/material";
+import Swal from "sweetalert2";
 
 const MyCalendar = () => {
   const api = new APICall();
@@ -34,6 +35,12 @@ const MyCalendar = () => {
       setQuoteList(response.data);
     } catch (error) {
       console.error("Error fetching jobs:", error);
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to fetch jobs",
+        icon: "error",
+        confirmButtonText: "Ok",
+      });
     } finally {
       setFetchingData(false);
     }
@@ -65,24 +72,89 @@ const MyCalendar = () => {
     }
   };
 
-  const events = quoteList?.map((job) => ({
-    id: job.id,
-    title: job.job_title,
-    start:
-      job.job_date +
-      (job.job_start_time ? `T${job.job_start_time}` : "T09:00:00"),
-    end:
-      job.job_date + (job.job_end_time ? `T${job.job_end_time}` : "T10:00:00"),
-    backgroundColor: getStatusColor(job.is_completed),
-    borderColor: getStatusColor(job.is_completed),
-    extendedProps: {
-      jobData: job, // Store the entire job object here
-    },
-    editable: true,
-  }));
+  const events = quoteList?.map((job) => {
+    // Get the latest reschedule date if available
+    const latestReschedule =
+      job.reschedule_dates?.[job.reschedule_dates.length - 1];
+    let scheduledDateTime;
+    let defaultTime;
 
-  const handleEventDrop = (info) => {
-    alert(`${info.event.title} was dropped on ${info.event.startStr}`);
+    if (latestReschedule?.job_date) {
+      // Extract time from the latest reschedule date
+      const [date, time] = latestReschedule.job_date.split(" ");
+      defaultTime = time || "09:00:00";
+    } else {
+      defaultTime = job.job_start_time || "09:00:00";
+    }
+
+    // Calculate end time (1 hour after start if not specified)
+    const endTime =
+      job.job_end_time ||
+      (() => {
+        const [hours, minutes] = defaultTime.split(":");
+        return `${String(Number(hours) + 1).padStart(2, "0")}:${minutes}:00`;
+      })();
+
+    return {
+      id: job.id,
+      title: job.job_title,
+      start: `${job.job_date}T${defaultTime}`,
+      end: `${job.job_date}T${endTime}`,
+      backgroundColor: getStatusColor(job.is_completed),
+      borderColor: getStatusColor(job.is_completed),
+      extendedProps: {
+        jobData: job,
+        originalTime: defaultTime,
+      },
+      editable: true,
+    };
+  });
+
+  const handleEventDrop = async (info) => {
+    const droppedEvent = info.event;
+    const originalTime = droppedEvent.extendedProps.originalTime;
+    const newDate = format(droppedEvent.start, "yyyy-MM-dd");
+    const jobId = droppedEvent.extendedProps.jobData.id;
+
+    try {
+      const formData = {
+        job_id: jobId,
+        job_date: `${newDate} ${originalTime}`,
+        reason: "Event rescheduled via calendar",
+      };
+
+      const response = await api.postFormDataWithToken(
+        `${job}/reschedule`,
+        formData
+      );
+
+      if (response.status === "success") {
+        Swal.fire({
+          title: "Success!",
+          text: "Job rescheduled successfully",
+          icon: "success",
+          confirmButtonText: "Ok",
+        });
+        getAllQuotes(); // Refresh the calendar
+      } else {
+        info.revert();
+        Swal.fire({
+          title: "Error!",
+          text: response.error?.message || "Failed to reschedule job",
+          icon: "error",
+          confirmButtonText: "Ok",
+        });
+      }
+    } catch (error) {
+      info.revert();
+      console.error("Error rescheduling job:", error);
+      Swal.fire({
+        title: "Error!",
+        text: "An error occurred while rescheduling the job",
+        icon: "error",
+        confirmButtonText: "Ok",
+      });
+    }
   };
 
   const handleEventClick = (info) => {
@@ -102,8 +174,17 @@ const MyCalendar = () => {
           borderLeft: `4px solid ${eventInfo.event.backgroundColor}`,
         }}
       >
+        <div className="text-xs font-medium">{eventInfo.event.title}</div>
         <div className="text-xs text-gray-600">
           {jobData?.user?.client?.firm_name || "No Client Name"}
+        </div>
+        <div className="text-xs text-gray-500">
+          {format(
+            new Date(
+              `${jobData.job_date}T${eventInfo.event.extendedProps.originalTime}`
+            ),
+            "h:mm a"
+          )}
         </div>
       </div>
     );
@@ -114,7 +195,7 @@ const MyCalendar = () => {
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
-    width: "80%", // Increased width for grid layout
+    width: "80%",
     maxWidth: "900px",
     bgcolor: "background.paper",
     boxShadow: 24,
@@ -122,15 +203,6 @@ const MyCalendar = () => {
     borderRadius: 2,
     maxHeight: "90vh",
     overflow: "auto",
-    borderColor: "none",
-  };
-
-  const handleDatesSet = (dateInfo) => {
-    const startDate = dateInfo.start;
-    const endDate = dateInfo.end;
-
-    console.log("View Start Date:", startDate.toISOString().split("T")[0]);
-    console.log("View End Date:", endDate.toISOString().split("T")[0]);
   };
 
   const JobDetailItem = ({ label, value, fullWidth = false }) => (
@@ -152,10 +224,13 @@ const MyCalendar = () => {
     </Grid>
   );
 
+  const handleDatesSet = (dateInfo) => {
+    setSelectedDate(dateInfo.start);
+  };
+
   return (
     <div className="p-4">
       <FullCalendar
-        datesSet={handleDatesSet}
         plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
         initialView="dayGridMonth"
         height="600px"
@@ -165,21 +240,17 @@ const MyCalendar = () => {
         eventDrop={handleEventDrop}
         eventContent={renderEventContent}
         eventClick={handleEventClick}
+        datesSet={handleDatesSet}
         headerToolbar={{
           left: "prev,next today",
           center: "title",
-          right: "dayGridMonth,timeGridWeek,timeGridDay,customView",
-        }}
-        views={{
-          customView: {
-            type: "dayGrid",
-            duration: { days: 4 },
-            buttonText: "Custom",
-          },
+          right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek",
         }}
         slotMinTime="08:00:00"
         slotMaxTime="20:00:00"
+        loading={fetchingData}
       />
+
       <Modal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -241,16 +312,27 @@ const MyCalendar = () => {
                 />
 
                 <JobDetailItem
-                  label="Start Time"
-                  value={selectedEvent.job_start_time || "09:00 AM"}
+                  label="Last Scheduled"
+                  value={
+                    selectedEvent.reschedule_dates?.length > 0
+                      ? format(
+                          new Date(
+                            selectedEvent.reschedule_dates[
+                              selectedEvent.reschedule_dates.length - 1
+                            ].job_date
+                          ),
+                          "MMM dd, yyyy hh:mm a"
+                        )
+                      : format(
+                          new Date(
+                            `${selectedEvent.job_date}T${
+                              selectedEvent.job_start_time || "09:00:00"
+                            }`
+                          ),
+                          "MMM dd, yyyy hh:mm a"
+                        )
+                  }
                 />
-
-                <JobDetailItem
-                  label="End Time"
-                  value={selectedEvent.job_end_time || "10:00 AM"}
-                />
-
-                <JobDetailItem label="Date" value={selectedEvent.job_date} />
 
                 <JobDetailItem
                   label="Total Amount"
@@ -260,11 +342,29 @@ const MyCalendar = () => {
                       : "N/A"
                   }
                 />
-              </Grid>
 
-              <div>
-                <Link href="/">View Details</Link>
-              </div>
+                {selectedEvent.reschedule_dates?.length > 0 && (
+                  <JobDetailItem
+                    label="Reschedule History"
+                    value={
+                      <div className="space-y-1">
+                        {selectedEvent.reschedule_dates.map(
+                          (reschedule, index) => (
+                            <div key={index} className="text-sm">
+                              {format(
+                                new Date(reschedule.job_date),
+                                "MMM dd, yyyy hh:mm a"
+                              )}
+                              {reschedule.reason && ` - ${reschedule.reason}`}
+                            </div>
+                          )
+                        )}
+                      </div>
+                    }
+                    fullWidth
+                  />
+                )}
+              </Grid>
             </>
           )}
         </Box>
