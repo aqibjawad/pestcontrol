@@ -193,7 +193,7 @@ const MyCalendar = () => {
           borderLeft: `4px solid ${eventInfo.event.backgroundColor}`,
         }}
       >
-        <div className="text-xs font-medium">{eventInfo.event.title}</div>
+        {/* <div className="text-xs font-medium">{eventInfo.event.title}</div> */}
         <div className="text-xs text-gray-600">
           {jobData?.user?.client?.firm_name || "No Client Name"}
         </div>

@@ -11,6 +11,9 @@ import {
   Grid,
   Typography,
   Skeleton,
+  IconButton,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import APICall from "@/networkUtil/APICall";
 import { clients } from "@/networkUtil/Constants";
@@ -23,6 +26,7 @@ import Swal from "sweetalert2";
 
 import { useRouter } from "next/navigation";
 import { Router } from "next/router";
+import { MoreVerticalIcon } from "lucide-react";
 
 const AllClients = () => {
   const api = new APICall();
@@ -44,6 +48,19 @@ const AllClients = () => {
   const [mobile_number, setMobNumber] = useState("");
   const [industry_name, setIndustryName] = useState("");
   const [opening_balance, setOpeningBalance] = useState(0);
+
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [activeRow, setActiveRow] = useState(null);
+
+  const handleClick = (event, index) => {
+    setAnchorEl(event.currentTarget);
+    setActiveRow(index);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+    setActiveRow(null);
+  };
 
   // State for form inputs
   const handleClickOpen = () => {
@@ -155,6 +172,110 @@ const AllClients = () => {
                 Balance
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {allClientsList?.map((row, index) => (
+              <tr key={index} className="border-b border-gray-200">
+                <td className="py-5 px-4">{index + 1}</td>
+                <td className="py-5 px-4">{row.name}</td>
+                <td className="py-5 px-4">{row?.client.referencable?.name}</td>
+                <td className="py-2 px-4">{row?.client?.phone_number}</td>
+                <td className="py-5 px-4">{row.email}</td>
+                <td className="py-2 px-4">{row?.client?.firm_name}</td>
+                <td className="py-2 px-4">
+                  {AppHelpers.convertDate(row.created_at)}
+                </td>
+                <td className="py-5 px-4">{row.current_balance}</td>
+                <td className="py-2 px-4">
+                  <IconButton
+                    aria-label="more"
+                    aria-controls={`action-menu-${index}`}
+                    aria-haspopup="true"
+                    onClick={(e) => handleClick(e, index)}
+                  >
+                    <MoreVerticalIcon />
+                  </IconButton>
+                  <Menu
+                    id={`action-menu-${index}`}
+                    anchorEl={anchorEl}
+                    keepMounted
+                    open={activeRow === index && Boolean(anchorEl)}
+                    onClose={handleCloseMenu}
+                  >
+                    <MenuItem onClick={handleCloseMenu}>
+                      <Link
+                        href={`/client/clientLedger/?id=${
+                          row.id
+                        }&name=${encodeURIComponent(
+                          row.name
+                        )}&phone_number=${encodeURIComponent(
+                          row?.client?.phone_number
+                        )}`}
+                        className="text-gray-700 w-full"
+                      >
+                        View Ledger
+                      </Link>
+                    </MenuItem>
+                    <MenuItem onClick={handleCloseMenu}>
+                      <Link
+                        href={`/serviceInvoices/add?id=${
+                          row.id
+                        }&name=${encodeURIComponent(row.name)}`}
+                        className="text-gray-700 w-full"
+                      >
+                        Add Payment
+                      </Link>
+                    </MenuItem>
+                    <MenuItem onClick={handleCloseMenu}>
+                      <Link
+                        href={`/address?id=${row.id}&name=${encodeURIComponent(
+                          row.name
+                        )}&phone_number=${encodeURIComponent(
+                          row?.client?.phone_number
+                        )}`}
+                        className="text-gray-700 w-full"
+                      >
+                        Add Address
+                      </Link>
+                    </MenuItem>
+                  </Menu>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* <table className="min-w-full bg-white">
+          <thead>
+            <tr>
+              <th className="py-5 px-4 border-b border-gray-200 text-left">
+                Sr No
+              </th>
+              <th className="py-5 px-4 border-b border-gray-200 text-left">
+                Client Name
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Sales Man
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Phone Number
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Email
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Firm
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Date
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Balance
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
                 View Ledger
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
@@ -220,7 +341,7 @@ const AllClients = () => {
               </tr>
             ))}
           </tbody>
-        </table>
+        </table> */}
 
         {/* Pagination Component */}
         {/* <div className="flex justify-center py-4">
