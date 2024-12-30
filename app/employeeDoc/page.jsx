@@ -52,6 +52,7 @@ const InsuranceForm = () => {
 
   const [id, setId] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
+
   const [formState, setFormState] = useState({
     status: "pending",
     startDate: "",
@@ -88,48 +89,16 @@ const InsuranceForm = () => {
 
   const handleUpdate = async () => {
     try {
-      // Create FormData object
-      const formData = new FormData();
-
-      // Append all required fields
-      formData.append("user_id", id);
-      formData.append("name", tabData[activeTab]);
-      formData.append("status", formState.status);
-
-      if (formState.startDate) {
-        formData.append("start", formState.startDate);
-      }
-
-      if (formState.expiryDate) {
-        formData.append("expiry", formState.expiryDate);
-      }
-
-      // Description field
-      formData.append("desc", formState.description || "");
-
-      // File handling
-      if (selectedFile) {
-        formData.append("file", selectedFile);
-      }
-
-      // Process date and amount for specific tabs
-      if (activeTab === 1 || activeTab === 6) {
-        if (formState.processDate) {
-          formData.append("process_date", formState.processDate);
-        }
-        if (formState.processAmount) {
-          formData.append("process_amt", formState.processAmount);
-        }
-      }
-
-      // Log FormData contents for debugging
-      for (let pair of formData.entries()) {
-        console.log(pair[0], pair[1]);
-      }
+      const obj = {
+        user_id: id,
+        name: tabData[activeTab],
+        status: formState.status,
+        image: selectedFile,
+      };
 
       const response = await api.postFormDataWithToken(
         `${getAllEmpoyesUrl}/update_docs`,
-        formData
+        obj
       );
 
       if (response.status === "success") {
@@ -185,7 +154,6 @@ const InsuranceForm = () => {
 
   const renderGrids = () => {
     const showFirstGrid = activeTab === 1 || activeTab === 6;
-    const showSecondGrid = activeTab !== 1;
 
     if (changeStatus && activeTab === 8) {
       return null;
@@ -209,11 +177,6 @@ const InsuranceForm = () => {
                   value="pending"
                   control={<Radio />}
                   label="Pending"
-                />
-                <FormControlLabel
-                  value="inProcess"
-                  control={<Radio />}
-                  label="In Process"
                 />
                 <FormControlLabel
                   value="done"
@@ -268,115 +231,140 @@ const InsuranceForm = () => {
           </Paper>
         )}
 
-        {showSecondGrid && (
-          <Paper className="p-4 mt-4">
-            <Typography variant="h6" className="mb-4">
-              {tabData[activeTab]}
-            </Typography>
+        <Paper className="p-4 mt-4">
+          <Typography variant="h6" className="mb-4">
+            {tabData[activeTab]}
+          </Typography>
 
-            <Box className="mb-4">
-              <Typography className="mb-2">Status</Typography>
-              <RadioGroup
-                row
-                value={formState.status}
-                onChange={(e) => {
-                  handleFormChange("status")(e);
-                  if (activeTab === 2) {
-                    setChangeStatus(e.target.value === "done");
-                  }
-                }}
-              >
-                <FormControlLabel
-                  value="pending"
-                  control={<Radio />}
-                  label="Pending"
-                />
-                <FormControlLabel
-                  value="inProcess"
-                  control={<Radio />}
-                  label="In Process"
-                />
-                <FormControlLabel
-                  value="done"
-                  control={<Radio />}
-                  label="Done"
-                />
-              </RadioGroup>
-            </Box>
-
-            <Grid item xs={12}>
-              <Box className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                <Typography className="mb-2">Upload Picture</Typography>
-                <Typography className="text-sm text-gray-500">
-                  Browse and choose the files you want to upload from your
-                  computer
-                </Typography>
-                <input
-                  type="file"
-                  id="file-upload"
-                  className="hidden"
-                  onChange={handleFileChange}
-                  accept="image/*"
-                />
-                <label htmlFor="file-upload">
-                  <IconButton color="primary" component="span" className="mt-2">
-                    <Upload />
-                  </IconButton>
-                </label>
-                {selectedFile && (
-                  <Typography className="mt-2 text-sm">
-                    Selected: {selectedFile.name}
-                  </Typography>
-                )}
-              </Box>
-            </Grid>
-
-            <Grid className="mt-5" container spacing={3}>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  type="date"
-                  label="Start Date"
-                  value={formState.startDate}
-                  onChange={handleFormChange("startDate")}
-                  variant="outlined"
-                  InputLabelProps={{ shrink: true }}
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  type="date"
-                  label="Expiry Date"
-                  value={formState.expiryDate}
-                  onChange={handleFormChange("expiryDate")}
-                  variant="outlined"
-                  InputLabelProps={{ shrink: true }}
-                />
-              </Grid>
-            </Grid>
-
-            <TextField
-              fullWidth
-              multiline
-              rows={4}
-              label="Description"
-              value={formState.description}
-              onChange={handleFormChange("description")}
-              variant="outlined"
-              className="mt-4"
-            />
-
-            <Button
-              variant="contained"
-              color="primary"
-              className="mt-4"
-              onClick={handleUpdate}
+          <Box className="mb-4">
+            <Typography className="mb-2">Status</Typography>
+            <RadioGroup
+              row
+              value={formState.status}
+              onChange={(e) => {
+                handleFormChange("status")(e);
+                setChangeStatus(e.target.value === "done");
+              }}
             >
-              Update
-            </Button>
-          </Paper>
-        )}
+              <FormControlLabel
+                value="pending"
+                control={<Radio />}
+                label="Pending"
+              />
+              <FormControlLabel
+                value="inProcess"
+                control={<Radio />}
+                label="In Process"
+              />
+              <FormControlLabel value="done" control={<Radio />} label="Done" />
+            </RadioGroup>
+          </Box>
+
+          {formState.status === "inProcess" && (
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  type="date"
+                  label="Process Date"
+                  value={formState.processDate}
+                  onChange={handleFormChange("processDate")}
+                  variant="outlined"
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label="Process Amount"
+                  value={formState.processAmount}
+                  onChange={handleFormChange("processAmount")}
+                  variant="outlined"
+                />
+              </Grid>
+            </Grid>
+          )}
+
+          {formState.status === "done" && (
+            <>
+              <Grid item xs={12}>
+                <Box className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                  <Typography className="mb-2">Upload Picture</Typography>
+                  <Typography className="text-sm text-gray-500">
+                    Browse and choose the files you want to upload from your
+                    computer
+                  </Typography>
+                  <input
+                    type="file"
+                    id="file-upload"
+                    className="hidden"
+                    onChange={handleFileChange}
+                    accept="image/*"
+                  />
+                  <label htmlFor="file-upload">
+                    <IconButton
+                      color="primary"
+                      component="span"
+                      className="mt-2"
+                    >
+                      <Upload />
+                    </IconButton>
+                  </label>
+                  {selectedFile && (
+                    <Typography className="mt-2 text-sm">
+                      Selected: {selectedFile.name}
+                    </Typography>
+                  )}
+                </Box>
+              </Grid>
+
+              <Grid className="mt-5" container spacing={3}>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    type="date"
+                    label="Start Date"
+                    value={formState.startDate}
+                    onChange={handleFormChange("startDate")}
+                    variant="outlined"
+                    InputLabelProps={{ shrink: true }}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    type="date"
+                    label="Expiry Date"
+                    value={formState.expiryDate}
+                    onChange={handleFormChange("expiryDate")}
+                    variant="outlined"
+                    InputLabelProps={{ shrink: true }}
+                  />
+                </Grid>
+              </Grid>
+
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                label="Description"
+                value={formState.description}
+                onChange={handleFormChange("description")}
+                variant="outlined"
+                className="mt-4"
+              />
+            </>
+          )}
+
+          <Button
+            variant="contained"
+            color="primary"
+            className="mt-4"
+            onClick={handleUpdate}
+          >
+            Update
+          </Button>
+        </Paper>
       </Box>
     );
   };
