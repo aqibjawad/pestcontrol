@@ -16,6 +16,7 @@ import {
   Tab,
   Box,
   CircularProgress,
+  Skeleton,
 } from "@mui/material";
 import { Upload } from "lucide-react";
 import APICall from "@/networkUtil/APICall";
@@ -276,8 +277,18 @@ const InsuranceForm = () => {
     };
   };
 
-  // Rest of the component remains the same...
   const renderGrids = () => {
+    if (fetchingData) {
+      return (
+        <Box className="space-y-6">
+          <Skeleton variant="rectangular" height={40} />
+          <Skeleton variant="rectangular" height={80} />
+          <Skeleton variant="rectangular" height={200} />
+          <Skeleton variant="rectangular" height={50} />
+        </Box>
+      );
+    }
+
     const showFirstGrid = activeTab === 1 || activeTab === 6;
 
     if (changeStatus && activeTab === 8) {
@@ -513,25 +524,37 @@ const InsuranceForm = () => {
       <Grid container spacing={3}>
         <Grid item xs={12} md={3}>
           <Card className="p-4">
-            <Tabs
-              orientation="vertical"
-              value={activeTab}
-              onChange={handleTabChange}
-              indicatorColor="primary"
-              textColor="primary"
-            >
-              {tabData.map((tab, index) => (
-                <Tab
+            {fetchingData ? (
+              // Display skeleton loaders for tabs
+              Array.from({ length: tabData.length }).map((_, index) => (
+                <Skeleton
                   key={index}
-                  label={tab}
-                  style={getTabStyle(index)}
-                  disabled={
-                    !activeTabs.includes(index) &&
-                    !completedTabs.includes(index)
-                  }
+                  variant="rectangular"
+                  height={40}
+                  className="mb-2"
                 />
-              ))}
-            </Tabs>
+              ))
+            ) : (
+              <Tabs
+                orientation="vertical"
+                value={activeTab}
+                onChange={handleTabChange}
+                indicatorColor="primary"
+                textColor="primary"
+              >
+                {tabData.map((tab, index) => (
+                  <Tab
+                    key={index}
+                    label={tab}
+                    style={getTabStyle(index)}
+                    disabled={
+                      !activeTabs.includes(index) &&
+                      !completedTabs.includes(index)
+                    }
+                  />
+                ))}
+              </Tabs>
+            )}
           </Card>
         </Grid>
 
