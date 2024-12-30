@@ -52,7 +52,7 @@ const InsuranceForm = () => {
   const api = new APICall();
 
   const [id, setId] = useState(null);
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFile, setSelectedFile] = useState("");
   const [currentDocData, setCurrentDocData] = useState(null);
 
   const [formState, setFormState] = useState({
@@ -232,7 +232,7 @@ const InsuranceForm = () => {
           }
         }
 
-        setSelectedFile(null);
+        setSelectedFile("");
       } else {
         Swal.fire({
           icon: "error",
@@ -253,8 +253,6 @@ const InsuranceForm = () => {
   };
 
   const handleTabChange = (event, newValue) => {
-    // Only allow changing to a tab if it's completed or active
-    // For tabs after the first one, also check if the first tab is completed
     if (
       newValue === 0 ||
       (completedTabs.includes(0) &&
