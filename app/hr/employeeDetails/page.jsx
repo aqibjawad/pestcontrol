@@ -231,6 +231,7 @@ const Page = () => {
                     <th className="p-3 text-left border">Document Name</th>
                     <th className="p-3 text-left border">Start Date</th>
                     <th className="p-3 text-left border">Expiry Date</th>
+                    <th className="p-3 text-left border"> Documents </th>
                     <th className="p-3 text-left border">Status</th>
                     <th className="p-3 text-left border">Update</th>
                   </tr>
@@ -268,18 +269,29 @@ const Page = () => {
                             <tr key={doc.id} className="hover:bg-gray-50">
                               <td className="p-3 border">{doc.name}</td>
                               <td className="p-3 border">{doc.start}</td>
-                              <td className="p-3 border">{doc.expiry}</td>
+                              <td className="p-3 border">
+                                {doc.expiry || doc?.process_date}
+                              </td>
+                              <td className="p-3 border">
+                                <div className="flex gap-2 items-center">
+                                  <a
+                                    href={doc?.file}
+                                    download
+                                    className="text-blue-600 hover:text-blue-800"
+                                  >
+                                    Download
+                                  </a>
+                                </div>
+                              </td>
                               <td className="p-3 border">
                                 <span
                                   className={`px-2 py-1 rounded ${statusClass}`}
                                 >
-                                  {status}
+                                  {doc?.status}
                                 </span>
                               </td>
                               <td className="p-3 border">
-                                <Link
-                                  href={`/employeeDoc?id=${doc.id}`}
-                                >
+                                <Link href={`/employeeDoc?id=${doc.id}`}>
                                   Update
                                 </Link>
                               </td>
@@ -291,6 +303,7 @@ const Page = () => {
                               <td className="p-3 border">{docName}</td>
                               <td className="p-3 border">-</td>
                               <td className="p-3 border">-</td>
+                              <td className="p-3 border"> Missing </td>
                               <td className="p-3 border">
                                 <span className="px-2 py-1 rounded bg-red-100 text-red-600">
                                   Missing
