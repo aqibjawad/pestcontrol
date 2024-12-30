@@ -188,7 +188,7 @@ const InsuranceForm = () => {
         start: formState.startDate,
         expiry: formState.expiryDate,
         process_date: formState.processDate,
-        process_amount: formState.processAmount,
+        process_amt: formState.processAmount,
         desc: formState.description,
       };
 
