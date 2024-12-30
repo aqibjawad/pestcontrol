@@ -40,13 +40,15 @@ const UpcomingJobs = ({
 
   // Filter jobs based on search term and selected area
   useEffect(() => {
-    const filtered = jobsList?.filter((job) => {
-      const nameMatch = job?.user?.name
+    if (!jobsList) return;
+
+    const filtered = jobsList.filter((job) => {
+      const jobTitleMatch = job?.job_title
         ?.toLowerCase()
         .includes(searchTerm.toLowerCase());
       const areaMatch =
         !selectedArea || job?.client_address?.area === selectedArea;
-      return nameMatch && areaMatch;
+      return jobTitleMatch && areaMatch;
     });
 
     const limitedJobs = isDashboard ? filtered?.slice(0, 10) : filtered;
@@ -71,91 +73,72 @@ const UpcomingJobs = ({
     setSelectedArea(e.target.value);
   };
 
+  const getStatusText = (status) => {
+    switch (status) {
+      case 0:
+        return "Not Started";
+      case 1:
+        return "Completed";
+      case 2:
+        return "In Progress";
+      default:
+        return "Unknown";
+    }
+  };
+
+  const formatDateTime = (dateString) => {
+    return new Date(dateString).toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   const renderJobRows = () =>
     filteredJobs?.map((row, index) => (
-      <tr key={index} className="border-b border-gray-200">
+      <tr key={row.id} className="border-b border-gray-200">
         <td>{row.id}</td>
         <td>
-          <div className={styles.clientName}>{row?.user?.name}</div>
+          <div className={styles.clientName}>Job Title: {row.job_title}</div>
           <div className={styles.clientEmail}>
-            {`${new Date(row.job_date).toLocaleDateString("en-US", {
+            {new Date(row.job_date).toLocaleDateString("en-US", {
               month: "short",
               day: "numeric",
               year: "numeric",
-            })}`}
-          </div>
-          <div className={styles.clientPhone}>
-            {row?.user?.client?.phone_number}
+            })}
           </div>
           <div className={styles.clientArea}>
             {row?.client_address?.area || "No Area Specified"}
           </div>
         </td>
-        <td>{row?.user?.client?.firm_name}</td>
+        <td>{row?.term_and_condition?.name}</td>
         <td>{row.job_title}</td>
         <td>
           <div className={styles.statusContainer}>
-            {row.is_completed === 0 && "Not Started"}
-            {row.is_completed === 1 && "Completed"}
-            {row.is_completed === 2 && "In Progress"}
+            {getStatusText(row.is_completed)}
           </div>
         </td>
         <td>
-          <div className={styles.statusContainer}>High</div>
+          <div className={styles.statusContainer}>{row.priority}</div>
         </td>
         <td>
           <div className={styles.teamCaptainName}>
             {row.reschedule_dates?.length > 1 ? (
-              <td>
-                <div className={styles.teamCaptainName}>
-                  {row.reschedule_dates?.length > 1 ? (
-                    <span style={{ color: "red", fontSize: "15px" }}>
-                      <div style={{ textAlign: "center" }}> Reschedule </div>
-                      <br />
-                      {new Date(
-                        row.reschedule_dates[
-                          row.reschedule_dates.length - 1
-                        ].job_date
-                      ).toLocaleString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                  ) : (
-                    <span style={{ fontSize: "15px" }}>
-                      Regular
-                      <br />
-                      {new Date(
-                        row.reschedule_dates[0].job_date
-                      ).toLocaleString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                  )}
-                </div>
-              </td>
+              <span style={{ color: "red", fontSize: "15px" }}>
+                <div style={{ textAlign: "center" }}>Reschedule</div>
+                <br />
+                {formatDateTime(
+                  row.reschedule_dates[row.reschedule_dates.length - 1].job_date
+                )}
+              </span>
             ) : (
               <span style={{ fontSize: "15px" }}>
                 Regular
                 <br />
                 {row.reschedule_dates?.[0]?.job_date &&
-                  new Date(row.reschedule_dates[0].job_date).toLocaleString(
-                    "en-US",
-                    {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    }
-                  )}
+                  formatDateTime(row.reschedule_dates[0].job_date)}
               </span>
             )}
           </div>
@@ -176,19 +159,16 @@ const UpcomingJobs = ({
             {row.is_completed === 1 ? (
               row.report === null ? (
                 <Link href={`/serviceReport?id=${row.id}`}>
-                  <GreenButton
-                    onClick={assignedJob}
-                    title="Create Service Report"
-                  />
+                  <GreenButton title="Create Service Report" />
                 </Link>
               ) : (
                 <Link href={`/serviceRpoertPdf?id=${row?.report?.id}`}>
-                  <GreenButton onClick={assignedJob} title="View Report" />
+                  <GreenButton title="View Report" />
                 </Link>
               )
             ) : (
               <Link href={`/viewJob?id=${row.id}`}>
-                <GreenButton onClick={assignedJob} title="View Details" />
+                <GreenButton title="View Details" />
               </Link>
             )}
           </div>

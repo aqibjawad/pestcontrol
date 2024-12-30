@@ -207,6 +207,21 @@ const AllClients = () => {
                   >
                     <MenuItem onClick={handleCloseMenu}>
                       <Link
+                        href={`/client/clientsJobs/?id=${
+                          row.id
+                        }&name=${encodeURIComponent(
+                          row.name
+                        )}&phone_number=${encodeURIComponent(
+                          row?.client?.phone_number
+                        )}`}
+                        className="text-gray-700 w-full"
+                      >
+                        View Jobs
+                      </Link>
+                    </MenuItem>
+
+                    <MenuItem onClick={handleCloseMenu}>
+                      <Link
                         href={`/client/clientLedger/?id=${
                           row.id
                         }&name=${encodeURIComponent(
