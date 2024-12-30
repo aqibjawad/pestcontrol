@@ -15,7 +15,7 @@ import {
   Tabs,
   Tab,
   Box,
-  CircularProgress
+  CircularProgress,
 } from "@mui/material";
 import { Upload } from "lucide-react";
 import APICall from "@/networkUtil/APICall";
@@ -87,7 +87,6 @@ const InsuranceForm = () => {
   }, []);
 
   useEffect(() => {
-    // Find and set the current document data when tab changes
     const currentDoc = employeeList.find(
       (doc) => doc.name === tabData[activeTab]
     );
@@ -124,18 +123,31 @@ const InsuranceForm = () => {
         const documents = response.data.employee.documents;
         setEmployeeList(documents);
 
-        const completedDocs = documents.filter((doc) => doc.status === "done");
-        const completedIndices = completedDocs.map((doc) =>
-          tabData.indexOf(doc.name)
-        );
-        setCompletedTabs(completedIndices);
+        // Find the first document's status
+        const firstDoc = documents.find((doc) => doc.name === tabData[0]);
+        const isFirstDone = firstDoc?.status === "done";
 
-        const maxCompletedIndex = Math.max(...completedIndices, 0);
-        const activeTabsList = [...completedIndices];
-        if (maxCompletedIndex + 1 < tabData.length) {
-          activeTabsList.push(maxCompletedIndex + 1);
+        // Only set completed tabs and active tabs if first document is done
+        if (isFirstDone) {
+          const completedDocs = documents.filter(
+            (doc) => doc.status === "done"
+          );
+          const completedIndices = completedDocs.map((doc) =>
+            tabData.indexOf(doc.name)
+          );
+          setCompletedTabs(completedIndices);
+
+          const maxCompletedIndex = Math.max(...completedIndices, 0);
+          const activeTabsList = [...completedIndices];
+          if (maxCompletedIndex + 1 < tabData.length) {
+            activeTabsList.push(maxCompletedIndex + 1);
+          }
+          setActiveTabs(activeTabsList);
+        } else {
+          // If first document is not done, only first tab is active
+          setCompletedTabs([]);
+          setActiveTabs([0]);
         }
-        setActiveTabs(activeTabsList);
 
         const updatedStatus = documents.map((doc) => doc.status === "done");
         setStatusCompleted(updatedStatus);
@@ -166,18 +178,18 @@ const InsuranceForm = () => {
   };
 
   const handleUpdate = async () => {
-    setLoading(true); // Start loading
+    setLoading(true);
     try {
       const obj = {
         user_id: id,
         name: tabData[activeTab],
         status: formState.status,
-        image: selectedFile,
-        start_date: formState.startDate,
-        expiry_date: formState.expiryDate,
+        file: selectedFile,
+        start: formState.startDate,
+        expiry: formState.expiryDate,
         process_date: formState.processDate,
         process_amount: formState.processAmount,
-        description: formState.description,
+        desc: formState.description,
       };
 
       const response = await api.postFormDataWithToken(
@@ -200,15 +212,23 @@ const InsuranceForm = () => {
         setStatusCompleted(updatedStatus);
 
         if (formState.status === "done") {
-          const newCompletedTabs = [...completedTabs, activeTab].sort(
-            (a, b) => a - b
-          );
-          setCompletedTabs(newCompletedTabs);
+          // Only proceed to next tab if current tab is completed and it's either
+          // the first tab or previous tabs are completed
+          const isFirstTab = activeTab === 0;
+          const previousTabsCompleted =
+            isFirstTab || completedTabs.includes(activeTab - 1);
 
-          const nextTab = activeTab + 1;
-          if (nextTab < tabData.length) {
-            setActiveTabs([...new Set([...activeTabs, nextTab])]);
-            setActiveTab(nextTab);
+          if (previousTabsCompleted) {
+            const newCompletedTabs = [...completedTabs, activeTab].sort(
+              (a, b) => a - b
+            );
+            setCompletedTabs(newCompletedTabs);
+
+            const nextTab = activeTab + 1;
+            if (nextTab < tabData.length) {
+              setActiveTabs([...new Set([...activeTabs, nextTab])]);
+              setActiveTab(nextTab);
+            }
           }
         }
 
@@ -228,25 +248,37 @@ const InsuranceForm = () => {
         text: "An error occurred while submitting the form",
       });
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false);
     }
   };
 
   const handleTabChange = (event, newValue) => {
-    if (completedTabs.includes(newValue) || activeTabs.includes(newValue)) {
+    // Only allow changing to a tab if it's completed or active
+    // For tabs after the first one, also check if the first tab is completed
+    if (
+      newValue === 0 ||
+      (completedTabs.includes(0) &&
+        (completedTabs.includes(newValue) || activeTabs.includes(newValue)))
+    ) {
       setActiveTab(newValue);
     }
   };
 
   const getTabStyle = (index) => {
+    const isFirstTabDone = completedTabs.includes(0);
     return {
       color: completedTabs.includes(index) ? "green" : "inherit",
       fontWeight: completedTabs.includes(index) ? "bold" : "normal",
       opacity:
-        activeTabs.includes(index) || completedTabs.includes(index) ? 1 : 0.5,
+        index === 0 ||
+        (isFirstTabDone &&
+          (activeTabs.includes(index) || completedTabs.includes(index)))
+          ? 1
+          : 0.5,
     };
   };
 
+  // Rest of the component remains the same...
   const renderGrids = () => {
     const showFirstGrid = activeTab === 1 || activeTab === 6;
 
@@ -320,7 +352,7 @@ const InsuranceForm = () => {
               color="primary"
               className="mt-4"
               onClick={handleUpdate}
-              disabled={loading} // Disable the button while loading
+              disabled={loading}
             >
               {loading ? (
                 <CircularProgress size={24} color="inherit" />
@@ -464,8 +496,13 @@ const InsuranceForm = () => {
               color="primary"
               className="mt-4"
               onClick={handleUpdate}
+              disabled={loading}
             >
-              Update
+              {loading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                "Update"
+              )}
             </Button>
           </Paper>
         )}
