@@ -27,6 +27,7 @@ import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import { Router } from "next/router";
 import { MoreVerticalIcon } from "lucide-react";
+import InputWithTitleWithClearButton from "../../components/generic/InputWithTitleWithClearButton";
 
 const AllClients = () => {
   const api = new APICall();
@@ -48,7 +49,8 @@ const AllClients = () => {
   const [mobile_number, setMobNumber] = useState("");
   const [industry_name, setIndustryName] = useState("");
   const [opening_balance, setOpeningBalance] = useState(0);
-
+  const [filterClientName, setFilterClientName] = useState();
+  const [allClients, setAllClients] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [activeRow, setActiveRow] = useState(null);
 
@@ -263,101 +265,6 @@ const AllClients = () => {
           </tbody>
         </table>
 
-        {/* <table className="min-w-full bg-white">
-          <thead>
-            <tr>
-              <th className="py-5 px-4 border-b border-gray-200 text-left">
-                Sr No
-              </th>
-              <th className="py-5 px-4 border-b border-gray-200 text-left">
-                Client Name
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Sales Man
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Phone Number
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Email
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Firm
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Date
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Balance
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                View Ledger
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Add Payment
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Add Address
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {allClientsList?.map((row, index) => (
-              <tr key={index} className="border-b border-gray-200">
-                <td className="py-5 px-4">{index + 1}</td>
-                <td className="py-5 px-4">{row.name}</td>
-                <td className="py-5 px-4">{row?.client.referencable?.name}</td>
-                <td className="py-2 px-4">{row?.client?.phone_number}</td>
-                <td className="py-5 px-4">{row.email}</td>
-                <td className="py-2 px-4">{row?.client?.firm_name}</td>
-                <td className="py-2 px-4">
-                  {AppHelpers.convertDate(row.created_at)}
-                </td>
-                <td className="py-5 px-4">{row.current_balance}</td>
-                <td>
-                  <Link
-                    href={`/client/clientLedger/?id=${
-                      row.id
-                    }&name=${encodeURIComponent(
-                      row.name
-                    )}&phone_number=${encodeURIComponent(
-                      row?.client?.phone_number
-                    )}`}
-                  >
-                    <span className="text-blue-600 hover:text-blue-800">
-                      View Ledger
-                    </span>
-                  </Link>
-                </td>
-                <td>
-                  <Link
-                    href={`/serviceInvoices/add?id=${
-                      row.id
-                    }&name=${encodeURIComponent(row.name)}`}
-                  >
-                    <span className="text-blue-600 hover:text-blue-800">
-                      Add Payment
-                    </span>
-                  </Link>
-                </td>
-                <td>
-                  <Link
-                    href={`/address?id=${row.id}&name=${encodeURIComponent(
-                      row.name
-                    )}&phone_number=${encodeURIComponent(
-                      row?.client?.phone_number
-                    )}`}
-                  >
-                    <span className="text-blue-600 hover:text-blue-800">
-                      Add Address
-                    </span>
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table> */}
-
         {/* Pagination Component */}
         {/* <div className="flex justify-center py-4">
           <button className="px-3 py-1 bg-gray-200 rounded-full">1</button>
@@ -391,14 +298,7 @@ const AllClients = () => {
     try {
       const response = await api.getDataWithToken(clients);
       setAllClientsList(response.data);
-      const clientsList = response.data.map((item) => ({
-        name: item.name,
-        email: item.email,
-        phone: item.client[0].phone_number,
-        firm_name: item.client[0].firm_name,
-        date: item.created_at,
-      }));
-      setClientsList(clientsList);
+      setAllClients(response.data);
     } catch (error) {
       console.error(error.message);
     } finally {
@@ -458,6 +358,34 @@ const AllClients = () => {
     }
   };
 
+  const handleFilterByName = (value) => {
+    setFilterClientName(value);
+  };
+
+  useEffect(() => {
+    if (filterClientName) {
+      if (filterClientName.length > 0) {
+        const searchTerm = filterClientName.toLowerCase();
+        const filtered = allClients.filter(
+          (client) =>
+            client?.name?.toLowerCase().includes(searchTerm) ||
+            client?.email?.toLowerCase().includes(searchTerm) ||
+            client?.client.phone_number?.toLowerCase().includes(searchTerm) ||
+            client?.client.mobile_number?.toLowerCase().includes(searchTerm) ||
+            client?.client.referencable.name
+              ?.toLowerCase()
+              .includes(searchTerm) ||
+            client?.client?.firm_name?.toLowerCase().includes(searchTerm)
+        );
+        setAllClientsList(filtered);
+      } else {
+        setAllClientsList(allClients);
+      }
+    } else {
+      setAllClientsList(allClients);
+    }
+  }, [filterClientName]);
+
   return (
     <div>
       <div style={{ padding: "30px", borderRadius: "10px" }}>
@@ -477,7 +405,14 @@ const AllClients = () => {
             className="flex"
             style={{ display: "flex", alignItems: "center" }}
           >
+            <InputWithTitleWithClearButton
+              title={"Search Clients"}
+              onChange={handleFilterByName}
+              value={filterClientName}
+              placeholder="Search Clients"
+            />
             <div
+              className="ml-5 mt-7"
               onClick={handleClickOpen}
               style={{
                 backgroundColor: "#32A92E",
