@@ -316,6 +316,30 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
     e.preventDefault();
     setLoading(true);
 
+    // Validate required fields
+    if (!trn || !licenseNo || !generatedDates.length) {
+      // Swal.fire({
+      //   icon: "error",
+      //   title: "Error",
+      //   text: "Please ensure all required fields (TRN, License No, and Dates) are filled in.",
+      //   customClass: {
+      //     popup: "swal-custom-zindex", // Apply custom class
+      //   },
+      // });
+
+      alert("Please ensure all required fields (TRN, License No, and Dates) are filled in.")
+      setLoading(false);
+      return;
+    }
+
+    if (
+      !validateMonthlyDates(generatedDates) ||
+      (tabIndex === 0 && !isValidTotalDates)
+    ) {
+      setLoading(false);
+      return;
+    }
+
     if (
       !validateMonthlyDates(generatedDates) ||
       (tabIndex === 0 && !isValidTotalDates)
@@ -360,6 +384,7 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
           text: "Data has been added successfully!",
         });
         onClose();
+        window.location.reload();
       } else {
         throw new Error(response.error?.message || "Unknown error occurred");
       }
@@ -447,7 +472,7 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
                 onClick={handleFoodWatchLink}
                 style={{
                   backgroundColor:
-                    foodWatchStatus === "linked" ? "#4CAF50" : "#1976d2",
+                    foodWatchStatus === "linked" ? "#4CAF50" : "#D3D3D3",
                   color: "white",
                 }}
               >
@@ -458,7 +483,7 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
                 onClick={handleFoodWatchUnlink}
                 style={{
                   backgroundColor:
-                    foodWatchStatus === "unlinked" ? "#4CAF50" : "#1976d2",
+                    foodWatchStatus === "unlinked" ? "#4CAF50" : "#D3D3D3",
                   color: "white",
                 }}
               >

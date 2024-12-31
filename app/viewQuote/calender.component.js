@@ -34,12 +34,19 @@ const CalendarComponent = ({ onDateChange, initialDates = [] }) => {
     return selectedDates.map((dateStr) => new Date(dateStr));
   };
 
+  const filterDates = (date) => {
+    const day = date.getDate();
+    // Disable 29, 30, and 31
+    return day !== 29 && day !== 30 && day !== 31;
+  };
+
   return (
     <div className="w-full max-w-md mx-auto">
       <DatePicker
         onChange={handleDateChange}
         inline
         highlightDates={getHighlightedDates()}
+        filterDate={filterDates}
       />
       <div className="mt-4">
         <h3 className="font-medium">Selected Dates:</h3>

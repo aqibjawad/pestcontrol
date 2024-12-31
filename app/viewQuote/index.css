@@ -1,0 +1,3 @@
+.swal-custom-zindex {
+    z-index: 1350 !important; /* Adjust to a value higher than other modals */
+  }
