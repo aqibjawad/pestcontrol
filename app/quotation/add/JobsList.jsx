@@ -9,29 +9,28 @@ const JobsList = ({
   updateJobList,
   duration_in_months,
   numberOfJobs,
+  formData,
 }) => {
-
   const [totalJobs, setTotalJobs] = useState(0);
-
   const [rate, setRate] = useState(jobData.rate || 0);
-  const [noJobs, setNoJobs] = useState(jobData.no);
+  const [noJobs, setNoJobs] = useState(numberOfJobs || 0);
   const [selectedJobType, setSelectedJobType] = useState(jobData.jobType || "");
-  const [selectedDates, setSelectedDates] = useState(numberOfJobs || []);
+  const [selectedDates, setSelectedDates] = useState([]);
   const [subTotal, setSubTotal] = useState(jobData.subTotal || 0);
 
   const jobTypes = [
-    { label: "Yearly", value: "yearly" },
     { label: "Monthly", value: "monthly" },
-    { label: "Quaterly", value: "installments" },
+    { label: "Quarterly", value: "installments" },
   ];
 
   useEffect(() => {
+    // Calculate total jobs for the entire duration
     const calculatedTotalJobs = noJobs * duration_in_months;
     setTotalJobs(calculatedTotalJobs);
   }, [noJobs, duration_in_months]);
 
   useEffect(() => {
-    // Calculate subtotals
+    // Calculate subtotal and update parent
     const calculatedSubTotal = noJobs * rate;
     setSubTotal(calculatedSubTotal);
 
@@ -39,10 +38,11 @@ const JobsList = ({
       jobType: selectedJobType,
       rate: rate,
       service_id: jobData.service_id,
-      serviceName: jobData.serviceName,
-      no_of_jobs: totalJobs, // Make sure to pass the number of jobs
+      service_name: jobData.service_name,
+      no_of_jobs: totalJobs,
+      dates: selectedDates,
     });
-  }, [selectedDates, rate, selectedJobType, duration_in_months, noJobs]); 
+  }, [selectedDates, rate, selectedJobType, totalJobs, noJobs]);
 
   const handleJobTypeChange = (value) => {
     setSelectedJobType(value);
@@ -60,11 +60,10 @@ const JobsList = ({
     setSelectedService(value);
     const service = allServices.find((s) => s.id === value);
     if (service) {
-      // Update local state and parent component
       updateJobList({
         ...jobData,
         service_id: value,
-        serviceName: service.service_title,
+        service_name: service.pest_name,
       });
     }
   };
@@ -77,9 +76,9 @@ const JobsList = ({
     const uniqueServices = new Map();
 
     services.forEach((service) => {
-      if (!uniqueServices.has(service.service_title)) {
-        uniqueServices.set(service.service_title, {
-          label: service.service_title,
+      if (!uniqueServices.has(service.pest_name)) {
+        uniqueServices.set(service.pest_name, {
+          label: service.pest_name,
           value: service.id,
         });
       }
@@ -114,7 +113,7 @@ const JobsList = ({
 
         <Grid item lg={3} xs={4}>
           <InputWithTitle
-            title={`No of Jobs`}
+            title={`No of Jobs (Monthly)`}
             type="text"
             name="noJobs"
             placeholder="No of Jobs"
@@ -136,7 +135,7 @@ const JobsList = ({
 
         <Grid item xs={3}>
           <InputWithTitle
-            title="Sub Total for selected Jobs"
+            title="Sub Total"
             type="text"
             name="subTotal"
             placeholder="Sub Total"
@@ -144,17 +143,17 @@ const JobsList = ({
             readOnly
           />
         </Grid>
-
+{/* 
         <Grid item lg={2} xs={4}>
           <InputWithTitle
-            title="Total Jobs"
+            title="Total Jobs for Contract"
             type="text"
             name="totalJobs"
             placeholder="Total Jobs"
             value={totalJobs}
             readOnly
           />
-        </Grid>
+        </Grid> */}
       </Grid>
     </div>
   );

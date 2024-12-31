@@ -52,7 +52,7 @@ const Page = () => {
     processedQuoteServices: false,
   });
 
-  console.log("main page formData", formData);
+  console.log("test form Data", formData);
 
   const [loading, setLoading] = useState(false);
   const [fetchingData, setFetchingData] = useState(false);
@@ -77,16 +77,19 @@ const Page = () => {
   };
 
   const handleSubmit = async () => {
-    // Check the condition for duration_in_months
-    if (formData.duration_in_months % 3 !== 0) {
+    const hasInstallments = formData.services.some((service) =>
+      service.detail.some((detail) => detail.job_type === "installments")
+    );
+
+    if (hasInstallments && formData.duration_in_months % 3 !== 0) {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Duration in months must be a Quartarly",
+        text: "Duration in months must be Quarterly",
       });
-      return; // Stop further execution if the condition is not met
+      return;
     }
-
+    
     setLoading(true);
     try {
       const endpoint = `${quotation}/manage`;

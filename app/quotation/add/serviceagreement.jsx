@@ -5,14 +5,10 @@ import JobsList from "./JobsList";
 import ContractSummary from "./contract";
 import { Button } from "@mui/material";
 import { Grid } from "@mui/material";
-
 import Scope from "./scope";
-
 import Invoice from "./invoice";
 
 const ServiceAgreement = ({ setFormData, formData }) => {
-  
-
   const api = new APICall();
   const [allServices, setAllServices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -43,68 +39,37 @@ const ServiceAgreement = ({ setFormData, formData }) => {
     }
   };
 
-  const getUniqueServiceDates = (quoteServiceDates) => {
-    if (!quoteServiceDates || !Array.isArray(quoteServiceDates)) {
-      return [];
-    }
-
-    const uniqueDays = new Set();
-    const uniqueDates = [];
-
-    quoteServiceDates.forEach((dateObj) => {
-      if (!dateObj?.service_date) return;
-
-      const date = new Date(dateObj.service_date);
-
-      if (isNaN(date.getTime())) return;
-
-      const day = date.getDate();
-
-      if (!uniqueDays.has(day)) {
-        uniqueDays.add(day);
-
-        const formattedDate = `${date.getFullYear()}-${String(
-          date.getMonth() + 1
-        ).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-        uniqueDates.push(formattedDate);
-      }
-    });
-
-    return uniqueDates;
-  };
-
   useEffect(() => {
     if (
       formData.quote_services &&
       Array.isArray(formData.quote_services) &&
-      allServices.length > 0
+      allServices.length > 0 &&
+      formData.duration_in_months
     ) {
-      // Update checkbox states
-      const updatedServices = allServices.map((service) => ({
-        ...service,
-        isChecked: formData.quote_services.some(
-          (quoteService) => quoteService.service_id === service.id
-        ),
-      }));
-      setAllServices(updatedServices);
-
       // Transform quote_services to JobsList format
       const transformedServices = formData.quote_services.map(
-        (quoteService) => ({
-          service_id: quoteService.service_id,
-          service_name: quoteService.service.pest_name,
-          jobType: quoteService.job_type,
-          rate: parseFloat(quoteService.rate),
-          no_of_jobs: quoteService.no_of_jobs,
-          subTotal: parseFloat(quoteService.sub_total),
-          detail: [
-            {
-              job_type: quoteService.job_type,
-              rate: parseFloat(quoteService.rate),
-              no_of_jobs: quoteService.no_of_jobs,
-            },
-          ],
-        })
+        (quoteService) => {
+          const monthlyJobs = Math.round(
+            quoteService.no_of_services / formData.duration_in_months
+          );
+
+          return {
+            service_id: quoteService.service_id,
+            service_name: quoteService.service.pest_name,
+            jobType: quoteService.job_type,
+            rate: parseFloat(quoteService.rate),
+            no_of_jobs: monthlyJobs, // Monthly jobs after division
+            subTotal: parseFloat(quoteService.sub_total),
+            detail: [
+              {
+                job_type: quoteService.job_type,
+                rate: parseFloat(quoteService.rate),
+                dates: quoteService.quote_service_dates || [],
+                no_of_jobs: monthlyJobs,
+              },
+            ],
+          };
+        }
       );
 
       setFormData((prev) => ({
@@ -112,7 +77,11 @@ const ServiceAgreement = ({ setFormData, formData }) => {
         services: transformedServices,
       }));
     }
-  }, [formData.quote_services, allServices.length]);
+  }, [
+    formData.quote_services,
+    allServices.length,
+    formData.duration_in_months,
+  ]);
 
   useEffect(() => {
     getAllServices();
@@ -132,7 +101,7 @@ const ServiceAgreement = ({ setFormData, formData }) => {
     const selectedServices = allServices.filter((service) => service.isChecked);
 
     if (selectedServices.length === 0) {
-      alert("Please select at least one service before adding"); // Simple JavaScript alert
+      alert("Please select at least one service before adding");
       return;
     }
 
@@ -166,7 +135,6 @@ const ServiceAgreement = ({ setFormData, formData }) => {
       return { ...prev, services: newServices };
     });
 
-    // Update checkbox states when removing a job
     const removedService = formData.services[index];
     if (removedService) {
       setAllServices((prevServices) =>
@@ -187,12 +155,12 @@ const ServiceAgreement = ({ setFormData, formData }) => {
       newServices[index] = {
         ...newServices[index],
         ...updatedJob,
-        subTotal: updatedJob.no_of_jobs * updatedJob.rate, // Ensure subtotal is calculated correctly
+        subTotal: updatedJob.no_of_jobs * updatedJob.rate,
         detail: [
           {
             job_type: updatedJob.jobType,
             rate: updatedJob.rate,
-            dates: updatedJob.dates,
+            dates: updatedJob.dates || [],
             no_of_jobs: updatedJob.no_of_jobs,
           },
         ],
@@ -238,11 +206,7 @@ const ServiceAgreement = ({ setFormData, formData }) => {
           >
             <JobsList
               jobData={job}
-              numberOfJobs={
-                getUniqueServiceDates(
-                  formData?.quote_services?.[index]?.quote_service_dates
-                ).length
-              }
+              numberOfJobs={job.no_of_jobs}
               allServices={allServices}
               updateJobList={(updatedJob) => updateJobList(index, updatedJob)}
               duration_in_months={formData.duration_in_months}
@@ -268,7 +232,11 @@ const ServiceAgreement = ({ setFormData, formData }) => {
 
       <Grid container spacing={3}>
         <Grid item lg={6} xs={12} sm={6} md={4}>
-          <ContractSummary setFormData={setFormData} grandTotal={grandTotal} />
+          <ContractSummary
+            formData={formData}
+            setFormData={setFormData}
+            grandTotal={grandTotal}
+          />
         </Grid>
         <Grid item lg={6} xs={12} sm={6} md={4}>
           <Invoice formData={formData} setFormData={setFormData} />

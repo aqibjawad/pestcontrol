@@ -6,8 +6,6 @@ import InputWithTitle from "@/components/generic/InputWithTitle";
 import { FormGroup, FormControlLabel, Radio, RadioGroup } from "@mui/material";
 
 const Invoice = ({ setFormData, formData }) => {
-  console.log("formData recives data", formData);
-
   const [billingFrequency, setBillingFrequency] = useState(0);
 
   const hasQuarterlyService = formData.services?.some((service) =>

@@ -3,29 +3,73 @@ import { Grid, Box, Typography } from "@mui/material";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 
 const ContractSummary = ({ grandTotal, setFormData, formData }) => {
-  const [dis_per, setDiscount] = useState(0);
-  const [vat_per, setVAT] = useState(0);
+  
+  // Initialize state from formData if it exists, otherwise use 0
+  const [dis_per, setDiscount] = useState(formData.dis_per || 0);
+  const [vat_per, setVAT] = useState(formData.vat_per || 0);
   const [finalTotal, setFinalTotal] = useState(grandTotal);
 
-  useEffect(() => {
-    const discountPercentage = (dis_per / grandTotal) * 100;
+  const calculateTotals = (discount, vat, total) => {
+    const discountPercentage = (discount / total) * 100;
+    const discountAmount = discount;
+    const vatAmount = ((total - discountAmount) * vat) / 100;
+    const totalWithVAT = total - discountAmount + vatAmount;
 
-    const discountAmount = dis_per; // This is already the amount
-
-    const vatAmount = ((grandTotal - discountAmount) * vat_per) / 100;
-
-    const totalWithVAT = grandTotal - discountAmount + vatAmount;
-    setFinalTotal(totalWithVAT);
-
-    setFormData((prev) => ({
-      ...prev,
-      dis_per: discountPercentage, 
-      vat_per,
+    return {
+      discountPercentage,
       discountAmount,
       vatAmount,
+      totalWithVAT,
+    };
+  };
+
+  // Update local state when formData changes
+  useEffect(() => {
+    if (formData.dis_per !== undefined) {
+      setDiscount(formData.dis_per);
+    }
+    if (formData.vat_per !== undefined) {
+      setVAT(formData.vat_per);
+    }
+  }, [formData]);
+
+  useEffect(() => {
+    const { discountPercentage, discountAmount, vatAmount, totalWithVAT } =
+      calculateTotals(dis_per, vat_per, grandTotal);
+
+    setFinalTotal(totalWithVAT);
+
+    // Update formData with all values
+    setFormData((prev) => ({
+      ...prev,
+      dis_per: dis_per,
+      vat_per: vat_per,
+      discountPercentage: discountPercentage,
+      discountAmount: discountAmount,
+      vatAmount: vatAmount,
       finalTotal: totalWithVAT,
     }));
   }, [dis_per, vat_per, grandTotal]);
+
+  // Handle discount change
+  const handleDiscountChange = (value) => {
+    const newDiscount = parseFloat(value) || 0;
+    setDiscount(newDiscount);
+    setFormData((prev) => ({
+      ...prev,
+      dis_per: newDiscount,
+    }));
+  };
+
+  // Handle VAT change
+  const handleVATChange = (value) => {
+    const newVAT = parseFloat(value) || 0;
+    setVAT(newVAT);
+    setFormData((prev) => ({
+      ...prev,
+      vat_per: newVAT,
+    }));
+  };
 
   return (
     <Box
@@ -70,7 +114,7 @@ const ContractSummary = ({ grandTotal, setFormData, formData }) => {
               name="discount"
               placeholder="Enter Discount"
               value={dis_per}
-              onChange={(value) => setDiscount(parseFloat(value) || 0)}
+              onChange={handleDiscountChange}
               inputStyle={{ width: "100px" }}
             />
           </Box>
@@ -87,7 +131,7 @@ const ContractSummary = ({ grandTotal, setFormData, formData }) => {
               name="vat"
               placeholder="Enter VAT"
               value={vat_per}
-              onChange={(value) => setVAT(parseFloat(value) || 0)}
+              onChange={handleVATChange}
               inputStyle={{ width: "100px" }}
             />
           </Box>
