@@ -1,7 +1,5 @@
-const baseURL =
-  "https://api.apcs.ae";
+const baseURL = "https://api.apcs.ae";
 
-// const baseURL = "https://api.dubaiaccuratepestcontrolservices.com";
 const apiPrefix = baseURL + "/api";
 
 export const login = apiPrefix + "/login";
@@ -77,3 +75,11 @@ export const payments = apiPrefix + "/received_cash_record";
 export const admin = apiPrefix + "/ledger/get";
 
 export const outstandings = apiPrefix + "/outstandings";
+
+export const addDeviceURL = apiPrefix + "/device/create";
+
+export const getDevicesURL = apiPrefix + "/device";
+
+export const updateDevicesURL = apiPrefix + "/device/update/";
+
+export const removeDeviceAssignment = apiPrefix + "/device/assign";
