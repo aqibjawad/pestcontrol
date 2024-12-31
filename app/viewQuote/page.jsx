@@ -48,6 +48,9 @@ const Quotation = () => {
 
   const [selectedQuoteData, setSelectedQuoteData] = useState(null);
 
+  console.log(selectedQuoteData);
+  
+
   const handleDateChange = (start, end) => {
     setStartDate(start);
     setEndDate(end);

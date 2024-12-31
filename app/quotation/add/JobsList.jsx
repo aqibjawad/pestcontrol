@@ -20,18 +20,20 @@ const JobsList = ({
 
   const jobTypes = [
     { label: "Monthly", value: "monthly" },
-    { label: "Quarterly", value: "installments" },
+    { label: "Quarterly", value: "custom" },
   ];
 
   useEffect(() => {
     // Calculate total jobs for the entire duration
-    const calculatedTotalJobs = noJobs * duration_in_months;
+    const calculatedTotalJobs =
+      selectedJobType === "custom" ? 1 : noJobs * duration_in_months;
     setTotalJobs(calculatedTotalJobs);
-  }, [noJobs, duration_in_months]);
+  }, [noJobs, duration_in_months, selectedJobType]);
 
   useEffect(() => {
     // Calculate subtotal and update parent
-    const calculatedSubTotal = noJobs * rate;
+    const calculatedSubTotal =
+      (selectedJobType === "custom" ? 1 : noJobs) * rate;
     setSubTotal(calculatedSubTotal);
 
     updateJobList({
@@ -78,7 +80,7 @@ const JobsList = ({
     services.forEach((service) => {
       if (!uniqueServices.has(service.pest_name)) {
         uniqueServices.set(service.pest_name, {
-          label: service.pest_name,
+          label: service.service_title,
           value: service.id,
         });
       }
@@ -111,16 +113,18 @@ const JobsList = ({
           />
         </Grid>
 
-        <Grid item lg={3} xs={4}>
-          <InputWithTitle
-            title={`No of Jobs (Monthly)`}
-            type="text"
-            name="noJobs"
-            placeholder="No of Jobs"
-            value={noJobs}
-            onChange={(value) => setNoJobs(value)}
-          />
-        </Grid>
+        {selectedJobType !== "custom" && (
+          <Grid item lg={3} xs={4}>
+            <InputWithTitle
+              title={`No of Jobs (Monthly)`}
+              type="text"
+              name="noJobs"
+              placeholder="No of Jobs"
+              value={noJobs}
+              onChange={(value) => setNoJobs(value)}
+            />
+          </Grid>
+        )}
 
         <Grid item xs={2}>
           <InputWithTitle
@@ -139,21 +143,11 @@ const JobsList = ({
             type="text"
             name="subTotal"
             placeholder="Sub Total"
-            value={noJobs * rate}
+            value={(selectedJobType === "custom" ? 1 : noJobs) * rate}
             readOnly
           />
         </Grid>
-{/* 
-        <Grid item lg={2} xs={4}>
-          <InputWithTitle
-            title="Total Jobs for Contract"
-            type="text"
-            name="totalJobs"
-            placeholder="Total Jobs"
-            value={totalJobs}
-            readOnly
-          />
-        </Grid> */}
+        
       </Grid>
     </div>
   );

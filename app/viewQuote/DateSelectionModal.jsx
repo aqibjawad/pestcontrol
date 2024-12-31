@@ -311,23 +311,14 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
     return selectedDays.sort();
   };
 
-  // Updated handleSubmit with new fields
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    // Validate required fields
     if (!trn || !licenseNo || !generatedDates.length) {
-      // Swal.fire({
-      //   icon: "error",
-      //   title: "Error",
-      //   text: "Please ensure all required fields (TRN, License No, and Dates) are filled in.",
-      //   customClass: {
-      //     popup: "swal-custom-zindex", // Apply custom class
-      //   },
-      // });
-
-      alert("Please ensure all required fields (TRN, License No, and Dates) are filled in.")
+      alert(
+        "Please ensure all required fields (TRN, License No, and Dates) are filled in."
+      );
       setLoading(false);
       return;
     }

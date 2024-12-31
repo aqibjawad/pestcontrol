@@ -255,6 +255,7 @@ const Page = () => {
           </Tabs>
 
           <Box sx={{ p: 3 }}>
+
             {selectedIndexTabs === 0 && (
               <div className="space-y-4">
                 {fetchingData ? (
@@ -262,9 +263,9 @@ const Page = () => {
                     <CircularProgress />
                   </Box>
                 ) : (
-                  employeeList.map((employee) => (
+                  employeeList.map((employeess) => (
                     <Card
-                      key={employee.id}
+                      key={employeess.id}
                       sx={{
                         mb: 2,
                         p: 2,
@@ -274,7 +275,7 @@ const Page = () => {
                       }}
                     >
                       <CardContent
-                        onClick={() => handleEditClick(employee)}
+                        onClick={() => handleEditClick(employeess)}
                         style={{
                           cursor: "pointer",
                         }}
@@ -286,43 +287,43 @@ const Page = () => {
                           sx={{ mb: 1 }}
                         >
                           <Avatar
-                            src={employee?.employee?.profile_image}
-                            alt={`${employee.name} Image`}
+                            src={employeess?.employee?.profile_image}
+                            alt={`${employeess.name} Image`}
                             sx={{ width: 48, height: 48 }}
                           />
                           <Typography
                             variant="subtitle1"
                             sx={{ fontWeight: "bold" }}
                           >
-                            {employee.name}
+                            {employeess.name}
                           </Typography>
                         </Stack>
 
                         <Box sx={{ mt: 2 }}>
                           {[
                             {
-                              label: "Eid Expiry",
-                              value: employee?.employee?.eid_expiry,
+                              label: "Offer Letter",
+                              value: employeess?.employee?.documents?.expiry,
                             },
                             {
                               label: "Passport Expiry",
-                              value: employee?.employee?.passport_expiry,
+                              value: employeess?.employee?.passport_expiry,
                             },
                             {
                               label: "Insurance Expiry",
-                              value: employee?.employee?.hi_expiry,
+                              value: employeess?.employee?.hi_expiry,
                             },
                             {
                               label: "Un Employee",
-                              value: employee?.employee?.ui_expiry,
+                              value: employeess?.employee?.ui_expiry,
                             },
                             {
                               label: "DM Card Expiry",
-                              value: employee?.employee?.dm_expiry,
+                              value: employeess?.employee?.dm_expiry,
                             },
                             {
                               label: "Labour Expiry",
-                              value: employee?.employee?.labour_card_expiry,
+                              value: employeess?.employee?.labour_card_expiry,
                             },
                           ].map(({ label, value }) => {
                             const expiryDate = value ? new Date(value) : null;
