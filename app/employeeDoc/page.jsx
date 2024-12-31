@@ -17,6 +17,7 @@ import {
   Box,
   CircularProgress,
   Skeleton,
+  Checkbox,
 } from "@mui/material";
 import { Upload } from "lucide-react";
 import APICall from "@/networkUtil/APICall";
@@ -100,6 +101,7 @@ const InsuranceForm = () => {
         processDate: currentDoc.process_date || "",
         processAmount: currentDoc.process_amt || "",
         description: currentDoc.desc || "",
+        entryPermitStatus: currentDoc.entryPermitStatus || "Entry Permit",
       });
     } else {
       setCurrentDocData(null);
@@ -110,6 +112,7 @@ const InsuranceForm = () => {
         processDate: "",
         processAmount: "",
         description: "",
+        entryPermitStatus: "Entry Permit",
       });
     }
   }, [activeTab, employeeList]);
@@ -193,6 +196,11 @@ const InsuranceForm = () => {
         desc: formState.description,
       };
 
+      // Include entryPermitStatus if the current tab is "Entry Permit Inside"
+      if (tabData[activeTab] === "Entry Permit Inside") {
+        obj.entryPermitStatus = formState.entryPermitStatus;
+      }
+
       const response = await api.postFormDataWithToken(
         `${getAllEmpoyesUrl}/update_docs`,
         obj
@@ -213,8 +221,6 @@ const InsuranceForm = () => {
         setStatusCompleted(updatedStatus);
 
         if (formState.status === "done") {
-          // Only proceed to next tab if current tab is completed and it's either
-          // the first tab or previous tabs are completed
           const isFirstTab = activeTab === 0;
           const previousTabsCompleted =
             isFirstTab || completedTabs.includes(activeTab - 1);
@@ -289,39 +295,60 @@ const InsuranceForm = () => {
       );
     }
 
-    const showFirstGrid = activeTab === 1 || activeTab === 6;
-
-    if (changeStatus && activeTab === 8) {
-      return null;
-    }
-
     return (
       <Box className="space-y-6">
-        {showFirstGrid ? (
-          <Paper className="p-4">
-            <Typography variant="h6" className="mb-4">
-              {tabData[activeTab]}
-            </Typography>
-            <Box className="mb-4">
-              <Typography className="mb-2">Status</Typography>
-              <RadioGroup
-                row
-                value={formState.status}
-                onChange={handleFormChange("status")}
-              >
-                <FormControlLabel
-                  value="pending"
-                  control={<Radio />}
-                  label="Pending"
-                />
-                <FormControlLabel
-                  value="done"
-                  control={<Radio />}
-                  label="Done"
-                />
-              </RadioGroup>
-            </Box>
+        <Paper className="p-4">
+          <Typography variant="h6" className="mb-4">
+            {tabData[activeTab]}
+          </Typography>
 
+          {/* Main Status Section */}
+          <Box className="mb-4">
+            <Typography className="mb-2">Status</Typography>
+            <RadioGroup
+              row
+              value={formState.status}
+              onChange={(e) => {
+                handleFormChange("status")(e);
+                setChangeStatus(e.target.value === "done");
+              }}
+            >
+              <FormControlLabel
+                value="pending"
+                control={<Radio />}
+                label="Pending"
+              />
+              <FormControlLabel
+                value="inProcess"
+                control={<Radio />}
+                label="In Process"
+              />
+              <FormControlLabel value="done" control={<Radio />} label="Done" />
+            </RadioGroup>
+          </Box>
+
+          {/* Additional RadioGroup for "Entry Permit Inside" */}
+          {tabData[activeTab] === "Entry Permit Inside" && (
+            <RadioGroup
+              row
+              value={formState.entryPermitStatus}
+              onChange={handleFormChange("entryPermitStatus")}
+            >
+              <FormControlLabel
+                value="Entry Permit"
+                control={<Radio />}
+                label="Entry Permit"
+              />
+              <FormControlLabel
+                value="Change Status"
+                control={<Radio />}
+                label="Change Status"
+              />
+            </RadioGroup>
+          )}
+
+          {/* Status-specific sections */}
+          {formState.status === "inProcess" && (
             <Grid container spacing={3}>
               <Grid item xs={12} md={6}>
                 <TextField
@@ -344,75 +371,49 @@ const InsuranceForm = () => {
                 />
               </Grid>
             </Grid>
+          )}
 
-            <TextField
-              fullWidth
-              multiline
-              rows={4}
-              label="Description"
-              value={formState.description}
-              onChange={handleFormChange("description")}
-              variant="outlined"
-              className="mt-4"
-            />
+          {formState.status === "done" && (
+            <>
+              <Grid item xs={12}>
+                <Box className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                  <Typography className="mb-2">Upload Picture</Typography>
+                  <Typography className="text-sm text-gray-500">
+                    Browse and choose the files you want to upload from your
+                    computer
+                  </Typography>
+                  <input
+                    type="file"
+                    id="file-upload"
+                    className="hidden"
+                    onChange={handleFileChange}
+                    accept="image/*"
+                  />
+                  <label htmlFor="file-upload">
+                    <IconButton
+                      color="primary"
+                      component="span"
+                      className="mt-2"
+                    >
+                      <Upload />
+                    </IconButton>
+                  </label>
+                  {selectedFile && (
+                    <Typography className="mt-2 text-sm">
+                      Selected: {selectedFile.name}
+                    </Typography>
+                  )}
+                </Box>
+              </Grid>
 
-            <Button
-              variant="contained"
-              color="primary"
-              className="mt-4"
-              onClick={handleUpdate}
-              disabled={loading}
-            >
-              {loading ? (
-                <CircularProgress size={24} color="inherit" />
-              ) : (
-                "Update"
-              )}
-            </Button>
-          </Paper>
-        ) : (
-          <Paper className="p-4">
-            <Typography variant="h6" className="mb-4">
-              {tabData[activeTab]}
-            </Typography>
-
-            <Box className="mb-4">
-              <Typography className="mb-2">Status</Typography>
-              <RadioGroup
-                row
-                value={formState.status}
-                onChange={(e) => {
-                  handleFormChange("status")(e);
-                  setChangeStatus(e.target.value === "done");
-                }}
-              >
-                <FormControlLabel
-                  value="pending"
-                  control={<Radio />}
-                  label="Pending"
-                />
-                <FormControlLabel
-                  value="inProcess"
-                  control={<Radio />}
-                  label="In Process"
-                />
-                <FormControlLabel
-                  value="done"
-                  control={<Radio />}
-                  label="Done"
-                />
-              </RadioGroup>
-            </Box>
-
-            {formState.status === "inProcess" && (
-              <Grid container spacing={3}>
+              <Grid className="mt-5" container spacing={3}>
                 <Grid item xs={12} md={6}>
                   <TextField
                     fullWidth
                     type="date"
-                    label="Process Date"
-                    value={formState.processDate}
-                    onChange={handleFormChange("processDate")}
+                    label="Start Date"
+                    value={formState.startDate}
+                    onChange={handleFormChange("startDate")}
                     variant="outlined"
                     InputLabelProps={{ shrink: true }}
                   />
@@ -420,101 +421,43 @@ const InsuranceForm = () => {
                 <Grid item xs={12} md={6}>
                   <TextField
                     fullWidth
-                    label="Process Amount"
-                    value={formState.processAmount}
-                    onChange={handleFormChange("processAmount")}
+                    type="date"
+                    label="Expiry Date"
+                    value={formState.expiryDate}
+                    onChange={handleFormChange("expiryDate")}
                     variant="outlined"
+                    InputLabelProps={{ shrink: true }}
                   />
                 </Grid>
               </Grid>
+
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                label="Description"
+                value={formState.description}
+                onChange={handleFormChange("description")}
+                variant="outlined"
+                className="mt-4"
+              />
+            </>
+          )}
+
+          <Button
+            variant="contained"
+            color="primary"
+            className="mt-4"
+            onClick={handleUpdate}
+            disabled={loading}
+          >
+            {loading ? (
+              <CircularProgress size={24} color="inherit" />
+            ) : (
+              "Update"
             )}
-
-            {formState.status === "done" && (
-              <>
-                <Grid item xs={12}>
-                  <Box className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                    <Typography className="mb-2">Upload Picture</Typography>
-                    <Typography className="text-sm text-gray-500">
-                      Browse and choose the files you want to upload from your
-                      computer
-                    </Typography>
-                    <input
-                      type="file"
-                      id="file-upload"
-                      className="hidden"
-                      onChange={handleFileChange}
-                      accept="image/*"
-                    />
-                    <label htmlFor="file-upload">
-                      <IconButton
-                        color="primary"
-                        component="span"
-                        className="mt-2"
-                      >
-                        <Upload />
-                      </IconButton>
-                    </label>
-                    {selectedFile && (
-                      <Typography className="mt-2 text-sm">
-                        Selected: {selectedFile.name}
-                      </Typography>
-                    )}
-                  </Box>
-                </Grid>
-
-                <Grid className="mt-5" container spacing={3}>
-                  <Grid item xs={12} md={6}>
-                    <TextField
-                      fullWidth
-                      type="date"
-                      label="Start Date"
-                      value={formState.startDate}
-                      onChange={handleFormChange("startDate")}
-                      variant="outlined"
-                      InputLabelProps={{ shrink: true }}
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <TextField
-                      fullWidth
-                      type="date"
-                      label="Expiry Date"
-                      value={formState.expiryDate}
-                      onChange={handleFormChange("expiryDate")}
-                      variant="outlined"
-                      InputLabelProps={{ shrink: true }}
-                    />
-                  </Grid>
-                </Grid>
-
-                <TextField
-                  fullWidth
-                  multiline
-                  rows={4}
-                  label="Description"
-                  value={formState.description}
-                  onChange={handleFormChange("description")}
-                  variant="outlined"
-                  className="mt-4"
-                />
-              </>
-            )}
-
-            <Button
-              variant="contained"
-              color="primary"
-              className="mt-4"
-              onClick={handleUpdate}
-              disabled={loading}
-            >
-              {loading ? (
-                <CircularProgress size={24} color="inherit" />
-              ) : (
-                "Update"
-              )}
-            </Button>
-          </Paper>
-        )}
+          </Button>
+        </Paper>
       </Box>
     );
   };

@@ -107,16 +107,16 @@ const Page = () => {
   };
 
   const requiredDocuments = [
-    "Labor Card",
-    "Employment Letter",
     "Offer Letter",
-    "Joining Letter",
-    "Medical Insurance",
-    "Driving License",
-    "DM Card",
-    "EHOC (Emergency Health Operations Certificate)",
-    "Visa Status",
-    "Asset and Vehicle Policy Confirmation",
+    "Labour Insurance",
+    "Entry Permit Inside",
+    "Medical",
+    "Finger Print",
+    "Emirates ID",
+    "Contract Submission",
+    "Visa Stamping",
+    "Towjeeh",
+    "ILOE Insurance",
   ];
 
   const handleTabChange = (tab) => {
@@ -231,7 +231,7 @@ const Page = () => {
                     <th className="p-3 text-left border">Document Name</th>
                     <th className="p-3 text-left border">Start Date</th>
                     <th className="p-3 text-left border">Expiry Date</th>
-                    <th className="p-3 text-left border"> Documents </th>
+                    <th className="p-3 text-left border">Documents</th>
                     <th className="p-3 text-left border">Status</th>
                     <th className="p-3 text-left border">Update</th>
                   </tr>
@@ -243,6 +243,8 @@ const Page = () => {
                         const doc = employeeList?.employee?.documents.find(
                           (d) => d.name === docName
                         );
+                        const userId = employeeList?.employee?.user_id; // Extract user_id here
+
                         if (doc) {
                           const currentDate = new Date();
                           const expiryDate = new Date(doc.expiry);
@@ -291,7 +293,7 @@ const Page = () => {
                                 </span>
                               </td>
                               <td className="p-3 border">
-                                <Link href={`/employeeDoc?id=${doc.id}`}>
+                                <Link href={`/employeeDoc?id=${userId}`}>
                                   Update
                                 </Link>
                               </td>
@@ -310,9 +312,7 @@ const Page = () => {
                                 </span>
                               </td>
                               <td className="p-3 border">
-                                <Link
-                                  href={`/employeeDoc?id=${employeeList.id}`}
-                                >
+                                <Link href={`/employeeDoc?id=${userId}`}>
                                   Update
                                 </Link>
                               </td>
