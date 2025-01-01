@@ -9,77 +9,28 @@ const JobsList = ({
   updateJobList,
   duration_in_months,
   numberOfJobs,
-  formData,
 }) => {
   const [totalJobs, setTotalJobs] = useState(0);
   const [rate, setRate] = useState(jobData.rate || 0);
-  const [noJobs, setNoJobs] = useState(numberOfJobs || 0);
+  const [noJobs, setNoJobs] = useState(jobData.no || 0);
   const [selectedJobType, setSelectedJobType] = useState(jobData.jobType || "");
-  const [selectedDates, setSelectedDates] = useState([]);
+  const [selectedDates, setSelectedDates] = useState(numberOfJobs || []);
   const [subTotal, setSubTotal] = useState(jobData.subTotal || 0);
+  const [selectedService, setSelectedService] = useState(
+    jobData.service_id || ""
+  );
 
   const jobTypes = [
     { label: "Monthly", value: "monthly" },
     { label: "Quarterly", value: "custom" },
   ];
 
-  useEffect(() => {
-    // Calculate total jobs for the entire duration
-    const calculatedTotalJobs =
-      selectedJobType === "custom" ? 1 : noJobs * duration_in_months;
-    setTotalJobs(calculatedTotalJobs);
-  }, [noJobs, duration_in_months, selectedJobType]);
-
-  useEffect(() => {
-    // Calculate subtotal and update parent
-    const calculatedSubTotal =
-      (selectedJobType === "custom" ? 1 : noJobs) * rate;
-    setSubTotal(calculatedSubTotal);
-
-    updateJobList({
-      jobType: selectedJobType,
-      rate: rate,
-      service_id: jobData.service_id,
-      service_name: jobData.service_name,
-      no_of_jobs: totalJobs,
-      dates: selectedDates,
-    });
-  }, [selectedDates, rate, selectedJobType, totalJobs, noJobs]);
-
-  const handleJobTypeChange = (value) => {
-    setSelectedJobType(value);
-    if (value === "monthly" || value === "daily") {
-      setSelectedDates([]);
-    }
-    if (value === "daily") {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      setSelectedDates([today.toISOString().slice(0, 10)]);
-    }
-  };
-
-  const handleServiceChange = (value) => {
-    setSelectedService(value);
-    const service = allServices.find((s) => s.id === value);
-    if (service) {
-      updateJobList({
-        ...jobData,
-        service_id: value,
-        service_name: service.pest_name,
-      });
-    }
-  };
-
-  const [selectedService, setSelectedService] = useState(
-    jobData.service_id || ""
-  );
-
   const getUniqueServiceOptions = (services) => {
     const uniqueServices = new Map();
 
     services.forEach((service) => {
-      if (!uniqueServices.has(service.pest_name)) {
-        uniqueServices.set(service.pest_name, {
+      if (!uniqueServices.has(service.service_title)) {
+        uniqueServices.set(service.service_title, {
           label: service.service_title,
           value: service.id,
         });
@@ -90,6 +41,62 @@ const JobsList = ({
   };
 
   const serviceOptions = getUniqueServiceOptions(allServices);
+
+  useEffect(() => {
+    let calculatedTotalJobs = 0;
+    if (selectedJobType === "custom") {
+      calculatedTotalJobs = Math.floor(duration_in_months / 3); // Quarterly calculation
+    } else if (selectedJobType === "monthly") {
+      calculatedTotalJobs = noJobs * duration_in_months; // Monthly calculation
+    } else {
+      calculatedTotalJobs = noJobs * duration_in_months; // Default calculation
+    }
+    setTotalJobs(calculatedTotalJobs);
+  }, [noJobs, duration_in_months, selectedJobType]);
+
+  useEffect(() => {
+    const calculatedSubTotal = noJobs * rate;
+    setSubTotal(calculatedSubTotal);
+
+    updateJobList({
+      jobType: selectedJobType,
+      rate: rate,
+      service_id: jobData.service_id,
+      serviceName: jobData.serviceName,
+      no_of_jobs: totalJobs, // Pass the number of jobs
+    });
+  }, [
+    selectedDates,
+    rate,
+    selectedJobType,
+    duration_in_months,
+    noJobs,
+    totalJobs,
+  ]);
+
+  const handleJobTypeChange = (value) => {
+    setSelectedJobType(value);
+    if (value === "daily") {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      setSelectedDates([today.toISOString().slice(0, 10)]);
+    }
+    if (value === "custom" || value === "monthly") {
+      setNoJobs(1); // Default for Quarterly and Monthly
+    }
+  };
+
+  const handleServiceChange = (value) => {
+    setSelectedService(value);
+    const service = allServices.find((s) => s.id === value);
+    if (service) {
+      updateJobList({
+        ...jobData,
+        service_id: value,
+        serviceName: service.service_title,
+      });
+    }
+  };
 
   return (
     <div style={{ marginBottom: "2rem" }}>
@@ -113,15 +120,53 @@ const JobsList = ({
           />
         </Grid>
 
-        {selectedJobType !== "custom" && (
+        {selectedJobType === "yearly" && (
           <Grid item lg={3} xs={4}>
             <InputWithTitle
-              title={`No of Jobs (Monthly)`}
+              title="No of Jobs"
               type="text"
               name="noJobs"
               placeholder="No of Jobs"
               value={noJobs}
               onChange={(value) => setNoJobs(value)}
+            />
+          </Grid>
+        )}
+
+        {selectedJobType === "monthly" && (
+          <>
+            <Grid item lg={3} xs={4}>
+              <InputWithTitle
+                title="No of Jobs"
+                type="text"
+                name="noJobs"
+                placeholder="No of Jobs"
+                value={noJobs}
+                onChange={(value) => setNoJobs(value)}
+              />
+            </Grid>
+            <Grid item lg={3} xs={4}>
+              <InputWithTitle
+                title="Total Jobs"
+                type="text"
+                name="totalJobs"
+                placeholder="Total Jobs"
+                value={totalJobs}
+                readOnly
+              />
+            </Grid>
+          </>
+        )}
+
+        {selectedJobType === "custom" && (
+          <Grid item lg={3} xs={4}>
+            <InputWithTitle
+              title="Total Jobs"
+              type="text"
+              name="totalJobs"
+              placeholder="Total Jobs"
+              value={totalJobs}
+              readOnly
             />
           </Grid>
         )}
@@ -137,17 +182,16 @@ const JobsList = ({
           />
         </Grid>
 
-        <Grid item xs={3}>
+        {/* <Grid item xs={3}>
           <InputWithTitle
-            title="Sub Total"
+            title="Sub Total for selected Jobs"
             type="text"
             name="subTotal"
             placeholder="Sub Total"
-            value={(selectedJobType === "custom" ? 1 : noJobs) * rate}
+            value={noJobs * rate}
             readOnly
           />
-        </Grid>
-        
+        </Grid> */}
       </Grid>
     </div>
   );

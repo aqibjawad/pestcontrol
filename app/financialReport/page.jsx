@@ -89,7 +89,7 @@ const FinancialDashboard = () => {
       const monthParam = `${year}-${month}`;
 
       const response = await api.getDataWithToken(
-        `${dashboard}/monthly_financial_report/?month=${monthParam}`
+        `${dashboard}/get_monthly_financial_report/?month=${monthParam}`
       );
       setAllClientsList(response.data);
     } catch (error) {

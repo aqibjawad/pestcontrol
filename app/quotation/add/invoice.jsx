@@ -7,10 +7,14 @@ import { FormGroup, FormControlLabel, Radio, RadioGroup } from "@mui/material";
 
 const Invoice = ({ setFormData, formData }) => {
 
+  console.log("invoice", formData);
+  
+
   const [billingFrequency, setBillingFrequency] = useState(0);
 
+  // Check if any service has the "Quarterly" job type
   const hasQuarterlyService = formData.services?.some((service) =>
-    service.detail?.some((detail) => detail.job_type === "Quarterly")
+    service.detail?.some((detail) => detail.job_type === "custom")
   );
 
   const [selectedBillingMethod, setSelectedBillingMethod] = useState(
@@ -61,18 +65,13 @@ const Invoice = ({ setFormData, formData }) => {
               value={selectedBillingMethod}
               onChange={handleRadioChange}
             >
-              {!hasQuarterlyService && (
+              {hasQuarterlyService ? (
+                ""
+              ) : (
                 <FormControlLabel
                   control={<Radio />}
                   label="Monthly"
                   value="monthly"
-                />
-              )}
-              {hasQuarterlyService && (
-                <FormControlLabel
-                  control={<Radio />}
-                  label="Quarterly"
-                  value="installments"
                 />
               )}
               <FormControlLabel

@@ -34,8 +34,20 @@ import {
 } from "date-fns";
 
 const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
+  // Function to handle date selection
+  const handleDateSelection = (date) => {
+    setSelectedDates((prev) => {
+      // If date is already selected, remove it
+      if (prev.includes(date)) {
+        return prev.filter((d) => d !== date);
+      }
+      // If it's a new date, add it
+      return [...prev, date];
+    });
+  };
 
-  const jobTypes = quoteData?.quote_services?.map((service) => service.job_type) || [];
+  const jobTypes =
+    quoteData?.quote_services?.map((service) => service.job_type) || [];
   const isCustomJob = jobTypes.includes("custom");
   console.log(jobTypes);
 
@@ -467,39 +479,12 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
     );
   };
 
-  // For custom
-  // const generateDatesWithInterval = (initialDates, durationMonths) => {
-  //   if (!initialDates?.length || !durationMonths) {
-  //     console.log("Missing required parameters");
-  //     return [];
-  //   }
-
-  //   const intervals = Math.floor(durationMonths / 3);
-  //   // console.log("Number of intervals:", intervals);
-
-  //   const allDates = [];
-
-  //   initialDates.forEach((date) => {
-  //     // console.log("Processing initial date:", date);
-  //     const baseDate = new Date(date);
-
-  //     for (let i = 0; i < intervals; i++) {
-  //       const newDate = addMonths(baseDate, i * 3);
-  //       const formattedDate = format(newDate, "yyyy-MM-dd HH:mm:ss");
-  //       // console.log(`Generated date for interval ${i}:`, formattedDate);
-  //       allDates.push(formattedDate);
-  //     }
-  //   });
-
-  //   // console.log("Final generated dates:", allDates);
-  //   return allDates.sort();
-  // };
-
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>
         Select Dates and Time (Maximum {servicesPerMonth} services per month)
       </DialogTitle>
+
       <DialogContent>
         <div className="mb-4 mt-4">
           <TextField
@@ -608,12 +593,17 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
           </div>
         )}
       </DialogContent>
+
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
         <Button
           onClick={handleSubmit}
           color="primary"
-          disabled={loading || (!isCustomJob && !isValidTotalDates)}
+          disabled={
+            loading ||
+            (isCustomJob && selectedDates.length > 1) || 
+            (!isCustomJob && !isValidTotalDates) // Keep original condition for non-custom jobs
+          }
         >
           {loading ? <CircularProgress size={24} /> : "Save Dates"}
         </Button>
