@@ -44,6 +44,9 @@ import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 
 import EmployeeUpdateModal from "../../../components/employeeUpdate";
+import { Router } from "lucide-react";
+
+import { useRouter } from "next/navigation";
 
 const Page = () => {
   const [tabNames, setTabNames] = useState([
@@ -53,18 +56,22 @@ const Page = () => {
     "Reports",
   ]);
 
+  const router = useRouter();
+
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [selectedIndexTabs, setSelectedIndexTabs] = useState(0);
   const [paymentList, setPaymentsList] = useState([]);
   const [fetchingData, setFetchingData] = useState(false);
   const [employeeList, setEmployeeList] = useState([]);
 
+  console.log(employeeList);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
 
   const handleEditClick = (employee) => {
     setSelectedEmployee(employee);
-    setIsModalOpen(true);
+    router.push(`/hr/employeeDetails?id=${employee.id}`);
   };
 
   const handleCloseModal = () => {
@@ -184,6 +191,41 @@ const Page = () => {
     };
   };
 
+  const fullList = [
+    "Offer Letter",
+    "Labour Insurance",
+    "Entry Permit Inside",
+    "Medical",
+    "Finger Print",
+    "Emirates ID",
+    "Contract Submission",
+    "Visa Stamping",
+    "Towjeeh",
+    "ILOE Insurance",
+  ];
+
+  // Dynamic function to check and match missing items
+  const matchAndHighlightMissing = (providedList) => {
+    // Find missing items
+    const missingItems = fullList.filter(
+      (item) => !providedList.includes(item)
+    );
+
+    // Display results
+    console.log(
+      "Matched Items:",
+      providedList.filter((item) => fullList.includes(item))
+    );
+    console.log("Missing Items:", missingItems);
+
+    // Example: You can dynamically show missing items
+    if (missingItems.length > 0) {
+      console.log(`These items are missing: ${missingItems.join(", ")}`);
+    } else {
+      console.log("All items are matched!");
+    }
+  };
+
   return (
     <div className="w-full">
       {tabs()}
@@ -255,7 +297,6 @@ const Page = () => {
           </Tabs>
 
           <Box sx={{ p: 3 }}>
-
             {selectedIndexTabs === 0 && (
               <div className="space-y-4">
                 {fetchingData ? (
@@ -299,90 +340,102 @@ const Page = () => {
                           </Typography>
                         </Stack>
 
+                        {/* Documents Display */}
                         <Box sx={{ mt: 2 }}>
-                          {[
-                            {
-                              label: "Offer Letter",
-                              value: employeess?.employee?.documents?.expiry,
-                            },
-                            {
-                              label: "Passport Expiry",
-                              value: employeess?.employee?.passport_expiry,
-                            },
-                            {
-                              label: "Insurance Expiry",
-                              value: employeess?.employee?.hi_expiry,
-                            },
-                            {
-                              label: "Un Employee",
-                              value: employeess?.employee?.ui_expiry,
-                            },
-                            {
-                              label: "DM Card Expiry",
-                              value: employeess?.employee?.dm_expiry,
-                            },
-                            {
-                              label: "Labour Expiry",
-                              value: employeess?.employee?.labour_card_expiry,
-                            },
-                          ].map(({ label, value }) => {
-                            const expiryDate = value ? new Date(value) : null;
-                            const today = new Date();
-                            const diffTime = expiryDate
-                              ? expiryDate - today
-                              : null;
-                            const daysLeft = diffTime
-                              ? Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-                              : null;
+                          {fullList.map((item) => {
+                            // Check if the current item is present in the employee's documents
+                            const document =
+                              employeess?.employee?.documents?.find(
+                                (doc) => doc.name === item
+                              );
 
-                            const { backgroundColor, textColor, icon } =
-                              getStatusStyle(daysLeft);
+                            if (document) {
+                              // If document exists, display its details
+                              const expiryDate = document?.expiry
+                                ? new Date(document.expiry)
+                                : null;
+                              const today = new Date();
+                              const diffTime = expiryDate
+                                ? expiryDate - today
+                                : null;
+                              const daysLeft = diffTime
+                                ? Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+                                : null;
 
-                            return (
-                              <Box
-                                key={label}
-                                sx={{
-                                  display: "flex",
-                                  justifyContent: "space-between",
-                                  alignItems: "center",
-                                  p: 1.5,
-                                  borderRadius: 1,
-                                  mb: 1,
-                                  backgroundColor,
-                                  color: textColor,
-                                }}
-                              >
-                                <Stack
-                                  direction="row"
-                                  spacing={1}
-                                  alignItems="center"
+                              const { backgroundColor, textColor, icon } =
+                                getStatusStyle(daysLeft);
+
+                              return (
+                                <Box
+                                  key={item}
+                                  sx={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                    p: 1.5,
+                                    borderRadius: 1,
+                                    mb: 1,
+                                    backgroundColor,
+                                    color: textColor,
+                                  }}
                                 >
-                                  {icon}
+                                  <Stack
+                                    direction="row"
+                                    spacing={1}
+                                    alignItems="center"
+                                  >
+                                    {icon}
+                                    <Typography
+                                      variant="body2"
+                                      sx={{ fontWeight: "medium" }}
+                                    >
+                                      <strong>{item}:</strong>
+                                    </Typography>
+                                  </Stack>
+                                  <Box sx={{ textAlign: "right" }}>
+                                    <Typography variant="body2">
+                                      {document.expiry
+                                        ? new Date(
+                                            document.expiry
+                                          ).toLocaleDateString()
+                                        : "Not set"}
+                                    </Typography>
+                                    {daysLeft !== null && (
+                                      <Typography variant="caption">
+                                        {daysLeft < 0
+                                          ? "Expired"
+                                          : daysLeft === 0
+                                          ? "Expires today"
+                                          : `${daysLeft} days left`}
+                                      </Typography>
+                                    )}
+                                  </Box>
+                                </Box>
+                              );
+                            } else {
+                              // If document is missing, display as missing
+                              return (
+                                <Box
+                                  key={item}
+                                  sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    p: 1.5,
+                                    borderRadius: 1,
+                                    mb: 1,
+                                    backgroundColor: "lightgray",
+                                    color: "red",
+                                  }}
+                                >
                                   <Typography
                                     variant="body2"
                                     sx={{ fontWeight: "medium" }}
                                   >
-                                    <strong>{label}:</strong>
+                                    <strong>{item}:</strong> Missing
                                   </Typography>
-                                </Stack>
-                                <Box sx={{ textAlign: "right" }}>
-                                  <Typography variant="body2">
-                                    {value
-                                      ? new Date(value).toLocaleDateString()
-                                      : "Not set"}
-                                  </Typography>
-                                  {daysLeft !== null && (
-                                    <Typography variant="caption">
-                                      {daysLeft < 0
-                                        ? "Expired"
-                                        : daysLeft === 0
-                                        ? "Expires today"
-                                        : `${daysLeft} days left`}
-                                    </Typography>
-                                  )}
                                 </Box>
-                              </Box>
-                            );
+                              );
+                            }
                           })}
                         </Box>
                       </CardContent>
