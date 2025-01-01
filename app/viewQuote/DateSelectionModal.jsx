@@ -379,11 +379,12 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
     setLoading(true);
 
     if (!trn || !licenseNo || !generatedDates.length) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Please ensure all required fields (TRN, License No, and Dates) are filled in.",
-      });
+      // Swal.fire({
+      //   icon: "error",
+      //   title: "Error",
+      //   text: "Please ensure all required fields (TRN, License No, and Dates) are filled in.",
+      // });
+      SliderThumb("Please ensure all required fields (TRN, License No, and Dates) are filled in.")
       setLoading(false);
       return;
     }
@@ -435,7 +436,7 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
           text: "Data has been added successfully!",
         });
         onClose();
-        // window.location.reload();
+        window.location.reload();
       } else {
         throw new Error(response.error?.message || "Unknown error occurred");
       }
@@ -561,7 +562,7 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
               initialDates={selectedDates}
               onDateChange={handleDateChange}
             />
-            <div className="mt-2 text-sm text-gray-600">
+            {/* <div className="mt-2 text-sm text-gray-600">
               {!isCustomJob && (
                 <>
                   Total services required: {totalServices}
@@ -575,17 +576,17 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
               {errorMessage && (
                 <div className="text-red-500 mt-1">{errorMessage}</div>
               )}
-            </div>
+            </div> */}
           </div>
         )}
 
         {tabIndex === 1 && (
           <div className="mt-4">
-            <div className="mb-4 text-sm text-gray-600">
+            {/* <div className="mb-4 text-sm text-gray-600">
               Currently selected dates: {generatedDates.length}
               <br />
               Maximum {servicesPerMonth} services allowed per month
-            </div>
+            </div> */}
             {renderWeekSelection(1)}
             {renderWeekSelection(2)}
             {renderWeekSelection(3)}

@@ -21,6 +21,7 @@ import { format } from "date-fns";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import withAuth from "@/utils/withAuth";
 import DateSelectionModal from "./DateSelectionModal";
+import Swal from "sweetalert2";
 
 const Quotation = () => {
   const router = useRouter();
@@ -30,6 +31,8 @@ const Quotation = () => {
   const [orderBy, setOrderBy] = useState("");
   const [fetchingData, setFetchingData] = useState(false);
   const [quoteList, setQuoteList] = useState([]);
+
+  console.log("qupte list", quoteList);
 
   const [allQuoteList, setAllQuoteList] = useState([]);
   const [isApproving, setIsApproving] = useState({});
@@ -46,7 +49,7 @@ const Quotation = () => {
   const [intervalDays, setIntervalDays] = useState(5);
   const [currentQuoteId, setCurrentQuoteId] = useState(null);
 
-  const [selectedQuoteData, setSelectedQuoteData] = useState(null);  
+  const [selectedQuoteData, setSelectedQuoteData] = useState(null);
 
   const handleDateChange = (start, end) => {
     setStartDate(start);
@@ -55,12 +58,19 @@ const Quotation = () => {
 
   const handleApprove = (id) => {
     setCurrentQuoteId(id);
-    setIsModalOpen(true);
 
-    // Find the specific quote data using the selected quote ID
     const selectedQuote = quoteList.find((quote) => quote.id === id);
 
-    // Pass the selected quote data to the modal (you can store it in a new state)
+    if (selectedQuote?.quote_services?.length > 1) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "One contract should Have one service, please remove extra services and create new quote !!",
+      });
+    } else {
+      setIsModalOpen(true);
+    }
+
     setSelectedQuoteData(selectedQuote);
   };
 
