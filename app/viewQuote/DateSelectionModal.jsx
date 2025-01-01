@@ -34,6 +34,11 @@ import {
 } from "date-fns";
 
 const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
+
+  const jobTypes = quoteData?.quote_services?.map((service) => service.job_type) || [];
+  const isCustomJob = jobTypes.includes("custom");
+  console.log(jobTypes);
+
   const api = new APICall();
 
   // New state variables
@@ -134,6 +139,10 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
         setErrorMessage(
           `Too many dates selected. Please select only ${totalServices} dates.`
         );
+      } else if (generatedDates.length < totalServices) {
+        setErrorMessage(
+          `Not enough dates selected. Please select ${totalServices} dates.`
+        );
       } else {
         setErrorMessage("");
       }
@@ -142,11 +151,14 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
 
   useEffect(() => {
     if (selectedDates.length > 0 && durationMonths) {
-      const newDates = generateDatesForDuration(selectedDates, selectedTime);
+      const newDates = isCustomJob
+        ? generateDatesWithInterval(selectedDates, selectedTime)
+        : generateDatesForDuration(selectedDates, selectedTime);
+
       validateMonthlyDates(newDates);
       setGeneratedDates(newDates);
     }
-  }, [selectedDates, durationMonths]);
+  }, [selectedDates, durationMonths, isCustomJob]);
 
   useEffect(() => {
     if (durationMonths) {
@@ -240,10 +252,49 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
     }
   };
 
+  const generateDatesWithInterval = (dates, timeString) => {
+    if (!dates?.length || !durationMonths) return [];
+
+    try {
+      const allDates = [];
+      const [hours, minutes] = timeString.split(":").map(Number);
+
+      dates.forEach((date) => {
+        const baseDate = new Date(date);
+        const intervals = Math.floor(durationMonths / 3);
+
+        for (let i = 0; i < intervals; i++) {
+          let newDate = addMonths(baseDate, i * 3);
+          newDate = setHours(newDate, hours);
+          newDate = setMinutes(newDate, minutes);
+          allDates.push(format(newDate, "yyyy-MM-dd HH:mm:ss"));
+        }
+      });
+
+      return allDates.sort();
+    } catch (error) {
+      console.error("Error generating interval dates:", error);
+      return [];
+    }
+  };
+
   const handleDateChange = (dates) => {
-    const potentialDates = generateDatesForDuration(dates, selectedTime);
-    if (validateMonthlyDates(potentialDates)) {
-      setSelectedDates(dates);
+    console.log("Selected dates:", dates);
+
+    if (isCustomJob) {
+      const intervalDates = generateDatesWithInterval(dates, selectedTime);
+      console.log("Generated interval dates:", intervalDates);
+
+      if (validateMonthlyDates(intervalDates)) {
+        setSelectedDates(dates);
+        setGeneratedDates(intervalDates);
+      }
+    } else {
+      const regularDates = generateDatesForDuration(dates, selectedTime);
+      if (validateMonthlyDates(regularDates)) {
+        setSelectedDates(dates);
+        setGeneratedDates(regularDates);
+      }
     }
   };
 
@@ -316,30 +367,27 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
     setLoading(true);
 
     if (!trn || !licenseNo || !generatedDates.length) {
-      alert(
-        "Please ensure all required fields (TRN, License No, and Dates) are filled in."
-      );
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Please ensure all required fields (TRN, License No, and Dates) are filled in.",
+      });
       setLoading(false);
       return;
     }
 
-    if (
-      !validateMonthlyDates(generatedDates) ||
-      (tabIndex === 0 && !isValidTotalDates)
-    ) {
+    // Validate total dates based on job type
+    if (!isCustomJob && generatedDates.length !== totalServices) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: `Please select exactly ${totalServices} dates.`,
+      });
       setLoading(false);
       return;
     }
 
-    if (
-      !validateMonthlyDates(generatedDates) ||
-      (tabIndex === 0 && !isValidTotalDates)
-    ) {
-      setLoading(false);
-      return;
-    }
-
-    let serviceId = quoteData?.quote_services[0]?.service_id;
+    const serviceId = quoteData?.quote_services[0]?.service_id;
     if (!serviceId) {
       Swal.fire({
         icon: "error",
@@ -375,7 +423,7 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
           text: "Data has been added successfully!",
         });
         onClose();
-        window.location.reload();
+        // window.location.reload();
       } else {
         throw new Error(response.error?.message || "Unknown error occurred");
       }
@@ -418,6 +466,34 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
       </div>
     );
   };
+
+  // For custom
+  // const generateDatesWithInterval = (initialDates, durationMonths) => {
+  //   if (!initialDates?.length || !durationMonths) {
+  //     console.log("Missing required parameters");
+  //     return [];
+  //   }
+
+  //   const intervals = Math.floor(durationMonths / 3);
+  //   // console.log("Number of intervals:", intervals);
+
+  //   const allDates = [];
+
+  //   initialDates.forEach((date) => {
+  //     // console.log("Processing initial date:", date);
+  //     const baseDate = new Date(date);
+
+  //     for (let i = 0; i < intervals; i++) {
+  //       const newDate = addMonths(baseDate, i * 3);
+  //       const formattedDate = format(newDate, "yyyy-MM-dd HH:mm:ss");
+  //       // console.log(`Generated date for interval ${i}:`, formattedDate);
+  //       allDates.push(formattedDate);
+  //     }
+  //   });
+
+  //   // console.log("Final generated dates:", allDates);
+  //   return allDates.sort();
+  // };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
@@ -501,11 +577,16 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
               onDateChange={handleDateChange}
             />
             <div className="mt-2 text-sm text-gray-600">
-              Total services required: {totalServices}
-              <br />
+              {!isCustomJob && (
+                <>
+                  Total services required: {totalServices}
+                  <br />
+                </>
+              )}
               Currently selected: {generatedDates.length}
               <br />
-              Maximum {servicesPerMonth} services allowed per month
+              {!isCustomJob &&
+                `Maximum ${servicesPerMonth} services allowed per month`}
               {errorMessage && (
                 <div className="text-red-500 mt-1">{errorMessage}</div>
               )}
@@ -532,11 +613,9 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
         <Button
           onClick={handleSubmit}
           color="primary"
-          disabled={
-            tabIndex === 0 ? !isValidTotalDates : !isValidSelection || loading
-          }
+          disabled={loading || (!isCustomJob && !isValidTotalDates)}
         >
-          {loading ? <CircularProgress size={24} /> : "Save Dates"}{" "}
+          {loading ? <CircularProgress size={24} /> : "Save Dates"}
         </Button>
       </DialogActions>
     </Dialog>

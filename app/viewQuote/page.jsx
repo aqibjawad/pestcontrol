@@ -46,10 +46,7 @@ const Quotation = () => {
   const [intervalDays, setIntervalDays] = useState(5);
   const [currentQuoteId, setCurrentQuoteId] = useState(null);
 
-  const [selectedQuoteData, setSelectedQuoteData] = useState(null);
-
-  console.log(selectedQuoteData);
-  
+  const [selectedQuoteData, setSelectedQuoteData] = useState(null);  
 
   const handleDateChange = (start, end) => {
     setStartDate(start);
