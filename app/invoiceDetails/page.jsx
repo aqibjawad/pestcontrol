@@ -63,6 +63,7 @@ const Page = () => {
   const [fetchingData, setFetchingData] = useState(false);
   const [invoiceList, setQuoteList] = useState(null);
   const [rowData, setRowData] = useState([]);
+
   const [error, setError] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(true);
 
@@ -376,104 +377,212 @@ const Page = () => {
         </Grid>
       </Grid>
 
-      <div className="">
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead style={{ backgroundColor: "#32A92E", color: "white" }}>
-              <TableRow>
-                <TableCell
-                  sx={{
-                    color: "white",
-                    padding: "4px 16px",
-                    lineHeight: "1rem",
-                  }}
-                >
-                  Description
-                </TableCell>
-                <TableCell
-                  sx={{
-                    color: "white",
-                    padding: "4px 16px",
-                    lineHeight: "1rem",
-                  }}
-                  align="right"
-                >
-                  VAT (%)
-                </TableCell>
-                <TableCell
-                  sx={{
-                    color: "white",
-                    padding: "4px 16px",
-                    lineHeight: "1rem",
-                  }}
-                  align="right"
-                >
-                  Total (AED)
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              <TableRow>
-                <TableCell
-                  sx={{
-                    color: "black",
-                    padding: "4px 16px",
-                    lineHeight: "1rem",
-                  }}
-                >
-                  {" "}
-                  General Pest Control{" "}
-                </TableCell>
-                <TableCell
-                  sx={{
-                    color: "black",
-                    padding: "4px 16px",
-                    lineHeight: "1rem",
-                  }}
-                  align="right"
-                >
-                  {invoiceList?.invoiceable?.vat_per}
-                </TableCell>
-                <TableCell
-                  sx={{
-                    color: "black",
-                    padding: "4px 16px",
-                    lineHeight: "1rem",
-                  }}
-                  align="right"
-                >
-                  {invoiceList?.total_amt}
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </div>
+      <Grid className="" container spacing={2}>
+        <Grid className="mt-1" item xs={5}>
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead style={{ backgroundColor: "#32A92E", color: "white" }}>
+                <TableRow>
+                  <TableCell
+                    sx={{
+                      color: "white",
+                      padding: "4px 16px",
+                      lineHeight: "1rem",
+                    }}
+                  >
+                    Description
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      color: "white",
+                      padding: "4px 16px",
+                      lineHeight: "1rem",
+                    }}
+                    align="right"
+                  >
+                    VAT
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      color: "white",
+                      padding: "4px 16px",
+                      lineHeight: "1rem",
+                    }}
+                    align="right"
+                  >
+                    Total
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                <TableRow>
+                  <TableCell
+                    sx={{
+                      color: "black",
+                      padding: "4px 16px",
+                      lineHeight: "1rem",
+                    }}
+                  >
+                    {" "}
+                    General Pest Control{" "}
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      color: "black",
+                      padding: "4px 16px",
+                      lineHeight: "1rem",
+                    }}
+                    align="right"
+                  >
+                    {invoiceList?.invoiceable?.vat_per}
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      color: "black",
+                      padding: "4px 16px",
+                      lineHeight: "1rem",
+                    }}
+                    align="right"
+                  >
+                    {invoiceList?.total_amt}
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Grid>
 
-      <div>
-        <div className={styles.totalAmount}>
-          (
-          {invoiceList?.total_amt && formatAmountDisplay(invoiceList.total_amt)}
-          )
-        </div>
+        <Grid className="mt-1" item xs={7}>
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead style={{ backgroundColor: "#32A92E", color: "white" }}>
+                <TableRow>
+                  <TableCell
+                    sx={{
+                      color: "white",
+                      padding: "4px 16px",
+                      lineHeight: "1rem",
+                    }}
+                    align="center"
+                  >
+                    Sr No
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      color: "white",
+                      padding: "4px 16px",
+                      lineHeight: "1rem",
+                    }}
+                    align="center"
+                  >
+                    Job Id
+                  </TableCell>
 
-        <div className={styles.descrp}>
-          Payment will be paid after receiving of invoice within 30 days period.
-        </div>
+                  <TableCell
+                    sx={{
+                      color: "white",
+                      padding: "4px 16px",
+                      lineHeight: "1rem",
+                    }}
+                    align="center"
+                  >
+                    Expected Date
+                  </TableCell>
 
-        <div className={styles.totalAmount}>Bank Details:</div>
+                  <TableCell
+                    sx={{
+                      color: "white",
+                      padding: "4px 16px",
+                      lineHeight: "1rem",
+                    }}
+                    align="center"
+                  >
+                    Job Date
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {invoiceList.jobs?.map((row, index) => (
+                  <TableRow key={index}>
+                    <TableCell
+                      sx={{
+                        color: "black",
+                        padding: "4px 16px",
+                        lineHeight: "1rem",
+                      }}
+                      align="left"
+                    >
+                      {index + 1}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        color: "black",
+                        padding: "4px 16px",
+                        lineHeight: "1rem",
+                      }}
+                      align="left"
+                    >
+                      {row?.id}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        color: "black",
+                        padding: "4px 16px",
+                        lineHeight: "1rem",
+                      }}
+                      align="left"
+                    >
+                      {row?.job_date}
+                    </TableCell>
 
-        <div className={styles.Bankdescrp}>
-          Account Holder : ACCURATE PEST CONTROL SERVICES L.L.C IBAN:
-          AE980400000883216722001
-        </div>
+                    <TableCell
+                      sx={{
+                        color: "black",
+                        padding: "4px 16px",
+                        lineHeight: "1rem",
+                      }}
+                      align="left"
+                    >
+                      {row?.job_end_time || "no Date"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Grid>
+      </Grid>
 
-        <div className={styles.Bankdescrp}>
-          Account: 0883216722001 Bank Name : RAK BANK
-        </div>
+      <Grid container spacing={2}>
+        <Grid item xs={10}>
+          <div>
+            <div className={styles.totalAmount}>
+              (
+              {invoiceList?.total_amt &&
+                formatAmountDisplay(invoiceList.total_amt)}
+              )
+            </div>
 
-        <div className={styles.Bankdescrp}>Branch: DRAGON MART, DUBAI</div>
-      </div>
+            <div className={styles.descrp}>
+              Payment will be paid after receiving of invoice within 30 days
+              period.
+            </div>
+
+            <div className={styles.totalAmount}>Bank Details:</div>
+
+            <div className={styles.Bankdescrp}>
+              Account Holder : ACCURATE PEST CONTROL SERVICES L.L.C IBAN:
+              AE980400000883216722001
+            </div>
+
+            <div className={styles.Bankdescrp}>
+              Account: 0883216722001 Bank Name : RAK BANK
+            </div>
+
+            <div className={styles.Bankdescrp}>Branch: DRAGON MART, DUBAI</div>
+          </div>
+        </Grid>
+      </Grid>
 
       <div className="mt-2">
         <Typography className="" variant="body2" sx={{ fontWeight: "bold" }}>
