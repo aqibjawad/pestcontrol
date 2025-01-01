@@ -30,7 +30,6 @@ const Page = () => {
   const [id, setId] = useState("");
   const [fetchingData, setFetchingData] = useState(false);
   const [serviceReportList, setQuoteList] = useState(null);
-  const [isApproved, setIsApproved] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(true);
 
   useEffect(() => {
@@ -69,6 +68,7 @@ const Page = () => {
       <Layout>
         <ClientDetails serviceReportList={serviceReportList} />
         <ClientRecords serviceReportList={serviceReportList} />
+        <img src={serviceReportList?.signature_img} />
       </Layout>
 
       <button 

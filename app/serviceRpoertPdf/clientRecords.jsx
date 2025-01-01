@@ -130,7 +130,7 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                 Pest Found
               </div>
               <Grid container spacing={0}>
-                {pests.map((row, index) => {
+                {pests?.map((row, index) => {
                   const isChecked = rowsPest.some(
                     (pest) => pest.pest_name === row.pest_name
                   );

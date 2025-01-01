@@ -14,6 +14,8 @@ import { Eye } from "lucide-react";
 
 import Tabs from "./tabs";
 
+import { format, differenceInDays, isAfter, isBefore } from "date-fns";
+
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
   if (parts.length > 1) {
@@ -121,6 +123,29 @@ const Page = () => {
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
+  };
+
+  const getTimeStatus = (expiryDate) => {
+    const currentDate = new Date();
+    const expiry = new Date(expiryDate);
+    const daysRemaining = differenceInDays(expiry, currentDate);
+
+    if (isBefore(expiry, currentDate)) {
+      return {
+        text: `Expired ${Math.abs(daysRemaining)} days ago`,
+        className: "bg-red-100 text-red-600", // Red for expired
+      };
+    } else if (daysRemaining <= 30) {
+      return {
+        text: `${daysRemaining} days remaining`,
+        className: "bg-yellow-100 text-yellow-600", // Yellow for pending/upcoming
+      };
+    } else {
+      return {
+        text: `${daysRemaining} days remaining`,
+        className: "bg-green-100 text-green-600", // Green for more than 30 days
+      };
+    }
   };
 
   return (
@@ -232,7 +257,7 @@ const Page = () => {
                     <th className="p-3 text-left border">Start Date</th>
                     <th className="p-3 text-left border">Expiry Date</th>
                     <th className="p-3 text-left border">Documents</th>
-                    <th className="p-3 text-left border">Status</th>
+                    <th className="p-3 text-left border">Time Remaining</th>
                     <th className="p-3 text-left border">Update</th>
                   </tr>
                 </thead>
@@ -243,36 +268,24 @@ const Page = () => {
                         const doc = employeeList?.employee?.documents.find(
                           (d) => d.name === docName
                         );
-                        const userId = employeeList?.employee?.user_id; // Extract user_id here
+                        const userId = employeeList?.employee?.user_id;
 
                         if (doc) {
-                          const currentDate = new Date();
-                          const expiryDate = new Date(doc.expiry);
-                          const diffTime = expiryDate - currentDate;
-                          const diffDays = Math.ceil(
-                            diffTime / (1000 * 60 * 60 * 24)
+                          const timeStatus = getTimeStatus(
+                            doc.expiry || doc?.process_date
                           );
-
-                          let status = "Valid";
-                          let statusClass = "bg-green-100 text-green-600";
-
-                          if (diffDays < 0) {
-                            status = "Expired";
-                            statusClass = "bg-red-100 text-red-600";
-                          } else if (diffDays <= 10) {
-                            status = `Near to Expire (${diffDays} days left)`;
-                            statusClass = "bg-red-100 text-red-600";
-                          } else if (diffDays <= 30) {
-                            status = `Near to Expire (${diffDays} days left)`;
-                            statusClass = "bg-yellow-100 text-yellow-600";
-                          }
 
                           return (
                             <tr key={doc.id} className="hover:bg-gray-50">
                               <td className="p-3 border">{doc.name}</td>
-                              <td className="p-3 border">{doc.start}</td>
                               <td className="p-3 border">
-                                {doc.expiry || doc?.process_date}
+                                {format(new Date(doc.start), "dd MMM yyyy")}
+                              </td>
+                              <td className="p-3 border">
+                                {format(
+                                  new Date(doc.expiry || doc?.process_date),
+                                  "dd MMM yyyy"
+                                )}
                               </td>
                               <td className="p-3 border">
                                 <div className="flex gap-2 items-center">
@@ -287,9 +300,9 @@ const Page = () => {
                               </td>
                               <td className="p-3 border">
                                 <span
-                                  className={`px-2 py-1 rounded ${statusClass}`}
+                                  className={`px-2 py-1 rounded ${timeStatus.className}`}
                                 >
-                                  {doc?.status}
+                                  {timeStatus.text}
                                 </span>
                               </td>
                               <td className="p-3 border">
@@ -305,7 +318,7 @@ const Page = () => {
                               <td className="p-3 border">{docName}</td>
                               <td className="p-3 border">-</td>
                               <td className="p-3 border">-</td>
-                              <td className="p-3 border"> Missing </td>
+                              <td className="p-3 border">Missing</td>
                               <td className="p-3 border">
                                 <span className="px-2 py-1 rounded bg-red-100 text-red-600">
                                   Missing

@@ -10,7 +10,6 @@ import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
 import GreenButton from "@/components/generic/GreenButton";
 import { useRouter } from "next/navigation";
 
-
 const AllEmployees = () => {
   const api = new APICall();
   const router = useRouter();
@@ -29,20 +28,6 @@ const AllEmployees = () => {
     { label: "Office Staff", value: 4 },
     { label: "Sales-Manager", value: 5 },
     { label: "Accountant", value: 6 },
-  ];
-
-  const allDocumentTypes = [
-    "Labor Card",
-    "Employment Letter",
-    "Offer Letter",
-    "Joining Letter",
-    "Visa",
-    "Medical Insurance",
-    "Driving License",
-    "DM Card",
-    "EHOC (Emergency Health Operations Certificate)",
-    "Visa Status",
-    "Asset and Vehicle Policy Confirmation",
   ];
 
   useEffect(() => {
@@ -165,6 +150,19 @@ const AllEmployees = () => {
     const existingDocs = new Set(documents?.map((doc) => doc.name) || []);
     return allDocumentTypes.filter((docType) => !existingDocs.has(docType));
   };
+
+  const allDocumentTypes = [
+    "Offer Letter",
+    "Labour Insurance",
+    "Entry Permit Inside",
+    "Medical",
+    "Finger Print",
+    "Emirates ID",
+    "Contract Submission",
+    "Visa Stamping",
+    "Towjeeh",
+    "ILOE Insurance",
+  ];
 
   const renderCards = () => (
     <div className="flex flex-wrap gap-4 mt-5">
