@@ -182,16 +182,6 @@ const JobsList = ({
           />
         </Grid>
 
-        {/* <Grid item xs={3}>
-          <InputWithTitle
-            title="Sub Total for selected Jobs"
-            type="text"
-            name="subTotal"
-            placeholder="Sub Total"
-            value={noJobs * rate}
-            readOnly
-          />
-        </Grid> */}
       </Grid>
     </div>
   );

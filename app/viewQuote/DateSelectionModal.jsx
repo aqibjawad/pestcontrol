@@ -379,11 +379,6 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
     setLoading(true);
 
     if (!trn || !licenseNo || !generatedDates.length) {
-      // Swal.fire({
-      //   icon: "error",
-      //   title: "Error",
-      //   text: "Please ensure all required fields (TRN, License No, and Dates) are filled in.",
-      // });
       SliderThumb("Please ensure all required fields (TRN, License No, and Dates) are filled in.")
       setLoading(false);
       return;

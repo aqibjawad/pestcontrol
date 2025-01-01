@@ -7,6 +7,8 @@ import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import Skeleton from "@mui/material/Skeleton";
 import DateFilters from "./generic/DateFilters";
+import APICall from "../networkUtil/APICall";
+import { job } from "../networkUtil/Constants";
 
 const UpcomingJobs = ({
   jobsList,
@@ -16,17 +18,25 @@ const UpcomingJobs = ({
   currentFilter,
   isVisible,
 }) => {
+  const api = new APICall();
   const pathname = usePathname();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
+  const [jobIdInput, setJobIdInput] = useState("");
   const [selectedArea, setSelectedArea] = useState("");
-  const [filteredJobs, setFilteredJobs] = useState([]);
+  const [filteredJobs, setFilteredJobs] = useState(jobsList || []);
   const [loading, setLoading] = useState(true);
   const [uniqueAreas, setUniqueAreas] = useState([]);
 
   const isDashboard = pathname.includes("/superadmin/dashboard");
 
-  // Extract unique areas from jobsList
+  // Set initial filteredJobs when jobsList changes
+  useEffect(() => {
+    if (jobsList) {
+      setFilteredJobs(jobsList);
+    }
+  }, [jobsList]);
+
   useEffect(() => {
     if (jobsList) {
       const areas = jobsList
@@ -38,7 +48,6 @@ const UpcomingJobs = ({
     }
   }, [jobsList]);
 
-  // Filter jobs based on search term and selected area
   useEffect(() => {
     if (!jobsList) return;
 
@@ -67,10 +76,44 @@ const UpcomingJobs = ({
 
   const handleSearch = (value) => {
     setSearchTerm(value);
+    // Reset filteredJobs to original jobsList when search is cleared
+    if (!value.trim()) {
+      setFilteredJobs(jobsList || []);
+    }
+  };
+
+  const handleJobIdSearch = async () => {
+    if (!jobIdInput.trim()) {
+      setFilteredJobs(jobsList || []);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await api.getDataWithToken(`${job}/${jobIdInput}`);
+
+      if (response.status === 200 && response.data) {
+        // Convert single job object to array format
+        const jobArray = Array.isArray(response.data)
+          ? response.data
+          : [response.data];
+        setFilteredJobs(jobArray);
+      } else {
+        setFilteredJobs([]);
+      }
+    } catch (error) {
+      console.error("Error fetching job:", error);
+      setFilteredJobs([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAreaChange = (e) => {
     setSelectedArea(e.target.value);
+    if (!e.target.value) {
+      setFilteredJobs(jobsList || []); // Reset to original list when area filter is cleared
+    }
   };
 
   const getStatusText = (status) => {
@@ -179,7 +222,7 @@ const UpcomingJobs = ({
   const renderSkeletonRows = () =>
     [...Array(5)].map((_, index) => (
       <tr key={index} className="border-b border-gray-200">
-        {[...Array(8)].map((_, colIdx) => (
+        {[...Array(9)].map((_, colIdx) => (
           <td key={colIdx} className="py-2 px-4">
             <Skeleton width={100 + colIdx * 10} height={25} />
           </td>
@@ -210,6 +253,12 @@ const UpcomingJobs = ({
     </>
   );
 
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleJobIdSearch();
+    }
+  };
+
   return (
     <div className={styles.parentContainer}>
       <div className="flex justify-between items-center mb-4">
@@ -230,7 +279,10 @@ const UpcomingJobs = ({
             </select>
           </div>
 
-          <SearchInput onSearch={handleSearch} />
+          <SearchInput
+            onSearch={handleSearch}
+            placeholder="Search by job title"
+          />
           <div className="flex items-center border border-green-500 rounded-lg h-10 w-36 ml-3 px-2 mr-3">
             <img
               src="/Filters lines.svg"
@@ -240,7 +292,23 @@ const UpcomingJobs = ({
             />
             <DateFilters onDateChange={handleDateChange} />
           </div>
-          {renderFilterButtons()}
+          <div className="mr-2">{renderFilterButtons()}</div>
+          <div className="flex items-center">
+            <input
+              type="text"
+              value={jobIdInput}
+              onChange={(e) => setJobIdInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Enter job ID"
+              className="h-10 px-3 border border-green-500 rounded-lg focus:outline-none focus:border-green-700"
+            />
+            <button
+              onClick={handleJobIdSearch}
+              className="ml-2 h-10 px-4 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none"
+            >
+              Search
+            </button>
+          </div>
         </div>
       </div>
       <div className={styles.tableContainer}>

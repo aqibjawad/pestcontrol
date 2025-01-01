@@ -261,7 +261,7 @@ const MyCalendar = () => {
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
         initialView="dayGridMonth"
-        height="600px"
+        height="auto" // Automatically adjusts the height
         events={events}
         editable={true}
         droppable={true}
