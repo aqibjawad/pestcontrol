@@ -1,10 +1,10 @@
 "use client";
 import React from "react";
-import Scheduler from "../superadmin/dashboard/components/Scheduler";
+import Schedule from "../superadmin/dashboard/components/Schedule";
 const Page = () => {
   return (
     <div>
-      <Scheduler />
+      <Schedule />
     </div>
   );
 };

@@ -328,21 +328,6 @@ const Page = () => {
               )}
             </div>
           </Grid>
-
-          <Grid item lg={12} xs={12} md={4}>
-            <div className="mr-10">
-              <div className="pageTitle">Job Location</div>
-              <LoadScript googleMapsApiKey="AIzaSyBHNqsXFQqg_-f6BkI5UH7X7nXK2KQzk8">
-                <GoogleMap
-                  mapContainerStyle={mapContainerStyle}
-                  center={center}
-                  zoom={15}
-                >
-                  <Marker position={center} />
-                </GoogleMap>
-              </LoadScript>
-            </div>
-          </Grid>
         </Grid>
       </div>
 

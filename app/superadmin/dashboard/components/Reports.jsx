@@ -229,8 +229,8 @@ const Reports = () => {
       <div className="grid grid-cols-12 gap-4">
         <div className="col-span-12">{serviceReport(serviceList)}</div>
       </div>
-      <div className="mt-10 mb-10">{sales()}</div>
-      <div className="mt-10 mb-10">{FeedBack(serviceReportList)}</div>
+      {/* <div className="mt-10 mb-10">{sales()}</div>
+      <div className="mt-10 mb-10">{FeedBack(serviceReportList)}</div> */}
     </div>
   );
 };

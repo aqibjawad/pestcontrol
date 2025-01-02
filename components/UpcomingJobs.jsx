@@ -91,16 +91,7 @@ const UpcomingJobs = ({
     try {
       setLoading(true);
       const response = await api.getDataWithToken(`${job}/${jobIdInput}`);
-
-      if (response.status === 200 && response.data) {
-        // Convert single job object to array format
-        const jobArray = Array.isArray(response.data)
-          ? response.data
-          : [response.data];
-        setFilteredJobs(jobArray);
-      } else {
-        setFilteredJobs([]);
-      }
+      setFilteredJobs(response.data ? [response.data] : []);
     } catch (error) {
       console.error("Error fetching job:", error);
       setFilteredJobs([]);
@@ -112,7 +103,7 @@ const UpcomingJobs = ({
   const handleAreaChange = (e) => {
     setSelectedArea(e.target.value);
     if (!e.target.value) {
-      setFilteredJobs(jobsList || []); // Reset to original list when area filter is cleared
+      setFilteredJobs(jobsList || []);
     }
   };
 
@@ -156,7 +147,7 @@ const UpcomingJobs = ({
             {row?.client_address?.area || "No Area Specified"}
           </div>
         </td>
-        <td>{row?.term_and_condition?.name}</td>
+        <td>{row?.user?.client?.firm_name}</td>
         <td>{row.job_title}</td>
         <td>
           <div className={styles.statusContainer}>

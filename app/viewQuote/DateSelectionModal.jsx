@@ -379,7 +379,7 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
     setLoading(true);
 
     if (!trn || !licenseNo || !generatedDates.length) {
-      SliderThumb("Please ensure all required fields (TRN, License No, and Dates) are filled in.")
+      alert("Please ensure all required fields (TRN, License No, and Dates) are filled in.")
       setLoading(false);
       return;
     }

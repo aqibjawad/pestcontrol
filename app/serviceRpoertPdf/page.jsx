@@ -3,8 +3,6 @@
 import React, { useState, useEffect } from "react";
 import ClientDetails from "./clientDetails";
 import ClientRecords from "./clientRecords";
-import VisitRecords from "./records";
-import Terms from "./terms";
 import { Grid } from "@mui/material";
 import styles from "../../styles/viewQuote.module.css";
 import APICall from "@/networkUtil/APICall";
@@ -69,12 +67,19 @@ const Page = () => {
         <ClientDetails serviceReportList={serviceReportList} />
         <ClientRecords serviceReportList={serviceReportList} />
 
-        <Grid container spacing={2}>
-          <Grid item xs={10} sm={4} md={3}></Grid>
-          <Grid item xs={2} sm={4} md={3}>
-            <img style={{height:"100px", width:"100px"}} src={serviceReportList?.signature_img} />
-          </Grid>
-        </Grid>
+        <div className="flex">
+          <div className="flex-grow"></div>
+
+          <div>
+            <div className="mt-10 contractTable">
+                Clients Signature
+            </div>
+            <img
+              style={{ height: "100px", width: "100px" }}
+              src={serviceReportList?.signature_img}
+            />
+          </div>
+        </div>
       </Layout>
 
       <button

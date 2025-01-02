@@ -68,9 +68,9 @@ const MyCalendar = () => {
     switch (status) {
       case 0:
         return "#FF4444";
-      case 1:
-        return "#FFD700";
       case 2:
+        return "#FFD700";
+      case 1:
         return "#4CAF50";
       default:
         return "#FF4444";

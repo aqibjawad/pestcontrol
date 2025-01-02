@@ -78,6 +78,7 @@ const Contracts = () => {
               <TableCell>Treatment Method Name</TableCell>
               <TableCell>Sub Total</TableCell>
               <TableCell>Actions</TableCell>
+              <TableCell>Update</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -111,6 +112,13 @@ const Contracts = () => {
                     <Link href={`/quotePdf?id=${row.id}`}>
                       <span className="text-blue-600 hover:text-blue-800">
                         View Details
+                      </span>
+                    </Link>
+                  </TableCell>
+                  <TableCell>
+                    <Link href={`/quotePdf?id=${row.id}`}>
+                      <span className="text-red-600 hover:text-red-800">
+                        Cancel Contract
                       </span>
                     </Link>
                   </TableCell>

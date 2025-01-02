@@ -95,6 +95,9 @@ const ListServiceTable = ({
               Client
             </th>
             <th className="py-2 px-4 border-b border-gray-200 text-left">
+              Firm Name
+            </th>
+            <th className="py-2 px-4 border-b border-gray-200 text-left">
               Reference
             </th>
             <th className="py-2 px-4 border-b border-gray-200 text-left">
@@ -152,6 +155,11 @@ const ListServiceTable = ({
                   <td className="py-2 px-4">
                     <div className={tableStyles.clientContact}>
                       {row?.user?.name || "N/A"}
+                    </div>
+                  </td>
+                  <td className="py-2 px-4">
+                    <div className={tableStyles.clientContact}>
+                      {row?.user?.client?.firm_name || "N/A"}
                     </div>
                   </td>
                   <td className="py-2 px-4">

@@ -5,7 +5,7 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Grid from "@mui/material/Grid";
 import Skeleton from "@mui/material/Skeleton";
-import { serviceInvoice, dashboard } from "@/networkUtil/Constants";
+import { serviceInvoice, dashboard, clients } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
 import DateFilters2 from "@/components/generic/DateFilters2";
 import Link from "next/link";
@@ -54,19 +54,19 @@ const All = () => {
       const finalEndDate = endDate || defaultDateRange.end;
 
       const response = await api.getDataWithToken(
-        `${serviceInvoice}?start_date=${finalStartDate}&end_date=${finalEndDate}`
+        `${clients}/received_amount/get?start_date=${finalStartDate}&end_date=${finalEndDate}`
       );
 
-      const paidInvoices = response.data.filter(
-        (invoice) => invoice.status === "paid"
-      );
-      setPaidInvoices(paidInvoices);
+      const invoices = response.data;
 
-      const total = paidInvoices.reduce(
-        (sum, invoice) => sum + parseFloat(invoice.total_amt || 0),
+      const total = invoices.reduce(
+        (sum, invoice) => sum + parseFloat(invoice.ledger_cr_amt_sum || 0),
         0
       );
+
+      setPaidInvoices(invoices);
       setTotalAmount(total);
+      
     } catch (error) {
       console.error("Error fetching paid invoices:", error);
     } finally {

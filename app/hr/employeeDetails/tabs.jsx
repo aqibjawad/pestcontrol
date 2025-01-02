@@ -41,9 +41,9 @@ const Tabs = ({ activeTab, setActiveTab }) => {
 
         <div
           className={`${styles.tabPaymentButton} ${
-            currentTab === "Jobs" ? styles.active : ""
+            currentTab === "jobs" ? styles.active : ""
           }`}
-          onClick={() => handleTabClick("Jobs")}
+          onClick={() => handleTabClick("jobs")}
         >
           Jobs
         </div>

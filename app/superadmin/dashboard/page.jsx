@@ -64,8 +64,6 @@ const Page = () => {
   const [fetchingData, setFetchingData] = useState(false);
   const [employeeList, setEmployeeList] = useState([]);
 
-  console.log(employeeList);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
 
@@ -210,14 +208,6 @@ const Page = () => {
     const missingItems = fullList.filter(
       (item) => !providedList.includes(item)
     );
-
-    // Display results
-    console.log(
-      "Matched Items:",
-      providedList.filter((item) => fullList.includes(item))
-    );
-    console.log("Missing Items:", missingItems);
-
     // Example: You can dynamically show missing items
     if (missingItems.length > 0) {
       console.log(`These items are missing: ${missingItems.join(", ")}`);
@@ -257,7 +247,7 @@ const Page = () => {
           className="col-span-12 md:col-span-3"
           style={{
             height: "2000px",
-            overflowY: "auto", // Enables vertical scrolling
+            overflowY: "auto", 
           }}
         >
           <style>

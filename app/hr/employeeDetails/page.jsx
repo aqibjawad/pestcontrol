@@ -35,8 +35,10 @@ const Page = () => {
 
   const [id, setId] = useState(null);
   const [fetchingData, setFetchingData] = useState(false);
+
   const [employeeList, setEmployeeList] = useState([]);
   const [employeeCompany, setEmployeeCompany] = useState([]);
+  const [employeeDevices, setEmployeeDevices] = useState([]);
   const [activeTab, setActiveTab] = useState("documents"); // State for active tab
 
   useEffect(() => {
@@ -56,6 +58,7 @@ const Page = () => {
       );
       setEmployeeList(response.data);
       setEmployeeCompany(response.data.captain_all_jobs);
+      setEmployeeDevices(response.data.devices);
     } catch (error) {
       console.error("Error fetching employees:", error);
     } finally {
@@ -447,6 +450,43 @@ const Page = () => {
             ) : (
               <EmpUpcomingJobs employeeCompany={employeeCompany} />
             )}
+          </div>
+        </div>
+      )}
+
+      {activeTab === "devices" && (
+        <div className={styles.personalDetailsContainer}>
+          <div className="w-full">
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="p-3 text-left border">Code No</th>
+                      <th className="p-3 text-left border">Device Name</th>
+                      <th className="p-3 text-left border">Model</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {employeeDevices && employeeDevices.length > 0 ? (
+                      employeeDevices.map((device, index) => (
+                        <tr key={index} className="hover:bg-gray-100">
+                          <td className="p-3 border">{device.code_no}</td>
+                          <td className="p-3 border">{device.name}</td>
+                          <td className="p-3 border">{device.model}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td className="p-3 text-center border" colSpan="3">
+                          No devices found
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       )}
