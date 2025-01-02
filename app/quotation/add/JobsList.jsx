@@ -81,8 +81,8 @@ const JobsList = ({
       today.setHours(0, 0, 0, 0);
       setSelectedDates([today.toISOString().slice(0, 10)]);
     }
-    if (value === "custom" || value === "monthly") {
-      setNoJobs(1); // Default for Quarterly and Monthly
+    if (value === "custom") {
+      setNoJobs(1); 
     }
   };
 
@@ -101,7 +101,7 @@ const JobsList = ({
   return (
     <div style={{ marginBottom: "2rem" }}>
       <Grid container spacing={2}>
-        <Grid item lg={3} xs={4}>
+        <Grid item lg={6} xs={4}>
           <Dropdown2
             title="Selected Products"
             options={serviceOptions}
@@ -111,7 +111,7 @@ const JobsList = ({
           />
         </Grid>
 
-        <Grid item lg={3} xs={4}>
+        <Grid item lg={6} xs={4}>
           <Dropdown2
             title="Job Type"
             options={jobTypes}
@@ -119,19 +119,6 @@ const JobsList = ({
             onChange={handleJobTypeChange}
           />
         </Grid>
-
-        {selectedJobType === "yearly" && (
-          <Grid item lg={3} xs={4}>
-            <InputWithTitle
-              title="No of Jobs"
-              type="text"
-              name="noJobs"
-              placeholder="No of Jobs"
-              value={noJobs}
-              onChange={(value) => setNoJobs(value)}
-            />
-          </Grid>
-        )}
 
         {selectedJobType === "monthly" && (
           <>
@@ -159,7 +146,7 @@ const JobsList = ({
         )}
 
         {selectedJobType === "custom" && (
-          <Grid item lg={3} xs={4}>
+          <Grid item lg={6} xs={4}>
             <InputWithTitle
               title="Total Jobs"
               type="text"
@@ -171,7 +158,7 @@ const JobsList = ({
           </Grid>
         )}
 
-        <Grid item xs={2}>
+        <Grid item lg={6} xs={2}>
           <InputWithTitle
             title="Rate"
             type="text"
