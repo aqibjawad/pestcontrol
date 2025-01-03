@@ -286,28 +286,29 @@ const SalaryCal = () => {
 
       const response = await api.getDataWithToken(apiUrl);
 
-      if (response.status === "success") {
-        handleClosAdveModal();
-        Swal.fire({
-          icon: "success",
-          title: "Success",
-          text: "Attendance has been updated successfully!",
-        }).then(() => {
-          window.location.reload();
-        });
-      } else {
-        handleClosAdveModal();
-        throw new Error(
-          response.error?.message || "Failed to update attendance"
-        );
-      }
+      handleClosAdveModal();
+      window.location.reload();
+
+      // if (response.status === "success") {
+      //   Swal.fire({
+      //     icon: "success",
+      //     title: "Success",
+      //     text: "Attendance has been updated successfully!",
+      //   }).then(() => {
+      //   });
+      // } else {
+      //   handleClosAdveModal();
+      //   throw new Error(
+      //     response.error?.message || "Failed to update attendance"
+      //   );
+      // }
     } catch (error) {
       handleClosAdveModal();
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: error.message || "Unexpected error occurred",
-      });
+      // Swal.fire({
+      //   icon: "error",
+      //   title: "Error",
+      //   text: error.message || "Unexpected error occurred",
+      // });
     } finally {
       setLoadingSubmit(false);
     }

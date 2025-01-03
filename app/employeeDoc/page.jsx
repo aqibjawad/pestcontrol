@@ -17,7 +17,6 @@ import {
   Box,
   CircularProgress,
   Skeleton,
-  Checkbox,
 } from "@mui/material";
 import { Upload } from "lucide-react";
 import APICall from "@/networkUtil/APICall";
@@ -25,17 +24,43 @@ import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
 import Swal from "sweetalert2";
 
 const tabData = [
-  "Offer Letter",
-  "Labour Insurance",
-  "Entry Permit Inside",
-  "Medical",
-  "Finger Print",
-  "Emirates ID",
-  "Contract Submission",
+  "Employment Letter",
+  "Job Offer Letter/Joining Letter APCS",
+  "Passport Handover Form",
+  "Passport",
+  "EID",
+  "DM Card",
+  "Driving Licence",
+  "Personal Photo",
+  "MOHRE Letter",
+  "Labour Card",
+  "Change Status",
+  "Visa",
+  "EHOC",
+  "Medical Report",
   "Visa Stamping",
-  "Towjeeh",
+  "Health Insurance",
+  "Vehicle Policy",
+  "Asset Policy",
   "ILOE Insurance",
+  "Bank Detail/Salary Transfer",
 ];
+
+const getVisibleDocuments = (profession) => {
+  const baseDocuments = tabData.filter(
+    (doc) => doc !== "DM Card" && doc !== "EHOC" && doc !== "Vehicle Policy"
+  );
+
+  if (["HR Manager", "Accountant", "Receptionist"].includes(profession)) {
+    return baseDocuments;
+  }
+
+  if (profession === "Sales Manager" || profession === "Sales Officer") {
+    return [...baseDocuments, "DM Card", "EHOC"];
+  }
+
+  return tabData;
+};
 
 const getParamsFromUrl = (url) => {
   const parts = url.split("?");
@@ -56,6 +81,8 @@ const InsuranceForm = () => {
   const [id, setId] = useState(null);
   const [selectedFile, setSelectedFile] = useState("");
   const [currentDocData, setCurrentDocData] = useState(null);
+  const [profession, setProfession] = useState("");
+  const [visibleDocuments, setVisibleDocuments] = useState([]);
 
   const [formState, setFormState] = useState({
     status: "pending",
@@ -64,14 +91,12 @@ const InsuranceForm = () => {
     processDate: "",
     processAmount: "",
     description: "",
+    entryPermitStatus: "Entry Permit",
   });
 
   const [loading, setLoading] = useState(false);
-
   const [activeTab, setActiveTab] = useState(0);
-  const [statusCompleted, setStatusCompleted] = useState(
-    Array(tabData.length).fill(false)
-  );
+  const [statusCompleted, setStatusCompleted] = useState([]);
   const [changeStatus, setChangeStatus] = useState(false);
   const [completedTabs, setCompletedTabs] = useState([]);
   const [activeTabs, setActiveTabs] = useState([0]);
@@ -89,8 +114,16 @@ const InsuranceForm = () => {
   }, []);
 
   useEffect(() => {
+    if (profession) {
+      const docs = getVisibleDocuments(profession);
+      setVisibleDocuments(docs);
+      setStatusCompleted(Array(docs.length).fill(false));
+    }
+  }, [profession]);
+
+  useEffect(() => {
     const currentDoc = employeeList.find(
-      (doc) => doc.name === tabData[activeTab]
+      (doc) => doc.name === visibleDocuments[activeTab]
     );
     if (currentDoc) {
       setCurrentDocData(currentDoc);
@@ -115,7 +148,7 @@ const InsuranceForm = () => {
         entryPermitStatus: "Entry Permit",
       });
     }
-  }, [activeTab, employeeList]);
+  }, [activeTab, employeeList, visibleDocuments]);
 
   const getAllEmployees = async (employeeId) => {
     setFetchingData(true);
@@ -123,38 +156,48 @@ const InsuranceForm = () => {
       const response = await api.getDataWithToken(
         `${getAllEmpoyesUrl}/${employeeId}`
       );
-      if (response?.data?.employee?.documents) {
-        const documents = response.data.employee.documents;
-        setEmployeeList(documents);
+      if (response?.data?.employee) {
+        setProfession(response.data.employee.profession);
 
-        // Find the first document's status
-        const firstDoc = documents.find((doc) => doc.name === tabData[0]);
-        const isFirstDone = firstDoc?.status === "done";
+        if (response.data.employee.documents) {
+          const documents = response.data.employee.documents;
+          setEmployeeList(documents);
 
-        // Only set completed tabs and active tabs if first document is done
-        if (isFirstDone) {
-          const completedDocs = documents.filter(
-            (doc) => doc.status === "done"
-          );
-          const completedIndices = completedDocs.map((doc) =>
-            tabData.indexOf(doc.name)
-          );
-          setCompletedTabs(completedIndices);
+          // Get visible documents based on profession
+          const docs = getVisibleDocuments(response.data.employee.profession);
+          setVisibleDocuments(docs);
 
-          const maxCompletedIndex = Math.max(...completedIndices, 0);
-          const activeTabsList = [...completedIndices];
-          if (maxCompletedIndex + 1 < tabData.length) {
-            activeTabsList.push(maxCompletedIndex + 1);
+          // Find first document status
+          const firstDoc = documents.find((doc) => doc.name === docs[0]);
+          const isFirstDone = firstDoc?.status === "done";
+
+          if (isFirstDone) {
+            const completedDocs = documents.filter(
+              (doc) => doc.status === "done"
+            );
+            const completedIndices = completedDocs
+              .map((doc) => docs.indexOf(doc.name))
+              .filter((index) => index !== -1);
+
+            setCompletedTabs(completedIndices);
+
+            const maxCompletedIndex = Math.max(...completedIndices, 0);
+            const activeTabsList = [...completedIndices];
+            if (maxCompletedIndex + 1 < docs.length) {
+              activeTabsList.push(maxCompletedIndex + 1);
+            }
+            setActiveTabs(activeTabsList);
+          } else {
+            setCompletedTabs([]);
+            setActiveTabs([0]);
           }
-          setActiveTabs(activeTabsList);
-        } else {
-          // If first document is not done, only first tab is active
-          setCompletedTabs([]);
-          setActiveTabs([0]);
-        }
 
-        const updatedStatus = documents.map((doc) => doc.status === "done");
-        setStatusCompleted(updatedStatus);
+          const updatedStatus = docs.map(
+            (docName) =>
+              documents.find((doc) => doc.name === docName)?.status === "done"
+          );
+          setStatusCompleted(updatedStatus);
+        }
       }
     } catch (error) {
       console.error("Error fetching employees:", error);
@@ -186,7 +229,7 @@ const InsuranceForm = () => {
     try {
       const obj = {
         user_id: id,
-        name: tabData[activeTab],
+        name: visibleDocuments[activeTab],
         status: formState.status,
         file: selectedFile,
         start: formState.startDate,
@@ -196,8 +239,7 @@ const InsuranceForm = () => {
         desc: formState.description,
       };
 
-      // Include entryPermitStatus if the current tab is "Entry Permit Inside"
-      if (tabData[activeTab] === "Entry Permit Inside") {
+      if (visibleDocuments[activeTab] === "Entry Permit Inside") {
         obj.entryPermitStatus = formState.entryPermitStatus;
       }
 
@@ -213,7 +255,6 @@ const InsuranceForm = () => {
           text: "Data has been added successfully!",
         });
 
-        // Refresh employee data to get updated information
         await getAllEmployees(id);
 
         const updatedStatus = [...statusCompleted];
@@ -232,7 +273,7 @@ const InsuranceForm = () => {
             setCompletedTabs(newCompletedTabs);
 
             const nextTab = activeTab + 1;
-            if (nextTab < tabData.length) {
+            if (nextTab < visibleDocuments.length) {
               setActiveTabs([...new Set([...activeTabs, nextTab])]);
               setActiveTab(nextTab);
             }
