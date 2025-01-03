@@ -71,27 +71,6 @@ const getAllQuotes = async () => {
   }
 };
 
-  // const handleSubmit = async () => {
-  //   setIsApproving(true);
-  //   try {
-  //     await api.getDataWithToken(`${quotation}/move/contract/${id}`);
-  //     router.push("/contracts");
-  //     setIsApproved(true);
-  //   } catch (error) {
-  //     console.error("Error sending data:", error);
-  //   } finally {
-  //     setIsApproving(false);
-  //   }
-  // };
-
-  const handleEditQuote = () => {
-    router.push(`/quotation?id=${id}`);
-  };
-
-  const handlePrint = () => {
-    window.print();
-  };
-
   if (fetchingData) {
     return (
       <div>

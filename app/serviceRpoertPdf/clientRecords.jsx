@@ -252,7 +252,7 @@ const ClientRecords = ({ serviceReportList, loading }) => {
         </Grid>
       </div>
 
-      <div className={styles.clientRecord}>
+      <div style={{marginTop:"2rem"}} className={styles.clientRecord}>
         <div className={styles.areaHead}>Areas</div>
         <TableContainer component={Paper}>
           <Table>
@@ -340,7 +340,7 @@ const ClientRecords = ({ serviceReportList, loading }) => {
         </TableContainer>
       </div>
 
-      <div className={styles.clientRecord}>
+      <div style={{marginTop:"2rem"}} className={styles.clientRecord}>
         <div className={styles.areaHead}>Products Used</div>
         <TableContainer component={Paper}>
           <Table>

@@ -387,7 +387,7 @@ const InsuranceForm = () => {
                     id="file-upload"
                     className="hidden"
                     onChange={handleFileChange}
-                    accept="image/*"
+                    accept="image/*, .pdf"
                   />
                   <label htmlFor="file-upload">
                     <IconButton

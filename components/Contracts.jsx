@@ -116,7 +116,7 @@ const Contracts = () => {
                     </Link>
                   </TableCell>
                   <TableCell>
-                    <Link href={`/quotePdf?id=${row.id}`}>
+                    <Link href={`/contractCancel?id=${row.id}`}>
                       <span className="text-red-600 hover:text-red-800">
                         Cancel Contract
                       </span>

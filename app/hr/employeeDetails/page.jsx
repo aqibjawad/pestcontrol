@@ -14,7 +14,13 @@ import { Eye } from "lucide-react";
 
 import Tabs from "./tabs";
 
-import { format, differenceInDays, isAfter, isBefore } from "date-fns";
+import {
+  format,
+  differenceInDays,
+  differenceInYears,
+  isBefore,
+  differenceInMonths
+} from "date-fns";
 
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
@@ -131,24 +137,46 @@ const Page = () => {
   const getTimeStatus = (expiryDate) => {
     const currentDate = new Date();
     const expiry = new Date(expiryDate);
-    const daysRemaining = differenceInDays(expiry, currentDate);
 
     if (isBefore(expiry, currentDate)) {
+      const daysExpired = differenceInDays(currentDate, expiry);
       return {
-        text: `Expired ${Math.abs(daysRemaining)} days ago`,
+        text: `Expired ${daysExpired} days ago`,
         className: "bg-red-100 text-red-600", // Red for expired
       };
-    } else if (daysRemaining <= 30) {
-      return {
-        text: `${daysRemaining} days remaining`,
-        className: "bg-yellow-100 text-yellow-600", // Yellow for pending/upcoming
-      };
-    } else {
-      return {
-        text: `${daysRemaining} days remaining`,
-        className: "bg-green-100 text-green-600", // Green for more than 30 days
-      };
     }
+
+    const yearsRemaining = differenceInYears(expiry, currentDate);
+    const monthsRemaining = differenceInMonths(expiry, currentDate) % 12;
+    const daysRemaining = differenceInDays(
+      expiry,
+      new Date(
+        currentDate.getFullYear() + yearsRemaining,
+        currentDate.getMonth() + monthsRemaining,
+        currentDate.getDate()
+      )
+    );
+
+    let timeText = "";
+    if (yearsRemaining > 0) {
+      timeText += `${yearsRemaining} year${yearsRemaining > 1 ? "s" : ""} `;
+    }
+    if (monthsRemaining > 0) {
+      timeText += `${monthsRemaining} month${monthsRemaining > 1 ? "s" : ""} `;
+    }
+    if (daysRemaining > 0) {
+      timeText += `${daysRemaining} day${daysRemaining > 1 ? "s" : ""}`;
+    }
+
+    return {
+      text: timeText.trim() || "0 days remaining",
+      className:
+        yearsRemaining > 0
+          ? "bg-green-100 text-green-600"
+          : monthsRemaining > 0 || daysRemaining <= 30
+          ? "bg-yellow-100 text-yellow-600"
+          : "bg-green-100 text-green-600",
+    };
   };
 
   return (
@@ -282,7 +310,9 @@ const Page = () => {
                             <tr key={doc.id} className="hover:bg-gray-50">
                               <td className="p-3 border">{doc.name}</td>
                               <td className="p-3 border">
-                                {format(new Date(doc.start), "dd MMM yyyy")}
+                                {doc.start
+                                  ? format(new Date(doc.start), "dd MMM yyyy")
+                                  : "In Process !!"}
                               </td>
                               <td className="p-3 border">
                                 {format(

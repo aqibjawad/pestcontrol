@@ -25,6 +25,7 @@ const ClientDetails = ({ serviceReportList }) => {
                   </TableCell>
                   <TableCell> {serviceReportList?.job?.user?.name} </TableCell>
                 </TableRow>
+
                 <TableRow sx={{ border: "none" }}>
                   <TableCell>
                     <strong> Job Start:</strong>
@@ -44,6 +45,13 @@ const ClientDetails = ({ serviceReportList }) => {
                       minute: "2-digit",
                     })}
                   </TableCell>
+                </TableRow>
+
+                <TableRow sx={{ border: "none" }}>
+                  <TableCell>
+                    <strong> Visit Type:</strong>
+                  </TableCell>
+                  <TableCell> {serviceReportList?.type_of_visit} </TableCell>
                 </TableRow>
               </TableBody>
             </Table>
