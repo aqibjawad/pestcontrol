@@ -2,7 +2,18 @@
 
 import React, { useState, useEffect } from "react";
 import Layout from "../../components/layout";
-import { Grid, Typography, Paper, Skeleton } from "@mui/material";
+import {
+  Grid,
+  Typography,
+  Skeleton,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+} from "@mui/material";
 
 import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
 
@@ -183,7 +194,6 @@ const Page = () => {
 
   return (
     <Layout>
-      
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <Typography variant="body1" sx={{ fontWeight: "bold" }}>
@@ -212,222 +222,188 @@ const Page = () => {
           <Skeleton variant="rectangular" width="100%" height="400px" />
         ) : (
           <div>
-            <Grid container spacing={2} sx={{ padding: 2 }}>
-              {/* Left Section */}
-              <Grid item xs={5}>
-                <Grid
-                  container
-                  spacing={2}
-                  component={Paper}
-                  sx={{ padding: 2 }}
-                >
-                  {/* Header Row */}
-                  <Grid item xs={6}>
-                    <Typography
-                      variant="h6"
-                      sx={{ fontWeight: "bold", color: "#32A92E" }}
-                    >
-                      Basic
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontWeight: "bold",
-                        color: "#32A92E",
-                        textAlign: "right",
-                      }}
-                    >
-                      Allowance
-                    </Typography>
-                  </Grid>
-                  {/* Data Row */}
-                  <Grid item xs={6}>
-                    <Typography
-                      sx={{
-                        color: "black",
-                        padding: "4px 16px",
-                        lineHeight: "1rem",
-                      }}
-                    >
-                      {invoiceList?.basic_salary}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <Typography
-                      sx={{
-                        color: "black",
-                        padding: "4px 16px",
-                        lineHeight: "1rem",
-                        textAlign: "right",
-                      }}
-                    >
-                      {invoiceList?.allowance}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </Grid>
-              {/* Right Section */}
-              <Grid className="ml-20" item xs={5}>
-                <Grid
-                  container
-                  spacing={2}
-                  component={Paper}
-                  sx={{ padding: 2 }}
-                >
-                  {/* Header Row */}
-                  <Grid item xs={6}>
-                    <Typography
-                      variant="h6"
-                      sx={{ fontWeight: "bold", color: "#32A92E" }}
-                    >
-                      Other
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontWeight: "bold",
-                        color: "#32A92E",
-                        textAlign: "right",
-                      }}
-                    >
-                      Payable
-                    </Typography>
-                  </Grid>
-                  {/* Data Row */}
-                  <Grid item xs={6}>
-                    <Typography
-                      sx={{
-                        color: "black",
-                        padding: "4px 16px",
-                        lineHeight: "1rem",
-                      }}
-                    >
-                      {invoiceList?.other}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <Typography
-                      sx={{
-                        color: "black",
-                        padding: "4px 16px",
-                        lineHeight: "1rem",
-                        textAlign: "right",
-                      }}
-                    >
-                      {invoiceList?.payable_salary}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </Grid>
-            </Grid>
+            <TableContainer component={Paper} sx={{ padding: 2 }}>
+              <Table>
+                {/* Table Header */}
+                <TableHead>
+                  <TableRow>
+                    <TableCell align="left">
+                      <Typography
+                        variant="h6"
+                        sx={{ fontWeight: "bold", color: "#32A92E" }}
+                      >
+                        Basic
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="right">
+                      <Typography
+                        variant="h6"
+                        sx={{ fontWeight: "bold", color: "#32A92E" }}
+                      >
+                        Allowance
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="left">
+                      <Typography
+                        variant="h6"
+                        sx={{ fontWeight: "bold", color: "#32A92E" }}
+                      >
+                        Other
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="right">
+                      <Typography
+                        variant="h6"
+                        sx={{ fontWeight: "bold", color: "#32A92E" }}
+                      >
+                        Payable
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                {/* Table Body */}
+                <TableBody>
+                  <TableRow>
+                    <TableCell align="left">
+                      <Typography
+                        sx={{
+                          color: "black",
+                          padding: "4px 16px",
+                          lineHeight: "1rem",
+                        }}
+                      >
+                        {invoiceList?.basic_salary}
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="right">
+                      <Typography
+                        sx={{
+                          color: "black",
+                          padding: "4px 16px",
+                          lineHeight: "1rem",
+                        }}
+                      >
+                        {invoiceList?.allowance}
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="left">
+                      <Typography
+                        sx={{
+                          color: "black",
+                          padding: "4px 16px",
+                          lineHeight: "1rem",
+                        }}
+                      >
+                        {invoiceList?.other}
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="right">
+                      <Typography
+                        sx={{
+                          color: "black",
+                          padding: "4px 16px",
+                          lineHeight: "1rem",
+                        }}
+                      >
+                        {invoiceList?.payable_salary}
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
 
-            <Grid
-              className="mt-5"
-              container
-              spacing={2}
-              component={Paper}
-              sx={{ padding: 2 }}
-            >
-              {/* Header Row */}
-              <Grid item xs={3}>
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: "bold", color: "#32A92E" }}
-                >
-                  Comission
-                </Typography>
-              </Grid>
-              <Grid item xs={3}>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontWeight: "bold",
-                    color: "#32A92E",
-                    textAlign: "right",
-                  }}
-                >
-                  Total Fines (AED)
-                </Typography>
-              </Grid>
-              <Grid item xs={3}>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontWeight: "bold",
-                    color: "#32A92E",
-                    textAlign: "right",
-                  }}
-                >
-                  Advance Payments
-                </Typography>
-              </Grid>
+            <TableContainer component={Paper} sx={{ marginTop: 5, padding: 2 }}>
+              <Table>
+                {/* Table Header */}
+                <TableHead>
+                  <TableRow>
+                    <TableCell>
+                      <Typography
+                        variant="h6"
+                        sx={{ fontWeight: "bold", color: "#32A92E" }}
+                      >
+                        Commission
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="right">
+                      <Typography
+                        variant="h6"
+                        sx={{ fontWeight: "bold", color: "#32A92E" }}
+                      >
+                        Fines
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="right">
+                      <Typography
+                        variant="h6"
+                        sx={{ fontWeight: "bold", color: "#32A92E" }}
+                      >
+                        Advance Payments
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="right">
+                      <Typography
+                        variant="h6"
+                        sx={{ fontWeight: "bold", color: "#32A92E" }}
+                      >
+                        Hold Salary
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
 
-              <Grid item xs={3}>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontWeight: "bold",
-                    color: "#32A92E",
-                    textAlign: "right",
-                  }}
-                >
-                  Hold Salary
-                </Typography>
-              </Grid>
-              {/* Data Row */}
-              <Grid item xs={3}>
-                <Typography
-                  sx={{
-                    color: "black",
-                    padding: "4px 16px",
-                    lineHeight: "1rem",
-                  }}
-                >
-                  {invoiceList?.commission_per || 0}
-                </Typography>
-              </Grid>
-              <Grid item xs={3}>
-                <Typography
-                  sx={{
-                    color: "black",
-                    padding: "4px 16px",
-                    lineHeight: "1rem",
-                    textAlign: "right",
-                  }}
-                >
-                  {invoiceList?.total_fines}
-                </Typography>
-              </Grid>
-              <Grid item xs={3}>
-                <Typography
-                  sx={{
-                    color: "black",
-                    padding: "4px 16px",
-                    lineHeight: "1rem",
-                    textAlign: "right",
-                  }}
-                >
-                  {invoiceList?.adv_paid || 0}
-                </Typography>
-              </Grid>
-
-              <Grid item xs={3}>
-                <Typography
-                  sx={{
-                    color: "black",
-                    padding: "4px 16px",
-                    lineHeight: "1rem",
-                    textAlign: "right",
-                  }}
-                >
-                  {invoiceList?.user?.employee?.hold_salary || 0}
-                </Typography>
-              </Grid>
-            </Grid>
+                {/* Table Body */}
+                <TableBody>
+                  <TableRow>
+                    <TableCell>
+                      <Typography
+                        sx={{
+                          color: "black",
+                          padding: "4px 16px",
+                          lineHeight: "1rem",
+                        }}
+                      >
+                        {invoiceList?.commission_per || 0}
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="right">
+                      <Typography
+                        sx={{
+                          color: "black",
+                          padding: "4px 16px",
+                          lineHeight: "1rem",
+                        }}
+                      >
+                        {invoiceList?.total_fines || 0}
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="right">
+                      <Typography
+                        sx={{
+                          color: "black",
+                          padding: "4px 16px",
+                          lineHeight: "1rem",
+                        }}
+                      >
+                        {invoiceList?.adv_paid || 0}
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="right">
+                      <Typography
+                        sx={{
+                          color: "black",
+                          padding: "4px 16px",
+                          lineHeight: "1rem",
+                        }}
+                      >
+                        {invoiceList?.user?.employee?.hold_salary || 0}
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
           </div>
         )}
       </div>
@@ -465,7 +441,6 @@ const Page = () => {
           <Typography variant="body2">Date :</Typography>
         </Grid>
       </Grid>
-
     </Layout>
   );
 };

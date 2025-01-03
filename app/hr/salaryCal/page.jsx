@@ -23,6 +23,8 @@ const SalaryCal = () => {
   const api = new APICall();
   const router = useRouter();
 
+  const [refreshComponent, setRefreshComponent] = useState(false);
+
   const [fetchingData, setFetchingData] = useState(false);
   const [employeeList, setEmployeeList] = useState([]);
 
@@ -96,7 +98,7 @@ const SalaryCal = () => {
 
   useEffect(() => {
     getAllEmployees();
-  }, []);
+  }, [refreshComponent]);
 
   const handleOpenModal = (employee) => {
     setSelectedEmployee(employee);
@@ -287,28 +289,9 @@ const SalaryCal = () => {
       const response = await api.getDataWithToken(apiUrl);
 
       handleClosAdveModal();
-      window.location.reload();
-
-      // if (response.status === "success") {
-      //   Swal.fire({
-      //     icon: "success",
-      //     title: "Success",
-      //     text: "Attendance has been updated successfully!",
-      //   }).then(() => {
-      //   });
-      // } else {
-      //   handleClosAdveModal();
-      //   throw new Error(
-      //     response.error?.message || "Failed to update attendance"
-      //   );
-      // }
+      setRefreshComponent((prev) => !prev);
     } catch (error) {
       handleClosAdveModal();
-      // Swal.fire({
-      //   icon: "error",
-      //   title: "Error",
-      //   text: error.message || "Unexpected error occurred",
-      // });
     } finally {
       setLoadingSubmit(false);
     }
@@ -335,6 +318,8 @@ const SalaryCal = () => {
       );
 
       if (response.status === "success") {
+        setRefreshComponent((prev) => !prev);
+        handleClosAdvePayModal();
         Swal.fire({
           icon: "success",
           title: "Success",
@@ -348,7 +333,7 @@ const SalaryCal = () => {
             console.error("Employee ID is missing");
             return;
           }
-          router.push(`/paySlip?id=${employeeId}`);
+          // router.push(`/paySlip?id=${employeeId}`);
         });
       } else {
         throw new Error(
