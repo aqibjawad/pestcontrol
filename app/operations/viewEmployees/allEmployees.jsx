@@ -146,29 +146,39 @@ const AllEmployees = () => {
     router.push("/hr/employee/");
   };
 
-  const getMissingDocuments = (documents) => {
-    const existingDocs = new Set(documents?.map((doc) => doc.name) || []);
-    return allDocumentTypes.filter((docType) => !existingDocs.has(docType));
-  };
+  // const getMissingDocuments = (documents) => {
+  //   const existingDocs = new Set(documents?.map((doc) => doc.name) || []);
+  //   return allDocumentTypes.filter((docType) => !existingDocs.has(docType));
+  // };
 
-  const allDocumentTypes = [
-    "Offer Letter",
-    "Labour Insurance",
-    "Entry Permit Inside",
-    "Medical",
-    "Finger Print",
-    "Emirates ID",
-    "Contract Submission",
-    "Visa Stamping",
-    "Towjeeh",
-    "ILOE Insurance",
-  ];
+  // const allDocumentTypes = [
+  //   "Employment Letter",
+  //   "Job Offer Letter/Joining Letter APCS",
+  //   "Passport Handover Form",
+  //   "Passport",
+  //   "EID",
+  //   "DM Card",
+  //   "Driving Licence",
+  //   "Personal Photo",
+  //   "MOHRE Letter",
+  //   "Labour Card",
+  //   "Change Status",
+  //   "Visa",
+  //   "EHOC",
+  //   "Medical Report",
+  //   "Visa Stamping",
+  //   "Health Insurance",
+  //   "Vehicle Policy",
+  //   "Asset Policy",
+  //   "ILOE Insurance",
+  //   "Bank Detail/Salary Transfer",
+  // ];
 
   const renderCards = () => (
     <div className="flex flex-wrap gap-4 mt-5">
       {filteredEmployees?.map((employee) => {
-        const missingDocs = getMissingDocuments(employee?.employee?.documents);
-        const existingDocs = employee?.employee?.documents || [];
+        // const missingDocs = getMissingDocuments(employee?.employee?.documents);
+        // const existingDocs = employee?.employee?.documents || [];
 
         return (
           <div
@@ -191,7 +201,7 @@ const AllEmployees = () => {
               </p>
             </div>
 
-            <div className="mt-4">
+            {/* <div className="mt-4">
               <h4 className="font-semibold text-red-600">Missing Documents</h4>
               <div className="max-h-32 overflow-y-auto">
                 {missingDocs.map((docName) => (
@@ -203,7 +213,7 @@ const AllEmployees = () => {
                   </div>
                 ))}
               </div>
-            </div>
+            </div> */}
 
             <div className="mt-4 flex justify-between items-center">
               <Switch
@@ -215,20 +225,11 @@ const AllEmployees = () => {
                 color="primary"
                 size="small"
               />
-              {/* <Link href={`/hr/empDocuments?id=${employee.id}`}>
-                <FaPencil className="text-blue-500 cursor-pointer" />
-              </Link> */}
               <Link href={`/hr/employeeDetails?id=${employee.id}`}>
                 <span className="text-blue-600 hover:text-blue-800">
                   View Details
                 </span>
               </Link>
-
-              {/* <Link href={`/employeeDoc?id=${employee.id}`}>
-                <span className="text-blue-600 hover:text-blue-800">
-                  View Details
-                </span>
-              </Link> */}
             </div>
           </div>
         );

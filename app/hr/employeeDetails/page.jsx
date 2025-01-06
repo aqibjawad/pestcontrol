@@ -10,16 +10,16 @@ import Link from "next/link";
 import EmpUpcomingJobs from "../jobs/upComing";
 import withAuth from "@/utils/withAuth";
 
-import { Eye } from "lucide-react";
-
 import Tabs from "./tabs";
+
+import { getDocumentsByProfession } from "../../../Helper/documents";
 
 import {
   format,
   differenceInDays,
   differenceInYears,
   isBefore,
-  differenceInMonths
+  differenceInMonths,
 } from "date-fns";
 
 const getIdFromUrl = (url) => {
@@ -47,6 +47,9 @@ const Page = () => {
   const [employeeDevices, setEmployeeDevices] = useState([]);
   const [activeTab, setActiveTab] = useState("documents"); // State for active tab
 
+  const [empProfession, setEmployeeProfession] = useState([]);
+  const requiredDocuments = getDocumentsByProfession(empProfession);
+
   useEffect(() => {
     const currentUrl = window.location.href;
     const urlId = getIdFromUrl(currentUrl);
@@ -65,6 +68,7 @@ const Page = () => {
       setEmployeeList(response.data);
       setEmployeeCompany(response.data.captain_all_jobs);
       setEmployeeDevices(response.data.devices);
+      setEmployeeProfession(response?.data?.employee?.profession);
     } catch (error) {
       console.error("Error fetching employees:", error);
     } finally {
@@ -116,19 +120,6 @@ const Page = () => {
       </tr>
     ));
   };
-
-  const requiredDocuments = [
-    "Offer Letter",
-    "Labour Insurance",
-    "Entry Permit Inside",
-    "Medical",
-    "Finger Print",
-    "Emirates ID",
-    "Contract Submission",
-    "Visa Stamping",
-    "Towjeeh",
-    "ILOE Insurance",
-  ];
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);

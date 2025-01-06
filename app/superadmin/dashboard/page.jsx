@@ -43,8 +43,7 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 
-import EmployeeUpdateModal from "../../../components/employeeUpdate";
-import { Router } from "lucide-react";
+import { getDocumentsByProfession } from "../../../Helper/documents";
 
 import { useRouter } from "next/navigation";
 
@@ -64,17 +63,42 @@ const Page = () => {
   const [fetchingData, setFetchingData] = useState(false);
   const [employeeList, setEmployeeList] = useState([]);
 
+  const [profession, setProfession] = useState("");
+  const [documents, setDocuments] = useState([]);
+
+  const [missingDocs, setMissingDocs] = useState([]);
+  const [requiredDocs, setRequiredDocs] = useState([]);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
+
+  useEffect(() => {
+    if (profession) {
+      const docs = getDocumentsByProfession(profession);
+      setDocuments(docs);
+    }
+  }, [profession]);
+
+  useEffect(() => {
+    if (profession) {
+      // Get required documents for profession
+      const docs = getDocumentsByProfession(profession);
+      setRequiredDocs(docs);
+
+      // Find missing documents
+      const missing = docs.filter(
+        (doc) =>
+          !employeeList?.employee?.documents?.some(
+            (empDoc) => empDoc.name === doc
+          )
+      );
+      setMissingDocs(missing);
+    }
+  }, [profession, employeeList]);
 
   const handleEditClick = (employee) => {
     setSelectedEmployee(employee);
     router.push(`/hr/employeeDetails?id=${employee.id}`);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedEmployee(null);
   };
 
   const tabs = () => {
@@ -135,7 +159,17 @@ const Page = () => {
         return earliestDateA - earliestDateB;
       });
 
+      const professions = response.data
+        .map((employee) => employee.employee.profession)
+        .filter(
+          (profession, index, self) =>
+            // Remove duplicates and null/undefined values
+            profession && self.indexOf(profession) === index
+        );
+
       setEmployeeList(sortedEmployees);
+
+      setProfession(professions);
     } catch (error) {
       console.error("Error fetching employees:", error);
     } finally {
@@ -189,32 +223,6 @@ const Page = () => {
     };
   };
 
-  const fullList = [
-    "Offer Letter",
-    "Labour Insurance",
-    "Entry Permit Inside",
-    "Medical",
-    "Finger Print",
-    "Emirates ID",
-    "Contract Submission",
-    "Visa Stamping",
-    "Towjeeh",
-    "ILOE Insurance",
-  ];
-
-  // Dynamic function to check and match missing items
-  const matchAndHighlightMissing = (providedList) => {
-    // Find missing items
-    const missingItems = fullList.filter(
-      (item) => !providedList.includes(item)
-    );
-    // Example: You can dynamically show missing items
-    if (missingItems.length > 0) {
-      console.log(`These items are missing: ${missingItems.join(", ")}`);
-    } else {
-      console.log("All items are matched!");
-    }
-  };
 
   return (
     <div className="w-full">
@@ -247,31 +255,31 @@ const Page = () => {
           className="col-span-12 md:col-span-3"
           style={{
             height: "2000px",
-            overflowY: "auto", 
+            overflowY: "auto",
           }}
         >
           <style>
             {`
-              .scroll-container::-webkit-scrollbar {
-                width: 8px;
-              }
+                .scroll-container::-webkit-scrollbar {
+                  width: 8px;
+                }
 
-              .scroll-container::-webkit-scrollbar-track {
-                background-color: #f1f1f1;
-                border-radius: 10px;
-              }
+                .scroll-container::-webkit-scrollbar-track {
+                  background-color: #f1f1f1;
+                  border-radius: 10px;
+                }
 
-              .scroll-container::-webkit-scrollbar-thumb {
-                background-color: #888;
-                border-radius: 10px;
-                border: 2px solid transparent;
-                background-clip: content-box;
-              }
+                .scroll-container::-webkit-scrollbar-thumb {
+                  background-color: #888;
+                  border-radius: 10px;
+                  border: 2px solid transparent;
+                  background-clip: content-box;
+                }
 
-              .scroll-container::-webkit-scrollbar-thumb:hover {
-                background-color: #555;
-              }
-            `}
+                .scroll-container::-webkit-scrollbar-thumb:hover {
+                  background-color: #555;
+                }
+              `}
           </style>
 
           <Tabs
@@ -332,15 +340,13 @@ const Page = () => {
 
                         {/* Documents Display */}
                         <Box sx={{ mt: 2 }}>
-                          {fullList.map((item) => {
-                            // Check if the current item is present in the employee's documents
+                          {documents.map((item) => {
                             const document =
                               employeess?.employee?.documents?.find(
                                 (doc) => doc.name === item
                               );
 
                             if (document) {
-                              // If document exists, display its details
                               const expiryDate = document?.expiry
                                 ? new Date(document.expiry)
                                 : null;
@@ -403,28 +409,29 @@ const Page = () => {
                                 </Box>
                               );
                             } else {
-                              // If document is missing, display as missing
-                              return (
-                                <Box
-                                  key={item}
-                                  sx={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    p: 1.5,
-                                    borderRadius: 1,
-                                    mb: 1,
-                                    backgroundColor: "lightgray",
-                                    color: "red",
-                                  }}
-                                >
-                                  <Typography
-                                    variant="body2"
-                                    sx={{ fontWeight: "medium" }}
+                              if (!document) {
+                                return (
+                                  <Box
+                                    key={item}
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      p: 1.5,
+                                      borderRadius: 1,
+                                      mb: 1,
+                                      backgroundColor: "lightgray",
+                                      color: "red",
+                                    }}
                                   >
-                                    <strong>{item}:</strong> Missing
-                                  </Typography>
-                                </Box>
-                              );
+                                    <Typography
+                                      variant="body2"
+                                      sx={{ fontWeight: "medium" }}
+                                    >
+                                      <strong>{item}: </strong> Missing
+                                    </Typography>
+                                  </Box>
+                                );
+                              }
                             }
                           })}
                         </Box>

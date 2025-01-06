@@ -23,44 +23,7 @@ import APICall from "@/networkUtil/APICall";
 import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
 import Swal from "sweetalert2";
 
-const tabData = [
-  "Employment Letter",
-  "Job Offer Letter/Joining Letter APCS",
-  "Passport Handover Form",
-  "Passport",
-  "EID",
-  "DM Card",
-  "Driving Licence",
-  "Personal Photo",
-  "MOHRE Letter",
-  "Labour Card",
-  "Change Status",
-  "Visa",
-  "EHOC",
-  "Medical Report",
-  "Visa Stamping",
-  "Health Insurance",
-  "Vehicle Policy",
-  "Asset Policy",
-  "ILOE Insurance",
-  "Bank Detail/Salary Transfer",
-];
-
-const getVisibleDocuments = (profession) => {
-  const baseDocuments = tabData.filter(
-    (doc) => doc !== "DM Card" && doc !== "EHOC" && doc !== "Vehicle Policy"
-  );
-
-  if (["HR Manager", "Accountant", "Receptionist"].includes(profession)) {
-    return baseDocuments;
-  }
-
-  if (profession === "Sales Manager" || profession === "Sales Officer") {
-    return [...baseDocuments, "DM Card", "EHOC"];
-  }
-
-  return tabData;
-};
+import { getDocumentsByProfession } from "../../Helper/documents";
 
 const getParamsFromUrl = (url) => {
   const parts = url.split("?");
@@ -82,7 +45,9 @@ const InsuranceForm = () => {
   const [selectedFile, setSelectedFile] = useState("");
   const [currentDocData, setCurrentDocData] = useState(null);
   const [profession, setProfession] = useState("");
-  const [visibleDocuments, setVisibleDocuments] = useState([]);
+
+  
+  const tabData = getDocumentsByProfession(profession);
 
   const [formState, setFormState] = useState({
     status: "pending",
@@ -114,17 +79,10 @@ const InsuranceForm = () => {
   }, []);
 
   useEffect(() => {
-    if (profession) {
-      const docs = getVisibleDocuments(profession);
-      setVisibleDocuments(docs);
-      setStatusCompleted(Array(docs.length).fill(false));
-    }
-  }, [profession]);
-
-  useEffect(() => {
     const currentDoc = employeeList.find(
-      (doc) => doc.name === visibleDocuments[activeTab]
+      (doc) => doc.name === tabData[activeTab]
     );
+
     if (currentDoc) {
       setCurrentDocData(currentDoc);
       setFormState({
@@ -148,7 +106,7 @@ const InsuranceForm = () => {
         entryPermitStatus: "Entry Permit",
       });
     }
-  }, [activeTab, employeeList, visibleDocuments]);
+  }, [activeTab, employeeList]);
 
   const getAllEmployees = async (employeeId) => {
     setFetchingData(true);
@@ -164,8 +122,8 @@ const InsuranceForm = () => {
           setEmployeeList(documents);
 
           // Get visible documents based on profession
-          const docs = getVisibleDocuments(response.data.employee.profession);
-          setVisibleDocuments(docs);
+          const docs = gettabData(response.data.employee.profession);
+          settabData(docs);
 
           // Find first document status
           const firstDoc = documents.find((doc) => doc.name === docs[0]);
@@ -201,11 +159,6 @@ const InsuranceForm = () => {
       }
     } catch (error) {
       console.error("Error fetching employees:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to fetch employee data",
-      });
     } finally {
       setFetchingData(false);
     }
@@ -229,7 +182,7 @@ const InsuranceForm = () => {
     try {
       const obj = {
         user_id: id,
-        name: visibleDocuments[activeTab],
+        name: tabData[activeTab],
         status: formState.status,
         file: selectedFile,
         start: formState.startDate,
@@ -239,7 +192,7 @@ const InsuranceForm = () => {
         desc: formState.description,
       };
 
-      if (visibleDocuments[activeTab] === "Entry Permit Inside") {
+      if (tabData[activeTab] === "Entry Permit Inside") {
         obj.entryPermitStatus = formState.entryPermitStatus;
       }
 
@@ -273,7 +226,7 @@ const InsuranceForm = () => {
             setCompletedTabs(newCompletedTabs);
 
             const nextTab = activeTab + 1;
-            if (nextTab < visibleDocuments.length) {
+            if (nextTab < tabData.length) {
               setActiveTabs([...new Set([...activeTabs, nextTab])]);
               setActiveTab(nextTab);
             }
