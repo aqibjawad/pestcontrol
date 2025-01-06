@@ -17,8 +17,10 @@ import {
   Box,
   Typography,
   Skeleton,
-  Paper
+  Paper,
 } from "@mui/material";
+
+import { Loader2 } from "lucide-react";
 
 import { quotation } from "@/networkUtil/Constants";
 import withAuth from "@/utils/withAuth";
@@ -51,9 +53,10 @@ const Page = () => {
   const [fetchingData, setFetchingData] = useState(false);
   const [invoiceList, setInvoiceList] = useState([]);
   const [invoiceJobList, setInvoiceJobList] = useState([]);
+  const [invoicesList, setInvoicesList] = useState([]);
   const [openModal, setOpenModal] = useState(false); // State for modal
-
-  const [contact_cancel_reason, setConCancelReason] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [contract_cancel_reason, setConCancelReason] = useState("");
 
   useEffect(() => {
     const currentUrl = window.location.href;
@@ -74,9 +77,13 @@ const Page = () => {
 
       const allJobs = response?.data?.invoices
         ?.flatMap((invoice) => invoice.jobs || [])
-        .filter((job) => job.is_completed === 1); // Filter jobs with is_completed = 1
+        .filter((job) => job.is_completed === 1);
 
       setInvoiceJobList(allJobs);
+
+      const allInvoicesList = response?.data?.invoices;
+
+      setInvoicesList(allInvoicesList);
     } catch (error) {
       console.error("Error fetching employees:", error);
     } finally {
@@ -92,12 +99,16 @@ const Page = () => {
     setOpenModal(false); // Close the modal
   };
 
+  const handleInputChange = (name, value) => {
+    setConCancelReason(value);
+  };
+
   const handleModalConfirm = async (e) => {
     e.preventDefault();
-    // setLoadingSubmit(true);
+    setIsSubmitting(true);
 
     const obj = {
-      contact_cancel_reason,
+      contract_cancel_reason,
     };
 
     try {
@@ -126,10 +137,9 @@ const Page = () => {
         title: "Error",
         text: "An error occurred during submission.",
       });
+    } finally {
+      setIsSubmitting(false);
     }
-    // finally {
-    //   setLoadingSubmit(false);
-    // }
   };
 
   const formatDate = (dateString) => {
@@ -178,13 +188,6 @@ const Page = () => {
                   </TableCell>
                   <TableCell> UAE </TableCell>
                 </TableRow>
-
-                <TableRow sx={{ border: "none" }}>
-                  <TableCell>
-                    <strong> Priority: </strong>
-                  </TableCell>
-                  <TableCell> High </TableCell>
-                </TableRow>
               </TableBody>
             </Table>
           </TableContainer>
@@ -228,17 +231,35 @@ const Page = () => {
       </Grid>
 
       <div className={styles.clientRecord}>
-        <div className={styles.clientHead}>Service Product</div>
+        <div className={styles.clientHead}> Job List </div>
 
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
             <TableHead className={styles.tableHead}>
               <TableRow>
-                <TableCell align="center"> Sr # </TableCell>
-                <TableCell align="center"> Client Name </TableCell>
-                <TableCell align="center"> Firm Name </TableCell>
-                <TableCell align="center"> Completed </TableCell>
-                <TableCell align="center"> Complete Time </TableCell>
+                <TableCell sx={{ color: "white" }} align="center">
+                  {" "}
+                  Sr #{" "}
+                </TableCell>
+                <TableCell sx={{ color: "white" }} align="center">
+                  Job Id
+                </TableCell>
+                <TableCell sx={{ color: "white" }} align="center">
+                  {" "}
+                  Client Name{" "}
+                </TableCell>
+                <TableCell sx={{ color: "white" }} align="center">
+                  {" "}
+                  Firm Name{" "}
+                </TableCell>
+                <TableCell sx={{ color: "white" }} align="center">
+                  {" "}
+                  Status{" "}
+                </TableCell>
+                <TableCell sx={{ color: "white" }} align="center">
+                  {" "}
+                  Completion Date{" "}
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -263,7 +284,7 @@ const Page = () => {
                     </TableCell>
                   </TableRow>
                 ))
-              ) : invoiceJobList.length === 0 ? (
+              ) : invoiceJobList?.length === 0 ? (
                 // Show a "No data" message if the job list is empty
                 <TableRow>
                   <TableCell colSpan={6} align="center">
@@ -272,12 +293,13 @@ const Page = () => {
                 </TableRow>
               ) : (
                 // Map through the data when it is loaded
-                invoiceJobList.map((job, index) => (
+                invoiceJobList?.map((job, index) => (
                   <TableRow
                     sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     key={job.id || index}
                   >
                     <TableCell>{index + 1}</TableCell>
+                    <TableCell>{job?.id}</TableCell>
                     <TableCell>{job.user?.name}</TableCell>
                     <TableCell>{job.user?.client?.firm_name}</TableCell>
                     <TableCell>
@@ -302,22 +324,116 @@ const Page = () => {
         </TableContainer>
       </div>
 
+      <div style={{ marginTop: "1rem" }} className={styles.clientRecord}>
+        <div className={styles.clientHead}> Invoices </div>
+
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
+            <TableHead className={styles.tableHead}>
+              <TableRow>
+                <TableCell sx={{ color: "white" }} align="center">
+                  {" "}
+                  Sr #{" "}
+                </TableCell>
+                <TableCell sx={{ color: "white" }} align="center">
+                  {" "}
+                  Invoice Id{" "}
+                </TableCell>
+                <TableCell sx={{ color: "white" }} align="center">
+                  {" "}
+                  Amount{" "}
+                </TableCell>
+                <TableCell sx={{ color: "white" }} align="center">
+                  {" "}
+                  Status{" "}
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {fetchingData ? (
+                // Show Skeletons while fetching data
+                [...Array(5)].map((_, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <Skeleton variant="text" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="text" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="text" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="text" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="text" />
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : invoicesList?.length === 0 ? (
+                // Show a "No data" message if the job list is empty
+                <TableRow>
+                  <TableCell colSpan={6} align="center">
+                    No job is started
+                  </TableCell>
+                </TableRow>
+              ) : (
+                // Map through the data when it is loaded
+                invoicesList?.map((job, index) => (
+                  <TableRow
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                    key={job.id || index}
+                  >
+                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>{job.invoiceable_id}</TableCell>
+                    <TableCell>{job.paid_amt}</TableCell>
+                    <TableCell>{job.status}</TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </div>
+
       {/* Grid for Buttons */}
-      <Grid container spacing={2} justifyContent="center" marginTop={2}>
-        <Grid item>
-          <Button variant="contained" color="secondary" onClick={handleCancel}>
-            Cancel
-          </Button>
-        </Grid>
-        <Grid item>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => window.history.back()}
-          >
-            Back
-          </Button>
-        </Grid>
+      <Grid container spacing={2}>
+        {!invoiceList?.contract_cancel_reason ? (
+          <>
+            <Grid item>
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={handleCancel}
+              >
+                Cancel
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => window.history.back()}
+              >
+                Back
+              </Button>
+            </Grid>
+          </>
+        ) : (
+          <Grid item xs={12}>
+            <div className="space-y-4">
+              <div>
+                <strong>Cancellation Reason:</strong>{" "}
+                {invoiceList?.contract_cancel_reason}
+              </div>
+              <div>
+                <strong>Cancelled At:</strong>{" "}
+                {new Date(invoiceList?.contract_cancelled_at).toLocaleString()}
+              </div>
+            </div>
+          </Grid>
+        )}
       </Grid>
 
       {/* Modal */}
@@ -341,8 +457,9 @@ const Page = () => {
           <InputWithTitle3
             title="Reason"
             type={"text"}
-            value={contact_cancel_reason}
-            onChange={setConCancelReason}
+            value={contract_cancel_reason}
+            onChange={handleInputChange}
+            name="contract_cancel_reason"
           />
           <Grid
             className="mt-5"
@@ -352,11 +469,19 @@ const Page = () => {
           >
             <Grid item>
               <Button
-                variant="contained"
-                color="error"
+                variant="destructive"
                 onClick={handleModalConfirm}
+                disabled={isSubmitting}
+                className="min-w-[100px]"
               >
-                Confirm
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Submitting
+                  </>
+                ) : (
+                  "Confirm"
+                )}
               </Button>
             </Grid>
             <Grid item>
