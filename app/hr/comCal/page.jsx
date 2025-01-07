@@ -75,16 +75,20 @@ const SalaryCal = () => {
                       Employee Name
                     </th>
                     <th className="py-2 px-4 border-b border-gray-200 text-left">
-                      Commission
+                      Commission %
                     </th>
                     <th className="py-2 px-4 border-b border-gray-200 text-left">
-                      Target %
+                      Target Achived %
                     </th>
                     <th className="py-2 px-4 border-b border-gray-200 text-left">
                       Sale
                     </th>
                     <th className="py-2 px-4 border-b border-gray-200 text-left">
                       Target
+                    </th>
+
+                    <th className="py-2 px-4 border-b border-gray-200 text-left">
+                      Commision Amount
                     </th>
                   </tr>
                 </thead>
@@ -104,6 +108,7 @@ const SalaryCal = () => {
                       </td>
                       <td className="py-5 px-4">{row.sale}</td>
                       <td className="py-5 px-4">{row.target}</td>
+                      <td className="py-5 px-4">{row?.paid_amt}</td>
                     </tr>
                   ))}
                 </tbody>

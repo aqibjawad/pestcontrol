@@ -8,7 +8,6 @@ import { job } from "@/networkUtil/Constants";
 
 import ServiceReport from "@/app/allServiceReports/serviceReport";
 
-
 const serviceReport = (serviceList) => {
   return (
     <div style={{ padding: "30px" }}>
@@ -99,17 +98,13 @@ const FeedBack = (serviceReportList) => {
           </div>
         </div>
       </div> */}
-      <div className="mt-20">
-        {listeedBackTable(serviceReportList)}
-      </div>
+      <div className="mt-20">{listeedBackTable(serviceReportList)}</div>
     </div>
   );
 };
 
 const listSaleTable = () => {
-  return (
-    ""
-  );
+  return "";
 };
 
 const listeedBackTable = (serviceReportList) => {
@@ -168,7 +163,7 @@ const listServiceTable = (serviceList) => {
           {serviceList && serviceList.length > 0 ? (
             serviceList.map((row, index) => (
               <tr key={index} className="border-b border-gray-200">
-                <td className="py-5 px-4">{index+1}</td>
+                <td className="py-5 px-4">{index + 1}</td>
                 <td className="py-2 px-4"> View All </td>
               </tr>
             ))

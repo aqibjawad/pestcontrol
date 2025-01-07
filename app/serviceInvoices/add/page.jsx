@@ -119,9 +119,9 @@ const Page = () => {
           `${serviceInvoice}?user_id=${id}`
         );
 
-        const unpaidInvoices = response.data
-          .filter((invoice) => invoice.status === "unpaid")
-          .slice(0, 10); // Get the first 10 unpaid invoices
+        const unpaidInvoices = response.data;
+        // .filter((invoice) => invoice.status === "unpaid")
+        // .slice(0, 10); // Get the first 10 unpaid invoices
         setClientName(response.data[0].user.name);
         setAllInvoiceList(unpaidInvoices);
       }

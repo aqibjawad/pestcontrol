@@ -15,7 +15,7 @@ import {
   Paper,
 } from "@mui/material";
 
-import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
+import { getAllEmpoyesUrl, apiPrefix } from "@/networkUtil/Constants";
 
 import APICall from "@/networkUtil/APICall";
 
@@ -58,6 +58,7 @@ const Page = () => {
   const [fetchingData, setFetchingData] = useState(false);
   const [invoiceList, setQuoteList] = useState([]);
   const [loadingDetails, setLoadingDetails] = useState(true);
+  const [commisionAmount, setCommisionAmount] = useState("0");
 
   const [amount, setAmount] = useState(true);
 
@@ -99,6 +100,12 @@ const Page = () => {
       const response = await api.getDataWithToken(
         `${getAllEmpoyesUrl}/salary/get?employee_user_id=${employeeId}&salary_month=${currentMonth}`
       );
+
+      const commsionResponse = await api.getDataWithToken(
+        `${apiPrefix}/employee/commission/get?commission_month=${currentMonth}&referencable_id=${employeeId}&referencable_type=user`
+      );
+      setCommisionAmount(commsionResponse?.data[0]?.paid_amt ?? 0);
+
       setQuoteList(response.data[0]);
     } catch (error) {
       console.error("Error fetching quotes:", error);
@@ -318,14 +325,16 @@ const Page = () => {
                 {/* Table Header */}
                 <TableHead>
                   <TableRow>
-                    <TableCell>
-                      <Typography
-                        variant="h6"
-                        sx={{ fontWeight: "bold", color: "#32A92E" }}
-                      >
-                        Commission
-                      </Typography>
-                    </TableCell>
+                    {parseFloat(commisionAmount) > 0 && (
+                      <TableCell>
+                        <Typography
+                          variant="h6"
+                          sx={{ fontWeight: "bold", color: "#32A92E" }}
+                        >
+                          Commission
+                        </Typography>
+                      </TableCell>
+                    )}
                     <TableCell align="right">
                       <Typography
                         variant="h6"
@@ -356,17 +365,13 @@ const Page = () => {
                 {/* Table Body */}
                 <TableBody>
                   <TableRow>
-                    <TableCell>
-                      <Typography
-                        sx={{
-                          color: "black",
-                          padding: "4px 16px",
-                          lineHeight: "1rem",
-                        }}
-                      >
-                        {invoiceList?.commission_per || 0}
-                      </Typography>
-                    </TableCell>
+                    {parseFloat(commisionAmount) > 0 && (
+                      <TableCell>
+                        <Typography variant="h6">
+                          {commisionAmount || 0}
+                        </Typography>
+                      </TableCell>
+                    )}
                     <TableCell align="right">
                       <Typography
                         sx={{
