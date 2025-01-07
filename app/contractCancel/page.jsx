@@ -32,6 +32,8 @@ import Swal from "sweetalert2";
 
 import styles from "../../styles/viewQuote.module.css";
 
+import { AppHelpers } from "../../Helper/AppHelpers";
+
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
   if (parts.length > 1) {
@@ -50,13 +52,24 @@ const Page = () => {
   const api = new APICall();
 
   const [id, setId] = useState(null);
-  const [fetchingData, setFetchingData] = useState(false);
+  const [fetchingData, setFetchingData] = useState(true);
   const [invoiceList, setInvoiceList] = useState([]);
   const [invoiceJobList, setInvoiceJobList] = useState([]);
   const [invoicesList, setInvoicesList] = useState([]);
   const [openModal, setOpenModal] = useState(false); // State for modal
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [contract_cancel_reason, setConCancelReason] = useState("");
+
+  const [completedJobs, setCompletedJobs] = useState("");
+
+  const [totalAmount, setTotalAmount] = useState(0);
+  const [paidAmount, setPaidAmount] = useState(0);
+
+  const [noOfServicesString, setNoOfServicesString] = useState("");
+
+  const [completedJobsTotal, setCompletedJobsTotal] = useState(0);
+
+  const [completedJobsPer, setCompletedJobsPer] = useState(0);
 
   useEffect(() => {
     const currentUrl = window.location.href;
@@ -75,15 +88,52 @@ const Page = () => {
       );
       setInvoiceList(response.data);
 
+      const quoteServices = response.data.quote_services || [];
+      const noOfServices = quoteServices
+        .map((service) => service.no_of_services || "")
+        .filter(Boolean)
+        .join(", ");
+      setNoOfServicesString(noOfServices);
+
+      const allInvoicesList = response?.data?.invoices;
+
+      const totalSum = allInvoicesList?.reduce(
+        (sum, invoice) => sum + parseFloat(invoice.total_amt || 0),
+        0
+      );
+      const paidSum = allInvoicesList?.reduce(
+        (sum, invoice) => sum + parseFloat(invoice.paid_amt || 0),
+        0
+      );
+
+      // Update states
+      setInvoicesList(allInvoicesList);
+      setTotalAmount(totalSum);
+      setPaidAmount(paidSum);
+
       const allJobs = response?.data?.invoices
         ?.flatMap((invoice) => invoice.jobs || [])
         .filter((job) => job.is_completed === 1);
 
       setInvoiceJobList(allJobs);
 
-      const allInvoicesList = response?.data?.invoices;
+      const completedJobsTotal = allJobs?.reduce((sum, job) => {
+        return sum + (parseFloat(job.grand_total) || 0);
+      }, 0);
+      setCompletedJobsTotal(completedJobsTotal);
 
-      setInvoicesList(allInvoicesList);
+      // Count of completed jobs
+      const completedJobsCount = allJobs.length;
+      setCompletedJobs(completedJobsCount);
+
+      const firstJobData = {
+        id: allJobs?.[0]?.id,
+        grand_total: allJobs?.[0]?.grand_total,
+      };
+
+      setCompletedJobsPer(firstJobData);
+
+      console.log(firstJobData);
     } catch (error) {
       console.error("Error fetching employees:", error);
     } finally {
@@ -123,6 +173,7 @@ const Page = () => {
           title: "Success",
           text: "Data has been added successfully!",
         });
+        window.location.reload();
       } else {
         Swal.fire({
           icon: "error",
@@ -143,15 +194,19 @@ const Page = () => {
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return "N/A"; // Handle no date case
-    const options = { year: "numeric", month: "long", day: "numeric" };
-    const date = new Date(dateString);
-    return date.toLocaleDateString(undefined, options); // Formats to "Month Day, Year"
+    try {
+      return AppHelpers.convertDate(dateString);
+    } catch (error) {
+      console.error("Error converting date:", error);
+      return dateString;
+    }
   };
 
   return (
     <Layout>
-      <div className="text-red-500 text-center">Contract Cancel</div>
+      <div className="text-red-500 text-center" style={{ marginLeft: "-2rem" }}>
+        Contract Cancel
+      </div>
 
       <Grid container spacing={3}>
         <Grid item lg={6} xs={12} sm={6} md={4}>
@@ -229,6 +284,86 @@ const Page = () => {
           </TableContainer>
         </Grid>
       </Grid>
+
+      <div className={styles.clientRecord}>
+        <div className={styles.clientHead}> Summary </div>
+
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
+            <TableHead className={styles.tableHead}>
+              <TableRow>
+                <TableCell sx={{ color: "white" }} align="center">
+                  Total Jobs
+                </TableCell>
+                <TableCell sx={{ color: "white" }} align="center">
+                  Completed Jobs
+                </TableCell>
+                <TableCell sx={{ color: "white" }} align="center">
+                  Amount Complete Jobs
+                </TableCell>
+                <TableCell sx={{ color: "white" }} align="center">
+                  Per Job
+                </TableCell>
+                <TableCell sx={{ color: "white" }} align="center">
+                  {" "}
+                  Total{" "}
+                </TableCell>
+                <TableCell sx={{ color: "white" }} align="center">
+                  {" "}
+                  Pending Pyments{" "}
+                </TableCell>
+                <TableCell sx={{ color: "white" }} align="center">
+                  {" "}
+                  Recieved Payments{" "}
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {fetchingData ? (
+                // Show Skeletons while fetching data
+                [...Array(5)].map((_, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <Skeleton variant="text" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="text" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="text" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="text" />
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : invoiceJobList?.length === 0 ? (
+                // Show a "No data" message if the job list is empty
+                <TableRow>
+                  <TableCell colSpan={6} align="center">
+                    No job is started
+                  </TableCell>
+                </TableRow>
+              ) : (
+                // Map through the data when it is loaded
+                <TableRow
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                >
+                  <TableCell align="center">{noOfServicesString}</TableCell>
+                  <TableCell align="center">{completedJobs}</TableCell>
+                  <TableCell align="center">{completedJobsTotal}</TableCell>
+                  <TableCell align="center">{completedJobsPer?.grand_total}</TableCell>
+                  <TableCell align="center">
+                    {invoiceList?.grand_total}
+                  </TableCell>
+                  <TableCell align="center">{totalAmount}</TableCell>
+                  <TableCell align="center">{paidAmount}</TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </div>
 
       <div className={styles.clientRecord}>
         <div className={styles.clientHead}> Job List </div>
@@ -312,9 +447,11 @@ const Page = () => {
                         : "Unknown"}
                     </TableCell>
                     <TableCell>
-                      {job.job_end_time
-                        ? new Date(job.job_end_time).toISOString().split("T")[0]
-                        : ""}
+                      {/* {job.job_end_time
+                        ? AppHelpers.shortDateConverter(job.job_end_time)
+                        : ""} */}
+
+                      {formatDate(job.job_end_time)}
                     </TableCell>
                   </TableRow>
                 ))
@@ -342,6 +479,10 @@ const Page = () => {
                 <TableCell sx={{ color: "white" }} align="center">
                   {" "}
                   Amount{" "}
+                </TableCell>
+                <TableCell sx={{ color: "white" }} align="center">
+                  {" "}
+                  Paid Amount{" "}
                 </TableCell>
                 <TableCell sx={{ color: "white" }} align="center">
                   {" "}
@@ -387,6 +528,7 @@ const Page = () => {
                   >
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>{job.invoiceable_id}</TableCell>
+                    <TableCell>{job.total_amt}</TableCell>
                     <TableCell>{job.paid_amt}</TableCell>
                     <TableCell>{job.status}</TableCell>
                   </TableRow>
@@ -429,7 +571,8 @@ const Page = () => {
               </div>
               <div>
                 <strong>Cancelled At:</strong>{" "}
-                {new Date(invoiceList?.contract_cancelled_at).toLocaleString()}
+                {/* {new Date(invoiceList?.contract_cancelled_at).toLocaleString()} */}
+                {formatDate(invoiceList?.contract_cancelled_at)}
               </div>
             </div>
           </Grid>

@@ -77,6 +77,7 @@ const Contracts = () => {
               <TableCell>Quote Title</TableCell>
               <TableCell>Treatment Method Name</TableCell>
               <TableCell>Sub Total</TableCell>
+              <TableCell>Grand Total</TableCell>
               <TableCell>Actions</TableCell>
               <TableCell>Update</TableCell>
             </TableRow>
@@ -108,6 +109,7 @@ const Contracts = () => {
                       .join(", ") || "N/A"}
                   </TableCell>
                   <TableCell>{row.sub_total}</TableCell>
+                  <TableCell>{row.grand_total}</TableCell>
                   <TableCell>
                     <Link href={`/quotePdf?id=${row.id}`}>
                       <span className="text-blue-600 hover:text-blue-800">

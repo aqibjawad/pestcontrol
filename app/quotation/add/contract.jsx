@@ -3,27 +3,22 @@ import { Grid, Box, Typography } from "@mui/material";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 
 const ContractSummary = ({ grandTotal, setFormData, formData }) => {
-  
-  // Initialize state from formData if it exists, otherwise use 0
   const [dis_per, setDiscount] = useState(formData.dis_per || 0);
   const [vat_per, setVAT] = useState(formData.vat_per || 0);
   const [finalTotal, setFinalTotal] = useState(grandTotal);
 
   const calculateTotals = (discount, vat, total) => {
-    const discountPercentage = (discount / total) * 100;
     const discountAmount = discount;
     const vatAmount = ((total - discountAmount) * vat) / 100;
     const totalWithVAT = total - discountAmount + vatAmount;
 
     return {
-      discountPercentage,
       discountAmount,
       vatAmount,
       totalWithVAT,
     };
   };
 
-  // Update local state when formData changes
   useEffect(() => {
     if (formData.dis_per !== undefined) {
       setDiscount(formData.dis_per);
@@ -34,24 +29,25 @@ const ContractSummary = ({ grandTotal, setFormData, formData }) => {
   }, [formData]);
 
   useEffect(() => {
-    const { discountPercentage, discountAmount, vatAmount, totalWithVAT } =
-      calculateTotals(dis_per, vat_per, grandTotal);
+    const { discountAmount, vatAmount, totalWithVAT } = calculateTotals(
+      dis_per,
+      vat_per,
+      grandTotal
+    );
 
     setFinalTotal(totalWithVAT);
 
-    // Update formData with all values
+    // Update formData with only the required values
     setFormData((prev) => ({
       ...prev,
       dis_per: dis_per,
       vat_per: vat_per,
-      discountPercentage: discountPercentage,
       discountAmount: discountAmount,
       vatAmount: vatAmount,
       finalTotal: totalWithVAT,
     }));
   }, [dis_per, vat_per, grandTotal]);
 
-  // Handle discount change
   const handleDiscountChange = (value) => {
     const newDiscount = parseFloat(value) || 0;
     setDiscount(newDiscount);
@@ -61,7 +57,6 @@ const ContractSummary = ({ grandTotal, setFormData, formData }) => {
     }));
   };
 
-  // Handle VAT change
   const handleVATChange = (value) => {
     const newVAT = parseFloat(value) || 0;
     setVAT(newVAT);

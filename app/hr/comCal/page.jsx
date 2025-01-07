@@ -2,29 +2,34 @@
 
 import React, { useState, useEffect } from "react";
 import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
-import { Button } from "@mui/material";
 import APICall from "@/networkUtil/APICall";
 import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
-import CircularProgress from "@mui/material/CircularProgress";
 import Swal from "sweetalert2";
+import CircularProgress from "@mui/material/CircularProgress";
+import withAuth from "@/utils/withAuth";
+
 import MonthPicker from "../monthPicker";
 
-const CommissionCal = () => {
+const SalaryCal = () => {
   const api = new APICall();
+
   const [fetchingData, setFetchingData] = useState(false);
   const [employeeList, setEmployeeList] = useState([]);
-  const [processingPayments, setProcessingPayments] = useState({});
-  const [selectedMonth, setSelectedMonth] = useState(
-    new Date().toISOString().slice(0, 7)
-  );
+
+  const initialMonth = new Date().toISOString().slice(0, 7);
+  const [selectedMonth, setSelectedMonth] = useState(initialMonth);
 
   const handleDateChange = (dates) => {
-    // Convert the start date to YYYY-MM format for the API
+    if (!dates || !dates.startDate) return;
+
+    // Ensure we're only taking YYYY-MM format
     const monthStr = dates.startDate.slice(0, 7);
-    setSelectedMonth(monthStr);
+    if (monthStr !== selectedMonth) {
+      setSelectedMonth(monthStr);
+    }
   };
 
-  const getAllEmployees = async () => {
+  const getEmployeeCommissions = async () => {
     setFetchingData(true);
     try {
       const response = await api.getDataWithToken(
@@ -44,14 +49,8 @@ const CommissionCal = () => {
   };
 
   useEffect(() => {
-    getAllEmployees();
-  }, [selectedMonth]);
-
-  // useEffect(() => {
-  //   if (isVisible) {
-  //     getAllEmployees();
-  //   }
-  // }, [isVisible]);
+    getEmployeeCommissions(selectedMonth);
+  }, [selectedMonth]); // Only depend on selectedMonth
 
   return (
     <>
@@ -117,4 +116,4 @@ const CommissionCal = () => {
   );
 };
 
-export default CommissionCal;
+export default withAuth(SalaryCal);

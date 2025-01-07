@@ -10,7 +10,7 @@ import {
   dashboard,
   vehciles,
   expense_category,
-  admin,
+  adminn,
   payments,
 } from "../../networkUtil/Constants";
 import APICall from "../../networkUtil/APICall";
@@ -22,6 +22,11 @@ const FinancialDashboard = () => {
   const api = new APICall();
 
   const [allClientsList, setAllClientsList] = useState([]);
+
+  const [allAdminFinance, setAllAdminFinance] = useState([]);
+
+  console.log("all admin finance", allAdminFinance);
+
   const [allVehicleExpense, setAllVehicleExpense] = useState(0);
   const [expenseList, setExpenseList] = useState(0);
 
@@ -96,6 +101,21 @@ const FinancialDashboard = () => {
       console.error(error.message);
     }
   };
+
+  const getFinancialAdmin = async () => {
+    try {
+      const response = await api.getDataWithToken(
+        `${adminn}/current/balance/get`
+      );
+      setAllAdminFinance(response.data);
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+
+  useEffect(() => {
+    getFinancialAdmin();
+  }, []);
 
   const getVehiclesExpense = async (startDate, endDate) => {
     try {
@@ -179,6 +199,10 @@ const FinancialDashboard = () => {
 
   const closingData = [
     {
+      category: "New Employee",
+      amount: allClientsList?.employee_expense || 0,
+    },
+    {
       category: "Total Payable to suppliers",
       amount: allClientsList?.supplier_balance || 0,
     },
@@ -222,13 +246,27 @@ const FinancialDashboard = () => {
     { category: "Bank", amount: bankList?.total_cheque_transfer },
     { category: "Unapproved Payments", amount: paymentList },
   ];
-
+  
   const calculateDetailTotal = () => {
     return detailData.reduce(
       (sum, item) => sum + parseFloat(item.amount || 0),
       0
     );
   };
+
+  const overAllData = [
+    { category: "Cash", amount: allAdminFinance?.cash_balance },
+    { category: "Bank", amount: allAdminFinance?.bank_balance },
+    { category: "POS", amount: allAdminFinance?.pos_collection },
+  ];
+
+  const calculateOverAllTotal = () => {
+    return overAllData.reduce(
+      (sum, item) => sum + parseFloat(item.amount || 0),
+      0
+    );
+  };
+
 
   const Card = ({ title, children }) => (
     <div className="bg-white rounded-lg shadow-md p-4">
@@ -292,7 +330,7 @@ const FinancialDashboard = () => {
       ) : (
         <div className=" mt-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Closing Report */}
-          <Card title="Closing Report">
+          <Card title="Closing Report of the Month">
             {closingData.map((item, index) => (
               <ExpenseItem
                 key={index}
@@ -304,7 +342,7 @@ const FinancialDashboard = () => {
           </Card>
 
           {/* Detail Report */}
-          <Card title="Detail Report">
+          <Card title="Detail Report of the Month">
             {detailData.map((item, index) => (
               <ExpenseItem
                 key={index}
@@ -313,6 +351,18 @@ const FinancialDashboard = () => {
               />
             ))}
             <TotalRow amount={calculateDetailTotal()} />
+          </Card>
+
+          {/* Overall Report */}
+          <Card title="Overall Report">
+            {overAllData.map((item, index) => (
+              <ExpenseItem
+                key={index}
+                category={item.category}
+                amount={item.amount}
+              />
+            ))}
+            <TotalRow amount={calculateOverAllTotal()} />
           </Card>
         </div>
       )}

@@ -366,7 +366,7 @@ const MyCalendar = () => {
                   label="Total Amount"
                   value={
                     selectedEvent.grand_total
-                      ? `$${selectedEvent.grand_total}`
+                      ? `${selectedEvent.grand_total}`
                       : "N/A"
                   }
                 />

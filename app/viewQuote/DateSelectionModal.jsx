@@ -34,6 +34,13 @@ import {
 } from "date-fns";
 
 const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
+
+  const idAsString = quoteData?.quote_services[0]?.id.toString();
+
+  console.log("wdsda", idAsString);
+  
+
+
   // Function to handle date selection
   const handleDateSelection = (date) => {
     setSelectedDates((prev) => {
@@ -412,7 +419,7 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
       is_food_watch_account: isFoodWatchAccount,
       quote_services: [
         {
-          quote_service_id: serviceId,
+          quote_service_id: idAsString,
           dates: generatedDates,
         },
       ],

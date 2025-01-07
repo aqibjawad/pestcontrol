@@ -637,7 +637,7 @@ const SalaryCal = () => {
           z-index: 1500 !important; // Higher z-index for error modals
         }
       `}</style>
-    </div>
+    </div> 
   );
 };
 
