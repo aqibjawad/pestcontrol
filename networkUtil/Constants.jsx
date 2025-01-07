@@ -1,6 +1,6 @@
 const baseURL = "https://api.apcs.ae";
 
-const apiPrefix = baseURL + "/api";
+export const apiPrefix = baseURL + "/api";
 
 export const login = apiPrefix + "/login";
 export const getCountriesURL = apiPrefix + "/get_countries";

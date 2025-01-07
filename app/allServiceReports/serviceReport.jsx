@@ -52,7 +52,9 @@ const ServiceReport = () => {
     }
 
     try {
-      const response = await api.getDataWithToken(`${job}/service_report/all?${queryParams.join("&")}`);
+      const response = await api.getDataWithToken(
+        `${job}/service_report/all?${queryParams.join("&")}`
+      );
       setQuoteList(response.data);
     } catch (error) {
       console.error("Error fetching quotes:", error);
@@ -70,6 +72,7 @@ const ServiceReport = () => {
               <TableCell>Sr No</TableCell>
               <TableCell>Type Of Visit</TableCell>
               <TableCell>Recommendations</TableCell>
+              <TableCell>Office Feedback</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -83,9 +86,10 @@ const ServiceReport = () => {
             ) : (
               quoteList?.map((row, index) => (
                 <TableRow key={index}>
-                  <TableCell>{index+1}</TableCell>
+                  <TableCell>{index + 1}</TableCell>
                   <TableCell>{row.type_of_visit}</TableCell>
                   <TableCell>{row.recommendations_and_remarks}</TableCell>
+                  <TableCell>{row.for_office_use}</TableCell>
                   <TableCell>
                     {" "}
                     <Link href={`/serviceRpoertPdf?id=${row.id}`}>
