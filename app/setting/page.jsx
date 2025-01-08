@@ -1,9 +1,18 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import styles from "../../styles/settings.module.css";
 import Link from "next/link";
 import { Grid } from "@mui/material";
 
+import CashBalanceModal from "../accountant/cashBalance/page";
+
 const Page = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleOpenModal = () => setIsModalOpen(true);
+  const handleCloseModal = () => setIsModalOpen(false);
+
   return (
     <>
       <Grid container spacing={2}>
@@ -380,11 +389,25 @@ const Page = () => {
                   <Link href="/accountant/payments">Pending Payments</Link>
                 </div>
               </Grid>
+
               <Grid item xs={12} sm={6} md={4} lg={3}>
                 <div className={styles.addProd}>
                   <Link href="/device">Devices</Link>
                 </div>
               </Grid>
+
+              <>
+                <Grid item xs={12} sm={6} md={4} lg={3}>
+                  <div className={styles.addProd} onClick={handleOpenModal}>
+                    Add Capital
+                  </div>
+                </Grid>
+
+                <CashBalanceModal
+                  open={isModalOpen}
+                  onClose={handleCloseModal}
+                />
+              </>
             </Grid>
           </div>
         </Grid>

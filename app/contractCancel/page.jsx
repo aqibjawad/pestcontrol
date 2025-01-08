@@ -204,80 +204,118 @@ const Page = () => {
 
   return (
     <Layout>
-      <div className="text-red-500 text-center" style={{ marginLeft: "-2rem" }}>
+      <div
+        className="text-red-500 text-center"
+        style={{ marginLeft: "-3.5rem" }}
+      >
         Contract Cancel
       </div>
 
       <Grid container spacing={3}>
+        {/* Left Section */}
         <Grid item lg={6} xs={12} sm={6} md={4}>
           <TableContainer sx={{ mt: 6 }}>
             <Table sx={{ borderCollapse: "collapse" }}>
               <TableBody>
                 <TableRow sx={{ border: "none" }}>
                   <TableCell>
-                    <strong> Customer:</strong>
+                    <strong>Customer:</strong>
                   </TableCell>
-                  <TableCell> {invoiceList?.user?.name} </TableCell>
+                  <TableCell>
+                    {fetchingData ? (
+                      <Skeleton width="80%" />
+                    ) : (
+                      invoiceList?.user?.name
+                    )}
+                  </TableCell>
                 </TableRow>
 
                 <TableRow sx={{ border: "none" }}>
                   <TableCell>
-                    <strong> Reference:</strong>
+                    <strong>Reference:</strong>
                   </TableCell>
                   <TableCell>
-                    {" "}
-                    {invoiceList?.user?.client?.referencable?.name}{" "}
+                    {fetchingData ? (
+                      <Skeleton width="80%" />
+                    ) : (
+                      invoiceList?.user?.client?.referencable?.name
+                    )}
                   </TableCell>
                 </TableRow>
 
                 <TableRow sx={{ border: "none" }}>
                   <TableCell>
-                    <strong> Job title: </strong>
+                    <strong>Job title:</strong>
                   </TableCell>
-                  <TableCell> {invoiceList?.quote_title} </TableCell>
+                  <TableCell>
+                    {fetchingData ? (
+                      <Skeleton width="80%" />
+                    ) : (
+                      invoiceList?.quote_title
+                    )}
+                  </TableCell>
                 </TableRow>
 
                 <TableRow sx={{ border: "none" }}>
                   <TableCell>
-                    <strong> Country: </strong>
+                    <strong>Country:</strong>
                   </TableCell>
-                  <TableCell> UAE </TableCell>
+                  <TableCell>
+                    {fetchingData ? <Skeleton width="40%" /> : "UAE"}
+                  </TableCell>
                 </TableRow>
               </TableBody>
             </Table>
           </TableContainer>
         </Grid>
 
+        {/* Right Section */}
         <Grid item lg={6} xs={12} sm={6} md={4}>
           <TableContainer sx={{ mt: 6 }}>
             <Table sx={{ borderCollapse: "collapse" }}>
               <TableBody>
                 <TableRow sx={{ border: "none" }}>
                   <TableCell>
-                    <strong> Job type : </strong>
+                    <strong>Job type:</strong>
                   </TableCell>
-                  <TableCell> Reoccuring </TableCell>
+                  <TableCell>
+                    {fetchingData ? <Skeleton width="80%" /> : "Reoccurring"}
+                  </TableCell>
                 </TableRow>
 
                 <TableRow sx={{ border: "none" }}>
                   <TableCell>
-                    <strong> Duration: </strong>
+                    <strong>Duration:</strong>
                   </TableCell>
-                  <TableCell> {invoiceList?.duration_in_months} </TableCell>
+                  <TableCell>
+                    {fetchingData ? (
+                      <Skeleton width="80%" />
+                    ) : (
+                      invoiceList?.duration_in_months
+                    )}
+                  </TableCell>
                 </TableRow>
 
                 <TableRow sx={{ border: "none" }}>
                   <TableCell>
-                    <strong> TRN: </strong>
+                    <strong>TRN:</strong>
                   </TableCell>
-                  <TableCell> {invoiceList?.trn} </TableCell>
+                  <TableCell>
+                    {fetchingData ? <Skeleton width="80%" /> : invoiceList?.trn}
+                  </TableCell>
                 </TableRow>
 
                 <TableRow sx={{ border: "none" }}>
                   <TableCell>
-                    <strong> Date: </strong>
+                    <strong>Date:</strong>
                   </TableCell>
-                  <TableCell> {formatDate(invoiceList?.updated_at)} </TableCell>
+                  <TableCell>
+                    {fetchingData ? (
+                      <Skeleton width="80%" />
+                    ) : (
+                      formatDate(invoiceList?.updated_at)
+                    )}
+                  </TableCell>
                 </TableRow>
               </TableBody>
             </Table>
@@ -352,7 +390,9 @@ const Page = () => {
                   <TableCell align="center">{noOfServicesString}</TableCell>
                   <TableCell align="center">{completedJobs}</TableCell>
                   <TableCell align="center">{completedJobsTotal}</TableCell>
-                  <TableCell align="center">{completedJobsPer?.grand_total}</TableCell>
+                  <TableCell align="center">
+                    {completedJobsPer?.grand_total}
+                  </TableCell>
                   <TableCell align="center">
                     {invoiceList?.grand_total}
                   </TableCell>
@@ -540,7 +580,7 @@ const Page = () => {
       </div>
 
       {/* Grid for Buttons */}
-      <Grid container spacing={2}>
+      <Grid container spacing={2} justifyContent="center">
         {!invoiceList?.contract_cancel_reason ? (
           <>
             <Grid item>
@@ -564,14 +604,13 @@ const Page = () => {
           </>
         ) : (
           <Grid item xs={12}>
-            <div className="space-y-4">
+            <div className="space-y-4 text-center">
               <div>
                 <strong>Cancellation Reason:</strong>{" "}
                 {invoiceList?.contract_cancel_reason}
               </div>
               <div>
                 <strong>Cancelled At:</strong>{" "}
-                {/* {new Date(invoiceList?.contract_cancelled_at).toLocaleString()} */}
                 {formatDate(invoiceList?.contract_cancelled_at)}
               </div>
             </div>

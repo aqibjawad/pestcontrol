@@ -61,7 +61,7 @@ class APICall {
     return this.makeRequest("post", url, data, false, true);
   }
 
-  async postFormDataWithToken(url, data) {
+  async postFormDataWithToken(url, data) { 
     return this.makeRequest("post", url, data, true, true);
   }
 

@@ -41,6 +41,16 @@ const OtherInfo = ({ data, onChange, handleSubmit, sendingData }) => {
             onChange={(name, value) => onChange("emergency_contact", value)}
           />
         </Grid>
+
+        <Grid item xs={12} md={4}>
+          <InputWithTitle2
+            title="Country"
+            type="text"
+            placeholder="Country"
+            value={data.country}
+            onChange={(name, value) => onChange("country", value)}
+          />
+        </Grid>
       </Grid>
 
       {/* Financial Condition Section */}
@@ -88,15 +98,6 @@ const OtherInfo = ({ data, onChange, handleSubmit, sendingData }) => {
             onChange={(name, value) => onChange("other", value)}
           />
         </Grid>
-        {/* <Grid item xs={12} md={6}>
-          <InputWithTitle2
-            title="Total Salary"
-            type="text"
-            placeholder="Total Salary"
-            value={data.total_salary}
-            readOnly={true}
-          />
-        </Grid> */}
         <Grid item xs={12} md={6}>
           <InputWithTitle2
             title="Comission %"
@@ -106,15 +107,6 @@ const OtherInfo = ({ data, onChange, handleSubmit, sendingData }) => {
             onChange={(name, value) => onChange("commission_per", value)}
           />
         </Grid>
-        {/* <Grid item xs={12} md={6}>
-          <InputWithTitle3
-            title="Labour Card Expiry"
-            type="date"
-            placeholder="Comission"
-            value={data.labour_card_expiry}
-            onChange={(name, value) => onChange("labour_card_expiry", value)}
-          />
-        </Grid> */}
       </Grid>
 
       <div className="mb-10"></div>

@@ -10,6 +10,10 @@ import Link from "next/link";
 import EmpUpcomingJobs from "../jobs/upComing";
 import withAuth from "@/utils/withAuth";
 
+import Grid from "@mui/material/Grid";
+import InputWithTitle3 from "@/components/generic/InputWithTitle3";
+import GreenButton from "@/components/generic/GreenButton";
+
 import Tabs from "./tabs";
 
 import { getDocumentsByProfession } from "../../../Helper/documents";
@@ -42,6 +46,7 @@ const Page = () => {
   const [id, setId] = useState(null);
   const [fetchingData, setFetchingData] = useState(false);
 
+
   const [employeeList, setEmployeeList] = useState([]);
   const [employeeCompany, setEmployeeCompany] = useState([]);
   const [employeeDevices, setEmployeeDevices] = useState([]);
@@ -49,6 +54,12 @@ const Page = () => {
 
   const [empProfession, setEmployeeProfession] = useState([]);
   const requiredDocuments = getDocumentsByProfession(empProfession);
+
+  const [target, setTarget] = useState(employeeList?.employee?.target);
+
+  const handleTargetChange = (name, value) => {
+    setTarget(value);
+  };
 
   useEffect(() => {
     const currentUrl = window.location.href;
@@ -170,6 +181,36 @@ const Page = () => {
     };
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    // setLoadingSubmit(true);
+
+    const obj = {
+      user_id: id,
+      target,
+    };
+    
+    const response = await api.updateFormDataWithToken(
+      `${getAllEmpoyesUrl}/employee/update`,
+      obj
+    );
+
+    if (response.status === "success") {
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Data has been added successfully!",
+      });
+      router.push("/operations/viewInventory/");
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: `${response.error.message}`,
+      });
+    }
+  };
+
   return (
     <div>
       {/* Personal Information */}
@@ -198,6 +239,7 @@ const Page = () => {
                 <tr>
                   <th>Email</th>
                   <th>Contact</th>
+                  <th>Country</th>
                 </tr>
               </thead>
               <tbody>
@@ -214,6 +256,13 @@ const Page = () => {
                       <Skeleton width="80%" />
                     ) : (
                       employeeList?.employee?.phone_number
+                    )}
+                  </td>
+                  <td>
+                    {fetchingData ? (
+                      <Skeleton width="80%" />
+                    ) : (
+                      employeeList?.employee?.country
                     )}
                   </td>
                 </tr>
@@ -402,6 +451,21 @@ const Page = () => {
                 </tr>
               </tbody>
             </table>
+
+            {employeeList.employee.profession === "Sales Manager" && (
+              <Grid className="mt-5" container spacing={2}>
+                <Grid item lg={8} xs={12} sm={6} md={4}>
+                  <InputWithTitle3
+                    value={target}
+                    onChange={handleTargetChange}
+                    title={"Target"}
+                  />
+                </Grid>
+                <Grid className="mt-5" item lg={4} xs={12} sm={6} md={4}>
+                  <GreenButton onClick={handleSubmit} title="Update Target" />
+                </Grid>
+              </Grid>
+            )}
           </div>
         </div>
       )}

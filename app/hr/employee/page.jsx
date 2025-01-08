@@ -43,6 +43,7 @@ const Page = () => {
     total_salary: "",
     commission_per: "",
     labour_card_expiry: "abc",
+    country: "",
   });
 
   const [errors, setErrors] = useState({
