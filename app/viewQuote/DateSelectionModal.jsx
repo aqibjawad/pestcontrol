@@ -35,23 +35,7 @@ import {
 
 const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
 
-  const idAsString = quoteData?.quote_services[0]?.id.toString();
-
-  console.log("wdsda", idAsString);
-  
-
-
-  // Function to handle date selection
-  const handleDateSelection = (date) => {
-    setSelectedDates((prev) => {
-      // If date is already selected, remove it
-      if (prev.includes(date)) {
-        return prev.filter((d) => d !== date);
-      }
-      // If it's a new date, add it
-      return [...prev, date];
-    });
-  };
+  const idAsString = quoteData?.quote_services[0]?.id.toString();  
 
   const jobTypes =
     quoteData?.quote_services?.map((service) => service.job_type) || [];
@@ -64,7 +48,7 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
   const [trn, setTrn] = useState("");
   const [licenseNo, setLicenseNo] = useState("");
   const [isFoodWatchAccount, setIsFoodWatchAccount] = useState(false);
-  const [foodWatchStatus, setFoodWatchStatus] = useState("unlinked"); // 'linked' or 'unlinked'
+  const [foodWatchStatus, setFoodWatchStatus] = useState("unlinked"); 
 
   // Existing state variables
   const [totalServices, setTotalServices] = useState(0);

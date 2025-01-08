@@ -21,6 +21,7 @@ import { format } from "date-fns";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import withAuth from "@/utils/withAuth";
 import DateSelectionModal from "./DateSelectionModal";
+import ContractCancelModal from "./cancelquoete";
 import Swal from "sweetalert2";
 
 const Quotation = () => {
@@ -31,9 +32,6 @@ const Quotation = () => {
   const [orderBy, setOrderBy] = useState("");
   const [fetchingData, setFetchingData] = useState(false);
   const [quoteList, setQuoteList] = useState([]);
-
-  console.log("qupte list", quoteList);
-
   const [allQuoteList, setAllQuoteList] = useState([]);
   const [isApproving, setIsApproving] = useState({});
   const [startDate, setStartDate] = useState(null);
@@ -44,9 +42,6 @@ const Quotation = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDates, setSelectedDates] = useState([]);
   const [selectedJobType, setSelectedJobType] = useState("");
-  const [activeTab, setActiveTab] = useState(0);
-  const [dayWiseSelection, setDayWiseSelection] = useState([]);
-  const [intervalDays, setIntervalDays] = useState(5);
   const [currentQuoteId, setCurrentQuoteId] = useState(null);
 
   const [selectedQuoteData, setSelectedQuoteData] = useState(null);
@@ -170,6 +165,14 @@ const Quotation = () => {
 
   const [savedDates, setSavedDates] = useState([]);
 
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+
+  const handleCncel = (id) => {
+    const selectedQuote = quoteList.find((quote) => quote.id === id);
+    setSelectedQuoteData(selectedQuote);
+    setIsCancelModalOpen(true);
+  };
+
   const listServiceTable = () => {
     return (
       <TableContainer component={Paper}>
@@ -290,10 +293,12 @@ const Quotation = () => {
                       ?.join(", ") || "N/A"}
                   </TableCell>
                   <TableCell className="contractTable">
-                    {row?.is_contracted === 0 ? (
-                      <div className="pendingContrant">Pending</div>
+                    {row?.contract_cancel_reason ? (
+                      <div className="cancelContract">Contract Cancel</div>
+                    ) : row?.is_contracted === 0 ? (
+                      <div className="pendingContract">Pending</div>
                     ) : (
-                      <div className="approvedContrant">Approved</div>
+                      <div className="approvedContract">Approved</div>
                     )}
                   </TableCell>
                   <TableCell className="contractTable">
@@ -306,17 +311,30 @@ const Quotation = () => {
                           View Details
                         </span>
                       </Link>
-                      {row?.is_contracted === 0 && (
-                        <button
-                          onClick={() => handleApprove(row.id)}
-                          disabled={isApproving[row.id]}
-                          className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50"
-                        >
-                          {isApproving[row.id] ? "Approving..." : "Approve"}
-                        </button>
-                      )}
+
+                      {row?.contract_cancel_reason === null &&
+                        row?.is_contracted === 0 && (
+                          <>
+                            <button
+                              onClick={() => handleApprove(row.id)}
+                              disabled={isApproving[row.id]}
+                              className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50"
+                            >
+                              {isApproving[row.id] ? "Approving..." : "Approve"}
+                            </button>
+
+                            <button
+                              onClick={() => handleCancel(row.id)}
+                              disabled={isApproving[row.id]}
+                              className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50"
+                            >
+                              {isApproving[row.id] ? "Cancelling..." : "Cancel"}
+                            </button>
+                          </>
+                        )}
                     </div>
                   </TableCell>
+
                   <TableCell className="contractTable">
                     {row?.is_contracted === 0 ? (
                       <Link href={`/quotation?id=${row?.id}`}>Edit</Link>
@@ -426,6 +444,12 @@ const Quotation = () => {
         onClose={() => setIsModalOpen(false)}
         initialDates={savedDates}
         onSave={handleSaveDates}
+        quoteData={selectedQuoteData}
+      />
+
+      <ContractCancelModal
+        open={isCancelModalOpen}
+        onClose={() => setIsCancelModalOpen(false)}
         quoteData={selectedQuoteData}
       />
     </div>
