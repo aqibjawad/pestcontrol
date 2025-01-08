@@ -68,7 +68,7 @@ const CashBalanceModal = ({ open, onClose }) => {
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog maxWidth="sm" fullWidth>
       <DialogTitle
         sx={{
           m: 0,
