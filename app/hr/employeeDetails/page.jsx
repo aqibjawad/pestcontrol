@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import styles from "../../../styles/personalDetails.module.css";
 import APICall from "@/networkUtil/APICall";
 import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
-import { Skeleton } from "@mui/material"; // Import Skeleton from MUI
+import { Skeleton, CircularProgress } from "@mui/material"; // Import Skeleton from MUI
 import Link from "next/link";
 
 import EmpUpcomingJobs from "../jobs/upComing";
@@ -26,6 +26,8 @@ import {
   differenceInMonths,
 } from "date-fns";
 
+import Swal from "sweetalert2";
+
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
   if (parts.length > 1) {
@@ -46,7 +48,6 @@ const Page = () => {
   const [id, setId] = useState(null);
   const [fetchingData, setFetchingData] = useState(false);
 
-
   const [employeeList, setEmployeeList] = useState([]);
   const [employeeCompany, setEmployeeCompany] = useState([]);
   const [employeeDevices, setEmployeeDevices] = useState([]);
@@ -55,7 +56,15 @@ const Page = () => {
   const [empProfession, setEmployeeProfession] = useState([]);
   const requiredDocuments = getDocumentsByProfession(empProfession);
 
-  const [target, setTarget] = useState(employeeList?.employee?.target);
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
+
+  const [target, setTarget] = useState("");
+
+  useEffect(() => {
+    if (employeeList?.employee?.target) {
+      setTarget(employeeList.employee.target);
+    }
+  }, [employeeList]);
 
   const handleTargetChange = (name, value) => {
     setTarget(value);
@@ -183,15 +192,15 @@ const Page = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // setLoadingSubmit(true);
+    setLoadingSubmit(true);
 
     const obj = {
       user_id: id,
       target,
     };
-    
+
     const response = await api.updateFormDataWithToken(
-      `${getAllEmpoyesUrl}/employee/update`,
+      `${getAllEmpoyesUrl}/update`,
       obj
     );
 
@@ -201,7 +210,7 @@ const Page = () => {
         title: "Success",
         text: "Data has been added successfully!",
       });
-      router.push("/operations/viewInventory/");
+      window.location.reload();
     } else {
       Swal.fire({
         icon: "error",
@@ -452,7 +461,7 @@ const Page = () => {
               </tbody>
             </table>
 
-            {employeeList.employee.profession === "Sales Manager" && (
+            {employeeList?.employee?.profession === "Sales Manager" && (
               <Grid className="mt-5" container spacing={2}>
                 <Grid item lg={8} xs={12} sm={6} md={4}>
                   <InputWithTitle3
@@ -462,7 +471,17 @@ const Page = () => {
                   />
                 </Grid>
                 <Grid className="mt-5" item lg={4} xs={12} sm={6} md={4}>
-                  <GreenButton onClick={handleSubmit} title="Update Target" />
+                  <GreenButton
+                    onClick={handleSubmit}
+                    title={loadingSubmit ? "" : "Update Target"}
+                    disabled={loadingSubmit}
+                  >
+                    {loadingSubmit ? (
+                      <CircularProgress size={24} color="inherit" />
+                    ) : (
+                      "Update Target"
+                    )}
+                  </GreenButton>
                 </Grid>
               </Grid>
             )}
