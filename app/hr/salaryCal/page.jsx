@@ -468,20 +468,15 @@ const SalaryCal = () => {
                     style={{ width: "10%" }}
                     className="py-2 px-4 border-b border-gray-200 text-left"
                   >
+                    Paid
+                  </th>
+                  <th
+                    style={{ width: "10%" }}
+                    className="py-2 px-4 border-b border-gray-200 text-left"
+                  >
                     Status
                   </th>
-                  <th
-                    style={{ width: "10%" }}
-                    className="py-2 px-4 border-b border-gray-200 text-left"
-                  >
-                    Total Advance
-                  </th>
-                  <th
-                    style={{ width: "10%" }}
-                    className="py-2 px-4 border-b border-gray-200 text-left"
-                  >
-                    On Hold
-                  </th>
+
                   <th
                     style={{ width: "5%" }}
                     className="py-2 px-4 border-b border-gray-200 text-left"
@@ -506,9 +501,6 @@ const SalaryCal = () => {
                             <Skeleton variant="rectangular" height={30} />
                           </td>
                           <td style={{ width: "20%" }} className="py-5 px-4">
-                            <Skeleton variant="rectangular" height={30} />
-                          </td>
-                          <td style={{ width: "10%" }} className="py-5 px-4">
                             <Skeleton variant="rectangular" height={30} />
                           </td>
                           <td style={{ width: "10%" }} className="py-5 px-4">
@@ -567,14 +559,12 @@ const SalaryCal = () => {
                             {row.payable_salary}
                           </td>
                           <td style={{ width: "10%" }} className="py-5 px-4">
-                            {row.status}
+                            {row.paid_salary} {/* New Paid column */}
                           </td>
                           <td style={{ width: "10%" }} className="py-5 px-4">
-                            {row?.user?.employee?.current_adv_balance}
-                          </td>{" "}
-                          <td style={{ width: "10%" }} className="py-5 px-4">
-                            {row?.user?.employee?.hold_salary}
-                          </td>{" "}
+                            {row.status}
+                          </td>
+
                           <td style={{ width: "5%" }} className="py-5 px-4">
                             <Button
                               aria-controls={`actions-menu-${row?.user?.id}`}

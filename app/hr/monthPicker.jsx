@@ -49,7 +49,7 @@ const MonthPicker = ({ onDateChange }) => {
     startOfMonth(selectedDate),
     startOfMonth(currentDate)
   );
- 
+
   // Initialize with current month's dates
   React.useEffect(() => {
     const dates = getMonthDates(selectedDate);
@@ -57,27 +57,29 @@ const MonthPicker = ({ onDateChange }) => {
   }, []);
 
   return (
-    <div className="h-[50px] bg-white rounded-lg shadow-sm flex items-center justify-between px-4">
-      <button
-        onClick={previousMonth}
-        className="p-2 hover:bg-gray-100 rounded-full"
-      >
-        <ChevronLeft className="w-5 h-5" />
-      </button>
+    <div className="flex justify-center">
+      <div className="h-[50px] max-w-[500px] min-w-[500px] bg-white rounded-lg shadow-sm flex items-center justify-between px-4">
+        <button
+          onClick={previousMonth}
+          className="p-2 hover:bg-gray-100 rounded-full"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
 
-      <span className="font-bold text-green-600 text-base">
-        {formatDisplayDate(selectedDate)}
-      </span>
+        <span className="font-bold text-green-600 text-base">
+          {formatDisplayDate(selectedDate)}
+        </span>
 
-      <button
-        onClick={nextMonth}
-        disabled={!canGoNext}
-        className={`p-2 rounded-full ${
-          canGoNext ? "hover:bg-gray-100" : "opacity-50 cursor-not-allowed"
-        }`}
-      >
-        <ChevronRight className="w-5 h-5" />
-      </button>
+        <button
+          onClick={nextMonth}
+          disabled={!canGoNext}
+          className={`p-2 rounded-full ${
+            canGoNext ? "hover:bg-gray-100" : "opacity-50 cursor-not-allowed"
+          }`}
+        >
+          <ChevronRight className="w-5 h-5" />
+        </button>
+      </div>
     </div>
   );
 };
