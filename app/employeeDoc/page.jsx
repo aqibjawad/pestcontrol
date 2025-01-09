@@ -45,8 +45,6 @@ const InsuranceForm = () => {
   const [selectedFile, setSelectedFile] = useState("");
   const [currentDocData, setCurrentDocData] = useState(null);
   const [profession, setProfession] = useState("");
-
-  
   const tabData = getDocumentsByProfession(profession);
 
   const [formState, setFormState] = useState({
@@ -61,10 +59,6 @@ const InsuranceForm = () => {
 
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
-  const [statusCompleted, setStatusCompleted] = useState([]);
-  const [changeStatus, setChangeStatus] = useState(false);
-  const [completedTabs, setCompletedTabs] = useState([]);
-  const [activeTabs, setActiveTabs] = useState([0]);
   const [employeeList, setEmployeeList] = useState([]);
   const [fetchingData, setFetchingData] = useState(false);
 
@@ -120,41 +114,6 @@ const InsuranceForm = () => {
         if (response.data.employee.documents) {
           const documents = response.data.employee.documents;
           setEmployeeList(documents);
-
-          // Get visible documents based on profession
-          const docs = gettabData(response.data.employee.profession);
-          settabData(docs);
-
-          // Find first document status
-          const firstDoc = documents.find((doc) => doc.name === docs[0]);
-          const isFirstDone = firstDoc?.status === "done";
-
-          if (isFirstDone) {
-            const completedDocs = documents.filter(
-              (doc) => doc.status === "done"
-            );
-            const completedIndices = completedDocs
-              .map((doc) => docs.indexOf(doc.name))
-              .filter((index) => index !== -1);
-
-            setCompletedTabs(completedIndices);
-
-            const maxCompletedIndex = Math.max(...completedIndices, 0);
-            const activeTabsList = [...completedIndices];
-            if (maxCompletedIndex + 1 < docs.length) {
-              activeTabsList.push(maxCompletedIndex + 1);
-            }
-            setActiveTabs(activeTabsList);
-          } else {
-            setCompletedTabs([]);
-            setActiveTabs([0]);
-          }
-
-          const updatedStatus = docs.map(
-            (docName) =>
-              documents.find((doc) => doc.name === docName)?.status === "done"
-          );
-          setStatusCompleted(updatedStatus);
         }
       }
     } catch (error) {
@@ -209,30 +168,6 @@ const InsuranceForm = () => {
         });
 
         await getAllEmployees(id);
-
-        const updatedStatus = [...statusCompleted];
-        updatedStatus[activeTab] = true;
-        setStatusCompleted(updatedStatus);
-
-        if (formState.status === "done") {
-          const isFirstTab = activeTab === 0;
-          const previousTabsCompleted =
-            isFirstTab || completedTabs.includes(activeTab - 1);
-
-          if (previousTabsCompleted) {
-            const newCompletedTabs = [...completedTabs, activeTab].sort(
-              (a, b) => a - b
-            );
-            setCompletedTabs(newCompletedTabs);
-
-            const nextTab = activeTab + 1;
-            if (nextTab < tabData.length) {
-              setActiveTabs([...new Set([...activeTabs, nextTab])]);
-              setActiveTab(nextTab);
-            }
-          }
-        }
-
         setSelectedFile("");
       } else {
         Swal.fire({
@@ -254,26 +189,14 @@ const InsuranceForm = () => {
   };
 
   const handleTabChange = (event, newValue) => {
-    if (
-      newValue === 0 ||
-      (completedTabs.includes(0) &&
-        (completedTabs.includes(newValue) || activeTabs.includes(newValue)))
-    ) {
-      setActiveTab(newValue);
-    }
+    setActiveTab(newValue);
   };
 
   const getTabStyle = (index) => {
-    const isFirstTabDone = completedTabs.includes(0);
+    const doc = employeeList.find((doc) => doc.name === tabData[index]);
     return {
-      color: completedTabs.includes(index) ? "green" : "inherit",
-      fontWeight: completedTabs.includes(index) ? "bold" : "normal",
-      opacity:
-        index === 0 ||
-        (isFirstTabDone &&
-          (activeTabs.includes(index) || completedTabs.includes(index)))
-          ? 1
-          : 0.5,
+      color: doc?.status === "done" ? "green" : "inherit",
+      fontWeight: doc?.status === "done" ? "bold" : "normal",
     };
   };
 
@@ -302,10 +225,7 @@ const InsuranceForm = () => {
             <RadioGroup
               row
               value={formState.status}
-              onChange={(e) => {
-                handleFormChange("status")(e);
-                setChangeStatus(e.target.value === "done");
-              }}
+              onChange={handleFormChange("status")}
             >
               <FormControlLabel
                 value="pending"
@@ -462,7 +382,6 @@ const InsuranceForm = () => {
         <Grid item xs={12} md={3}>
           <Card className="p-4">
             {fetchingData ? (
-              // Display skeleton loaders for tabs
               Array.from({ length: tabData.length }).map((_, index) => (
                 <Skeleton
                   key={index}
@@ -480,15 +399,7 @@ const InsuranceForm = () => {
                 textColor="primary"
               >
                 {tabData.map((tab, index) => (
-                  <Tab
-                    key={index}
-                    label={tab}
-                    style={getTabStyle(index)}
-                    disabled={
-                      !activeTabs.includes(index) &&
-                      !completedTabs.includes(index)
-                    }
-                  />
+                  <Tab key={index} label={tab} style={getTabStyle(index)} />
                 ))}
               </Tabs>
             )}

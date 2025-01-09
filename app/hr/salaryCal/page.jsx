@@ -237,11 +237,13 @@ const SalaryCal = () => {
           },
         }).then(() => {
           const employeeId = selectedEmployee?.user?.id || selectedEmployee?.id;
+
+          const employeeMonth = selectedEmployee?.month;
           if (!employeeId) {
             console.error("Employee ID is missing");
             return;
           }
-          router.push(`/paySlip?id=${employeeId}`);
+          router.push(`/paySlip?id=${employeeId}&month=${employeeMonth}`);
         });
       } else {
         throw new Error(

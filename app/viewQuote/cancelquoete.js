@@ -79,7 +79,7 @@ const ContractCancelModal = ({ open, onClose, quoteData }) => {
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+    <Dialog open={open} onClose={onClose}>
       <DialogTitle>Quote Cancellation</DialogTitle>
 
       <DialogContent>

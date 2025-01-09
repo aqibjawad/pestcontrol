@@ -324,7 +324,7 @@ const Quotation = () => {
                             </button>
 
                             <button
-                              onClick={() => handleCancel(row.id)}
+                              onClick={() => handleCncel(row.id)}
                               disabled={isApproving[row.id]}
                               className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50"
                             >

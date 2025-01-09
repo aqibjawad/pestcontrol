@@ -23,7 +23,6 @@ const BasicQuote = ({ setFormData, formData }) => {
     getAllClients();
   }, []);
 
-  // Handle pre-selected client data
   useEffect(() => {
     if (formData?.user) {
       const user = formData.user;
@@ -32,18 +31,15 @@ const BasicQuote = ({ setFormData, formData }) => {
       if (user.client) {
         setFirmName(user.client.firm_name || "");
 
-        // Set reference name from the nested referencable
         if (user.client.referencable?.name) {
           setReferenceName(user.client.referencable.name);
         }
       }
 
-      // Pre-select the address if client_address_id is provided
       if (formData.client_address_id) {
         setSelectedAddress(formData.client_address_id.toString());
       }
 
-      // Update form data with the pre-selected user
       setFormData((prev) => ({
         ...prev,
         user_id: user.id,
@@ -57,7 +53,6 @@ const BasicQuote = ({ setFormData, formData }) => {
       const response = await api.getDataWithToken(clients);
       setAllClients(response.data);
 
-      // Transform clients data
       const transformedClients = response.data.map((client) => ({
         value: client.id,
         label: client.name || client.client?.firm_name || "Unknown Client",
@@ -65,7 +60,6 @@ const BasicQuote = ({ setFormData, formData }) => {
       }));
       setAllBrandsList(transformedClients);
 
-      // If we have a pre-selected client, set their addresses
       if (formData?.user?.id) {
         const selectedClient = response.data.find(
           (client) => client.id === formData.user.id
@@ -131,6 +125,66 @@ const BasicQuote = ({ setFormData, formData }) => {
       client_address_id: selectedAddressObj ? selectedAddressObj.value : "",
       selectedAddress: selectedAddressObj ? selectedAddressObj.label : "",
     }));
+  };
+
+  const handleDurationChange = (value) => {
+    const duration = parseInt(value) || 0;
+
+    setFormData((prev) => {
+      const updatedData = { ...prev, duration_in_months: duration };
+
+      if (prev.quote_services && Array.isArray(prev.quote_services)) {
+        const updatedServices = prev.quote_services.map((service) => {
+          const monthlyJobs = service.no_of_services / duration;
+          return {
+            ...service,
+            no_of_jobs: monthlyJobs,
+          };
+        });
+        updatedData.quote_services = updatedServices;
+      }
+
+      if (prev.services && Array.isArray(prev.services)) {
+        const updatedServices = prev.services.map((service) => ({
+          ...service,
+          no_of_jobs: service.total_services / duration,
+        }));
+        updatedData.services = updatedServices;
+      }
+
+      return updatedData;
+    });
+  };
+
+  const handleJobsPerMonthChange = (index, value) => {
+    const jobsPerMonth = parseFloat(value) || 0;
+    const totalServices = jobsPerMonth * (formData.duration_in_months || 1);
+
+    setFormData((prev) => {
+      const updatedServices = [...(prev.quote_services || [])];
+      if (updatedServices[index]) {
+        updatedServices[index] = {
+          ...updatedServices[index],
+          no_of_services: totalServices,
+          no_of_jobs: jobsPerMonth,
+        };
+      }
+
+      const updatedMainServices = [...(prev.services || [])];
+      if (updatedMainServices[index]) {
+        updatedMainServices[index] = {
+          ...updatedMainServices[index],
+          no_of_jobs: jobsPerMonth,
+          total_services: totalServices,
+        };
+      }
+
+      return {
+        ...prev,
+        quote_services: updatedServices,
+        services: updatedMainServices,
+      };
+    });
   };
 
   return (
@@ -229,18 +283,6 @@ const BasicQuote = ({ setFormData, formData }) => {
           />
         </Grid>
 
-        {/* <Grid item lg={6} xs={12} md={6} mt={2}>
-          <InputWithTitle
-            title={"TRN"}
-            type={"text"}
-            placeholder={"TRN"}
-            value={formData.trn}
-            onChange={(value) => {
-              setFormData((prev) => ({ ...prev, trn: value }));
-            }}
-          />
-        </Grid> */}
-
         <Grid item lg={6} xs={12} md={6} mt={2}>
           <InputWithTitle
             title={"Tag"}
@@ -259,41 +301,41 @@ const BasicQuote = ({ setFormData, formData }) => {
             type={"number"}
             placeholder={"Duration in Month"}
             value={formData.duration_in_months}
-            onChange={(value) => {
-              setFormData((prev) => ({ ...prev, duration_in_months: value }));
-            }}
+            onChange={handleDurationChange}
           />
         </Grid>
 
-        {/* <Grid className="mt-5" item lg={6} xs={12} md={6} mt={2}>
-          <div>
-            <label className="block font-bold mb-2">Food Watch Account</label>
-            <button
-              onClick={() => {
-                setFormData((prev) => ({ ...prev, isFoodWatchAccount: "yes" }));
-              }}
-              className={`px-4 py-2 rounded ${
-                formData.isFoodWatchAccount === "yes"
-                  ? "bg-green-500 text-white"
-                  : "bg-gray-300 text-black"
-              }`}
-            >
-              Link
-            </button>
-            <button
-              onClick={() => {
-                setFormData((prev) => ({ ...prev, isFoodWatchAccount: "no" }));
-              }}
-              className={`px-4 py-2 rounded ml-2 ${
-                formData.isFoodWatchAccount === "no"
-                  ? "bg-green-500 text-white"
-                  : "bg-gray-300 text-black"
-              }`}
-            >
-              Unlink
-            </button>
-          </div>
-        </Grid> */}
+        {formData.quote_services && formData.quote_services.length > 0 && (
+          <Grid item lg={12} xs={12} mt={2}>
+            <div className="border rounded p-4">
+              <h3 className="font-semibold mb-4">Service Jobs per Month</h3>
+              {formData.quote_services.map((service, index) => (
+                <div key={index} className="mb-4">
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1">
+                      <p className="font-medium">
+                        {service.service?.pest_name || "Service"}
+                      </p>
+                    </div>
+                    <div className="w-32">
+                      <InputWithTitle
+                        title="Jobs/Month"
+                        type="number"
+                        value={
+                          service.no_of_services /
+                          (formData.duration_in_months || 1)
+                        }
+                        onChange={(value) =>
+                          handleJobsPerMonthChange(index, value)
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Grid>
+        )}
 
         <Grid item lg={12} xs={12} mt={5}>
           <MultilineInput

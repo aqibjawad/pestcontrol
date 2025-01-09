@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import tableStyles from "../../styles/upcomingJobsStyles.module.css";
-import { serviceInvoice } from "@/networkUtil/Constants";
+import { serviceInvoice, clients } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
 import Skeleton from "@mui/material/Skeleton";
 import { AppHelpers } from "@/Helper/AppHelpers";
@@ -16,12 +16,17 @@ const ListServiceTable = ({
   endDate,
   updateTotalAmount,
   statusFilter,
-  isVisible
+  selectedReference,
+  isVisible,
+  setReferenceOptions  
 }) => {
   const api = new APICall();
   const [fetchingData, setFetchingData] = useState(false);
   const [invoiceList, setQuoteList] = useState([]);
   const [loadingDetails, setLoadingDetails] = useState(true);
+  const [brandsList, setBrandsList] = useState([]);
+
+  const [referenceList, setReferenceList] = useState([]);
 
   const formatDate = (dateString) => {
     try {
@@ -44,7 +49,6 @@ const ListServiceTable = ({
       const currentDate = new Date();
       const startDate = startOfMonth(currentDate);
       const endDate = endOfMonth(currentDate);
-      const queryParams = [];
       queryParams.push(`start_date=${format(startDate, "yyyy-MM-dd")}`);
       queryParams.push(`end_date=${format(endDate, "yyyy-MM-dd")}`);
     }
@@ -56,12 +60,34 @@ const ListServiceTable = ({
         );
 
         let filteredData = response.data;
+
+        // Filter by status
         if (statusFilter !== "all") {
-          filteredData = response.data.filter(
+          filteredData = filteredData.filter(
             (invoice) => invoice.status.toLowerCase() === statusFilter
           );
         }
 
+        // Filter by reference
+        if (selectedReference !== "all") {
+          filteredData = filteredData.filter(
+            (invoice) =>
+              invoice?.user?.client?.referencable?.name === selectedReference
+          );
+        }
+
+        // Extract references
+        const references = new Set(
+          filteredData
+            .map((invoice) => invoice?.user?.client?.referencable?.name)
+            .filter((name) => name) // Remove undefined/null values
+        );
+
+        setReferenceList([...references]); // Convert Set to Array
+        if (setReferenceOptions) {
+          // Add check to ensure prop exists
+          setReferenceOptions([...references]);
+        }
         setQuoteList(filteredData);
         updateTotalAmount(filteredData);
       }
@@ -75,10 +101,9 @@ const ListServiceTable = ({
     }
   };
 
-  // Call getAllQuotes when component mounts or when dependencies change
   useEffect(() => {
     getAllQuotes();
-  }, [startDate, endDate, statusFilter, isVisible]);
+  }, [startDate, endDate, statusFilter, selectedReference, isVisible]);
 
   return (
     <div className={tableStyles.tableContainer}>
@@ -167,7 +192,6 @@ const ListServiceTable = ({
                       {row?.user?.client?.referencable?.name || "N/A"}
                     </div>
                   </td>
-
                   <td className="py-2 px-4">
                     <div className={tableStyles.clientContact}>
                       {row.paid_amt || 0}
@@ -210,14 +234,9 @@ const Invoices = ({ isVisible }) => {
   const getDateParamsFromUrl = () => {
     if (typeof window !== "undefined") {
       const searchParams = new URL(window.location.href).searchParams;
-
       const startDate = searchParams.get("start");
       const endDate = searchParams.get("end");
-
-      return {
-        startDate,
-        endDate,
-      };
+      return { startDate, endDate };
     }
     return { startDate: null, endDate: null };
   };
@@ -228,6 +247,8 @@ const Invoices = ({ isVisible }) => {
   const [endDate, setEndDate] = useState(urlEndDate);
   const [totalAmount, setTotalAmount] = useState(0);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [selectedReference, setSelectedReference] = useState("all");
+  const [referenceOptions, setReferenceOptions] = useState([]);
 
   useEffect(() => {
     if (urlStartDate && urlEndDate) {
@@ -246,7 +267,6 @@ const Invoices = ({ isVisible }) => {
       const amount = parseFloat(invoice.total_amt) || 0;
       return acc + amount;
     }, 0);
-
     setTotalAmount(Number(total.toFixed(2)));
   };
 
@@ -296,17 +316,34 @@ const Invoices = ({ isVisible }) => {
               Unpaid
             </button>
           </div>
-          {urlStartDate ? (
-            // Show start and end dates when urlStartDate is set
-            <div>
-              <p>Start Date: {urlStartDate}</p>
-              <p>End Date: {urlEndDate || "Not Set"}</p>
+          <div className="flex gap-4">
+            <div className="flex items-center gap-2">
+              <label className="text-gray-700">Search By Reference:</label>
+              <select
+                value={selectedReference}
+                onChange={(e) => setSelectedReference(e.target.value)}
+                className="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">All References</option>
+                {referenceOptions.map((reference, index) => (
+                  <option key={index} value={reference}>
+                    {reference}
+                  </option>
+                ))}
+              </select>
             </div>
-          ) : (
-            <div className="bg-green-600 text-white font-semibold text-base h-11 w-52 flex justify-center items-center px-4 py-3 rounded-lg">
-              <DateFilters2 onDateChange={handleDateChange} />
-            </div>
-          )}
+
+            {urlStartDate ? (
+              <div>
+                <p>Start Date: {urlStartDate}</p>
+                <p>End Date: {urlEndDate || "Not Set"}</p>
+              </div>
+            ) : (
+              <div className="bg-green-600 text-white font-semibold text-base h-11 w-52 flex justify-center items-center px-4 py-3 rounded-lg">
+                <DateFilters2 onDateChange={handleDateChange} />
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -318,6 +355,9 @@ const Invoices = ({ isVisible }) => {
             endDate={endDate}
             updateTotalAmount={updateTotalAmount}
             statusFilter={statusFilter}
+            selectedReference={selectedReference}
+            isVisible={isVisible}
+            setReferenceOptions={setReferenceOptions}
           />
         </div>
       </div>

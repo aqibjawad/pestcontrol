@@ -8,7 +8,6 @@ export const getDocumentsByProfession = (profession) => {
     "EID",
     "DM Card",
     "Driving Licence",
-    "Personal Photo",
     "MOHRE Letter",
     "Labour Card",
     "Change Status",

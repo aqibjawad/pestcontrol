@@ -49,9 +49,9 @@ const ServiceAgreement = ({ setFormData, formData }) => {
       // Transform quote_services to JobsList format
       const transformedServices = formData.quote_services.map(
         (quoteService) => {
-          const monthlyJobs = Math.round(
-            quoteService.no_of_services / formData.duration_in_months
-          );
+          // Calculate monthly jobs by dividing total services by duration
+          const monthlyJobs =
+            quoteService.no_of_services / formData.duration_in_months;
 
           return {
             service_id: quoteService.service_id,
@@ -65,7 +65,7 @@ const ServiceAgreement = ({ setFormData, formData }) => {
                 job_type: quoteService.job_type,
                 rate: parseFloat(quoteService.rate),
                 dates: quoteService.quote_service_dates || [],
-                no_of_jobs: monthlyJobs,
+                no_of_jobs: monthlyJobs, // Also update in detail array
               },
             ],
           };
@@ -155,7 +155,8 @@ const ServiceAgreement = ({ setFormData, formData }) => {
       newServices[index] = {
         ...newServices[index],
         ...updatedJob,
-        subTotal: updatedJob.no_of_jobs * updatedJob.rate,
+        subTotal:
+          updatedJob.no_of_jobs * updatedJob.rate * formData.duration_in_months, // Updated subtotal calculation
         detail: [
           {
             job_type: updatedJob.jobType,

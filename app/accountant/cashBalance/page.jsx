@@ -17,7 +17,7 @@ import { adminn } from "@/networkUtil/Constants";
 import Swal from "sweetalert2";
 import APICall from "@/networkUtil/APICall";
 
-const CashBalanceModal = ({ open, onClose }) => {
+const CashBalanceModal = () => {
   const api = new APICall();
   const [cash_amt, setCashAmt] = useState("");
   const [loadingSubmit, setLoadingSubmit] = useState(false);
@@ -68,57 +68,58 @@ const CashBalanceModal = ({ open, onClose }) => {
   };
 
   return (
-    <Dialog maxWidth="sm" fullWidth>
-      <DialogTitle
-        sx={{
-          m: 0,
-          p: 2,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        Add Cash Balance
-        <IconButton
-          aria-label="close"
-          onClick={onClose}
-          sx={{
-            position: "absolute",
-            right: 8,
-            top: 8,
-            color: (theme) => theme.palette.grey[500],
-          }}
-        >
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
-      <DialogContent dividers>
-        <Grid container spacing={2} sx={{ mt: 1 }}>
-          <Grid item xs={12}>
-            <InputWithTitle3
-              title="Add Cash Balance"
-              type="text"
-              value={cash_amt}
-              onChange={handleInputChange}
-              name="cash_amt"
-            />
-          </Grid>
-        </Grid>
-      </DialogContent>
-      <DialogActions sx={{ p: 2 }}>
-        <GreenButton
-          onClick={handleSubmit}
-          title={
-            loadingSubmit ? (
-              <CircularProgress size={20} color="inherit" />
-            ) : (
-              "Submit"
-            )
-          }
-          disabled={loadingSubmit}
-        />
-      </DialogActions>
-    </Dialog>
+    // <Dialog maxWidth="sm" fullWidth>
+    //   <DialogTitle
+    //     sx={{
+    //       m: 0,
+    //       p: 2,
+    //       display: "flex",
+    //       justifyContent: "space-between",
+    //       alignItems: "center",
+    //     }}
+    //   >
+    //     Add Cash Balance
+    //     <IconButton
+    //       aria-label="close"
+    //       onClick={onClose}
+    //       sx={{
+    //         position: "absolute",
+    //         right: 8,
+    //         top: 8,
+    //         color: (theme) => theme.palette.grey[500],
+    //       }}
+    //     >
+    //       <CloseIcon />
+    //     </IconButton>
+    //   </DialogTitle>
+    //   <DialogContent dividers>
+    //     <Grid container spacing={2} sx={{ mt: 1 }}>
+    //       <Grid item xs={12}>
+    //         <InputWithTitle3
+    //           title="Add Cash Balance"
+    //           type="text"
+    //           value={cash_amt}
+    //           onChange={handleInputChange}
+    //           name="cash_amt"
+    //         />
+    //       </Grid>
+    //     </Grid>
+    //   </DialogContent>
+    //   <DialogActions sx={{ p: 2 }}>
+    //     <GreenButton
+    //       onClick={handleSubmit}
+    //       title={
+    //         loadingSubmit ? (
+    //           <CircularProgress size={20} color="inherit" />
+    //         ) : (
+    //           "Submit"
+    //         )
+    //       }
+    //       disabled={loadingSubmit}
+    //     />
+    //   </DialogActions>
+    // </Dialog>
+    <div>test</div>
   );
 };
 
