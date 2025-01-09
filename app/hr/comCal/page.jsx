@@ -9,6 +9,7 @@ import { CircularProgress, Skeleton } from "@mui/material";
 import withAuth from "@/utils/withAuth";
 
 import MonthPicker from "../monthPicker";
+import InputWithTitle from "@/components/generic/InputWithTitle";
 
 const SalaryCal = () => {
   const api = new APICall();
@@ -28,6 +29,7 @@ const SalaryCal = () => {
       setSelectedMonth(monthStr);
     }
   };
+  const [allEmployees, setAllEmployees] = useState();
 
   const getEmployeeCommissions = async () => {
     setFetchingData(true);
@@ -36,6 +38,7 @@ const SalaryCal = () => {
         `${getAllEmpoyesUrl}/commission/get?commission_month=${selectedMonth}`
       );
       setEmployeeList(response.data);
+      setAllEmployees(response.data);
     } catch (error) {
       console.error("Error fetching employees:", error);
       Swal.fire({
@@ -51,6 +54,17 @@ const SalaryCal = () => {
   useEffect(() => {
     getEmployeeCommissions(selectedMonth);
   }, [selectedMonth]); // Only depend on selectedMonth
+
+  const handleEmployeeNameChange = (value) => {
+    if (value === "") {
+      setEmployeeList(allEmployees);
+    } else {
+      const filteredList = allEmployees.filter((employee) =>
+        employee.referencable?.name.toLowerCase().includes(value.toLowerCase())
+      );
+      setEmployeeList(filteredList);
+    }
+  };
 
   return (
     <>
@@ -86,11 +100,18 @@ const SalaryCal = () => {
                       >
                         Sr.
                       </th>
+
                       <th
                         style={{ width: "25%" }}
                         className="py-2 px-4 border-b border-gray-200 text-left"
                       >
-                        Employee Name
+                        <InputWithTitle
+                          title={"Employee Name"}
+                          placeholder="Filter by Name"
+                          onChange={(value) => {
+                            handleEmployeeNameChange(value);
+                          }}
+                        />
                       </th>
                       <th
                         style={{ width: "15%" }}
