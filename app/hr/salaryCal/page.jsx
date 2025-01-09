@@ -455,7 +455,7 @@ const SalaryCal = () => {
                       <td className="py-5 px-4">
                         <Link
                           variant="outlined"
-                          href={`/paySlip?id=${row?.user?.id}`}
+                          href={`/paySlip?id=${row?.user?.id}&month=${row?.month}`}
                         >
                           View
                         </Link>
@@ -637,7 +637,7 @@ const SalaryCal = () => {
           z-index: 1500 !important; // Higher z-index for error modals
         }
       `}</style>
-    </div> 
+    </div>
   );
 };
 

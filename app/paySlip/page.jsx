@@ -60,31 +60,22 @@ const Page = () => {
   const [loadingDetails, setLoadingDetails] = useState(true);
   const [commisionAmount, setCommisionAmount] = useState("0");
 
-  const [amount, setAmount] = useState(true);
+  const [month, setMonth] = useState(true);
 
   const getQueryParam = (url, param) => {
     const searchParams = new URLSearchParams(new URL(url).search);
     return searchParams.get(param);
   };
 
-  // Get current month in YYYY-MM format
-  const getCurrentMonth = () => {
-    const date = new Date();
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    return `${year}-${month}`;
-  };
-
   useEffect(() => {
-    // Get the current URL
     const currentUrl = window.location.href;
 
     // Extract id and amount
     const urlId = getQueryParam(currentUrl, "id");
-    const urlAmount = getQueryParam(currentUrl, "amount");
+    const urlMonth = getQueryParam(currentUrl, "month");
 
     setId(urlId);
-    setAmount(urlAmount); // Assuming setAmount is defined in your component
+    setMonth(urlMonth);
   }, []);
 
   useEffect(() => {
@@ -96,13 +87,12 @@ const Page = () => {
   const getAllQuotes = async (employeeId) => {
     setFetchingData(true);
     try {
-      const currentMonth = getCurrentMonth();
       const response = await api.getDataWithToken(
-        `${getAllEmpoyesUrl}/salary/get?employee_user_id=${employeeId}&salary_month=${currentMonth}`
+        `${getAllEmpoyesUrl}/salary/get?employee_user_id=${employeeId}&salary_month=${month}`
       );
 
       const commsionResponse = await api.getDataWithToken(
-        `${apiPrefix}/employee/commission/get?commission_month=${currentMonth}&referencable_id=${employeeId}&referencable_type=user`
+        `${apiPrefix}/employee/commission/get?commission_month=${month}&referencable_id=${employeeId}&referencable_type=user`
       );
       setCommisionAmount(commsionResponse?.data[0]?.paid_amt ?? 0);
 
