@@ -6,6 +6,7 @@ import MultilineInput from "../../components/generic/MultilineInput";
 import { clients } from "../../networkUtil/Constants";
 import APICall from "../../networkUtil/APICall";
 import { Grid, Skeleton } from "@mui/material";
+import Select from "react-select";
 
 const CustomerDetails = ({ setFormData, formData }) => {
   const api = new APICall();
@@ -89,8 +90,9 @@ const CustomerDetails = ({ setFormData, formData }) => {
     }
   };
 
-  const handleClientChange = (e) => {
-    const value = e.target.value;
+  const handleClientChange = (selectedOption) => {
+    const value = selectedOption?.value;
+
     const selectedClient = allClients.find(
       (client) => client.id === Number(value)
     );
@@ -190,7 +192,7 @@ const CustomerDetails = ({ setFormData, formData }) => {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Select Client
               </label>
-              <select
+              {/* <select
                 className="mt-1 block w-full px-3 py-2 text-base border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 onChange={handleClientChange}
                 value={selectedBrand || ""}
@@ -201,7 +203,15 @@ const CustomerDetails = ({ setFormData, formData }) => {
                     {client.label}
                   </option>
                 ))}
-              </select>
+              </select> */}
+              <Select
+                className="mt-1"
+                options={allBrandsList}
+                value={allBrandsList.find((opt) => opt.value === selectedBrand)}
+                onChange={handleClientChange}
+                placeholder="Select a client"
+                isSearchable
+              />
             </div>
           )}
         </Grid>

@@ -7,6 +7,8 @@ import { clients } from "../../../networkUtil/Constants";
 import APICall from "../../../networkUtil/APICall";
 import { Grid, Skeleton } from "@mui/material";
 
+import Select from "react-select";
+
 const BasicQuote = ({ setFormData, formData }) => {
   const api = new APICall();
 
@@ -82,27 +84,46 @@ const BasicQuote = ({ setFormData, formData }) => {
     }
   };
 
-  const handleClientChange = (e) => {
-    const value = e.target.value;
+  const handleClientChange = (selectedOption) => {
+    // If no option is selected
+    if (!selectedOption) {
+      setSelectedClientId("");
+      setFormData((prev) => ({
+        ...prev,
+        user_id: "",
+      }));
+      setFirmName("");
+      setReferenceName("");
+      setAddresses([]);
+      return;
+    }
+
+    // Get selected client
     const selectedClient = allClients.find(
-      (client) => client.id === Number(value)
+      (client) => client.id === Number(selectedOption.value)
     );
 
     if (selectedClient) {
-      setSelectedClientId(value);
+      setSelectedClientId(selectedOption.value);
       setFormData((prev) => ({
         ...prev,
         user_id: selectedClient.id,
       }));
 
+      // Handle client data
       if (selectedClient.client) {
+        // Set firm name
         setFirmName(selectedClient.client.firm_name || "");
 
+        // Set reference name if exists
         if (selectedClient.client.referencable?.name) {
           setReferenceName(selectedClient.client.referencable.name);
+        } else {
+          setReferenceName("");
         }
 
-        if (selectedClient.client.addresses) {
+        // Set addresses if exist
+        if (selectedClient.client.addresses?.length) {
           const clientAddresses = selectedClient.client.addresses.map(
             (address) => ({
               value: address.id,
@@ -110,7 +131,14 @@ const BasicQuote = ({ setFormData, formData }) => {
             })
           );
           setAddresses(clientAddresses);
+        } else {
+          setAddresses([]);
         }
+      } else {
+        // Reset values if no client data
+        setFirmName("");
+        setReferenceName("");
+        setAddresses([]);
       }
     }
   };
@@ -200,9 +228,9 @@ const BasicQuote = ({ setFormData, formData }) => {
           ) : (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Select Client
+                Select Firm Name
               </label>
-              <select
+              {/* <select
                 className="mt-1 block w-full px-3 py-2 text-base border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 onChange={handleClientChange}
                 value={selectedBrand || ""}
@@ -213,7 +241,19 @@ const BasicQuote = ({ setFormData, formData }) => {
                     {client.label}
                   </option>
                 ))}
-              </select>
+              </select> */}
+              <Select
+                className="mt-1"
+                options={allBrandsList}
+                value={
+                  allBrandsList.find(
+                    (option) => option.value === selectedBrand
+                  ) || null
+                }
+                onChange={handleClientChange}
+                placeholder="Select a client"
+                isSearchable
+              />
             </div>
           )}
         </Grid>

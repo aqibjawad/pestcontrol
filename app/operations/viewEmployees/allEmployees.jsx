@@ -268,9 +268,10 @@ const AllEmployees = () => {
         onChange={(e, newValue) => setSelectedRole(newValue)}
         indicatorColor="primary"
         textColor="primary"
-        variant="scrollable"
-        scrollButtons="auto"
         className="mt-4"
+        variant="scrollable" // Makes the Tabs scrollable
+        scrollButtons="auto" // Automatically shows scroll buttons if needed
+        aria-label="Scrollable professions tabs"
       >
         {professions.map((role) => (
           <Tab key={role} label={role} value={role} />
