@@ -60,7 +60,9 @@ const CustomerDetails = ({ setFormData, formData }) => {
       // Transform clients data
       const transformedClients = response.data.map((client) => ({
         value: client.id,
-        label: client.name || client.client?.firm_name || "Unknown Client",
+        label: `${(
+          client.client?.firm_name || "Unknown Firm"
+        ).toLowerCase()} (${client.name || "Unknown Name"})`,
         data: client,
       }));
       setAllBrandsList(transformedClients);

@@ -52,10 +52,11 @@ const BasicQuote = ({ setFormData, formData }) => {
     try {
       const response = await api.getDataWithToken(clients);
       setAllClients(response.data);
-
       const transformedClients = response.data.map((client) => ({
         value: client.id,
-        label: client.name || client.client?.firm_name || "Unknown Client",
+        label: `${(
+          client.client?.firm_name || "Unknown Firm"
+        ).toLowerCase()} (${client.name || "Unknown Name"})`,
         data: client,
       }));
       setAllBrandsList(transformedClients);
@@ -228,7 +229,7 @@ const BasicQuote = ({ setFormData, formData }) => {
           />
         </Grid>
 
-        <Grid item lg={6} xs={12} md={6} mt={2}>
+        {/* <Grid item lg={6} xs={12} md={6} mt={2}>
           <InputWithTitle
             title={"Firm"}
             type={"text"}
@@ -237,7 +238,7 @@ const BasicQuote = ({ setFormData, formData }) => {
             defaultValue={firmName}
             disable
           />
-        </Grid>
+        </Grid> */}
 
         <Grid item lg={6} xs={12} md={6} mt={2}>
           <div>
