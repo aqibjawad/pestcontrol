@@ -146,45 +146,11 @@ const AllEmployees = () => {
     router.push("/hr/employee/");
   };
 
-  // const getMissingDocuments = (documents) => {
-  //   const existingDocs = new Set(documents?.map((doc) => doc.name) || []);
-  //   return allDocumentTypes.filter((docType) => !existingDocs.has(docType));
-  // };
-
-  // const allDocumentTypes = [
-  //   "Employment Letter",
-  //   "Job Offer Letter/Joining Letter APCS",
-  //   "Passport Handover Form",
-  //   "Passport",
-  //   "EID",
-  //   "DM Card",
-  //   "Driving Licence",
-  //   "Personal Photo",
-  //   "MOHRE Letter",
-  //   "Labour Card",
-  //   "Change Status",
-  //   "Visa",
-  //   "EHOC",
-  //   "Medical Report",
-  //   "Visa Stamping",
-  //   "Health Insurance",
-  //   "Vehicle Policy",
-  //   "Asset Policy",
-  //   "ILOE Insurance",
-  //   "Bank Detail/Salary Transfer",
-  // ];
-
   const renderCards = () => (
     <div className="flex flex-wrap gap-4 mt-5">
       {filteredEmployees?.map((employee) => {
-        // const missingDocs = getMissingDocuments(employee?.employee?.documents);
-        // const existingDocs = employee?.employee?.documents || [];
-
         return (
-          <div
-            key={employee.id}
-            className="w-96 p-4 bg-white rounded shadow-md"
-          >
+          <div key={employee.id} className="p-4 bg-white rounded shadow-md" style={{minWidth:"250px", maxWidth:"250px"}}>
             <img
               className="w-24 h-24 rounded-full mx-auto"
               src={employee?.employee?.profile_image || "/default-avatar.png"}
@@ -200,20 +166,6 @@ const AllEmployees = () => {
                 Employee ID : {employee.employee?.id || "N/A"}
               </p>
             </div>
-
-            {/* <div className="mt-4">
-              <h4 className="font-semibold text-red-600">Missing Documents</h4>
-              <div className="max-h-32 overflow-y-auto">
-                {missingDocs.map((docName) => (
-                  <div
-                    key={docName}
-                    className="text-sm p-2 my-1 bg-red-50 rounded"
-                  >
-                    {docName}
-                  </div>
-                ))}
-              </div>
-            </div> */}
 
             <div className="mt-4 flex justify-between items-center">
               <Switch
@@ -238,7 +190,7 @@ const AllEmployees = () => {
   );
 
   const professions = [
-    "All", // Add "All" as the first option
+    "All",
     "HR Manager",
     "Accountant",
     "Operation Manager",
@@ -263,21 +215,25 @@ const AllEmployees = () => {
           <GreenButton onClick={() => addEmployee()} title={"+ Employee"} />
         </div>
       </div>
-      <Tabs
-        value={selectedRole}
-        onChange={(e, newValue) => setSelectedRole(newValue)}
-        indicatorColor="primary"
-        textColor="primary"
-        className="mt-4"
-        variant="scrollable" // Makes the Tabs scrollable
-        scrollButtons="auto" // Automatically shows scroll buttons if needed
-        aria-label="Scrollable professions tabs"
-      >
-        {professions.map((role) => (
-          <Tab key={role} label={role} value={role} />
-        ))}
-      </Tabs>
+
+      <div style={{ maxWidth: "1000px" }}>
+        <Tabs
+          value={selectedRole}
+          onChange={(e, newValue) => setSelectedRole(newValue)}
+          indicatorColor="primary"
+          textColor="primary"
+          className="mt-4"
+          variant="scrollable" // Makes the Tabs scrollable
+          scrollButtons="auto" // Automatically shows scroll buttons if needed
+          aria-label="Scrollable professions tabs"
+        >
+          {professions.map((role) => (
+            <Tab key={role} label={role} value={role} />
+          ))}
+        </Tabs>
+      </div>
       {fetchingData ? renderSkeleton() : renderCards()}
+
       <EmployeeUpdateModal
         open={open}
         handleClose={handleClose}

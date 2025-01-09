@@ -380,7 +380,9 @@ const Page = () => {
                               <td className="p-3 border">
                                 {doc.expiry
                                   ? format(new Date(doc.expiry), "dd MMM yyyy")
-                                  : "- !!"}
+                                  : doc?.process_date
+                                  ? `${doc.process_date}`
+                                  : "-"}
                               </td>
                               <td className="p-3 border">
                                 <div className="flex gap-2 items-center">

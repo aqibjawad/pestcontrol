@@ -85,3 +85,5 @@ export const updateDevicesURL = apiPrefix + "/device/update/";
 export const removeDeviceAssignment = apiPrefix + "/device/assign";
 
 export const adminn = apiPrefix + "/admin";
+
+export const salaries = apiPrefix + "/salary";
