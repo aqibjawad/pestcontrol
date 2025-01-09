@@ -10,6 +10,8 @@ import { Grid, Skeleton } from "@mui/material";
 import Select from "react-select";
 
 const BasicQuote = ({ setFormData, formData }) => {
+  console.log("osajfodsjo", formData);
+
   const api = new APICall();
 
   const [allBrandsList, setAllBrandsList] = useState([]);
@@ -227,33 +229,35 @@ const BasicQuote = ({ setFormData, formData }) => {
             <Skeleton variant="rectangular" width="100%" height={50} />
           ) : (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Select Firm Name
-              </label>
-              {/* <select
-                className="mt-1 block w-full px-3 py-2 text-base border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                onChange={handleClientChange}
-                value={selectedBrand || ""}
-              >
-                <option value="">Select a client</option>
-                {allBrandsList.map((client) => (
-                  <option key={client.value} value={client.value}>
-                    {client.label}
-                  </option>
-                ))}
-              </select> */}
-              <Select
-                className="mt-1"
-                options={allBrandsList}
-                value={
-                  allBrandsList.find(
-                    (option) => option.value === selectedBrand
-                  ) || null
-                }
-                onChange={handleClientChange}
-                placeholder="Select a client"
-                isSearchable
-              />
+              {formData?.billing_method === "" ? (
+                <>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Select Firm Name
+                  </label>
+                  <Select
+                    className="mt-1"
+                    options={allBrandsList}
+                    value={
+                      allBrandsList.find(
+                        (option) => option.value === selectedBrand
+                      ) || null
+                    }
+                    onChange={handleClientChange}
+                    placeholder="Select a client"
+                    isSearchable
+                  />
+                </>
+              ) : (
+                <InputWithTitle
+                  title={"Selected Client"}
+                  type={"text"}
+                  placeholder={"Selected Client"}
+                  value={formData?.user?.name}
+                  defaultValue={formData?.user?.name}
+                  disable
+                  onChange={(value) => {}}
+                />
+              )}
             </div>
           )}
         </Grid>
@@ -268,17 +272,6 @@ const BasicQuote = ({ setFormData, formData }) => {
             disable
           />
         </Grid>
-
-        {/* <Grid item lg={6} xs={12} md={6} mt={2}>
-          <InputWithTitle
-            title={"Firm"}
-            type={"text"}
-            placeholder={"Firm"}
-            value={firmName}
-            defaultValue={firmName}
-            disable
-          />
-        </Grid> */}
 
         <Grid item lg={6} xs={12} md={6} mt={2}>
           <div>
@@ -345,38 +338,6 @@ const BasicQuote = ({ setFormData, formData }) => {
             onChange={handleDurationChange}
           />
         </Grid>
-
-        {formData.quote_services && formData.quote_services.length > 0 && (
-          <Grid item lg={12} xs={12} mt={2}>
-            <div className="border rounded p-4">
-              <h3 className="font-semibold mb-4">Service Jobs per Month</h3>
-              {formData.quote_services.map((service, index) => (
-                <div key={index} className="mb-4">
-                  <div className="flex items-center gap-4">
-                    <div className="flex-1">
-                      <p className="font-medium">
-                        {service.service?.pest_name || "Service"}
-                      </p>
-                    </div>
-                    <div className="w-32">
-                      <InputWithTitle
-                        title="Jobs/Month"
-                        type="number"
-                        value={
-                          service.no_of_services /
-                          (formData.duration_in_months || 1)
-                        }
-                        onChange={(value) =>
-                          handleJobsPerMonthChange(index, value)
-                        }
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Grid>
-        )}
 
         <Grid item lg={12} xs={12} mt={5}>
           <MultilineInput
