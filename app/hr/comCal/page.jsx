@@ -5,7 +5,7 @@ import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
 import APICall from "@/networkUtil/APICall";
 import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
 import Swal from "sweetalert2";
-import CircularProgress from "@mui/material/CircularProgress";
+import { Skeleton } from "@mui/material";
 import withAuth from "@/utils/withAuth";
 
 import MonthPicker from "../monthPicker";
@@ -54,46 +54,66 @@ const SalaryCal = () => {
 
   return (
     <>
-      {fetchingData ? (
-        <CircularProgress />
-      ) : (
-        <>
-          <hr />
-          <div className="mt-10 mb-10">
-            <div className="pageTitle"> Sales By Employees </div>
-            <div className="mt-5"></div>
-            <MonthPicker onDateChange={handleDateChange} />
-            <div className="mt-5"></div>
-            <div className={tableStyles.tableContainer}>
-              <table className="min-w-full bg-white">
-                <thead>
-                  <tr>
-                    <th className="py-5 px-4 border-b border-gray-200 text-left">
-                      Sr.
-                    </th>
-                    <th className="py-2 px-4 border-b border-gray-200 text-left">
-                      Employee Name
-                    </th>
-                    <th className="py-2 px-4 border-b border-gray-200 text-left">
-                      Commission %
-                    </th>
-                    <th className="py-2 px-4 border-b border-gray-200 text-left">
-                      Target Achived %
-                    </th>
-                    <th className="py-2 px-4 border-b border-gray-200 text-left">
-                      Sale
-                    </th>
-                    <th className="py-2 px-4 border-b border-gray-200 text-left">
-                      Target
-                    </th>
-
-                    <th className="py-2 px-4 border-b border-gray-200 text-left">
-                      Commision Amount
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {employeeList?.map((row, index) => (
+      <MonthPicker onDateChange={handleDateChange} />
+      <div className="mt-10 mb-10">
+        <div className="pageTitle">Sales By Employees</div>
+        <div className="mt-5"></div>
+        <div className="mt-5"></div>
+        <div className={tableStyles.tableContainer}>
+          <table className="min-w-full bg-white">
+            <thead>
+              <tr>
+                <th className="py-5 px-4 border-b border-gray-200 text-left">
+                  Sr.
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 text-left">
+                  Employee Name
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 text-left">
+                  Commission %
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 text-left">
+                  Target Achieved %
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 text-left">
+                  Sale
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 text-left">
+                  Target
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 text-left">
+                  Commission Amount
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {fetchingData
+                ? Array.from({ length: 5 }).map((_, index) => (
+                    <tr key={index} className="border-b border-gray-200">
+                      <td className="py-5 px-4">
+                        <Skeleton variant="text" width={20} />
+                      </td>
+                      <td className="py-5 px-4">
+                        <Skeleton variant="text" width={120} />
+                      </td>
+                      <td className="py-5 px-4">
+                        <Skeleton variant="text" width={50} />
+                      </td>
+                      <td className="py-5 px-4">
+                        <Skeleton variant="text" width={70} />
+                      </td>
+                      <td className="py-5 px-4">
+                        <Skeleton variant="text" width={50} />
+                      </td>
+                      <td className="py-5 px-4">
+                        <Skeleton variant="text" width={50} />
+                      </td>
+                      <td className="py-5 px-4">
+                        <Skeleton variant="text" width={80} />
+                      </td>
+                    </tr>
+                  ))
+                : employeeList?.map((row, index) => (
                     <tr key={row.id} className="border-b border-gray-200">
                       <td className="py-5 px-4">{index + 1}</td>
                       <td className="py-5 px-4">{row?.referencable?.name}</td>
@@ -111,12 +131,10 @@ const SalaryCal = () => {
                       <td className="py-5 px-4">{row?.paid_amt}</td>
                     </tr>
                   ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </>
-      )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </>
   );
 };

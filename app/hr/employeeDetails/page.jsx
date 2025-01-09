@@ -328,7 +328,16 @@ const Page = () => {
       {activeTab === "documents" && (
         <div className="w-full">
           <div className="bg-white rounded-lg shadow p-6">
-            <div className="text-xl font-semibold mb-4">Employee Documents</div>
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-xl font-semibold">Employee Documents</div>
+              <Link
+                href={`/employeeDoc?id=${employeeList?.id}`}
+                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 inline-block text-center"
+              >
+                Update
+              </Link>
+            </div>
+
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead className="bg-gray-50">
@@ -338,7 +347,6 @@ const Page = () => {
                     <th className="p-3 text-left border">Expiry Date</th>
                     <th className="p-3 text-left border">Documents</th>
                     <th className="p-3 text-left border">Time Remaining</th>
-                    <th className="p-3 text-left border">Update</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -363,11 +371,16 @@ const Page = () => {
                                   ? format(new Date(doc.start), "dd MMM yyyy")
                                   : "In Process !!"}
                               </td>
-                              <td className="p-3 border">
+                              {/* <td className="p-3 border">
                                 {format(
                                   new Date(doc.expiry || doc?.process_date),
                                   "dd MMM yyyy"
                                 )}
+                              </td> */}
+                              <td className="p-3 border">
+                                {doc.expiry
+                                  ? format(new Date(doc.expiry), "dd MMM yyyy")
+                                  : "- !!"}
                               </td>
                               <td className="p-3 border">
                                 <div className="flex gap-2 items-center">
@@ -387,11 +400,9 @@ const Page = () => {
                                   {timeStatus.text}
                                 </span>
                               </td>
-                              <td className="p-3 border">
-                                <Link href={`/employeeDoc?id=${userId}`}>
-                                  Update
-                                </Link>
-                              </td>
+                              {/* <td className="p-3 border">
+                
+                              </td> */}
                             </tr>
                           );
                         } else {
@@ -405,11 +416,6 @@ const Page = () => {
                                 <span className="px-2 py-1 rounded bg-red-100 text-red-600">
                                   Missing
                                 </span>
-                              </td>
-                              <td className="p-3 border">
-                                <Link href={`/employeeDoc?id=${userId}`}>
-                                  Update
-                                </Link>
                               </td>
                             </tr>
                           );
