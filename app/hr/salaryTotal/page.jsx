@@ -58,62 +58,71 @@ const SalaryTotal = () => {
       <div className="mt-5"></div>
       <MonthPicker onDateChange={handleDateChange} />
       <div className="mt-5"></div>
-      {fetchingData ? (
-        <CircularProgress />
-      ) : (
-        <>
-          <div className="mt-10 mb-10">
-            <div className={tableStyles.tableContainer}>
-              <div
-                style={{
-                  overflow: "hidden",
-                  display: "flex",
-                  flexDirection: "column",
-                  maxHeight: "500px",
-                }}
-              >
-                {/* Fixed Header Table */}
-                <table
-                  className="min-w-full bg-white"
-                  style={{ tableLayout: "fixed" }}
-                >
-                  <thead>
-                    <tr>
-                      <th
-                        style={{ width: "5%" }}
-                        className="py-5 px-4 border-b border-gray-200 text-left"
-                      >
-                        Sr.
-                      </th>
-                      <th
-                        style={{ width: "25%" }}
-                        className="py-2 px-4 border-b border-gray-200 text-left"
-                      >
-                        Description
-                      </th>
-                      <th
-                        style={{ width: "15%" }}
-                        className="py-2 px-4 border-b border-gray-200 text-left"
-                      >
-                        Amount
-                      </th>
-                    </tr>
-                  </thead>
-                </table>
-
-                {/* Scrollable Body Table */}
-                <div style={{ overflowY: "auto", maxHeight: "500px" }}>
-                  <table
-                    className="min-w-full bg-white"
-                    style={{ tableLayout: "fixed" }}
+      <div className="mt-10 mb-10">
+        <div className={tableStyles.tableContainer}>
+          <div
+            style={{
+              overflow: "hidden",
+              display: "flex",
+              flexDirection: "column",
+              maxHeight: "500px",
+            }}
+          >
+            {/* Fixed Header Table */}
+            <table
+              className="min-w-full bg-white"
+              style={{ tableLayout: "fixed" }}
+            >
+              <thead>
+                <tr>
+                  <th
+                    style={{ width: "5%" }}
+                    className="py-5 px-4 border-b border-gray-200 text-left"
                   >
-                    <tbody>
-                      {salaryList?.map((row, index) => (
+                    Sr.
+                  </th>
+                  <th
+                    style={{ width: "25%" }}
+                    className="py-2 px-4 border-b border-gray-200 text-left"
+                  >
+                    Description
+                  </th>
+                  <th
+                    style={{ width: "15%" }}
+                    className="py-2 px-4 border-b border-gray-200 text-left"
+                  >
+                    Amount
+                  </th>
+                </tr>
+              </thead>
+            </table>
+
+            {/* Scrollable Body Table */}
+            <div style={{ overflowY: "auto", maxHeight: "500px" }}>
+              <table
+                className="min-w-full bg-white"
+                style={{ tableLayout: "fixed" }}
+              >
+                <tbody>
+                  {fetchingData
+                    ? Array.from({ length: 5 }).map((_, index) => (
+                        <tr key={index} className="border-b border-gray-200">
+                          <td style={{ width: "5%" }} className="py-5 px-4">
+                            <div className="bg-gray-200 h-4 w-6 rounded"></div>
+                          </td>
+                          <td style={{ width: "25%" }} className="py-5 px-4">
+                            <div className="bg-gray-200 h-4 w-3/4 rounded"></div>
+                          </td>
+                          <td style={{ width: "15%" }} className="py-5 px-4">
+                            <div className="bg-gray-200 h-4 w-1/2 rounded"></div>
+                          </td>
+                        </tr>
+                      ))
+                    : salaryList?.map((row, index) => (
                         <tr key={row.id} className="border-b border-gray-200">
                           <td style={{ width: "5%" }} className="py-5 px-4">
                             {index + 1}
                           </td>
-
                           <td style={{ width: "25%" }} className="py-5 px-4">
                             {row?.name}
                           </td>
@@ -122,14 +131,12 @@ const SalaryTotal = () => {
                           </td>
                         </tr>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+                </tbody>
+              </table>
             </div>
           </div>
-        </>
-      )}
+        </div>
+      </div>
     </>
   );
 };
