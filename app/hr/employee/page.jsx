@@ -16,7 +16,6 @@ const Page = () => {
   const alert = new AppAlerts();
   const router = useRouter();
   const [sendingData, setSendingData] = useState(false);
-  const [tabNames] = useState(["Personal Information", "Other Information"]);
 
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -195,23 +194,6 @@ const Page = () => {
 
   return (
     <div>
-      <div className={styles.topTabConainer}>
-        <div className={`flex gap-4 ${styles.tabsContainer}`}>
-          {tabNames.map((item, index) => (
-            <div
-              onClick={() => setSelectedIndex(index)}
-              className={`flex-grow ${
-                index === selectedIndex
-                  ? styles.tabContainerSelected
-                  : styles.tabContainer
-              }`}
-              key={index}
-            >
-              {item}
-            </div>
-          ))}
-        </div>
-      </div>
 
       <div className="employ-head">Employee</div>
 
@@ -222,16 +204,10 @@ const Page = () => {
               data={formData}
               errors={errors.personalInfo}
               onChange={(field, value) => handleInputChange(field, value)}
+              handleSubmit={handleSubmit}
+              sendingData={sendingData}
             />
           </div>
-
-          {/* <div className={selectedIndex === 1 ? `block` : "hidden"}>
-            <Insurance
-              data={formData}
-              errors={errors.insurance}
-              onChange={(field, value) => handleInputChange(field, value)}
-            />
-          </div> */}
 
           <div className={selectedIndex === 1 ? `block` : "hidden"}>
             <OtherInfo
