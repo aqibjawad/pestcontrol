@@ -163,6 +163,52 @@ const Page = () => {
           </div>
         </Grid>
 
+        {/* Add Customer */}
+        {/* <Grid lg={12} item xs={12}>
+          <div style={{ border: "1px solid black", padding: "10px" }}>
+            <div
+              style={{
+                fontSize: "20px",
+                fontWeight: "800",
+                marginBottom: "1rem",
+              }}
+            >
+              Customer
+            </div>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6} md={4} lg={3}>
+                <div className={styles.addProd}>
+                  <Link href="/customers">Add Customer</Link>
+                </div>
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={4} lg={3}>
+                <div className={styles.addProd}>
+                  <Link href="/addCustomerLedger">Add Customer Ledger</Link>
+                </div>
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={4} lg={3}>
+                <div className={styles.addProd}>
+                  <Link href="/sales/addSales">Add Sales</Link>
+                </div>
+              </Grid>
+
+              <Grid className="" item xs={12} sm={6} md={4} lg={3}>
+                <div className={styles.addProd}>
+                  <Link href="/allCustomers">View Customers</Link>
+                </div>
+              </Grid>
+
+              <Grid className="" item xs={12} sm={6} md={4} lg={3}>
+                <div className={styles.addProd}>
+                  <Link href="/sales/allSales">View Sales</Link>
+                </div>
+              </Grid>
+            </Grid>
+          </div>
+        </Grid> */}
+
         {/* Add Clients */}
         <Grid lg={12} item xs={12}>
           <div style={{ border: "1px solid black", padding: "10px" }}>
@@ -352,11 +398,21 @@ const Page = () => {
 
               <>
                 <Grid item xs={12} sm={6} md={4} lg={3}>
-                  <div className={styles.addProd} onClick={handleOpenModal}>
+                  <div
+                    style={{
+                      cursor: "pointer",
+                      padding: "10px",
+                      background: "#f0f0f0",
+                      textAlign: "center",
+                      borderRadius: "4px",
+                    }}
+                    onClick={handleOpenModal}
+                  >
                     Add Capital
                   </div>
                 </Grid>
 
+                {/* Pass the open and onClose props */}
                 <CashBalanceModal
                   open={isModalOpen}
                   onClose={handleCloseModal}

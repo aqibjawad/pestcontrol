@@ -51,7 +51,8 @@ const PersonalInformation = ({ data, onChange }) => {
     "Receptionist",
     "Office Boy",
     "Technician helper",
-    "Recovery Officer"
+    "Recovery Officer",
+    "operation supervisor",
   ];
 
   return (

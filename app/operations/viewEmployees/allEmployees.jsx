@@ -248,6 +248,9 @@ const AllEmployees = () => {
     "Sales Officer",
     "Receptionist",
     "Office Boy",
+    "Technician helper",
+    "Recovery Officer",
+    "operation supervisor",
   ];
 
   return (

@@ -392,6 +392,9 @@ const SalaryCal = () => {
                   Payable Salary
                 </th>
                 <th className="py-2 px-4 border-b border-gray-200 text-left">
+                  Paid Salary
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 text-left">
                   Status
                 </th>
                 <th className="py-2 px-4 border-b border-gray-200 text-left">
@@ -429,6 +432,7 @@ const SalaryCal = () => {
                       <td className="py-5 px-4">{row.total_fines}</td>
                       <td className="py-5 px-4">{row.basic_salary}</td>
                       <td className="py-5 px-4">{row.payable_salary}</td>
+                      <td className="py-5 px-4">{row.paid_salary}</td>
                       <td className="py-5 px-4">{row.status}</td>
                       <td className="py-5 px-4 flex justify-center items-center">
                         <Button
