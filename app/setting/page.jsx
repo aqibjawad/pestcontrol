@@ -5,7 +5,7 @@ import styles from "../../styles/settings.module.css";
 import Link from "next/link";
 import { Grid } from "@mui/material";
 
-import CashBalanceModal from "../accountant/cashBalance/page";
+import CashBalanceModal from "../accountant/cashBalance/cashBalance";
 
 const Page = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -153,61 +153,9 @@ const Page = () => {
                   <Link href="/account/viewAllVehciles">View Vehicles</Link>
                 </div>
               </Grid>
-
-              {/* <Grid className="" item xs={12} sm={6} md={4} lg={4}>
-                <div className={styles.addProd}>
-                  <Link href="/account/viewVehicles">View Vehicle Expense</Link>
-                </div>
-              </Grid> */}
             </Grid>
           </div>
         </Grid>
-
-        {/* Add Customer */}
-        {/* <Grid lg={12} item xs={12}>
-          <div style={{ border: "1px solid black", padding: "10px" }}>
-            <div
-              style={{
-                fontSize: "20px",
-                fontWeight: "800",
-                marginBottom: "1rem",
-              }}
-            >
-              Customer
-            </div>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6} md={4} lg={3}>
-                <div className={styles.addProd}>
-                  <Link href="/customers">Add Customer</Link>
-                </div>
-              </Grid>
-
-              <Grid item xs={12} sm={6} md={4} lg={3}>
-                <div className={styles.addProd}>
-                  <Link href="/addCustomerLedger">Add Customer Ledger</Link>
-                </div>
-              </Grid>
-
-              <Grid item xs={12} sm={6} md={4} lg={3}>
-                <div className={styles.addProd}>
-                  <Link href="/sales/addSales">Add Sales</Link>
-                </div>
-              </Grid>
-
-              <Grid className="" item xs={12} sm={6} md={4} lg={3}>
-                <div className={styles.addProd}>
-                  <Link href="/allCustomers">View Customers</Link>
-                </div>
-              </Grid>
-
-              <Grid className="" item xs={12} sm={6} md={4} lg={3}>
-                <div className={styles.addProd}>
-                  <Link href="/sales/allSales">View Sales</Link>
-                </div>
-              </Grid>
-            </Grid>
-          </div>
-        </Grid> */}
 
         {/* Add Clients */}
         <Grid lg={12} item xs={12}>
@@ -398,7 +346,7 @@ const Page = () => {
 
               <>
                 <Grid item xs={12} sm={6} md={4} lg={3}>
-                  <div
+                  {/* <div
                     style={{
                       cursor: "pointer",
                       padding: "10px",
@@ -408,6 +356,9 @@ const Page = () => {
                     }}
                     onClick={handleOpenModal}
                   >
+                    Add Capital
+                  </div> */}
+                  <div className={styles.addProd} onClick={handleOpenModal}>
                     Add Capital
                   </div>
                 </Grid>

@@ -294,7 +294,7 @@ const Quotation = () => {
                   </TableCell>
                   <TableCell className="contractTable">
                     {row?.contract_cancel_reason ? (
-                      <div className="cancelContract">Contract Cancel</div>
+                      <div className="text-red-600">Contract Cancel</div>
                     ) : row?.is_contracted === 0 ? (
                       <div className="pendingContract">Pending</div>
                     ) : (
@@ -336,13 +336,22 @@ const Quotation = () => {
                   </TableCell>
 
                   <TableCell className="contractTable">
-                    {row?.is_contracted === 0 ? (
+                    {row?.contract_cancel_reason ? (
+                      <div className="text-red-600">Contract Cancel</div>
+                    ) : row?.is_contracted === 0 ? (
                       <Link href={`/quotation?id=${row?.id}`}>Edit</Link>
                     ) : (
                       <span className="text-gray-400 cursor-not-allowed">
                         Edit
                       </span>
                     )}
+                    {/* {row?.is_contracted === 0 ? (
+                      <Link href={`/quotation?id=${row?.id}`}>Edit</Link>
+                    ) : (
+                      <span className="text-gray-400 cursor-not-allowed">
+                        Edit
+                      </span>
+                    )} */}
                   </TableCell>
                 </TableRow>
               ))
