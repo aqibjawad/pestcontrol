@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
-import { Modal, Box, Button, Skeleton } from "@mui/material";
+import { Modal, Box, Button, Skeleton, Menu, MenuItem } from "@mui/material";
 import APICall from "@/networkUtil/APICall";
 import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
 import InputWithTitle from "@/components/generic/InputWithTitle";
@@ -12,12 +12,14 @@ import Swal from "sweetalert2";
 import CircularProgress from "@mui/material/CircularProgress";
 import withAuth from "@/utils/withAuth";
 import Grid from "@mui/material/Grid";
+import MoreVertIcon from "@mui/icons-material/MoreVert"; // Import the three-dots icon
 
 import { useRouter } from "next/navigation";
 import MonthPicker from "../monthPicker";
 import Link from "next/link";
 
 import "./index.css";
+import { MoreVertical } from "lucide-react";
 
 const SalaryCal = () => {
   const api = new APICall();
@@ -356,6 +358,41 @@ const SalaryCal = () => {
     }
   };
 
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedRow, setSelectedRow] = useState(null);
+
+  const handleClick = (event, row) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedRow(row);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+    setSelectedRow(null);
+  };
+
+  const handleAction = (action) => {
+    if (selectedRow) {
+      switch (action) {
+        case "updateAttendance":
+          handleOpenAdvModal(selectedRow);
+          break;
+        case "addAdvance":
+          handleOpenAdvPayModal(selectedRow);
+          break;
+        case "pay":
+          handleOpenModal(selectedRow);
+          break;
+        case "viewSlip":
+          window.location.href = `/paySlip?id=${selectedRow?.user?.id}&month=${selectedRow?.month}`;
+          break;
+        default:
+          break;
+      }
+    }
+    handleClose();
+  };
+
   return (
     <div>
       <div className="mt-10 mb-10">
@@ -364,111 +401,224 @@ const SalaryCal = () => {
         <MonthPicker onDateChange={handleDateChange} />
         <div className="mt-5"></div>
         <div className={tableStyles.tableContainer}>
-          <table className="min-w-full bg-white">
-            <thead>
-              <tr>
-                <th className="py-5 px-4 border-b border-gray-200 text-left">
-                  Sr.
-                </th>
-                <th className="py-2 px-4 border-b border-gray-200 text-left">
-                  Employee Name
-                </th>
-                <th className="py-2 px-4 border-b border-gray-200 text-left">
-                  Allowance
-                </th>
-                <th className="py-2 px-4 border-b border-gray-200 text-left">
-                  Attendance (%)
-                </th>
-                <th className="py-2 px-4 border-b border-gray-200 text-left">
-                  Advance
-                </th>
-                <th className="py-2 px-4 border-b border-gray-200 text-left">
-                  Total Fines
-                </th>
-                <th className="py-2 px-4 border-b border-gray-200 text-left">
-                  Basic Salary
-                </th>
-                <th className="py-2 px-4 border-b border-gray-200 text-left">
-                  Payable Salary
-                </th>
-                <th className="py-2 px-4 border-b border-gray-200 text-left">
-                  Payable Salary
-                </th>
-                <th className="py-2 px-4 border-b border-gray-200 text-left">
-                  Status
-                </th>
-                <th className="py-2 px-4 border-b border-gray-200 text-left">
-                  Update Attendence
-                </th>
-                <th className="py-2 px-4 border-b border-gray-200 text-left">
-                  Add Advance
-                </th>
-                <th className="py-2 px-4 border-b border-gray-200 text-left">
-                  Pay
-                </th>
-                <th className="py-2 px-4 border-b border-gray-200 text-left">
-                  View Slip
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {fetchingData
-                ? Array.from({ length: 5 }).map((_, index) => (
-                    <tr key={index} className="border-b border-gray-200">
-                      {Array.from({ length: 9 }).map((_, colIndex) => (
-                        <td key={colIndex} className="py-5 px-4">
-                          <Skeleton variant="rectangular" height={30} />
-                        </td>
+          <div
+            style={{
+              overflow: "hidden",
+              display: "flex",
+              flexDirection: "column",
+              maxHeight: "500px",
+            }}
+          >
+            {/* Fixed Header Table */}
+            <table
+              className="min-w-full bg-white"
+              style={{ tableLayout: "fixed" }}
+            >
+              <thead>
+                <tr>
+                  <th
+                    style={{ width: "5%" }}
+                    className="py-5 px-4 border-b border-gray-200 text-left"
+                  >
+                    Sr.
+                  </th>
+                  <th
+                    style={{ width: "20%" }}
+                    className="py-2 px-4 border-b border-gray-200 text-left"
+                  >
+                    Employee Name
+                  </th>
+                  <th
+                    style={{ width: "10%" }}
+                    className="py-2 px-4 border-b border-gray-200 text-left"
+                  >
+                    Allowance
+                  </th>
+                  <th
+                    style={{ width: "10%" }}
+                    className="py-2 px-4 border-b border-gray-200 text-left"
+                  >
+                    Attendance (%)
+                  </th>
+                  <th
+                    style={{ width: "10%" }}
+                    className="py-2 px-4 border-b border-gray-200 text-left"
+                  >
+                    Advance
+                  </th>
+                  <th
+                    style={{ width: "10%" }}
+                    className="py-2 px-4 border-b border-gray-200 text-left"
+                  >
+                    Fines
+                  </th>
+                  <th
+                    style={{ width: "10%" }}
+                    className="py-2 px-4 border-b border-gray-200 text-left"
+                  >
+                    Basic Salary
+                  </th>
+                  <th
+                    style={{ width: "10%" }}
+                    className="py-2 px-4 border-b border-gray-200 text-left"
+                  >
+                    Payable Salary
+                  </th>
+                  <th
+                    style={{ width: "10%" }}
+                    className="py-2 px-4 border-b border-gray-200 text-left"
+                  >
+                    Status
+                  </th>
+                  <th
+                    style={{ width: "10%" }}
+                    className="py-2 px-4 border-b border-gray-200 text-left"
+                  >
+                    Total Advance
+                  </th>
+                  <th
+                    style={{ width: "10%" }}
+                    className="py-2 px-4 border-b border-gray-200 text-left"
+                  >
+                    On Hold
+                  </th>
+                  <th
+                    style={{ width: "5%" }}
+                    className="py-2 px-4 border-b border-gray-200 text-left"
+                  >
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+            </table>
+
+            {/* Scrollable Body Table */}
+            <div style={{ overflowY: "auto", maxHeight: "500px" }}>
+              <table
+                className="min-w-full bg-white"
+                style={{ tableLayout: "fixed" }}
+              >
+                <tbody>
+                  {fetchingData
+                    ? Array.from({ length: 5 }).map((_, index) => (
+                        <tr key={index} className="border-b border-gray-200">
+                          <td style={{ width: "5%" }} className="py-5 px-4">
+                            <Skeleton variant="rectangular" height={30} />
+                          </td>
+                          <td style={{ width: "20%" }} className="py-5 px-4">
+                            <Skeleton variant="rectangular" height={30} />
+                          </td>
+                          <td style={{ width: "10%" }} className="py-5 px-4">
+                            <Skeleton variant="rectangular" height={30} />
+                          </td>
+                          <td style={{ width: "10%" }} className="py-5 px-4">
+                            <Skeleton variant="rectangular" height={30} />
+                          </td>
+                          <td style={{ width: "10%" }} className="py-5 px-4">
+                            <Skeleton variant="rectangular" height={30} />
+                          </td>
+                          <td style={{ width: "10%" }} className="py-5 px-4">
+                            <Skeleton variant="rectangular" height={30} />
+                          </td>
+                          <td style={{ width: "10%" }} className="py-5 px-4">
+                            <Skeleton variant="rectangular" height={30} />
+                          </td>
+                          <td style={{ width: "10%" }} className="py-5 px-4">
+                            <Skeleton variant="rectangular" height={30} />
+                          </td>
+                          <td style={{ width: "10%" }} className="py-5 px-4">
+                            <Skeleton variant="rectangular" height={30} />
+                          </td>
+                          <td style={{ width: "10%" }} className="py-5 px-4">
+                            <Skeleton variant="rectangular" height={30} />
+                          </td>
+                          <td style={{ width: "10%" }} className="py-5 px-4">
+                            <Skeleton variant="rectangular" height={30} />
+                          </td>
+                          <td style={{ width: "5%" }} className="py-5 px-4">
+                            <Skeleton variant="rectangular" height={30} />
+                          </td>
+                        </tr>
+                      ))
+                    : employeeList.map((row, index) => (
+                        <tr key={index} className="border-b border-gray-200">
+                          <td style={{ width: "5%" }} className="py-5 px-4">
+                            {index + 1}
+                          </td>
+                          <td style={{ width: "20%" }} className="py-5 px-4">
+                            {row?.user?.name}
+                          </td>
+                          <td style={{ width: "10%" }} className="py-5 px-4">
+                            {row.allowance}
+                          </td>
+                          <td style={{ width: "10%" }} className="py-5 px-4">
+                            {row.attendance_per}%
+                          </td>
+                          <td style={{ width: "10%" }} className="py-5 px-4">
+                            {row.adv_paid}
+                          </td>
+                          <td style={{ width: "10%" }} className="py-5 px-4">
+                            {row.total_fines}
+                          </td>
+                          <td style={{ width: "10%" }} className="py-5 px-4">
+                            {row.basic_salary}
+                          </td>
+                          <td style={{ width: "10%" }} className="py-5 px-4">
+                            {row.payable_salary}
+                          </td>
+                          <td style={{ width: "10%" }} className="py-5 px-4">
+                            {row.status}
+                          </td>
+                          <td style={{ width: "10%" }} className="py-5 px-4">
+                            {row?.user?.employee?.current_adv_balance}
+                          </td>{" "}
+                          <td style={{ width: "10%" }} className="py-5 px-4">
+                            {row?.user?.employee?.hold_salary}
+                          </td>{" "}
+                          <td style={{ width: "5%" }} className="py-5 px-4">
+                            <Button
+                              aria-controls={`actions-menu-${row?.user?.id}`}
+                              aria-haspopup="true"
+                              onClick={(event) => handleClick(event, row)}
+                              style={{ minWidth: "auto", padding: "6px" }}
+                            >
+                              <MoreVertIcon />
+                            </Button>
+                            <Menu
+                              id={`actions-menu-${row?.user?.id}`}
+                              anchorEl={anchorEl}
+                              open={
+                                Boolean(anchorEl) &&
+                                selectedRow?.user?.id === row?.user?.id
+                              }
+                              onClose={handleClose}
+                            >
+                              <MenuItem
+                                onClick={() => handleAction("updateAttendance")}
+                              >
+                                Update Attendance
+                              </MenuItem>
+                              <MenuItem
+                                onClick={() => handleAction("addAdvance")}
+                              >
+                                Add Advance
+                              </MenuItem>
+                              <MenuItem onClick={() => handleAction("pay")}>
+                                Pay
+                              </MenuItem>
+                              <MenuItem
+                                onClick={() => handleAction("viewSlip")}
+                              >
+                                View Slip
+                              </MenuItem>
+                            </Menu>
+                          </td>
+                        </tr>
                       ))}
-                    </tr>
-                  ))
-                : employeeList.map((row, index) => (
-                    <tr key={index} className="border-b border-gray-200">
-                      <td className="py-5 px-4">{index + 1}</td>
-                      <td className="py-5 px-4">{row?.user?.name}</td>
-                      <td className="py-5 px-4">{row.allowance}</td>
-                      <td className="py-5 px-4">{row.attendance_per}%</td>
-                      <td className="py-5 px-4">{row.adv_paid}</td>
-                      <td className="py-5 px-4">{row.total_fines}</td>
-                      <td className="py-5 px-4">{row.basic_salary}</td>
-                      <td className="py-5 px-4">{row.payable_salary}</td>
-                      <td className="py-5 px-4">{row.status}</td>
-                      <td className="py-5 px-4 flex justify-center items-center">
-                        <Button
-                          variant="outlined"
-                          onClick={() => handleOpenAdvModal(row)}
-                        >
-                          Update
-                        </Button>
-                      </td>
-                      <td className="py-5 px-4">
-                        <Button
-                          variant="outlined"
-                          onClick={() => handleOpenAdvPayModal(row)}
-                        >
-                          Add
-                        </Button>
-                      </td>
-                      <td className="py-5 px-4">
-                        <Button
-                          variant="outlined"
-                          onClick={() => handleOpenModal(row)}
-                        >
-                          Update
-                        </Button>
-                      </td>
-                      <td className="py-5 px-4">
-                        <Link
-                          variant="outlined"
-                          href={`/paySlip?id=${row?.user?.id}&month=${row?.month}`}
-                        >
-                          View
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-            </tbody>
-          </table>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
 
