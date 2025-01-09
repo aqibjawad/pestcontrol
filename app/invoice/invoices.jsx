@@ -18,7 +18,7 @@ const ListServiceTable = ({
   statusFilter,
   selectedReference,
   isVisible,
-  setReferenceOptions  
+  setReferenceOptions,
 }) => {
   const api = new APICall();
   const [fetchingData, setFetchingData] = useState(false);
@@ -107,125 +107,212 @@ const ListServiceTable = ({
 
   return (
     <div className={tableStyles.tableContainer}>
-      <table className="min-w-full bg-white">
-        <thead>
-          <tr>
-            <th className="py-5 px-4 border-b border-gray-200 text-left">
-              Sr.
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Invoice Issue Date
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Client
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Firm Name
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Reference
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Paid Amount
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Total Amount
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Status
-            </th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">
-              Action
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {loadingDetails
-            ? Array.from({ length: 5 }).map((_, index) => (
-                <tr key={index} className="border-b border-gray-200">
-                  <td className="py-5 px-4">
-                    <Skeleton variant="rectangular" width={30} height={20} />
-                  </td>
-                  <td className="py-2 px-4">
-                    <Skeleton variant="rectangular" width={120} height={20} />
-                  </td>
-                  <td className="py-2 px-4">
-                    <Skeleton variant="rectangular" width={150} height={20} />
-                  </td>
-                  <td className="py-2 px-4">
-                    <Skeleton variant="rectangular" width={100} height={20} />
-                  </td>
-                  <td className="py-2 px-4">
-                    <Skeleton variant="rectangular" width={100} height={20} />
-                  </td>
-                  <td className="py-2 px-4">
-                    <Skeleton variant="rectangular" width={80} height={20} />
-                  </td>
-                  <td className="py-2 px-4">
-                    <Skeleton variant="rectangular" width={100} height={20} />
-                  </td>
-                  <td className="py-2 px-4">
-                    <Skeleton variant="rectangular" width={100} height={20} />
-                  </td>
-                </tr>
-              ))
-            : invoiceList?.map((row, index) => (
-                <tr key={index} className="border-b border-gray-200">
-                  <td className="py-5 px-4">{index + 1}</td>
-                  <td className="py-2 px-4">
-                    <div className={tableStyles.clientContact}>
-                      {formatDate(row.issued_date)}
-                    </div>
-                  </td>
-                  <td className="py-2 px-4">
-                    <div className={tableStyles.clientContact}>
-                      {row?.user?.name || "N/A"}
-                    </div>
-                  </td>
-                  <td className="py-2 px-4">
-                    <div className={tableStyles.clientContact}>
-                      {row?.user?.client?.firm_name || "N/A"}
-                    </div>
-                  </td>
-                  <td className="py-2 px-4">
-                    <div className={tableStyles.clientContact}>
-                      {row?.user?.client?.referencable?.name || "N/A"}
-                    </div>
-                  </td>
-                  <td className="py-2 px-4">
-                    <div className={tableStyles.clientContact}>
-                      {row.paid_amt || 0}
-                    </div>
-                  </td>
-                  <td className="py-2 px-4">
-                    <div className={tableStyles.clientContact}>
-                      {row.total_amt || 0}
-                    </div>
-                  </td>
-                  <td className="py-2 px-4">
-                    <div
-                      className={`${tableStyles.clientContact} ${
-                        row.status.toLowerCase() === "paid"
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }`}
-                    >
-                      {row.status}
-                    </div>
-                  </td>
-                  <td className="py-2 px-4">
-                    <div className={tableStyles.clientContact}>
-                      <Link href={`/invoiceDetails?id=${row.id}`}>
-                        <span className="text-blue-600 hover:text-blue-800">
-                          View Details
-                        </span>
-                      </Link>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-        </tbody>
-      </table>
+      <div
+        style={{
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+          maxHeight: "500px",
+        }}
+      >
+        {/* Fixed Header Table */}
+        <table className="min-w-full bg-white" style={{ tableLayout: "fixed" }}>
+          <thead>
+            <tr>
+              <th
+                style={{ width: "5%" }}
+                className="py-5 px-4 border-b border-gray-200 text-left"
+              >
+                Sr.
+              </th>
+              <th
+                style={{ width: "15%" }}
+                className="py-2 px-4 border-b border-gray-200 text-left"
+              >
+                Invoice Issue Date
+              </th>
+              <th
+                style={{ width: "15%" }}
+                className="py-2 px-4 border-b border-gray-200 text-left"
+              >
+                Client
+              </th>
+              <th
+                style={{ width: "15%" }}
+                className="py-2 px-4 border-b border-gray-200 text-left"
+              >
+                Firm Name
+              </th>
+              <th
+                style={{ width: "10%" }}
+                className="py-2 px-4 border-b border-gray-200 text-left"
+              >
+                Reference
+              </th>
+              <th
+                style={{ width: "10%" }}
+                className="py-2 px-4 border-b border-gray-200 text-left"
+              >
+                Paid Amount
+              </th>
+              <th
+                style={{ width: "10%" }}
+                className="py-2 px-4 border-b border-gray-200 text-left"
+              >
+                Total Amount
+              </th>
+              <th
+                style={{ width: "10%" }}
+                className="py-2 px-4 border-b border-gray-200 text-left"
+              >
+                Status
+              </th>
+              <th
+                style={{ width: "10%" }}
+                className="py-2 px-4 border-b border-gray-200 text-left"
+              >
+                Action
+              </th>
+            </tr>
+          </thead>
+        </table>
+
+        {/* Scrollable Body Table */}
+        <div style={{ overflowY: "auto", maxHeight: "500px" }}>
+          <table
+            className="min-w-full bg-white"
+            style={{ tableLayout: "fixed" }}
+          >
+            <tbody>
+              {loadingDetails
+                ? Array.from({ length: 5 }).map((_, index) => (
+                    <tr key={index} className="border-b border-gray-200">
+                      <td style={{ width: "5%" }} className="py-5 px-4">
+                        <Skeleton
+                          variant="rectangular"
+                          width={30}
+                          height={20}
+                        />
+                      </td>
+                      <td style={{ width: "15%" }} className="py-2 px-4">
+                        <Skeleton
+                          variant="rectangular"
+                          width={120}
+                          height={20}
+                        />
+                      </td>
+                      <td style={{ width: "15%" }} className="py-2 px-4">
+                        <Skeleton
+                          variant="rectangular"
+                          width={150}
+                          height={20}
+                        />
+                      </td>
+                      <td style={{ width: "15%" }} className="py-2 px-4">
+                        <Skeleton
+                          variant="rectangular"
+                          width={100}
+                          height={20}
+                        />
+                      </td>
+                      <td style={{ width: "10%" }} className="py-2 px-4">
+                        <Skeleton
+                          variant="rectangular"
+                          width={100}
+                          height={20}
+                        />
+                      </td>
+                      <td style={{ width: "10%" }} className="py-2 px-4">
+                        <Skeleton
+                          variant="rectangular"
+                          width={80}
+                          height={20}
+                        />
+                      </td>
+                      <td style={{ width: "10%" }} className="py-2 px-4">
+                        <Skeleton
+                          variant="rectangular"
+                          width={100}
+                          height={20}
+                        />
+                      </td>
+                      <td style={{ width: "10%" }} className="py-2 px-4">
+                        <Skeleton
+                          variant="rectangular"
+                          width={100}
+                          height={20}
+                        />
+                      </td>
+                      <td style={{ width: "10%" }} className="py-2 px-4">
+                        <Skeleton
+                          variant="rectangular"
+                          width={100}
+                          height={20}
+                        />
+                      </td>
+                    </tr>
+                  ))
+                : invoiceList?.map((row, index) => (
+                    <tr key={index} className="border-b border-gray-200">
+                      <td style={{ width: "5%" }} className="py-5 px-4">
+                        {index + 1}
+                      </td>
+                      <td style={{ width: "15%" }} className="py-2 px-4">
+                        <div className={tableStyles.clientContact}>
+                          {formatDate(row.issued_date)}
+                        </div>
+                      </td>
+                      <td style={{ width: "15%" }} className="py-2 px-4">
+                        <div className={tableStyles.clientContact}>
+                          {row?.user?.name || "N/A"}
+                        </div>
+                      </td>
+                      <td style={{ width: "15%" }} className="py-2 px-4">
+                        <div className={tableStyles.clientContact}>
+                          {row?.user?.client?.firm_name || "N/A"}
+                        </div>
+                      </td>
+                      <td style={{ width: "10%" }} className="py-2 px-4">
+                        <div className={tableStyles.clientContact}>
+                          {row?.user?.client?.referencable?.name || "N/A"}
+                        </div>
+                      </td>
+                      <td style={{ width: "10%" }} className="py-2 px-4">
+                        <div className={tableStyles.clientContact}>
+                          {row.paid_amt || 0}
+                        </div>
+                      </td>
+                      <td style={{ width: "10%" }} className="py-2 px-4">
+                        <div className={tableStyles.clientContact}>
+                          {row.total_amt || 0}
+                        </div>
+                      </td>
+                      <td style={{ width: "10%" }} className="py-2 px-4">
+                        <div
+                          className={`${tableStyles.clientContact} ${
+                            row.status.toLowerCase() === "paid"
+                              ? "text-green-600"
+                              : "text-red-600"
+                          }`}
+                        >
+                          {row.status}
+                        </div>
+                      </td>
+                      <td style={{ width: "10%" }} className="py-2 px-4">
+                        <div className={tableStyles.clientContact}>
+                          <Link href={`/invoiceDetails?id=${row.id}`}>
+                            <span className="text-blue-600 hover:text-blue-800">
+                              View Details
+                            </span>
+                          </Link>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 };
