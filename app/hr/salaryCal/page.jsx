@@ -393,6 +393,16 @@ const SalaryCal = () => {
     handleClose();
   };
 
+  useEffect(() => {
+    if (selectedEmployee?.payable_salary) {
+      setPaidSalary(selectedEmployee.payable_salary);
+    }
+
+    if (selectedEmployee?.adv_paid) {
+      setAdvRec(selectedEmployee.adv_paid);
+    }
+  }, [selectedEmployee]);
+
   return (
     <div>
       <div className="mt-10 mb-10">
@@ -630,6 +640,7 @@ const SalaryCal = () => {
                   placeholder="Enter Amount"
                   value={paid_salary}
                   onChange={(value) => setPaidSalary(value)}
+                  helperText={`Payable Salary: ${selectedEmployee?.payable_salary}`}
                 />
               </Grid>
               <Grid item xs={4}>
@@ -648,9 +659,19 @@ const SalaryCal = () => {
                   placeholder="Enter advance Deduction"
                   value={adv_received}
                   onChange={(value) => setAdvRec(value)}
+                  helperText={`Payable Salary: ${selectedEmployee?.adv_paid}`}
                 />
               </Grid>
-              <Grid item xs={8}>
+              <Grid item xs={4}>
+                <InputWithTitle
+                  type="text"
+                  title="Fine Deduction"
+                  placeholder="Enter Fine to b deducted"
+                  value={description}
+                  onChange={(value) => setDescription(value)}
+                />
+              </Grid>
+              <Grid item xs={4}>
                 <InputWithTitle
                   type="text"
                   title="Description"

@@ -173,6 +173,14 @@ const Quotation = () => {
     setIsCancelModalOpen(true);
   };
 
+  const sortLabelStyles = {
+    "& .MuiTableSortLabel-icon": {
+      opacity: 1, // Make arrows always visible
+      width: "20px", // Slightly larger arrows
+      height: "20px",
+    },
+  };
+
   const listServiceTable = () => {
     return (
       <TableContainer component={Paper}>
@@ -184,6 +192,7 @@ const Quotation = () => {
                   active={orderBy === "id"}
                   direction={orderBy === "id" ? order : "asc"}
                   onClick={() => handleRequestSort("id")}
+                  sx={sortLabelStyles}
                 >
                   Sr No
                 </TableSortLabel>
@@ -193,6 +202,7 @@ const Quotation = () => {
                   active={orderBy === "user.name"}
                   direction={orderBy === "user.name" ? order : "asc"}
                   onClick={() => handleRequestSort("user.name")}
+                  sx={sortLabelStyles}
                 >
                   Customer
                 </TableSortLabel>
@@ -202,6 +212,7 @@ const Quotation = () => {
                   active={orderBy === "tag"}
                   direction={orderBy === "tag" ? order : "asc"}
                   onClick={() => handleRequestSort("tag")}
+                  sx={sortLabelStyles}
                 >
                   Tag
                 </TableSortLabel>
@@ -211,6 +222,7 @@ const Quotation = () => {
                   active={orderBy === "billing_method"}
                   direction={orderBy === "billing_method" ? order : "asc"}
                   onClick={() => handleRequestSort("billing_method")}
+                  sx={sortLabelStyles}
                 >
                   Billing Method
                 </TableSortLabel>
@@ -220,6 +232,7 @@ const Quotation = () => {
                   active={orderBy === "quote_title"}
                   direction={orderBy === "quote_title" ? order : "asc"}
                   onClick={() => handleRequestSort("quote_title")}
+                  sx={sortLabelStyles}
                 >
                   Quote Title
                 </TableSortLabel>
@@ -242,6 +255,7 @@ const Quotation = () => {
                   active={orderBy === "sub_total"}
                   direction={orderBy === "sub_total" ? order : "asc"}
                   onClick={() => handleRequestSort("sub_total")}
+                  sx={sortLabelStyles}
                 >
                   Sub Total
                 </TableSortLabel>

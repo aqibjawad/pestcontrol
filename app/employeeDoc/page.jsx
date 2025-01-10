@@ -25,6 +25,8 @@ import Swal from "sweetalert2";
 
 import { getDocumentsByProfession } from "../../Helper/documents";
 
+import Employee from "./employee";
+
 const getParamsFromUrl = (url) => {
   const parts = url.split("?");
   const params = {};
@@ -60,7 +62,7 @@ const InsuranceForm = () => {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   const [employeeList, setEmployeeList] = useState([]);
-  const [fetchingData, setFetchingData] = useState(false);
+  const [fetchingData, setFetchingData] = useState(true);
 
   useEffect(() => {
     const currentUrl = window.location.href;
@@ -378,7 +380,8 @@ const InsuranceForm = () => {
 
   return (
     <Box className="p-6">
-      <Grid container spacing={3}>
+      <Employee />
+      <Grid className="mt-5" container spacing={3}>
         <Grid item xs={12} md={3}>
           <Card className="p-4">
             {fetchingData ? (
