@@ -1,0 +1,3 @@
+.my-custom-popup-class {
+    z-index: 9999; /* Adjust as needed to ensure it's above the modal */
+  }

@@ -35,7 +35,6 @@ const SalaryCal = () => {
   const [paid_salary, setPaidSalary] = useState("");
 
   const [adv_received, setAdvRec] = useState("");
-  const [fine_received, setFineRec] = useState("");
 
   const [description, setDescription] = useState("");
 
@@ -109,7 +108,6 @@ const SalaryCal = () => {
     setSelectedEmployee(employee);
     setAttendance(employee.attendance_per || "");
     setAdvRec(employee.adv_received || "");
-    setFineRec(employee.fine_received || "");
     setOpenModal(true);
   };
 
@@ -225,7 +223,6 @@ const SalaryCal = () => {
       description: description || "", // Optional field
       paid_salary: paid_salary,
       transection_type: paymentType,
-      fine_received: fine_received,
     };
 
     try {
@@ -238,7 +235,7 @@ const SalaryCal = () => {
         Swal.fire({
           icon: "success",
           title: "Success",
-          text: "Record has been updated successfully!",
+          text: "Attendance has been updated successfully!",
           customClass: {
             popup: "my-custom-popup-class",
           },
@@ -342,6 +339,7 @@ const SalaryCal = () => {
             console.error("Employee ID is missing");
             return;
           }
+          // router.push(`/paySlip?id=${employeeId}`);
         });
       } else {
         throw new Error(
@@ -397,15 +395,16 @@ const SalaryCal = () => {
     handleClose();
   };
 
-  useEffect(() => {
-    if (selectedEmployee?.payable_salary) {
-      setPaidSalary(selectedEmployee.payable_salary);
+  const handleEmployeeNameChange = (value) => {
+    if (value === "") {
+      setEmployeeList(allEmployees);
+    } else {
+      const filteredList = allEmployees.filter((employee) =>
+        employee.user?.name.toLowerCase().includes(value.toLowerCase())
+      );
+      setEmployeeList(filteredList);
     }
-
-    if (selectedEmployee?.adv_paid) {
-      setAdvRec(selectedEmployee.adv_paid);
-    }
-  }, [selectedEmployee]);
+  };
 
   return (
     <div>
@@ -650,7 +649,6 @@ const SalaryCal = () => {
                   placeholder="Enter Amount"
                   value={paid_salary}
                   onChange={(value) => setPaidSalary(value)}
-                  helperText={`Payable Salary: ${selectedEmployee?.payable_salary}`}
                 />
               </Grid>
               <Grid item xs={4}>
@@ -669,19 +667,9 @@ const SalaryCal = () => {
                   placeholder="Enter advance Deduction"
                   value={adv_received}
                   onChange={(value) => setAdvRec(value)}
-                  helperText={`Payable Salary: ${selectedEmployee?.adv_paid}`}
                 />
               </Grid>
-              <Grid item xs={4}>
-                <InputWithTitle
-                  type="text"
-                  title="Fine Deduction"
-                  placeholder="Enter Fine to b deducted"
-                  value={fine_received}
-                  onChange={(value) => setFineRec(value)}
-                />
-              </Grid>
-              <Grid item xs={4}>
+              <Grid item xs={8}>
                 <InputWithTitle
                   type="text"
                   title="Description"
