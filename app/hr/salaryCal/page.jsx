@@ -64,6 +64,7 @@ const SalaryCal = () => {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
 
   const [loadingSubmit, setLoadingSubmit] = useState(false);
+  const [allEmployees, setAllEmployees] = useState();
 
   const getAllEmployees = async () => {
     setFetchingData(true);
@@ -80,6 +81,7 @@ const SalaryCal = () => {
         });
 
         setEmployeeList(sortedEmployees);
+        setAllEmployees(sortedEmployees);
         setEmployeeCompany(response.data.captain_jobs || []);
       }
     } catch (error) {
@@ -393,6 +395,7 @@ const SalaryCal = () => {
     handleClose();
   };
 
+<<<<<<< HEAD
   useEffect(() => {
     if (selectedEmployee?.payable_salary) {
       setPaidSalary(selectedEmployee.payable_salary);
@@ -402,6 +405,18 @@ const SalaryCal = () => {
       setAdvRec(selectedEmployee.adv_paid);
     }
   }, [selectedEmployee]);
+=======
+  const handleEmployeeNameChange = (value) => {
+    if (value === "") {
+      setEmployeeList(allEmployees);
+    } else {
+      const filteredList = allEmployees.filter((employee) =>
+        employee.user?.name.toLowerCase().includes(value.toLowerCase())
+      );
+      setEmployeeList(filteredList);
+    }
+  };
+>>>>>>> 4587856f08367c9fcd9dadfd16c7bdb79aecc24a
 
   return (
     <div>
@@ -436,7 +451,13 @@ const SalaryCal = () => {
                     style={{ width: "20%" }}
                     className="py-2 px-4 border-b border-gray-200 text-left"
                   >
-                    Employee Name
+                    <InputWithTitle
+                      title={"Employee Name"}
+                      placeholder="Filter by Name"
+                      onChange={(value) => {
+                        handleEmployeeNameChange(value);
+                      }}
+                    />
                   </th>
                   <th
                     style={{ width: "10%" }}
