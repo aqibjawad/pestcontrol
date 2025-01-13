@@ -2,28 +2,21 @@
 
 import React, { useState, useEffect } from "react";
 import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
-import { Modal, Box, Button, Skeleton, Menu, MenuItem } from "@mui/material";
+import { Skeleton } from "@mui/material";
 import APICall from "@/networkUtil/APICall";
 import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
 import InputWithTitle from "@/components/generic/InputWithTitle";
-import styles from "../../../styles/salaryModal.module.css";
-import GreenButton from "@/components/generic/GreenButton";
-import Swal from "sweetalert2";
-import CircularProgress from "@mui/material/CircularProgress";
 import withAuth from "@/utils/withAuth";
-import Grid from "@mui/material/Grid";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { useRouter } from "next/navigation";
 import MonthPicker from "../monthPicker";
 import Link from "next/link";
 import "./index.css";
-import { MoreVertical } from "lucide-react";
 
 const SalaryCal = () => {
   const api = new APICall();
   const [refreshComponent, setRefreshComponent] = useState(false);
   const [fetchingData, setFetchingData] = useState(false);
   const [employeeList, setEmployeeList] = useState([]);
+
   const [employeeCompany, setEmployeeCompany] = useState([]);
   const [allEmployees, setAllEmployees] = useState();
 
@@ -138,6 +131,12 @@ const SalaryCal = () => {
                       Sr.
                     </th>
                     <th
+                      style={{ width: "5%" }}
+                      className="py-5 px-4 border-b border-gray-200 text-left"
+                    >
+                      Employee Id.
+                    </th>
+                    <th
                       style={{ width: "20%" }}
                       className="py-2 px-4 border-b border-gray-200 text-left"
                     >
@@ -193,6 +192,9 @@ const SalaryCal = () => {
                             <td style={{ width: "5%" }} className="py-5 px-4">
                               {index + 1}
                             </td>
+                            <td style={{ width: "5%" }} className="py-5 px-4">
+                              {row?.user?.employee?.id}
+                            </td>
                             <td style={{ width: "20%" }} className="py-5 px-4">
                               {row?.user?.name}
                             </td>
@@ -200,7 +202,9 @@ const SalaryCal = () => {
                               {row?.user?.employee?.current_adv_balance}
                             </td>
                             <td style={{ width: "10%" }} className="py-5 px-4">
-                              <Link href={`/employee/${row?.user?.id}`}>
+                              <Link
+                                href={`/hr/singleEmployeeLedger?id=${row?.user?.id}&month=${row?.month}`}
+                              >
                                 View Details
                               </Link>
                             </td>
