@@ -40,32 +40,24 @@ const SalaryCal = () => {
         `${getAllEmpoyesUrl}/salary/get?salary_month=${selectedMonth}`
       );
       if (response?.data) {
-        // Handle advance payments (keeping original logic)
+        // Handle advance payments
         const employeesWithAdvance = response.data.filter(
           (employee) =>
             employee.employee_advance_payment &&
             employee.employee_advance_payment.length > 0
         );
-
         setEmployeeList(employeesWithAdvance);
+
+        // Handle vehicle fines - only show employees with fines
+        const employeesWithFines = response.data.filter(
+          (employee) =>
+            employee.vehicle_fines && employee.vehicle_fines.length > 0
+        );
+        setVehicleFines(employeesWithFines); // This will contain only employees with fines
+        setFilteredVehicleFines(employeesWithFines); // This also shows only employees with fines
+
         setAllEmployees(response.data);
         setEmployeeCompany(response.data.captain_jobs || []);
-
-        // Extract and handle vehicle fines separately
-        const allFines = [];
-        response.data.forEach((employee) => {
-          if (employee.vehicle_fines && employee.vehicle_fines.length > 0) {
-            allFines.push(
-              ...employee.vehicle_fines.map((fine) => ({
-                ...fine,
-                employeeName: employee.user?.name,
-                employeeId: employee.user?.id,
-              }))
-            );
-          }
-        });
-        setVehicleFines(allFines);
-        setFilteredVehicleFines(allFines);
       }
     } catch (error) {
       console.error("Error fetching employees:", error);
@@ -243,6 +235,12 @@ const SalaryCal = () => {
                       Sr.
                     </th>
                     <th
+                      style={{ width: "5%" }}
+                      className="py-5 px-4 border-b border-gray-200 text-left"
+                    >
+                      Employee Id
+                    </th>
+                    <th
                       style={{ width: "20%" }}
                       className="py-2 px-4 border-b border-gray-200 text-left"
                     >
@@ -257,12 +255,6 @@ const SalaryCal = () => {
                       className="py-2 px-4 border-b border-gray-200 text-left"
                     >
                       Fine Amount
-                    </th>
-                    <th
-                      style={{ width: "15%" }}
-                      className="py-2 px-4 border-b border-gray-200 text-left"
-                    >
-                      Fine Date
                     </th>
                     <th
                       style={{ width: "15%" }}
@@ -297,23 +289,23 @@ const SalaryCal = () => {
                             </td>
                           </tr>
                         ))
-                      : filteredVehicleFines.map((fine, index) => (
+                      : employeeList.map((fine, index) => (
                           <tr key={index} className="border-b border-gray-200">
                             <td style={{ width: "5%" }} className="py-5 px-4">
                               {index + 1}
                             </td>
+                            <td style={{ width: "5%" }} className="py-5 px-4">
+                              {fine?.user?.employee?.id}
+                            </td>
                             <td style={{ width: "20%" }} className="py-5 px-4">
-                              {fine.employeeName}
+                              {fine?.user?.name}
                             </td>
                             <td style={{ width: "10%" }} className="py-5 px-4">
-                              {fine.fine}
-                            </td>
-                            <td style={{ width: "15%" }} className="py-5 px-4">
-                              {fine.fine_date}
+                              {fine?.user?.employee?.current_fine_balance}
                             </td>
                             <td style={{ width: "10%" }} className="py-5 px-4">
                               <Link
-                                href={`/hr/singleEmployeeFines?id=${fine?.employeeId}&month=${fine?.month}`}
+                                href={`/hr/singleEmployeeFines?id=${fine?.user?.id}&month=${fine?.month}`}
                               >
                                 View Details
                               </Link>
