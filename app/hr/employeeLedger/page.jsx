@@ -59,6 +59,7 @@ const SalaryCal = () => {
               ...employee.vehicle_fines.map((fine) => ({
                 ...fine,
                 employeeName: employee.user?.name,
+                employeeId: employee.user?.id,
               }))
             );
           }
@@ -263,6 +264,12 @@ const SalaryCal = () => {
                     >
                       Fine Date
                     </th>
+                    <th
+                      style={{ width: "15%" }}
+                      className="py-2 px-4 border-b border-gray-200 text-left"
+                    >
+                      Details
+                    </th>
                   </tr>
                 </thead>
               </table>
@@ -303,6 +310,13 @@ const SalaryCal = () => {
                             </td>
                             <td style={{ width: "15%" }} className="py-5 px-4">
                               {fine.fine_date}
+                            </td>
+                            <td style={{ width: "10%" }} className="py-5 px-4">
+                              <Link
+                                href={`/hr/singleEmployeeFines?id=${fine?.employeeId}&month=${fine?.month}`}
+                              >
+                                View Details
+                              </Link>
                             </td>
                           </tr>
                         ))}
