@@ -152,38 +152,46 @@ const Page = () => {
                       </td>
                     </tr>
                   ))
-                : advancePayments.map((payment, index) => (
-                    <tr
-                      key={payment.id}
-                      className="border-b border-gray-200 hover:bg-gray-50"
-                    >
-                      <td className="py-3 px-4">{index + 1}</td>
-                      <td className="py-3 px-4">
-                        {payment.advance_payment > 0 ? "Advance" : ""}
-                        {payment.received_payment > 0 ? "Advance Received" : ""}
-                      </td>
-                      <td className="py-3 px-4">
-                        {new Date(payment.created_at).toLocaleDateString(
-                          "en-US",
-                          {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
-                          }
-                        )}
-                      </td>
-                      <td className="py-3 px-4">{payment.month}</td>
-                      <td className="py-3 px-4">
-                        AED {parseFloat(payment.advance_payment).toFixed(2)}
-                      </td>
-                      <td className="py-3 px-4">
-                        AED {parseFloat(payment.received_payment).toFixed(2)}
-                      </td>
-                      <td className="py-3 px-4">
-                        AED {parseFloat(payment.balance).toFixed(2)}
-                      </td>
-                    </tr>
-                  ))}
+                : advancePayments
+                    .filter(
+                      (payment) =>
+                        payment.advance_payment > 0 ||
+                        payment.received_payment > 0
+                    )
+                    .map((payment, index) => (
+                      <tr
+                        key={payment.id}
+                        className="border-b border-gray-200 hover:bg-gray-50"
+                      >
+                        <td className="py-3 px-4">{index + 1}</td>
+                        <td className="py-3 px-4">
+                          {payment.advance_payment > 0 ? "Advance" : ""}
+                          {payment.received_payment > 0
+                            ? "Advance Received"
+                            : ""}
+                        </td>
+                        <td className="py-3 px-4">
+                          {new Date(payment.created_at).toLocaleDateString(
+                            "en-US",
+                            {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                            }
+                          )}
+                        </td>
+                        <td className="py-3 px-4">{payment.month}</td>
+                        <td className="py-3 px-4">
+                          {parseFloat(payment.advance_payment).toFixed(2)}
+                        </td>
+                        <td className="py-3 px-4">
+                          {parseFloat(payment.received_payment).toFixed(2)}
+                        </td>
+                        <td className="py-3 px-4">
+                          {parseFloat(payment.balance).toFixed(2)}
+                        </td>
+                      </tr>
+                    ))}
             </tbody>
           </table>
         </div>

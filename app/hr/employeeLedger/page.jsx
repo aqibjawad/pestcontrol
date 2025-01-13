@@ -180,29 +180,46 @@ const SalaryCal = () => {
                             </td>
                           </tr>
                         ))
-                      : employeeList.map((row, index) => (
-                          <tr key={index} className="border-b border-gray-200">
-                            <td style={{ width: "5%" }} className="py-5 px-4">
-                              {index + 1}
-                            </td>
-                            <td style={{ width: "5%" }} className="py-5 px-4">
-                              {row?.user?.employee?.id}
-                            </td>
-                            <td style={{ width: "20%" }} className="py-5 px-4">
-                              {row?.user?.name}
-                            </td>
-                            <td style={{ width: "10%" }} className="py-5 px-4">
-                              {row?.user?.employee?.current_adv_balance}
-                            </td>
-                            <td style={{ width: "10%" }} className="py-5 px-4">
-                              <Link
-                                href={`/hr/singleEmployeeLedger?id=${row?.user?.id}&month=${row?.month}`}
+                      : employeeList
+                          .filter(
+                            (row) =>
+                              row?.user?.employee?.current_adv_balance > 0
+                          )
+                          .map((row, index) => (
+                            <tr
+                              key={index}
+                              className="border-b border-gray-200"
+                            >
+                              <td style={{ width: "5%" }} className="py-5 px-4">
+                                {index + 1}
+                              </td>
+                              <td style={{ width: "5%" }} className="py-5 px-4">
+                                {row?.user?.employee?.id}
+                              </td>
+                              <td
+                                style={{ width: "20%" }}
+                                className="py-5 px-4"
                               >
-                                View Details
-                              </Link>
-                            </td>
-                          </tr>
-                        ))}
+                                {row?.user?.name}
+                              </td>
+                              <td
+                                style={{ width: "10%" }}
+                                className="py-5 px-4"
+                              >
+                                {row?.user?.employee?.current_adv_balance}
+                              </td>
+                              <td
+                                style={{ width: "10%" }}
+                                className="py-5 px-4"
+                              >
+                                <Link
+                                  href={`/hr/singleEmployeeLedger?id=${row?.user?.id}&month=${row?.month}`}
+                                >
+                                  View Details
+                                </Link>
+                              </td>
+                            </tr>
+                          ))}
                   </tbody>
                 </table>
               </div>
@@ -289,29 +306,46 @@ const SalaryCal = () => {
                             </td>
                           </tr>
                         ))
-                      : employeeList.map((fine, index) => (
-                          <tr key={index} className="border-b border-gray-200">
-                            <td style={{ width: "5%" }} className="py-5 px-4">
-                              {index + 1}
-                            </td>
-                            <td style={{ width: "5%" }} className="py-5 px-4">
-                              {fine?.user?.employee?.id}
-                            </td>
-                            <td style={{ width: "20%" }} className="py-5 px-4">
-                              {fine?.user?.name}
-                            </td>
-                            <td style={{ width: "10%" }} className="py-5 px-4">
-                              {fine?.user?.employee?.current_fine_balance}
-                            </td>
-                            <td style={{ width: "10%" }} className="py-5 px-4">
-                              <Link
-                                href={`/hr/singleEmployeeFines?id=${fine?.user?.id}&month=${fine?.month}`}
+                      : employeeList
+                          .filter(
+                            (fine) =>
+                              fine?.user?.employee?.current_fine_balance > 0
+                          )
+                          .map((fine, index) => (
+                            <tr
+                              key={index}
+                              className="border-b border-gray-200"
+                            >
+                              <td style={{ width: "5%" }} className="py-5 px-4">
+                                {index + 1}
+                              </td>
+                              <td style={{ width: "5%" }} className="py-5 px-4">
+                                {fine?.user?.employee?.id}
+                              </td>
+                              <td
+                                style={{ width: "20%" }}
+                                className="py-5 px-4"
                               >
-                                View Details
-                              </Link>
-                            </td>
-                          </tr>
-                        ))}
+                                {fine?.user?.name}
+                              </td>
+                              <td
+                                style={{ width: "10%" }}
+                                className="py-5 px-4"
+                              >
+                                {fine?.user?.employee?.current_fine_balance}
+                              </td>
+                              <td
+                                style={{ width: "10%" }}
+                                className="py-5 px-4"
+                              >
+                                <Link
+                                  href={`/hr/singleEmployeeFines?id=${fine?.user?.id}&month=${fine?.month}`}
+                                >
+                                  View Details
+                                </Link>
+                              </td>
+                            </tr>
+                          ))}
                   </tbody>
                 </table>
               </div>

@@ -143,33 +143,35 @@ const Page = () => {
                       </td>
                     </tr>
                   ))
-                : advancePayments.map((payment, index) => (
-                    <tr
-                      key={payment.id}
-                      className="border-b border-gray-200 hover:bg-gray-50"
-                    >
-                      <td className="py-3 px-4">{index + 1}</td>
-                      <td className="py-3 px-4">
-                        {new Date(payment.updated_at).toLocaleDateString(
-                          "en-US",
-                          {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
-                          }
-                        )}
-                      </td>
-                      <td className="py-3 px-4">
-                        {payment.fine > 0 ? "Vehicle Fine" : ""}
-                        {payment.fine_received > 0
-                          ? "Fine Received"
-                          : ""}
-                      </td>
-                      <td className="py-3 px-4">{payment.fine}</td>
-                      <td className="py-3 px-4">{payment.fine_received}</td>
-                      <td className="py-3 px-4">{payment.balance}</td>
-                    </tr>
-                  ))}
+                : advancePayments
+                    .filter(
+                      (payment) => payment.fine > 0 || payment.fine_received > 0
+                    )
+                    .map((payment, index) => (
+                      <tr
+                        key={payment.id}
+                        className="border-b border-gray-200 hover:bg-gray-50"
+                      >
+                        <td className="py-3 px-4">{index + 1}</td>
+                        <td className="py-3 px-4">
+                          {new Date(payment.updated_at).toLocaleDateString(
+                            "en-US",
+                            {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                            }
+                          )}
+                        </td>
+                        <td className="py-3 px-4">
+                          {payment.fine > 0 ? "Vehicle Fine" : ""}
+                          {payment.fine_received > 0 ? "Fine Received" : ""}
+                        </td>
+                        <td className="py-3 px-4">{payment.fine}</td>
+                        <td className="py-3 px-4">{payment.fine_received}</td>
+                        <td className="py-3 px-4">{payment.balance}</td>
+                      </tr>
+                    ))}
             </tbody>
           </table>
         </div>
