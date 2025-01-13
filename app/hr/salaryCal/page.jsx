@@ -407,6 +407,17 @@ const SalaryCal = () => {
     }
   }, [selectedEmployee]);
 
+  const handleEmployeeNameChange = (value) => {
+    if (value === "") {
+      setEmployeeList(allEmployees);
+    } else {
+      const filteredList = allEmployees.filter((employee) =>
+        employee.user?.name.toLowerCase().includes(value.toLowerCase())
+      );
+      setEmployeeList(filteredList);
+    }
+  };
+
   return (
     <div>
       <div className="mt-10 mb-10">

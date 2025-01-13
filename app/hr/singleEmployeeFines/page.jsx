@@ -40,13 +40,11 @@ const Page = () => {
         `${getAllEmpoyesUrl}/salary/get?employee_user_id=${employeeId}`
       );
 
-      // Combine all advance payments from different salary records
       const allAdvancePayments = response?.data?.reduce((acc, curr) => {
         return [...acc, ...(curr.vehicle_fines || [])];
       }, []);
       setAdvancePayments(allAdvancePayments);
 
-      // Set user details from the first record
       if (response?.data?.[0]) {
         const employeeData = response.data[0];
         setUserDetails({
@@ -108,6 +106,9 @@ const Page = () => {
                   Date
                 </th>
                 <th className="py-3 px-4 border-b border-gray-200 text-left w-[15%]">
+                  Description
+                </th>
+                <th className="py-3 px-4 border-b border-gray-200 text-left w-[15%]">
                   Fine Amount
                 </th>
                 <th className="py-3 px-4 border-b border-gray-200 text-left w-[15%]">
@@ -122,9 +123,6 @@ const Page = () => {
               {fetchingData
                 ? Array.from({ length: 5 }).map((_, index) => (
                     <tr key={index} className="border-b border-gray-200">
-                      <td className="py-3 px-4">
-                        <Skeleton variant="rectangular" height={20} />
-                      </td>
                       <td className="py-3 px-4">
                         <Skeleton variant="rectangular" height={20} />
                       </td>
@@ -160,6 +158,12 @@ const Page = () => {
                             year: "numeric",
                           }
                         )}
+                      </td>
+                      <td className="py-3 px-4">
+                        {payment.fine > 0 ? "Vehicle Fine" : ""}
+                        {payment.fine_received > 0
+                          ? "Fine Received"
+                          : ""}
                       </td>
                       <td className="py-3 px-4">{payment.fine}</td>
                       <td className="py-3 px-4">{payment.fine_received}</td>

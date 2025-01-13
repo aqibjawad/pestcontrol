@@ -45,12 +45,7 @@ const Page = () => {
         return [...acc, ...(curr.employee_advance_payment || [])];
       }, []);
 
-      // Sort payments by date
-      const sortedPayments = allAdvancePayments.sort(
-        (a, b) => new Date(b.created_at) - new Date(a.created_at)
-      );
-
-      setAdvancePayments(sortedPayments);
+      setAdvancePayments(allAdvancePayments);
 
       // Set user details from the first record
       if (response?.data?.[0]) {
@@ -110,6 +105,9 @@ const Page = () => {
                 <th className="py-3 px-4 border-b border-gray-200 text-left w-[5%]">
                   Sr.
                 </th>
+                <th className="py-3 px-4 border-b border-gray-200 text-left w-[23%]">
+                  Description
+                </th>
                 <th className="py-3 px-4 border-b border-gray-200 text-left w-[12%]">
                   Date
                 </th>
@@ -124,9 +122,6 @@ const Page = () => {
                 </th>
                 <th className="py-3 px-4 border-b border-gray-200 text-left w-[15%]">
                   Balance
-                </th>
-                <th className="py-3 px-4 border-b border-gray-200 text-left w-[23%]">
-                  Description
                 </th>
               </tr>
             </thead>
@@ -164,6 +159,10 @@ const Page = () => {
                     >
                       <td className="py-3 px-4">{index + 1}</td>
                       <td className="py-3 px-4">
+                        {payment.advance_payment > 0 ? "Advance" : ""}
+                        {payment.received_payment > 0 ? "Advance Received" : ""}
+                      </td>
+                      <td className="py-3 px-4">
                         {new Date(payment.created_at).toLocaleDateString(
                           "en-US",
                           {
@@ -182,9 +181,6 @@ const Page = () => {
                       </td>
                       <td className="py-3 px-4">
                         AED {parseFloat(payment.balance).toFixed(2)}
-                      </td>
-                      <td className="py-3 px-4">
-                        {payment.description || "N/A"}
                       </td>
                     </tr>
                   ))}
