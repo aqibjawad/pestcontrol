@@ -89,7 +89,7 @@ const FinancialDashboard = () => {
       // Extract year and month from startDate
       const date = new Date(startDate);
       const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0"); // Add 1 because months are 0-based
+      const month = String(date.getMonth() + 1).padStart(2, "0"); 
 
       const monthParam = `${year}-${month}`;
 
@@ -215,7 +215,7 @@ const FinancialDashboard = () => {
       amount: allClientsList?.paid_employee_salary || 0,
     },
     {
-      category: "Paid Comissions",
+      category: "Paid Comission",
       amount: allClientsList?.paid_employee_comm || 0,
     },
     { category: "Vehicles Expense", amount: allVehicleExpense },

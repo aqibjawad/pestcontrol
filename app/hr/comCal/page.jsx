@@ -5,24 +5,22 @@ import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
 import APICall from "@/networkUtil/APICall";
 import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
 import Swal from "sweetalert2";
-import { CircularProgress, Skeleton } from "@mui/material";
+import { CircularProgress } from "@mui/material";
 import withAuth from "@/utils/withAuth";
-
 import MonthPicker from "../monthPicker";
 
 const SalaryCal = () => {
   const api = new APICall();
-
   const [fetchingData, setFetchingData] = useState(false);
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [employeeList, setEmployeeList] = useState([]);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
 
   const initialMonth = new Date().toISOString().slice(0, 7);
   const [selectedMonth, setSelectedMonth] = useState(initialMonth);
 
   const handleDateChange = (dates) => {
     if (!dates || !dates.startDate) return;
-
-    // Ensure we're only taking YYYY-MM format
     const monthStr = dates.startDate.slice(0, 7);
     if (monthStr !== selectedMonth) {
       setSelectedMonth(monthStr);
@@ -50,19 +48,61 @@ const SalaryCal = () => {
 
   useEffect(() => {
     getEmployeeCommissions(selectedMonth);
-  }, [selectedMonth]); // Only depend on selectedMonth
+  }, [selectedMonth]);
+
+  const handleAdvePay = async (employeeId) => {
+    setLoadingSubmit(true);
+    const obj = {
+      employee_commission_id: employeeId,
+    };
+
+    try {
+      const response = await api.postFormDataWithToken(
+        `${getAllEmpoyesUrl}/commission/paid`,
+        obj
+      );
+
+      if (response.status === "success") {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Payment has been processed successfully!",
+          customClass: {
+            popup: "my-custom-popup-class",
+          },
+        }).then(() => {
+          // Refresh the employee list after successful payment
+          getEmployeeCommissions(selectedMonth);
+        });
+      } else {
+        throw new Error(response.error?.message || "Failed to process payment");
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.message || "Unexpected error occurred",
+        customClass: {
+          popup: "my-custom-popup-class",
+        },
+      });
+    } finally {
+      setLoadingSubmit(false);
+    }
+  };
 
   return (
     <>
+      <MonthPicker onDateChange={handleDateChange} />
+
       {fetchingData ? (
         <CircularProgress />
       ) : (
         <>
           <hr />
           <div className="mt-10 mb-10">
-            <div className="pageTitle"> Sales By Employees </div>
+            <div className="pageTitle">Sales By Employees</div>
             <div className="mt-5"></div>
-            <MonthPicker onDateChange={handleDateChange} />
             <div className="mt-5"></div>
             <div className={tableStyles.tableContainer}>
               <div
@@ -122,6 +162,12 @@ const SalaryCal = () => {
                       >
                         Commission Amount
                       </th>
+                      <th
+                        style={{ width: "20%" }}
+                        className="py-2 px-4 border-b border-gray-200 text-center"
+                      >
+                        Pay
+                      </th>
                     </tr>
                   </thead>
                 </table>
@@ -163,6 +209,22 @@ const SalaryCal = () => {
                             className="py-5 px-4 text-center"
                           >
                             {row?.paid_amt}
+                          </td>
+                          <td
+                            style={{ width: "20%" }}
+                            className="py-5 px-4 text-center"
+                          >
+                            <button
+                              onClick={() => handleAdvePay(row.id)}
+                              disabled={loadingSubmit}
+                              className={`${
+                                loadingSubmit
+                                  ? "bg-gray-400"
+                                  : "bg-blue-500 hover:bg-blue-600"
+                              } text-white py-2 px-4 rounded`}
+                            >
+                              {loadingSubmit ? "Processing..." : "Pay"}
+                            </button>
                           </td>
                         </tr>
                       ))}
