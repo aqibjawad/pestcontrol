@@ -166,6 +166,12 @@ const SalaryCal = () => {
                         style={{ width: "20%" }}
                         className="py-2 px-4 border-b border-gray-200 text-center"
                       >
+                        Status
+                      </th>
+                      <th
+                        style={{ width: "20%" }}
+                        className="py-2 px-4 border-b border-gray-200 text-center"
+                      >
                         Pay
                       </th>
                     </tr>
@@ -214,17 +220,27 @@ const SalaryCal = () => {
                             style={{ width: "20%" }}
                             className="py-5 px-4 text-center"
                           >
-                            <button
-                              onClick={() => handleAdvePay(row.id)}
-                              disabled={loadingSubmit}
-                              className={`${
-                                loadingSubmit
-                                  ? "bg-gray-400"
-                                  : "bg-blue-500 hover:bg-blue-600"
-                              } text-white py-2 px-4 rounded`}
-                            >
-                              {loadingSubmit ? "Processing..." : "Pay"}
-                            </button>
+                            {row?.status}
+                          </td>
+                          <td
+                            style={{ width: "20%" }}
+                            className="py-5 px-4 text-center"
+                          >
+                            {row.paid_amt > 0 && (
+                              <button
+                                onClick={() => handleAdvePay(row.id)}
+                                disabled={
+                                  loadingSubmit || row.status === "paid"
+                                }
+                                className={`${
+                                  loadingSubmit || row.status === "paid"
+                                    ? "bg-gray-400 cursor-not-allowed"
+                                    : "bg-blue-500 hover:bg-blue-600"
+                                } text-white py-2 px-4 rounded`}
+                              >
+                                {loadingSubmit ? "Processing..." : "Pay"}
+                              </button>
+                            )}
                           </td>
                         </tr>
                       ))}
