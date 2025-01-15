@@ -301,12 +301,6 @@ const Page = () => {
                   <Link href="/terms&conditions">Terms and Conditions</Link>
                 </div>
               </Grid>
-
-              <Grid item xs={12} sm={6} md={4} lg={3}>
-                <div className={styles.addProd}>
-                  <Link href="/operations/banks">Add Banks</Link>
-                </div>
-              </Grid>
             </Grid>
           </div>
         </Grid>
@@ -346,20 +340,14 @@ const Page = () => {
 
               <>
                 <Grid item xs={12} sm={6} md={4} lg={3}>
-                  {/* <div
-                    style={{
-                      cursor: "pointer",
-                      padding: "10px",
-                      background: "#f0f0f0",
-                      textAlign: "center",
-                      borderRadius: "4px",
-                    }}
-                    onClick={handleOpenModal}
-                  >
-                    Add Capital
-                  </div> */}
                   <div className={styles.addProd} onClick={handleOpenModal}>
                     Add Capital
+                  </div>
+                </Grid>
+
+                <Grid item xs={12} sm={6} md={4} lg={3}>
+                  <div className={styles.addProd}>
+                    <Link href="/operations/banks">Add Banks</Link>
                   </div>
                 </Grid>
 

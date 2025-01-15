@@ -17,6 +17,8 @@ import {
 } from "@mui/material";
 import withAuth from "@/utils/withAuth";
 
+import Link from "next/link";
+
 const Page = () => {
   const {
     fetchingData,
@@ -53,6 +55,7 @@ const Page = () => {
             <TableCell>Sr #</TableCell>
             <TableCell>Bank Name</TableCell>
             <TableCell>Balance</TableCell>
+            <TableCell>View Details</TableCell>
             <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>
@@ -83,6 +86,9 @@ const Page = () => {
                 ) : (
                   item.balance
                 )}
+              </TableCell>
+              <TableCell>
+                <Link href={`/operations/bankInfo?id=${item.id}`}>View</Link>
               </TableCell>
               <TableCell>
                 {editingBanksId === item.id ? (
