@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { startOfMonth, endOfMonth, format } from "date-fns";
 import {
   Table,
   TableBody,
@@ -28,8 +29,15 @@ const BankTransactions = () => {
         const urlParams = new URLSearchParams(window.location.search);
         const id = urlParams.get("id");
 
+        // Get current month's start and end dates
+        const currentDate = new Date();
+        const startDate = format(startOfMonth(currentDate), "yyyy-MM-dd");
+        const endDate = format(endOfMonth(currentDate), "yyyy-MM-dd");
+
         if (id) {
-          const response = await api.getDataWithToken(`${bank}/${id}`);
+          const response = await api.getDataWithToken(
+            `${bank}/${id}?start_date=${startDate}&end_date=${endDate}`
+          );
           setBankData(response.data);
         }
       } catch (error) {
@@ -74,9 +82,7 @@ const BankTransactions = () => {
 
   if (loading) {
     return (
-      <div
-        style={{ display: "flex", justifyContent: "center", padding: "2rem" }}
-      >
+      <div className="flex justify-center p-8">
         <CircularProgress />
       </div>
     );
@@ -95,13 +101,7 @@ const BankTransactions = () => {
   return (
     <Card>
       <CardContent>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            marginBottom: "1rem",
-          }}
-        >
+        <div className="flex justify-between mb-4">
           <Typography variant="h6">
             {bankData.bank_name} Bank Transactions
           </Typography>
@@ -135,10 +135,11 @@ const BankTransactions = () => {
                   </TableCell>
                   <TableCell align="right">
                     <span
-                      style={{
-                        color:
-                          parseFloat(entry.cr_amt) > 0 ? "#2e7d32" : "#d32f2f",
-                      }}
+                      className={
+                        parseFloat(entry.cr_amt) > 0
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }
                     >
                       {parseFloat(entry.cr_amt) > 0 ? "Credit" : "Debit"}
                     </span>
@@ -146,18 +147,17 @@ const BankTransactions = () => {
                 </TableRow>
               ))}
 
-              {/* Totals Row */}
-              <TableRow style={{ backgroundColor: "#f5f5f5" }}>
+              <TableRow className="bg-gray-100">
                 <TableCell colSpan={3} align="right">
                   <strong>Totals:</strong>
                 </TableCell>
-                <TableCell align="right" style={{ color: "#d32f2f" }}>
+                <TableCell align="right" className="text-red-600">
                   <strong>{totalDebit.toFixed(2)}</strong>
                 </TableCell>
-                <TableCell align="right" style={{ color: "#2e7d32" }}>
+                <TableCell align="right" className="text-green-600">
                   <strong>{totalCredit.toFixed(2)}</strong>
                 </TableCell>
-                <TableCell align="right" style={{ color: "blue" }}>
+                <TableCell align="right" className="text-blue-600">
                   <strong>{bankData.balance}</strong>
                 </TableCell>
                 <TableCell />

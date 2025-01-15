@@ -173,7 +173,7 @@ const ServiceAgreement = ({ setFormData, formData }) => {
   const grandTotal = (formData.services || []).reduce(
     (total, job) => total + (job.subTotal || 0),
     0
-  );
+  );  
 
   if (isLoading) {
     return <div>Loading...</div>;

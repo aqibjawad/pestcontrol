@@ -12,9 +12,9 @@ const JobsList = ({
 }) => {
   const [totalJobs, setTotalJobs] = useState(0);
   const [rate, setRate] = useState(jobData.rate || 0);
-  const [noJobs, setNoJobs] = useState(jobData.no || 0);
+  const [noJobs, setNoJobs] = useState(jobData.no_of_jobs || 0);
   const [selectedJobType, setSelectedJobType] = useState(jobData.jobType || "");
-  const [selectedDates, setSelectedDates] = useState(numberOfJobs || []);
+  const [selectedDates, setSelectedDates] = useState(jobData.dates || []);
   const [subTotal, setSubTotal] = useState(jobData.subTotal || 0);
   const [selectedService, setSelectedService] = useState(
     jobData.service_id || ""
@@ -27,7 +27,6 @@ const JobsList = ({
 
   const getUniqueServiceOptions = (services) => {
     const uniqueServices = new Map();
-
     services.forEach((service) => {
       if (!uniqueServices.has(service.service_title)) {
         uniqueServices.set(service.service_title, {
@@ -36,53 +35,63 @@ const JobsList = ({
         });
       }
     });
-
     return Array.from(uniqueServices.values());
   };
 
   const serviceOptions = getUniqueServiceOptions(allServices);
 
+  // Calculate total jobs based on job type
   useEffect(() => {
     let calculatedTotalJobs = 0;
     if (selectedJobType === "custom") {
-      calculatedTotalJobs = Math.floor(duration_in_months / 3); // Quarterly calculation
+      calculatedTotalJobs = Math.floor(duration_in_months / 3); // Quarterly
     } else if (selectedJobType === "monthly") {
-      calculatedTotalJobs = noJobs * duration_in_months; // Monthly calculation
-    } else {
-      calculatedTotalJobs = noJobs * duration_in_months; // Default calculation
+      calculatedTotalJobs = noJobs * duration_in_months; // Monthly
     }
     setTotalJobs(calculatedTotalJobs);
   }, [noJobs, duration_in_months, selectedJobType]);
 
+  // Update parent component with all necessary data
   useEffect(() => {
-    const calculatedSubTotal = noJobs * rate;
+    const calculatedSubTotal = totalJobs * rate;
     setSubTotal(calculatedSubTotal);
 
+    // Get the selected service details
+    const selectedServiceDetails = allServices.find(
+      (s) => s.id === selectedService
+    );
+
     updateJobList({
+      service_id: selectedService,
+      service_name: selectedServiceDetails?.pest_name || jobData.service_name,
       jobType: selectedJobType,
-      rate: rate,
-      service_id: jobData.service_id,
-      serviceName: jobData.serviceName,
-      no_of_jobs: totalJobs, // Pass the number of jobs
+      rate: parseFloat(rate),
+      no_of_jobs: parseInt(noJobs),
+      totalJobs: totalJobs,
+      subTotal: calculatedSubTotal,
+      dates: selectedDates,
+      detail: [
+        {
+          job_type: selectedJobType,
+          rate: parseFloat(rate),
+          dates: selectedDates,
+          no_of_jobs: parseInt(noJobs),
+        },
+      ],
     });
   }, [
-    selectedDates,
-    rate,
+    selectedService,
     selectedJobType,
-    duration_in_months,
+    rate,
     noJobs,
     totalJobs,
+    selectedDates,
   ]);
 
   const handleJobTypeChange = (value) => {
     setSelectedJobType(value);
-    if (value === "daily") {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      setSelectedDates([today.toISOString().slice(0, 10)]);
-    }
     if (value === "custom") {
-      setNoJobs(1); 
+      setNoJobs(1);
     }
   };
 
@@ -93,7 +102,7 @@ const JobsList = ({
       updateJobList({
         ...jobData,
         service_id: value,
-        serviceName: service.service_title,
+        service_name: service.pest_name,
       });
     }
   };
@@ -168,7 +177,6 @@ const JobsList = ({
             onChange={(value) => setRate(value)}
           />
         </Grid>
-
       </Grid>
     </div>
   );
