@@ -113,11 +113,11 @@ const BankTransactions = () => {
               <TableRow>
                 <TableCell>Date</TableCell>
                 <TableCell>Description</TableCell>
+                <TableCell align="right">Transaction Id</TableCell>
                 <TableCell>Reference Name</TableCell>
                 <TableCell align="right">Debit </TableCell>
                 <TableCell align="right">Credit </TableCell>
                 <TableCell align="right">Type</TableCell>
-                <TableCell align="right">Transaction Id</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -125,6 +125,7 @@ const BankTransactions = () => {
                 <TableRow key={entry.id || index}>
                   <TableCell>{formatDate(entry.created_at)}</TableCell>
                   <TableCell>{entry.description}</TableCell>
+                  <TableCell>{entry?.referenceable?.transection_id}</TableCell>
                   <TableCell>{getReferenceName(entry)}</TableCell>
                   <TableCell align="right">
                     {parseFloat(entry.dr_amt).toFixed(2)}
@@ -142,7 +143,6 @@ const BankTransactions = () => {
                       {parseFloat(entry.cr_amt) > 0 ? "Credit" : "Debit"}
                     </span>
                   </TableCell>
-                  <TableCell>{entry?.referenceable?.transection_id}</TableCell>
                 </TableRow>
               ))}
 
