@@ -117,6 +117,7 @@ const BankTransactions = () => {
                 <TableCell align="right">Debit </TableCell>
                 <TableCell align="right">Credit </TableCell>
                 <TableCell align="right">Type</TableCell>
+                <TableCell align="right">Transaction Id</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -141,6 +142,7 @@ const BankTransactions = () => {
                       {parseFloat(entry.cr_amt) > 0 ? "Credit" : "Debit"}
                     </span>
                   </TableCell>
+                  <TableCell>{entry?.referenceable?.transection_id}</TableCell>
                 </TableRow>
               ))}
 
@@ -154,6 +156,9 @@ const BankTransactions = () => {
                 </TableCell>
                 <TableCell align="right" style={{ color: "#2e7d32" }}>
                   <strong>{totalCredit.toFixed(2)}</strong>
+                </TableCell>
+                <TableCell align="right" style={{ color: "blue" }}>
+                  <strong>{bankData.balance}</strong>
                 </TableCell>
                 <TableCell />
               </TableRow>

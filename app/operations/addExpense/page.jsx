@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import styles from "../../../styles/superAdmin/addExpensesStyles.module.css";
 import UploadImagePlaceholder from "../../../components/generic/uploadImage";
 import InputWithTitle from "@/components/generic/InputWithTitle";
-import InputWithTitle3 from "../../../components/generic/InputWithTitle3"
+import InputWithTitle3 from "../../../components/generic/InputWithTitle3";
 import MultilineInput from "@/components/generic/MultilineInput";
 import Dropdown from "@/components/generic/Dropdown";
 import GreenButton from "@/components/generic/GreenButton";
@@ -105,7 +105,7 @@ const Page = () => {
   };
 
   const handleBankChange = (name, index) => {
-    const idAtIndex = allBankNameList[index].id;
+    const idAtIndex = allBanksList[index].id; // Changed from allBankNameList to allBanksList
     setSelectedBankId(idAtIndex);
   };
 
@@ -198,13 +198,12 @@ const Page = () => {
     setTotal(calculateTotal(amount, value));
   };
 
-  
   const handleDateChange = (name, value) => {
     setExpDate(value);
   };
 
   const expenseForm = () => {
-    return ( 
+    return (
       <div>
         <InputWithTitle
           title={"Expense Name"}
