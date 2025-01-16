@@ -231,10 +231,8 @@ const SalaryCal = () => {
                             {row.commission_per}%
                           </td>
                           <td style={{ width: "15%" }} className={cellStyle}>
-                            {row.target && row.sale
-                              ? isNaN((row.sale / row.target) * 100)
-                                ? 0
-                                : ((row.sale / row.target) * 100).toFixed(2)
+                            {row.target > 0 && row.sale
+                              ? ((row.sale / row.target) * 100).toFixed(2)
                               : 0}
                             %
                           </td>
