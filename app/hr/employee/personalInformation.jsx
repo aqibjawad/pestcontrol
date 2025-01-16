@@ -3,7 +3,13 @@ import InputWithTitle2 from "@/components/generic/InputWithTitle2";
 
 import "./index.css";
 import UploadImagePlaceholder from "../../../components/generic/uploadImage";
-import { Box, FormControl, Grid, Typography, CircularProgress } from "@mui/material";
+import {
+  Box,
+  FormControl,
+  Grid,
+  Typography,
+  CircularProgress,
+} from "@mui/material";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -120,16 +126,18 @@ const PersonalInformation = ({ data, onChange, handleSubmit, sendingData }) => {
               onChange={(name, value) => onChange("email", value)}
             />
           </Grid>
-          <Grid item lg={6} xs={12} md={6}>
-            <InputWithTitle2
-              title="Sales Target"
-              type="text"
-              placeholder="Target"
-              name="target"
-              value={data.target}
-              onChange={(name, value) => onChange("target", value)}
-            />
-          </Grid>
+          {data.role_id === "4" && ( // Conditionally render based on role_id
+            <Grid item lg={6} xs={12} md={6}>
+              <InputWithTitle2
+                title="Sales Target"
+                type="text"
+                placeholder="Target"
+                name="target"
+                value={data.target}
+                onChange={(name, value) => onChange("target", value)}
+              />
+            </Grid>
+          )}
           <Grid item lg={6} xs={12} md={6}>
             <Dropdown
               onChange={handleProfessionChange}

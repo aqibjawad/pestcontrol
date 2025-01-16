@@ -1,11 +1,22 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
 import APICall from "@/networkUtil/APICall";
 import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
 import Swal from "sweetalert2";
-import { CircularProgress, Skeleton } from "@mui/material";
+import {
+  Table,
+  TableContainer,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  Paper,
+  Button,
+  CircularProgress,
+  Skeleton,
+  TextField,
+} from "@mui/material";
 import withAuth from "@/utils/withAuth";
 import MonthPicker from "../monthPicker";
 
@@ -14,17 +25,16 @@ const SalaryCal = () => {
   const [fetchingData, setFetchingData] = useState(false);
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [employeeList, setEmployeeList] = useState([]);
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
-
-  const initialMonth = new Date().toISOString().slice(0, 7);
-  const [selectedMonth, setSelectedMonth] = useState(initialMonth);
+  const [filteredEmployees, setFilteredEmployees] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState(
+    new Date().toISOString().slice(0, 7)
+  );
 
   const handleDateChange = (dates) => {
     if (!dates || !dates.startDate) return;
     const monthStr = dates.startDate.slice(0, 7);
-    if (monthStr !== selectedMonth) {
-      setSelectedMonth(monthStr);
-    }
+    setSelectedMonth(monthStr);
   };
 
   const getEmployeeCommissions = async () => {
@@ -34,6 +44,7 @@ const SalaryCal = () => {
         `${getAllEmpoyesUrl}/commission/get?commission_month=${selectedMonth}`
       );
       setEmployeeList(response.data);
+      setFilteredEmployees(response.data);
     } catch (error) {
       console.error("Error fetching employees:", error);
       Swal.fire({
@@ -52,9 +63,7 @@ const SalaryCal = () => {
 
   const handleAdvePay = async (employeeId) => {
     setLoadingSubmit(true);
-    const obj = {
-      employee_commission_id: employeeId,
-    };
+    const obj = { employee_commission_id: employeeId };
 
     try {
       const response = await api.postFormDataWithToken(
@@ -67,9 +76,6 @@ const SalaryCal = () => {
           icon: "success",
           title: "Success",
           text: "Payment has been processed successfully!",
-          customClass: {
-            popup: "my-custom-popup-class",
-          },
         }).then(() => {
           getEmployeeCommissions(selectedMonth);
         });
@@ -81,199 +87,113 @@ const SalaryCal = () => {
         icon: "error",
         title: "Error",
         text: error.message || "Unexpected error occurred",
-        customClass: {
-          popup: "my-custom-popup-class",
-        },
       });
     } finally {
       setLoadingSubmit(false);
     }
   };
 
-  const cellStyle = "py-5 px-4 text-center";
+  const handleSearch = (event) => {
+    const query = event.target.value.toLowerCase();
+    setSearchQuery(query);
 
-  // Skeleton row component
-  const SkeletonRow = () => (
-    <tr className="border-b border-gray-200">
-      <td style={{ width: "5%" }} className={cellStyle}>
-        <Skeleton variant="text" width="100%" />
-      </td>
-      <td style={{ width: "25%" }} className={cellStyle}>
-        <Skeleton variant="text" width="100%" />
-      </td>
-      <td style={{ width: "15%" }} className={cellStyle}>
-        <Skeleton variant="text" width="100%" />
-      </td>
-      <td style={{ width: "15%" }} className={cellStyle}>
-        <Skeleton variant="text" width="100%" />
-      </td>
-      <td style={{ width: "10%" }} className={cellStyle}>
-        <Skeleton variant="text" width="100%" />
-      </td>
-      <td style={{ width: "10%" }} className={cellStyle}>
-        <Skeleton variant="text" width="100%" />
-      </td>
-      <td style={{ width: "20%" }} className={cellStyle}>
-        <Skeleton variant="text" width="100%" />
-      </td>
-      <td style={{ width: "20%" }} className={cellStyle}>
-        <Skeleton variant="text" width="100%" />
-      </td>
-      <td style={{ width: "20%" }} className={cellStyle}>
-        <Skeleton variant="rounded" width="80%" height={36} />
-      </td>
-    </tr>
-  );
+    if (query) {
+      const filtered = employeeList.filter((employee) =>
+        employee?.referencable?.name?.toLowerCase().includes(query)
+      );
+      setFilteredEmployees(filtered);
+    } else {
+      setFilteredEmployees(employeeList); 
+    }
+  };
 
   return (
-    <>
-      <div className="mt-10 mb-10">
-        <div className="pageTitle">Sales By Employees</div>
-        <div className="mt-5"></div>
-        <div className="mt-5"></div>
-        <MonthPicker onDateChange={handleDateChange} />
+    <div className="mt-10 mb-10">
+      <div className="pageTitle">Sales By Employees</div>
+      <div className="mt-5"></div>
+      <MonthPicker onDateChange={handleDateChange} />
 
-        <div className={tableStyles.tableContainer}>
-          <div
-            style={{
-              overflow: "hidden",
-              display: "flex",
-              flexDirection: "column",
-              maxHeight: "500px",
-            }}
-          >
-            {/* Fixed Header Table */}
-            <table
-              className="min-w-full bg-white"
-              style={{ tableLayout: "fixed" }}
-            >
-              <thead>
-                <tr>
-                  <th
-                    style={{ width: "5%" }}
-                    className="py-5 px-4 border-b border-gray-200 text-center"
-                  >
-                    Sr.
-                  </th>
-                  <th
-                    style={{ width: "25%" }}
-                    className="py-2 px-4 border-b border-gray-200 text-center"
-                  >
-                    Employee Name
-                  </th>
-                  <th
-                    style={{ width: "15%" }}
-                    className="py-2 px-4 border-b border-gray-200 text-center"
-                  >
-                    Commission %
-                  </th>
-                  <th
-                    style={{ width: "15%" }}
-                    className="py-2 px-4 border-b border-gray-200 text-center"
-                  >
-                    Target Achieved %
-                  </th>
-                  <th
-                    style={{ width: "10%" }}
-                    className="py-2 px-4 border-b border-gray-200 text-center"
-                  >
-                    Sale
-                  </th>
-                  <th
-                    style={{ width: "10%" }}
-                    className="py-2 px-4 border-b border-gray-200 text-center"
-                  >
-                    Target
-                  </th>
-                  <th
-                    style={{ width: "20%" }}
-                    className="py-2 px-4 border-b border-gray-200 text-center"
-                  >
-                    Commission Amount
-                  </th>
-                  <th
-                    style={{ width: "20%" }}
-                    className="py-2 px-4 border-b border-gray-200 text-center"
-                  >
-                    Status
-                  </th>
-                  <th
-                    style={{ width: "20%" }}
-                    className="py-2 px-4 border-b border-gray-200 text-center"
-                  >
-                    Pay
-                  </th>
-                </tr>
-              </thead>
-            </table>
-
-            {/* Scrollable Body Table */}
-            <div style={{ overflowY: "auto", maxHeight: "500px" }}>
-              <table
-                className="min-w-full bg-white"
-                style={{ tableLayout: "fixed" }}
-              >
-                <tbody>
-                  {fetchingData
-                    ? // Show skeleton rows while loading
-                      Array.from(new Array(5)).map((_, index) => (
-                        <SkeletonRow key={index} />
-                      ))
-                    : employeeList?.map((row, index) => (
-                        <tr key={row.id} className="border-b border-gray-200">
-                          <td style={{ width: "5%" }} className={cellStyle}>
-                            {index + 1}
-                          </td>
-                          <td style={{ width: "25%" }} className={cellStyle}>
-                            {row?.referencable?.name}
-                          </td>
-                          <td style={{ width: "15%" }} className={cellStyle}>
-                            {row.commission_per}%
-                          </td>
-                          <td style={{ width: "15%" }} className={cellStyle}>
-                            {row.target > 0 && row.sale
-                              ? ((row.sale / row.target) * 100).toFixed(2)
-                              : 0}
-                            %
-                          </td>
-                          <td style={{ width: "10%" }} className={cellStyle}>
-                            {row.sale}
-                          </td>
-                          <td style={{ width: "10%" }} className={cellStyle}>
-                            {row.target}
-                          </td>
-                          <td style={{ width: "20%" }} className={cellStyle}>
-                            {row?.paid_amt}
-                          </td>
-                          <td style={{ width: "20%" }} className={cellStyle}>
-                            {row?.status}
-                          </td>
-                          <td style={{ width: "20%" }} className={cellStyle}>
-                            {row.paid_amt > 0 && (
-                              <button
-                                onClick={() => handleAdvePay(row.id)}
-                                disabled={
-                                  loadingSubmit || row.status === "paid"
-                                }
-                                className={`${
-                                  loadingSubmit || row.status === "paid"
-                                    ? "bg-gray-400 cursor-not-allowed"
-                                    : "bg-blue-500 hover:bg-blue-600"
-                                } text-white py-2 px-4 rounded`}
-                              >
-                                {loadingSubmit ? "Processing..." : "Pay"}
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
+      <TableContainer
+        component={Paper}
+        style={{ maxHeight: "500px", overflow: "auto" }}
+      >
+        <Table stickyHeader>
+          <TableHead>
+            <TableRow>
+              <TableCell align="center">Sr.</TableCell>
+              <TableCell align="center">
+                {/* Employee Name Header with Search */}
+                <div>
+                  <div>Employee Name</div>
+                  <TextField
+                    placeholder="Search"
+                    size="small"
+                    variant="outlined"
+                    value={searchQuery}
+                    onChange={handleSearch}
+                    fullWidth
+                  />
+                </div>
+              </TableCell>
+              <TableCell align="center">Commission %</TableCell>
+              <TableCell align="center">Target Achieved %</TableCell>
+              <TableCell align="center">Sale</TableCell>
+              <TableCell align="center">Target</TableCell>
+              <TableCell align="center">Commission Amount</TableCell>
+              <TableCell align="center">Status</TableCell>
+              <TableCell align="center">Pay</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {fetchingData
+              ? Array.from({ length: 5 }).map((_, index) => (
+                  <TableRow key={index}>
+                    {Array.from({ length: 9 }).map((_, colIndex) => (
+                      <TableCell key={colIndex}>
+                        <Skeleton variant="text" />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              : filteredEmployees.map((row, index) => (
+                  <TableRow key={row.id}>
+                    <TableCell align="center">{index + 1}</TableCell>
+                    <TableCell align="center">
+                      {row?.referencable?.name}
+                    </TableCell>
+                    <TableCell align="center">{row.commission_per}%</TableCell>
+                    <TableCell align="center">
+                      {row.target > 0 && row.sale
+                        ? ((row.sale / row.target) * 100).toFixed(2)
+                        : 0}
+                      %
+                    </TableCell>
+                    <TableCell align="center">{row.sale}</TableCell>
+                    <TableCell align="center">{row.target}</TableCell>
+                    <TableCell align="center">{row?.paid_amt}</TableCell>
+                    <TableCell align="center">{row?.status}</TableCell>
+                    <TableCell align="center">
+                      {row.paid_amt > 0 && (
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={() => handleAdvePay(row.id)}
+                          disabled={loadingSubmit || row.status === "paid"}
+                        >
+                          {loadingSubmit ? (
+                            <CircularProgress size={20} />
+                          ) : (
+                            "Pay"
+                          )}
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </div>
   );
 };
 
