@@ -9,7 +9,7 @@ const Tabs = ({ activeTab, setActiveTab }) => {
   };
 
   const currentTab = activeTab || "documents";
-
+ 
   return (
     <div className="mt-5">
       <div className={styles.tabContainer}>

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Tabs, Tab, Box } from "@mui/material";
+import styles from "../../../styles/tabs.module.css";
 import AllEmployees from "@/app/operations/viewEmployees/allEmployees";
 import SalarCal from "../salaryCal/page";
 import CommissionCal from "../comCal/page";
@@ -19,50 +19,73 @@ const TabPanel = (props) => {
       aria-labelledby={`employee-tab-${index}`}
       {...other}
     >
-      {value === index && <Box sx={{ py: 3 }}>{children}</Box>}
+      {value === index && <div className="py-3">{children}</div>}
     </div>
   );
 };
 
 const Page = () => {
-  const [value, setValue] = useState(0);
+  const [activeTab, setActiveTab] = useState(0);
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
+  const handleTabClick = (tabIndex) => {
+    setActiveTab(tabIndex);
   };
 
   return (
-    <Box sx={{ width: "100%" }}>
-      <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-        <Tabs
-          value={value}
-          onChange={handleChange}
-          aria-label="employee management tabs"
-          variant="fullWidth"
-        >
-          <Tab label="All Employees" />
-          <Tab label="Salary Calculation" />
-          <Tab label="Commission Calculation" />
-          <Tab label="Total Salary" />
-        </Tabs>
-      </Box>
+    <div>
+      <div className="mt-5">
+        <div className={styles.tabContainer}>
+          <div
+            className={`${styles.tabPaymentButton} ${
+              activeTab === 0 ? styles.active : ""
+            }`}
+            onClick={() => handleTabClick(0)}
+          >
+            All Employees
+          </div>
+          <div
+            className={`${styles.tabPaymentButton} ${
+              activeTab === 1 ? styles.active : ""
+            }`}
+            onClick={() => handleTabClick(1)}
+          >
+            Salary Calculation
+          </div>
+          <div
+            className={`${styles.tabPaymentButton} ${
+              activeTab === 2 ? styles.active : ""
+            }`}
+            onClick={() => handleTabClick(2)}
+          >
+            Commission Calculation
+          </div>
+          <div
+            className={`${styles.tabPaymentButton} ${
+              activeTab === 3 ? styles.active : ""
+            }`}
+            onClick={() => handleTabClick(3)}
+          >
+            Total Salary
+          </div>
+        </div>
+      </div>
 
-      <TabPanel value={value} index={0}>
+      <TabPanel value={activeTab} index={0}>
         <AllEmployees />
       </TabPanel>
 
-      <TabPanel value={value} index={1}>
+      <TabPanel value={activeTab} index={1}>
         <SalarCal />
       </TabPanel>
 
-      <TabPanel value={value} index={2}>
+      <TabPanel value={activeTab} index={2}>
         <CommissionCal />
       </TabPanel>
 
-      <TabPanel value={value} index={3}>
+      <TabPanel value={activeTab} index={3}>
         <SalaryTotal />
       </TabPanel>
-    </Box>
+    </div>
   );
 };
 
