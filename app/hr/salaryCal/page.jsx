@@ -100,6 +100,7 @@ const SalaryCal = () => {
 
   useEffect(() => {
     getAllEmployees();
+    setSearchInput("");
   }, [selectedMonth]);
 
   useEffect(() => {

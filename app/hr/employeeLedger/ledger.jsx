@@ -12,7 +12,6 @@ import Link from "next/link";
 import "./index.css";
 
 const Ledger = () => {
-
   const api = new APICall();
   const [refreshComponent, setRefreshComponent] = useState(false);
   const [fetchingData, setFetchingData] = useState(false);
@@ -95,13 +94,14 @@ const Ledger = () => {
 
   return (
     <div className="p-6">
+      <h2 className="text-xl font-bold mb-4">Advance Payments</h2>
+
       <div className="mb-8">
         <MonthPicker onDateChange={handleDateChange} />
       </div>
 
       <Card sx={{ mb: 4, p: 3 }}>
         <div>
-          <h2 className="text-xl font-bold mb-4">Advance Payments</h2>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
