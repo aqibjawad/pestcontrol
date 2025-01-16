@@ -6,6 +6,7 @@ import AllEmployees from "@/app/operations/viewEmployees/allEmployees";
 import SalarCal from "../salaryCal/page";
 import CommissionCal from "../comCal/page";
 import SalaryTotal from "../salaryTotal/page";
+import Ledger from "../employeeLedger/ledger";
 import withAuth from "@/utils/withAuth";
 
 const TabPanel = (props) => {
@@ -67,6 +68,14 @@ const Page = () => {
           >
             Total Salary
           </div>
+          <div
+            className={`${styles.tabPaymentButton} ${
+              activeTab === 4 ? styles.active : ""
+            }`}
+            onClick={() => handleTabClick(4)}
+          >
+            Employee Ledger
+          </div>
         </div>
       </div>
 
@@ -84,6 +93,10 @@ const Page = () => {
 
       <TabPanel value={activeTab} index={3}>
         <SalaryTotal />
+      </TabPanel>
+
+      <TabPanel value={activeTab} index={4}>
+        <Ledger />
       </TabPanel>
     </div>
   );
