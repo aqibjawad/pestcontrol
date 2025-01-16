@@ -164,7 +164,9 @@ const Page = () => {
                           )}
                         </td>
                         <td className="py-3 px-4">
-                          {payment.fine > 0 ? "Vehicle Fine" : ""}
+                          {payment.fine > 0
+                            ? `Vehicle Fine ${payment?.vehicle?.modal_name} ${payment?.vehicle?.vehicle_number}`
+                            : ""}
                           {payment.fine_received > 0 ? "Fine Received" : ""}
                         </td>
                         <td className="py-3 px-4">{payment.fine}</td>
