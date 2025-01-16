@@ -26,6 +26,7 @@ const SalaryCal = () => {
   const router = useRouter();
 
   const [refreshComponent, setRefreshComponent] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
 
   const [fetchingData, setFetchingData] = useState(false);
   const [employeeList, setEmployeeList] = useState([]);
@@ -103,6 +104,7 @@ const SalaryCal = () => {
 
   useEffect(() => {
     getAllEmployees();
+    setSearchInput("");
   }, [refreshComponent]);
 
   const handleOpenModal = (employee) => {
@@ -408,6 +410,7 @@ const SalaryCal = () => {
   }, [selectedEmployee]);
 
   const handleEmployeeNameChange = (value) => {
+    setSearchInput(value);
     if (value === "") {
       setEmployeeList(allEmployees);
     } else {
@@ -416,6 +419,11 @@ const SalaryCal = () => {
       );
       setEmployeeList(filteredList);
     }
+  };
+  // Common table cell style
+  const cellStyle = {
+    textAlign: "center",
+    padding: "12px 4px",
   };
 
   return (
@@ -442,81 +450,85 @@ const SalaryCal = () => {
               <thead>
                 <tr>
                   <th
-                    style={{ width: "5%" }}
-                    className="py-5 px-4 border-b border-gray-200 text-left"
+                    style={{ width: "5%", ...cellStyle }}
+                    className="border-b border-gray-200"
                   >
                     Sr.
                   </th>
                   <th
-                    style={{ width: "20%" }}
-                    className="py-2 px-4 border-b border-gray-200 text-left"
+                    style={{
+                      width: "20%",
+                      textAlign: "left",
+                      padding: "12px 4px",
+                    }}
+                    className="border-b border-gray-200"
                   >
                     <InputWithTitle
                       title={"Employee Name"}
                       placeholder="Filter by Name"
+                      value={searchInput}
                       onChange={(value) => {
                         handleEmployeeNameChange(value);
                       }}
                     />
                   </th>
                   <th
-                    style={{ width: "10%" }}
-                    className="py-2 px-4 border-b border-gray-200 text-left"
+                    style={{ width: "10%", ...cellStyle }}
+                    className="border-b border-gray-200"
                   >
                     Allowance
                   </th>
                   <th
-                    style={{ width: "10%" }}
-                    className="py-2 px-4 border-b border-gray-200 text-left"
+                    style={{ width: "10%", ...cellStyle }}
+                    className="border-b border-gray-200"
                   >
                     Other
                   </th>
                   <th
-                    style={{ width: "10%" }}
-                    className="py-2 px-4 border-b border-gray-200 text-left"
+                    style={{ width: "10%", ...cellStyle }}
+                    className="border-b border-gray-200"
                   >
                     Attendance (%)
                   </th>
                   <th
-                    style={{ width: "10%" }}
-                    className="py-2 px-4 border-b border-gray-200 text-left"
+                    style={{ width: "10%", ...cellStyle }}
+                    className="border-b border-gray-200"
                   >
                     Advance
                   </th>
                   <th
-                    style={{ width: "10%" }}
-                    className="py-2 px-4 border-b border-gray-200 text-left"
+                    style={{ width: "10%", ...cellStyle }}
+                    className="border-b border-gray-200"
                   >
                     Fines
                   </th>
                   <th
-                    style={{ width: "10%" }}
-                    className="py-2 px-4 border-b border-gray-200 text-left"
+                    style={{ width: "10%", ...cellStyle }}
+                    className="border-b border-gray-200"
                   >
                     Basic Salary
                   </th>
                   <th
-                    style={{ width: "10%" }}
-                    className="py-2 px-4 border-b border-gray-200 text-left"
+                    style={{ width: "10%", ...cellStyle }}
+                    className="border-b border-gray-200"
                   >
                     Payable Salary
                   </th>
                   <th
-                    style={{ width: "10%" }}
-                    className="py-2 px-4 border-b border-gray-200 text-left"
+                    style={{ width: "10%", ...cellStyle }}
+                    className="border-b border-gray-200"
                   >
                     Paid
                   </th>
                   <th
-                    style={{ width: "10%" }}
-                    className="py-2 px-4 border-b border-gray-200 text-left"
+                    style={{ width: "10%", ...cellStyle }}
+                    className="border-b border-gray-200"
                   >
                     Status
                   </th>
-
                   <th
-                    style={{ width: "5%" }}
-                    className="py-2 px-4 border-b border-gray-200 text-left"
+                    style={{ width: "5%", ...cellStyle }}
+                    className="border-b border-gray-200"
                   >
                     Actions
                   </th>
@@ -534,78 +546,116 @@ const SalaryCal = () => {
                   {fetchingData
                     ? Array.from({ length: 5 }).map((_, index) => (
                         <tr key={index} className="border-b border-gray-200">
-                          <td style={{ width: "5%" }} className="py-5 px-4">
+                          <td
+                            style={{ width: "5%", textAlign: "center" }}
+                            className="py-5 px-4"
+                          >
                             <Skeleton variant="rectangular" height={30} />
                           </td>
-                          <td style={{ width: "20%" }} className="py-5 px-4">
+                          <td
+                            style={{ width: "20%", textAlign: "center" }}
+                            className="py-5 px-4"
+                          >
                             <Skeleton variant="rectangular" height={30} />
                           </td>
-                          <td style={{ width: "10%" }} className="py-5 px-4">
+                          <td
+                            style={{ width: "10%", textAlign: "center" }}
+                            className="py-5 px-4"
+                          >
                             <Skeleton variant="rectangular" height={30} />
                           </td>
-                          <td style={{ width: "10%" }} className="py-5 px-4">
+                          <td
+                            style={{ width: "10%", textAlign: "center" }}
+                            className="py-5 px-4"
+                          >
                             <Skeleton variant="rectangular" height={30} />
                           </td>
-                          <td style={{ width: "10%" }} className="py-5 px-4">
+                          <td
+                            style={{ width: "10%", textAlign: "center" }}
+                            className="py-5 px-4"
+                          >
                             <Skeleton variant="rectangular" height={30} />
                           </td>
-                          <td style={{ width: "10%" }} className="py-5 px-4">
+                          <td
+                            style={{ width: "10%", textAlign: "center" }}
+                            className="py-5 px-4"
+                          >
                             <Skeleton variant="rectangular" height={30} />
                           </td>
-                          <td style={{ width: "10%" }} className="py-5 px-4">
+                          <td
+                            style={{ width: "10%", textAlign: "center" }}
+                            className="py-5 px-4"
+                          >
                             <Skeleton variant="rectangular" height={30} />
                           </td>
-                          <td style={{ width: "10%" }} className="py-5 px-4">
+                          <td
+                            style={{ width: "10%", textAlign: "center" }}
+                            className="py-5 px-4"
+                          >
                             <Skeleton variant="rectangular" height={30} />
                           </td>
-                          <td style={{ width: "10%" }} className="py-5 px-4">
+                          <td
+                            style={{ width: "10%", textAlign: "center" }}
+                            className="py-5 px-4"
+                          >
                             <Skeleton variant="rectangular" height={30} />
                           </td>
-                          <td style={{ width: "10%" }} className="py-5 px-4">
+                          <td
+                            style={{ width: "10%", textAlign: "center" }}
+                            className="py-5 px-4"
+                          >
                             <Skeleton variant="rectangular" height={30} />
                           </td>
-                          <td style={{ width: "5%" }} className="py-5 px-4">
+                          <td
+                            style={{ width: "5%", textAlign: "center" }}
+                            className="py-5 px-4"
+                          >
                             <Skeleton variant="rectangular" height={30} />
                           </td>
                         </tr>
                       ))
                     : employeeList.map((row, index) => (
                         <tr key={index} className="border-b border-gray-200">
-                          <td style={{ width: "5%" }} className="py-5 px-4">
+                          <td style={{ width: "5%", ...cellStyle }}>
                             {index + 1}
                           </td>
-                          <td style={{ width: "20%" }} className="py-5 px-4">
+                          <td
+                            style={{
+                              width: "20%",
+                              textAlign: "left",
+                              padding: "12px 4px",
+                            }}
+                          >
                             {row?.user?.name}
                           </td>
-                          <td style={{ width: "10%" }} className="py-5 px-4">
+                          <td style={{ width: "10%", ...cellStyle }}>
                             {row.allowance}
                           </td>
-                          <td style={{ width: "10%" }} className="py-5 px-4">
+                          <td style={{ width: "10%", ...cellStyle }}>
                             {row.other}
                           </td>
-                          <td style={{ width: "10%" }} className="py-5 px-4">
+                          <td style={{ width: "10%", ...cellStyle }}>
                             {row.attendance_per}%
                           </td>
-                          <td style={{ width: "10%" }} className="py-5 px-4">
+                          <td style={{ width: "10%", ...cellStyle }}>
                             {row.adv_paid}
                           </td>
-                          <td style={{ width: "10%" }} className="py-5 px-4">
+                          <td style={{ width: "10%", ...cellStyle }}>
                             {row.total_fines}
                           </td>
-                          <td style={{ width: "10%" }} className="py-5 px-4">
+                          <td style={{ width: "10%", ...cellStyle }}>
                             {row.basic_salary}
                           </td>
-                          <td style={{ width: "10%" }} className="py-5 px-4">
+                          <td style={{ width: "10%", ...cellStyle }}>
                             {row.payable_salary}
                           </td>
-                          <td style={{ width: "10%" }} className="py-5 px-4">
-                            {row.paid_salary} {/* New Paid column */}
+                          <td style={{ width: "10%", ...cellStyle }}>
+                            {row.paid_salary}
                           </td>
-                          <td style={{ width: "10%" }} className="py-5 px-4">
+                          <td style={{ width: "10%", ...cellStyle }}>
                             {row.status}
                           </td>
-
-                          <td style={{ width: "5%" }} className="py-5 px-4">
+                          <td style={{ width: "5%", ...cellStyle }}>
                             <Button
                               aria-controls={`actions-menu-${row?.user?.id}`}
                               aria-haspopup="true"

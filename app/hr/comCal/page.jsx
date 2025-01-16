@@ -5,7 +5,7 @@ import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
 import APICall from "@/networkUtil/APICall";
 import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
 import Swal from "sweetalert2";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, Skeleton } from "@mui/material";
 import withAuth from "@/utils/withAuth";
 import MonthPicker from "../monthPicker";
 
@@ -71,7 +71,6 @@ const SalaryCal = () => {
             popup: "my-custom-popup-class",
           },
         }).then(() => {
-          // Refresh the employee list after successful payment
           getEmployeeCommissions(selectedMonth);
         });
       } else {
@@ -91,112 +90,147 @@ const SalaryCal = () => {
     }
   };
 
+  const cellStyle = "py-5 px-4 text-center";
+
+  // Skeleton row component
+  const SkeletonRow = () => (
+    <tr className="border-b border-gray-200">
+      <td style={{ width: "5%" }} className={cellStyle}>
+        <Skeleton variant="text" width="100%" />
+      </td>
+      <td style={{ width: "25%" }} className={cellStyle}>
+        <Skeleton variant="text" width="100%" />
+      </td>
+      <td style={{ width: "15%" }} className={cellStyle}>
+        <Skeleton variant="text" width="100%" />
+      </td>
+      <td style={{ width: "15%" }} className={cellStyle}>
+        <Skeleton variant="text" width="100%" />
+      </td>
+      <td style={{ width: "10%" }} className={cellStyle}>
+        <Skeleton variant="text" width="100%" />
+      </td>
+      <td style={{ width: "10%" }} className={cellStyle}>
+        <Skeleton variant="text" width="100%" />
+      </td>
+      <td style={{ width: "20%" }} className={cellStyle}>
+        <Skeleton variant="text" width="100%" />
+      </td>
+      <td style={{ width: "20%" }} className={cellStyle}>
+        <Skeleton variant="text" width="100%" />
+      </td>
+      <td style={{ width: "20%" }} className={cellStyle}>
+        <Skeleton variant="rounded" width="80%" height={36} />
+      </td>
+    </tr>
+  );
+
   return (
     <>
-      <MonthPicker onDateChange={handleDateChange} />
+      <div className="mt-10 mb-10">
+        <div className="pageTitle">Sales By Employees</div>
+        <div className="mt-5"></div>
+        <div className="mt-5"></div>
+        <MonthPicker onDateChange={handleDateChange} />
 
-      {fetchingData ? (
-        <CircularProgress />
-      ) : (
-        <>
-          <hr />
-          <div className="mt-10 mb-10">
-            <div className="pageTitle">Sales By Employees</div>
-            <div className="mt-5"></div>
-            <div className="mt-5"></div>
-            <div className={tableStyles.tableContainer}>
-              <div
-                style={{
-                  overflow: "hidden",
-                  display: "flex",
-                  flexDirection: "column",
-                  maxHeight: "500px",
-                }}
-              >
-                {/* Fixed Header Table */}
-                <table
-                  className="min-w-full bg-white"
-                  style={{ tableLayout: "fixed" }}
-                >
-                  <thead>
-                    <tr>
-                      <th
-                        style={{ width: "5%" }}
-                        className="py-5 px-4 border-b border-gray-200 text-left"
-                      >
-                        Sr.
-                      </th>
-                      <th
-                        style={{ width: "25%" }}
-                        className="py-2 px-4 border-b border-gray-200 text-left"
-                      >
-                        Employee Name
-                      </th>
-                      <th
-                        style={{ width: "15%" }}
-                        className="py-2 px-4 border-b border-gray-200 text-left"
-                      >
-                        Commission %
-                      </th>
-                      <th
-                        style={{ width: "15%" }}
-                        className="py-2 px-4 border-b border-gray-200 text-left"
-                      >
-                        Target Achieved %
-                      </th>
-                      <th
-                        style={{ width: "10%" }}
-                        className="py-2 px-4 border-b border-gray-200 text-left"
-                      >
-                        Sale
-                      </th>
-                      <th
-                        style={{ width: "10%" }}
-                        className="py-2 px-4 border-b border-gray-200 text-left"
-                      >
-                        Target
-                      </th>
-                      <th
-                        style={{ width: "20%" }}
-                        className="py-2 px-4 border-b border-gray-200 text-center"
-                      >
-                        Commission Amount
-                      </th>
-                      <th
-                        style={{ width: "20%" }}
-                        className="py-2 px-4 border-b border-gray-200 text-center"
-                      >
-                        Status
-                      </th>
-                      <th
-                        style={{ width: "20%" }}
-                        className="py-2 px-4 border-b border-gray-200 text-center"
-                      >
-                        Pay
-                      </th>
-                    </tr>
-                  </thead>
-                </table>
-
-                {/* Scrollable Body Table */}
-                <div style={{ overflowY: "auto", maxHeight: "500px" }}>
-                  <table
-                    className="min-w-full bg-white"
-                    style={{ tableLayout: "fixed" }}
+        <div className={tableStyles.tableContainer}>
+          <div
+            style={{
+              overflow: "hidden",
+              display: "flex",
+              flexDirection: "column",
+              maxHeight: "500px",
+            }}
+          >
+            {/* Fixed Header Table */}
+            <table
+              className="min-w-full bg-white"
+              style={{ tableLayout: "fixed" }}
+            >
+              <thead>
+                <tr>
+                  <th
+                    style={{ width: "5%" }}
+                    className="py-5 px-4 border-b border-gray-200 text-center"
                   >
-                    <tbody>
-                      {employeeList?.map((row, index) => (
+                    Sr.
+                  </th>
+                  <th
+                    style={{ width: "25%" }}
+                    className="py-2 px-4 border-b border-gray-200 text-center"
+                  >
+                    Employee Name
+                  </th>
+                  <th
+                    style={{ width: "15%" }}
+                    className="py-2 px-4 border-b border-gray-200 text-center"
+                  >
+                    Commission %
+                  </th>
+                  <th
+                    style={{ width: "15%" }}
+                    className="py-2 px-4 border-b border-gray-200 text-center"
+                  >
+                    Target Achieved %
+                  </th>
+                  <th
+                    style={{ width: "10%" }}
+                    className="py-2 px-4 border-b border-gray-200 text-center"
+                  >
+                    Sale
+                  </th>
+                  <th
+                    style={{ width: "10%" }}
+                    className="py-2 px-4 border-b border-gray-200 text-center"
+                  >
+                    Target
+                  </th>
+                  <th
+                    style={{ width: "20%" }}
+                    className="py-2 px-4 border-b border-gray-200 text-center"
+                  >
+                    Commission Amount
+                  </th>
+                  <th
+                    style={{ width: "20%" }}
+                    className="py-2 px-4 border-b border-gray-200 text-center"
+                  >
+                    Status
+                  </th>
+                  <th
+                    style={{ width: "20%" }}
+                    className="py-2 px-4 border-b border-gray-200 text-center"
+                  >
+                    Pay
+                  </th>
+                </tr>
+              </thead>
+            </table>
+
+            {/* Scrollable Body Table */}
+            <div style={{ overflowY: "auto", maxHeight: "500px" }}>
+              <table
+                className="min-w-full bg-white"
+                style={{ tableLayout: "fixed" }}
+              >
+                <tbody>
+                  {fetchingData
+                    ? // Show skeleton rows while loading
+                      Array.from(new Array(5)).map((_, index) => (
+                        <SkeletonRow key={index} />
+                      ))
+                    : employeeList?.map((row, index) => (
                         <tr key={row.id} className="border-b border-gray-200">
-                          <td style={{ width: "5%" }} className="py-5 px-4">
+                          <td style={{ width: "5%" }} className={cellStyle}>
                             {index + 1}
                           </td>
-                          <td style={{ width: "25%" }} className="py-5 px-4">
+                          <td style={{ width: "25%" }} className={cellStyle}>
                             {row?.referencable?.name}
                           </td>
-                          <td style={{ width: "15%" }} className="py-5 px-4">
+                          <td style={{ width: "15%" }} className={cellStyle}>
                             {row.commission_per}%
                           </td>
-                          <td style={{ width: "15%" }} className="py-5 px-4">
+                          <td style={{ width: "15%" }} className={cellStyle}>
                             {row.target && row.sale
                               ? isNaN((row.sale / row.target) * 100)
                                 ? 0
@@ -204,28 +238,19 @@ const SalaryCal = () => {
                               : 0}
                             %
                           </td>
-                          <td style={{ width: "10%" }} className="py-5 px-4">
+                          <td style={{ width: "10%" }} className={cellStyle}>
                             {row.sale}
                           </td>
-                          <td style={{ width: "10%" }} className="py-5 px-4">
+                          <td style={{ width: "10%" }} className={cellStyle}>
                             {row.target}
                           </td>
-                          <td
-                            style={{ width: "20%" }}
-                            className="py-5 px-4 text-center"
-                          >
+                          <td style={{ width: "20%" }} className={cellStyle}>
                             {row?.paid_amt}
                           </td>
-                          <td
-                            style={{ width: "20%" }}
-                            className="py-5 px-4 text-center"
-                          >
+                          <td style={{ width: "20%" }} className={cellStyle}>
                             {row?.status}
                           </td>
-                          <td
-                            style={{ width: "20%" }}
-                            className="py-5 px-4 text-center"
-                          >
+                          <td style={{ width: "20%" }} className={cellStyle}>
                             {row.paid_amt > 0 && (
                               <button
                                 onClick={() => handleAdvePay(row.id)}
@@ -244,14 +269,12 @@ const SalaryCal = () => {
                           </td>
                         </tr>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+                </tbody>
+              </table>
             </div>
           </div>
-        </>
-      )}
+        </div>
+      </div>
     </>
   );
 };
