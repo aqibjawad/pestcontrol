@@ -482,12 +482,25 @@ const Page = () => {
             </div>
           </div>
 
-          <div className="mt-5">
+          {/* <div className="mt-5">handleUpdateVehicle 
             <GreenButton
               onClick={() => {
                 handleUpdateVehicle();
               }}
               title={"Submit"}
+            />
+          </div> */}
+          <div className="mt-5">
+            <GreenButton
+              onClick={handleUpdateVehicle}
+              title={
+                loadingSubmit ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : (
+                  "handleUpdateVehicle "
+                )
+              }
+              disabled={loadingSubmit}
             />
           </div>
         </Box>
