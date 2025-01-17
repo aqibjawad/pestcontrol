@@ -347,7 +347,7 @@ const Page = () => {
 
                 <Grid item xs={12} sm={6} md={4} lg={3}>
                   <div className={styles.addProd}>
-                    <Link href="/operations/banks">Add Banks</Link>
+                    <Link href="/operations/banks">View Banks</Link>
                   </div>
                 </Grid>
 

@@ -105,7 +105,7 @@ const SalaryCal = () => {
     } else {
       setFilteredEmployees(employeeList); 
     }
-  };
+  }; 
 
   return (
     <div className="mt-10 mb-10">
