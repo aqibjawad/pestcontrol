@@ -5,10 +5,7 @@ import styles from "../../../styles/loginStyles.module.css";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import { FormGroup, FormControlLabel, Radio, RadioGroup } from "@mui/material";
 
-const Invoice = ({ setFormData, formData }) => {
-
-  console.log("invoice", formData);
-  
+const Invoice = ({ setFormData, formData }) => {  
 
   const [billingFrequency, setBillingFrequency] = useState(0);
 

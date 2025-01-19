@@ -8,17 +8,35 @@ const JobsList = ({
   allServices,
   updateJobList,
   duration_in_months,
-  numberOfJobs,
+  formData,
 }) => {
-  const [totalJobs, setTotalJobs] = useState(0);
+  // Find matching quote service from formData
+  const findQuoteService = () => {
+    if (formData?.quote_services && formData.quote_services.length > 0) {
+      return (
+        formData.quote_services.find(
+          (service) => service.service_id === jobData.service_id
+        ) || formData.quote_services[0]
+      );
+    }
+    return null;
+  };
+
+  const quoteService = findQuoteService();
+
+  // Initialize state with values from jobData by default, use formData only if it exists
+  const [totalJobs, setTotalJobs] = useState(jobData.totalJobs || 0);
   const [rate, setRate] = useState(jobData.rate || 0);
   const [noJobs, setNoJobs] = useState(jobData.no_of_jobs || 0);
-  const [selectedJobType, setSelectedJobType] = useState(jobData.jobType || "");
+  const [selectedJobType, setSelectedJobType] = useState(
+    jobData.jobType || "monthly"
+  );
   const [selectedDates, setSelectedDates] = useState(jobData.dates || []);
   const [subTotal, setSubTotal] = useState(jobData.subTotal || 0);
   const [selectedService, setSelectedService] = useState(
     jobData.service_id || ""
   );
+  const [hasInitialized, setHasInitialized] = useState(false);
 
   const jobTypes = [
     { label: "Monthly", value: "monthly" },
@@ -53,10 +71,9 @@ const JobsList = ({
 
   // Update parent component with all necessary data
   useEffect(() => {
-    const calculatedSubTotal = totalJobs * rate;
+    const calculatedSubTotal = totalJobs * parseFloat(rate);
     setSubTotal(calculatedSubTotal);
 
-    // Get the selected service details
     const selectedServiceDetails = allServices.find(
       (s) => s.id === selectedService
     );
@@ -106,6 +123,24 @@ const JobsList = ({
       });
     }
   };
+
+  // Initialize values from formData only once when component mounts
+  useEffect(() => {
+    if (!hasInitialized && formData?.quote_services?.length > 0) {
+      const matchingQuoteService = findQuoteService();
+      if (matchingQuoteService) {
+        setNoJobs(matchingQuoteService.no_of_services);
+        setRate(matchingQuoteService.rate);
+        setSelectedJobType(matchingQuoteService.job_type);
+        if (matchingQuoteService.job_type === "monthly") {
+          const calculatedTotalJobs =
+            matchingQuoteService.no_of_services * duration_in_months;
+          setTotalJobs(calculatedTotalJobs);
+        }
+        setHasInitialized(true);
+      }
+    }
+  }, [formData, hasInitialized]);
 
   return (
     <div style={{ marginBottom: "2rem" }}>

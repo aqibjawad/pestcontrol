@@ -10,8 +10,6 @@ import { Grid, Skeleton } from "@mui/material";
 import Select from "react-select";
 
 const BasicQuote = ({ setFormData, formData }) => {
-  console.log("osajfodsjo", formData);
-
   const api = new APICall();
 
   const [allBrandsList, setAllBrandsList] = useState([]);

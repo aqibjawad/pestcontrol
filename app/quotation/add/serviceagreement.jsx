@@ -12,6 +12,7 @@ const ServiceAgreement = ({ setFormData, formData }) => {
   const api = new APICall();
   const [allServices, setAllServices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [grandTotal, setGrandTotal] = useState(0);
 
   const getAllServices = async () => {
     setIsLoading(true);
@@ -39,6 +40,15 @@ const ServiceAgreement = ({ setFormData, formData }) => {
     }
   };
 
+  // Calculate grand total whenever services change
+  useEffect(() => {
+    const total = (formData.services || []).reduce(
+      (total, job) => total + (job.subTotal || 0),
+      0
+    );
+    setGrandTotal(total);
+  }, [formData.services]);
+
   useEffect(() => {
     if (
       formData.quote_services &&
@@ -46,10 +56,8 @@ const ServiceAgreement = ({ setFormData, formData }) => {
       allServices.length > 0 &&
       formData.duration_in_months
     ) {
-      // Transform quote_services to JobsList format
       const transformedServices = formData.quote_services.map(
         (quoteService) => {
-          // Calculate monthly jobs by dividing total services by duration
           const monthlyJobs =
             quoteService.no_of_services / formData.duration_in_months;
 
@@ -58,14 +66,14 @@ const ServiceAgreement = ({ setFormData, formData }) => {
             service_name: quoteService.service.pest_name,
             jobType: quoteService.job_type,
             rate: parseFloat(quoteService.rate),
-            no_of_jobs: monthlyJobs, // Monthly jobs after division
+            no_of_jobs: monthlyJobs,
             subTotal: parseFloat(quoteService.sub_total),
             detail: [
               {
                 job_type: quoteService.job_type,
                 rate: parseFloat(quoteService.rate),
                 dates: quoteService.quote_service_dates || [],
-                no_of_jobs: monthlyJobs, // Also update in detail array
+                no_of_jobs: monthlyJobs,
               },
             ],
           };
@@ -156,7 +164,7 @@ const ServiceAgreement = ({ setFormData, formData }) => {
         ...newServices[index],
         ...updatedJob,
         subTotal:
-          updatedJob.no_of_jobs * updatedJob.rate * formData.duration_in_months, // Updated subtotal calculation
+          updatedJob.no_of_jobs * updatedJob.rate * formData.duration_in_months,
         detail: [
           {
             job_type: updatedJob.jobType,
@@ -169,11 +177,6 @@ const ServiceAgreement = ({ setFormData, formData }) => {
       return { ...prev, services: newServices };
     });
   };
-
-  const grandTotal = (formData.services || []).reduce(
-    (total, job) => total + (job.subTotal || 0),
-    0
-  );  
 
   if (isLoading) {
     return <div>Loading...</div>;

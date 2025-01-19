@@ -51,9 +51,7 @@ const Page = () => {
     services: [],
     processedQuoteServices: false,
   });
-
-  console.log("test form Data", formData);
-
+  
   const [loading, setLoading] = useState(false);
   const [fetchingData, setFetchingData] = useState(false);
 
