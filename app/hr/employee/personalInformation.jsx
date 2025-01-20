@@ -239,15 +239,17 @@ const PersonalInformation = ({ data, onChange, handleSubmit, sendingData }) => {
               onChange={(name, value) => onChange("other", value)}
             />
           </Grid>
-          <Grid item xs={12} md={6}>
-            <InputWithTitle2
-              title="Comission %"
-              type="text"
-              placeholder="Comission"
-              value={data.commission_per}
-              onChange={(name, value) => onChange("commission_per", value)}
-            />
-          </Grid>
+          {data.role_id === "4" && ( // Conditionally render based on role_id
+            <Grid item xs={12} md={6}>
+              <InputWithTitle2
+                title="Comission %"
+                type="text"
+                placeholder="Comission"
+                value={data.commission_per}
+                onChange={(name, value) => onChange("commission_per", value)}
+              />
+            </Grid>
+          )}
         </Grid>
 
         <div className="mb-10"></div>

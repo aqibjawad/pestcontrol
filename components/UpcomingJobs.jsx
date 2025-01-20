@@ -52,12 +52,18 @@ const UpcomingJobs = ({
     if (!jobsList) return;
 
     const filtered = jobsList.filter((job) => {
+      const searchTermLower = searchTerm.toLowerCase();
       const jobTitleMatch = job?.job_title
         ?.toLowerCase()
-        .includes(searchTerm.toLowerCase());
+        .includes(searchTermLower);
+      const firmNameMatch = job?.user?.client?.firm_name
+        ?.toLowerCase()
+        .includes(searchTermLower);
       const areaMatch =
         !selectedArea || job?.client_address?.area === selectedArea;
-      return jobTitleMatch && areaMatch;
+
+      // Return true if either job title OR firm name matches, AND area matches if selected
+      return (jobTitleMatch || firmNameMatch) && areaMatch;
     });
 
     const limitedJobs = isDashboard ? filtered?.slice(0, 10) : filtered;
@@ -76,7 +82,6 @@ const UpcomingJobs = ({
 
   const handleSearch = (value) => {
     setSearchTerm(value);
-    // Reset filteredJobs to original jobsList when search is cleared
     if (!value.trim()) {
       setFilteredJobs(jobsList || []);
     }
