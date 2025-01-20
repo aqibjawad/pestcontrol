@@ -185,37 +185,6 @@ const BasicQuote = ({ setFormData, formData }) => {
     });
   };
 
-  const handleJobsPerMonthChange = (index, value) => {
-    const jobsPerMonth = parseFloat(value) || 0;
-    const totalServices = jobsPerMonth * (formData.duration_in_months || 1);
-
-    setFormData((prev) => {
-      const updatedServices = [...(prev.quote_services || [])];
-      if (updatedServices[index]) {
-        updatedServices[index] = {
-          ...updatedServices[index],
-          no_of_services: totalServices,
-          no_of_jobs: jobsPerMonth,
-        };
-      }
-
-      const updatedMainServices = [...(prev.services || [])];
-      if (updatedMainServices[index]) {
-        updatedMainServices[index] = {
-          ...updatedMainServices[index],
-          no_of_jobs: jobsPerMonth,
-          total_services: totalServices,
-        };
-      }
-
-      return {
-        ...prev,
-        quote_services: updatedServices,
-        services: updatedMainServices,
-      };
-    });
-  };
-
   return (
     <div
       className={styles.userFormContainer}
@@ -227,7 +196,7 @@ const BasicQuote = ({ setFormData, formData }) => {
             <Skeleton variant="rectangular" width="100%" height={50} />
           ) : (
             <div>
-              {formData?.billing_method === "" ? (
+              {!formData?.user?.id ? (
                 <>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Select Firm Name

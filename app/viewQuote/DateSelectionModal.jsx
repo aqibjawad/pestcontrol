@@ -34,8 +34,7 @@ import {
 } from "date-fns";
 
 const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
-
-  const idAsString = quoteData?.quote_services[0]?.id.toString();  
+  const idAsString = quoteData?.quote_services[0]?.id.toString();
 
   const jobTypes =
     quoteData?.quote_services?.map((service) => service.job_type) || [];
@@ -48,7 +47,7 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
   const [trn, setTrn] = useState("");
   const [licenseNo, setLicenseNo] = useState("");
   const [isFoodWatchAccount, setIsFoodWatchAccount] = useState(false);
-  const [foodWatchStatus, setFoodWatchStatus] = useState("unlinked"); 
+  const [foodWatchStatus, setFoodWatchStatus] = useState("unlinked");
 
   // Existing state variables
   const [totalServices, setTotalServices] = useState(0);
@@ -123,15 +122,11 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
 
   // Existing useEffects
   useEffect(() => {
-    if (
-      quoteData?.quote_services?.[0]?.no_of_services &&
-      quoteData?.duration_in_months
-    ) {
+    if (quoteData?.quote_services?.[0]) {
       const total = quoteData.quote_services[0].no_of_services;
       const duration = quoteData.duration_in_months;
       setTotalServices(total);
       setDurationMonths(duration);
-      setServicesPerMonth(Math.floor(total / duration));
     }
   }, [quoteData]);
 
@@ -369,34 +364,6 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
     e.preventDefault();
     setLoading(true);
 
-    if (!trn || !licenseNo || !generatedDates.length) {
-      alert("Please ensure all required fields (TRN, License No, and Dates) are filled in.")
-      setLoading(false);
-      return;
-    }
-
-    // Validate total dates based on job type
-    if (!isCustomJob && generatedDates.length !== totalServices) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: `Please select exactly ${totalServices} dates.`,
-      });
-      setLoading(false);
-      return;
-    }
-
-    const serviceId = quoteData?.quote_services[0]?.service_id;
-    if (!serviceId) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Service ID is missing or undefined. Cannot proceed.",
-      });
-      setLoading(false);
-      return;
-    }
-
     const dataToSend = {
       trn: trn,
       license_no: licenseNo,
@@ -408,6 +375,8 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
         },
       ],
     };
+
+    console.log("data to send", dataToSend);
 
     try {
       const response = await api.postDataToken(
@@ -469,7 +438,7 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>
-        Select Dates and Time (Maximum {servicesPerMonth} services per month)
+        Select Dates and Time (Maximum {totalServices} services per month)
       </DialogTitle>
 
       <DialogContent>
@@ -548,31 +517,11 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
               initialDates={selectedDates}
               onDateChange={handleDateChange}
             />
-            {/* <div className="mt-2 text-sm text-gray-600">
-              {!isCustomJob && (
-                <>
-                  Total services required: {totalServices}
-                  <br />
-                </>
-              )}
-              Currently selected: {generatedDates.length}
-              <br />
-              {!isCustomJob &&
-                `Maximum ${servicesPerMonth} services allowed per month`}
-              {errorMessage && (
-                <div className="text-red-500 mt-1">{errorMessage}</div>
-              )}
-            </div> */}
           </div>
         )}
 
         {tabIndex === 1 && (
           <div className="mt-4">
-            {/* <div className="mb-4 text-sm text-gray-600">
-              Currently selected dates: {generatedDates.length}
-              <br />
-              Maximum {servicesPerMonth} services allowed per month
-            </div> */}
             {renderWeekSelection(1)}
             {renderWeekSelection(2)}
             {renderWeekSelection(3)}
@@ -588,8 +537,8 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
           color="primary"
           disabled={
             loading ||
-            (isCustomJob && selectedDates.length > 1) || 
-            (!isCustomJob && !isValidTotalDates) // Keep original condition for non-custom jobs
+            (isCustomJob && selectedDates.length > 1) ||
+            selectedDates.length !== totalServices
           }
         >
           {loading ? <CircularProgress size={24} /> : "Save Dates"}
