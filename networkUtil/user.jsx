@@ -47,6 +47,13 @@ class User {
     const data = User.getFromLocalStorage();
     return data ? data.permissions : null;
   }
+  static logout() {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("user");
+      localStorage.removeItem("token"); 
+    }
+
+  }
 }
 
 export default User;

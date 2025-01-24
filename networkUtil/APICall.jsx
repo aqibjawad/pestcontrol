@@ -1,7 +1,12 @@
 import axios from "axios";
 import User from "./user";
+import { useRouter } from 'next/navigation'; // For app directory routing
+
 
 class APICall {
+  constructor() {
+   this.router = useRouter();
+  }
   async makeRequest(
     method,
     url,
@@ -30,6 +35,7 @@ class APICall {
         config.data = data;
       }
     }
+
     try {
       const response = await axios(config);
       if (response.status === 200 || response.status === 204) {
@@ -39,6 +45,24 @@ class APICall {
       }
     } catch (error) {
       if (error.response) {
+        if (error.response.status === 401) {
+          
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          localStorage.removeItem('user');
+          User.logout();
+          if (typeof window !== 'undefined') {
+            this.router.push('/');;
+          }
+
+          // Return an error object
+          return { 
+            error: 'Unauthorized. Please log in again.', 
+            status: 401 
+          };
+        }
+
+        // Handle other error responses
         return {
           error: error.response.data || `Failed to ${method} data`,
           status: error.response.status,

@@ -29,6 +29,7 @@ const Page = () => {
   // Form States
   const [product_name, setItemName] = useState("");
   const [batch_number, setBatchNumber] = useState("");
+  const [opening_stock_qty, setOpenQuant] = useState("");
   const [mfg_date, setManufactureDate] = useState("");
   const [exp_date, setExpiryDate] = useState("");
   const [product_type, setProductType] = useState("");
@@ -107,6 +108,7 @@ const Page = () => {
       price,
       product_picture,
       product_category,
+      opening_stock_qty,
     };
     attachments.forEach((file, index) => {
       obj[`attachments[${index}]`] = file;
@@ -176,6 +178,15 @@ const Page = () => {
               placeholder={"Please enter a batch number"}
               value={batch_number}
               onChange={setBatchNumber}
+            />
+          </div>
+          <div>
+            <InputWithTitle
+              title={"Opening Stock"}
+              type={"text"}
+              placeholder={"Please enter opening stock number"}
+              value={opening_stock_qty}
+              onChange={setOpenQuant}
             />
           </div>
         </div>

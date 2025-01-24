@@ -26,7 +26,7 @@ const Page = () => {
     role_id: "1",
     phone_number: "",
     eid_no: "1234",
-    target: "",
+    target: "0",
     eid_start: "temp",
     eid_expiry: "temp",
     profession: "",
@@ -40,7 +40,7 @@ const Page = () => {
     allowance: "",
     other: "",
     total_salary: "",
-    commission_per: "",
+    commission_per: "0",
     labour_card_expiry: "abc",
     country: "",
   });
@@ -194,7 +194,6 @@ const Page = () => {
 
   return (
     <div>
-
       <div className="employ-head">Employee</div>
 
       <div className="grid grid-cols-12 gap-4 mt-10">

@@ -12,15 +12,19 @@ import { format } from "date-fns";
 
 import DateFilters from "../../../components/generic/DateFilters";
 import withAuth from "@/utils/withAuth";
+import AddStockModal from "./addStkQnt"; // Import the modal component
 
 const Page = () => {
   const apiCall = new APICall();
   const router = new useRouter();
   const [fetchingData, setFetchingData] = useState(true);
   const [suppliersList, setSuppliersList] = useState([]);
-
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
+
+  // State for modal visibility
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
     getSuppliers();
@@ -47,7 +51,6 @@ const Page = () => {
       setSuppliersList(response.data);
     } catch (error) {
       console.error("Error fetching suppliers:", error);
-      // Optionally set an error state here
     } finally {
       setFetchingData(false);
     }
@@ -56,6 +59,16 @@ const Page = () => {
   const handleDateChange = (start, end) => {
     setStartDate(start);
     setEndDate(end);
+  };
+
+  const openModal = (product) => {
+    setSelectedProduct(product);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setSelectedProduct(null);
+    setIsModalOpen(false);
   };
 
   const ListTable = () => {
@@ -91,11 +104,14 @@ const Page = () => {
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Stock
               </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Add Stock Quantity
+              </th>
             </tr>
           </thead>
           <tbody>
             {suppliersList?.map((row, index) => {
-              const stock = row.stocks[0] || {}; // Get the first stock object
+              const stock = row.stocks[0] || {};
               const attachments = row.attachments || [];
               const remainingQty =
                 (stock.remaining_qty || 0) * (stock.per_item_qty || 1);
@@ -146,6 +162,14 @@ const Page = () => {
                         Assign Stock
                       </span>
                     </Link>
+                  </td>
+                  <td className="py-2 px-4">
+                    <button
+                      onClick={() => openModal(row)}
+                      className="text-blue-600 hover:text-blue-800"
+                    >
+                      Add Stock Quantity
+                    </button>
                   </td>
                 </tr>
               );
@@ -209,6 +233,13 @@ const Page = () => {
           )}
         </div>
       </div>
+
+      {/* Modal for Adding Stock */}
+      <AddStockModal
+        open={isModalOpen}
+        onClose={closeModal}
+        products={selectedProduct}
+      />
     </div>
   );
 };
