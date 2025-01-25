@@ -199,7 +199,7 @@ const FinancialDashboard = () => {
 
   const closingData = [
     {
-      category: "New Employee",
+      category: "PRO Docs Expense",
       amount: allClientsList?.employee_expense || 0,
     },
     {

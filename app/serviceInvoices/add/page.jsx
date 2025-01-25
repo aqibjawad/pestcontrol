@@ -11,7 +11,7 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Checkbox,
+  Radio,
   Typography,
 } from "@mui/material";
 import InputWithTitle from "@/components/generic/InputWithTitle";
@@ -41,20 +41,6 @@ const getIdFromUrl = (url) => {
   return null;
 };
 
-const getNameFromUrl = (url) => {
-  const parts = url.split("?");
-  if (parts.length > 1) {
-    const queryParams = parts[1].split("&");
-    for (const param of queryParams) {
-      const [key, value] = param.split("=");
-      if (key === "name") {
-        return value;
-      }
-    }
-  }
-  return null;
-};
-
 const Page = () => {
   const api = new APICall();
   const router = useRouter();
@@ -62,10 +48,9 @@ const Page = () => {
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [allInvoiceList, setAllInvoiceList] = useState([]);
 
-  const [selectedInvoices, setSelectedInvoices] = useState([]);
-  const [serviceInvoiceId, setServiceInvoiceId] = useState(null);
-
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState(null);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
+
   // Basic states
   const [id, setId] = useState("");
   const [paid_amt, setPaidAmount] = useState("");
@@ -119,11 +104,8 @@ const Page = () => {
           `${serviceInvoice}?user_id=${id}`
         );
 
-        const unpaidInvoices = response.data;
-        // .filter((invoice) => invoice.status === "unpaid")
-        // .slice(0, 10); // Get the first 10 unpaid invoices
         setClientName(response.data[0].user.name);
-        setAllInvoiceList(unpaidInvoices);
+        setAllInvoiceList(response.data);
       }
     } catch (error) {
       console.error("Error fetching Services:", error);
@@ -133,8 +115,7 @@ const Page = () => {
   };
 
   const clearFormState = () => {
-    setSelectedInvoices([]);
-    setServiceInvoiceId(null);
+    setSelectedInvoiceId(null);
     setSelectedInvoice(null);
     setPaidAmount("");
     setDescrp("");
@@ -161,78 +142,17 @@ const Page = () => {
     setSelectedBankId(selectedValue);
   };
 
-  const handlePayAllClick = () => {
-    setIsAllAmtPay(!isAllAmtPay);
-  };
-
-  const handleSelectAllClick = (event) => {
-    if (event.target.checked) {
-      const newSelected = allInvoiceList.map((invoice) => invoice.id);
-      setSelectedInvoices(newSelected);
-      setServiceInvoiceId(allInvoiceList[0]?.service_invoice_id || null);
-    } else {
-      setSelectedInvoices([]);
-      setServiceInvoiceId(null);
-    }
-    setShowPaymentForm(allInvoiceList.length > 0);
-  };
-
-  const handleCheckboxClick = (invoice) => {
-    const selectedIndex = selectedInvoices.indexOf(invoice.id);
-    let newSelected = [];
-
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selectedInvoices, invoice.id);
+  const handleRadioChange = (invoice) => {
+    if (invoice.status !== "paid") {
+      setSelectedInvoiceId(invoice.id);
       setSelectedInvoice({
         ...invoice,
-        userId: invoice.user.id, // Include user ID
-        userName: invoice.user.name, // Optionally include user name
+        userId: invoice.user.id,
+        userName: invoice.user.name,
       });
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selectedInvoices.slice(1));
-      const nextInvoice =
-        newSelected.length > 0
-          ? allInvoiceList.find((inv) => inv.id === newSelected[0])
-          : null;
-      setSelectedInvoice(
-        nextInvoice
-          ? {
-              ...nextInvoice,
-              userId: nextInvoice.user.id,
-              userName: nextInvoice.user.name,
-            }
-          : null
-      );
-    } else if (selectedIndex === selectedInvoices.length - 1) {
-      newSelected = newSelected.concat(selectedInvoices.slice(0, -1));
-      const nextInvoice = allInvoiceList.find(
-        (inv) => inv.id === newSelected[0]
-      );
-      setSelectedInvoice({
-        ...nextInvoice,
-        userId: nextInvoice.user.id,
-        userName: nextInvoice.user.name,
-      });
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selectedInvoices.slice(0, selectedIndex),
-        selectedInvoices.slice(selectedIndex + 1)
-      );
-      const nextInvoice = allInvoiceList.find(
-        (inv) => inv.id === newSelected[0]
-      );
-      setSelectedInvoice({
-        ...nextInvoice,
-        userId: nextInvoice.user.id,
-        userName: nextInvoice.user.name,
-      });
+      setShowPaymentForm(true);
     }
-
-    setSelectedInvoices(newSelected);
-    setShowPaymentForm(newSelected.length > 0);
   };
-
-  const isSelected = (id) => selectedInvoices.indexOf(id) !== -1;
 
   const createVehicleObject = () => {
     let vehicleObj = {
@@ -311,17 +231,9 @@ const Page = () => {
               <TableHead>
                 <TableRow>
                   <TableCell padding="checkbox">
-                    {/* <Checkbox
-                      indeterminate={
-                        selectedInvoices.length > 0 &&
-                        selectedInvoices.length < allInvoiceList.length
-                      }
-                      checked={
-                        allInvoiceList.length > 0 &&
-                        selectedInvoices.length === allInvoiceList.length
-                      }
-                      onChange={handleSelectAllClick}
-                    /> */}
+                    <Typography variant="subtitle1" fontWeight="bold">
+                      Select
+                    </Typography>
                   </TableCell>
                   <TableCell>
                     <Typography variant="subtitle1" fontWeight="bold">
@@ -352,23 +264,27 @@ const Page = () => {
               </TableHead>
               <TableBody>
                 {allInvoiceList.map((invoice) => {
-                  const isItemSelected = isSelected(invoice.id);
                   const remainingAmount =
                     parseFloat(invoice.total_amt) -
                     parseFloat(invoice.paid_amt);
 
                   return (
                     <TableRow
-                      hover
-                      onClick={() => handleCheckboxClick(invoice)}
-                      role="checkbox"
-                      aria-checked={isItemSelected}
-                      tabIndex={-1}
                       key={invoice.id}
-                      selected={isItemSelected}
+                      hover={invoice.status !== "paid"}
+                      style={{
+                        backgroundColor:
+                          invoice.status === "paid" ? "#f0f0f0" : "white",
+                        cursor:
+                          invoice.status === "paid" ? "not-allowed" : "pointer",
+                      }}
                     >
                       <TableCell padding="checkbox">
-                        <Checkbox checked={isItemSelected} />
+                        <Radio
+                          checked={selectedInvoiceId === invoice.id}
+                          onChange={() => handleRadioChange(invoice)}
+                          disabled={invoice.status === "paid"}
+                        />
                       </TableCell>
                       <TableCell>{invoice.service_invoice_id}</TableCell>
                       <TableCell>{invoice.total_amt}</TableCell>
@@ -407,26 +323,6 @@ const Page = () => {
                 value={paid_amt}
                 title="Paid Amount"
               />
-            </Grid>
-
-            <Grid className="mt-3" item lg={4} xs={12} md={6}>
-              <button
-                onClick={handlePayAllClick}
-                style={{
-                  marginTop: "20px",
-                  padding: "10px 20px",
-                  backgroundColor: isAllAmtPay ? "#28a745" : "#007BFF",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "5px",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  transition: "background-color 0.3s ease",
-                }}
-              >
-                Pay All
-              </button>
             </Grid>
 
             <Grid item lg={12} xs={12} md={12}>
@@ -497,12 +393,6 @@ const Page = () => {
           </Grid>
 
           <div className="mt-10">
-            {/* <GreenButton
-              onClick={handleSubmit}
-              title={buttonLoading ? "Submitting..." : "Submit"}
-              disabled={buttonLoading}
-            /> */}
-
             <GreenButton
               onClick={handleSubmit}
               title={
