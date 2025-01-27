@@ -71,6 +71,10 @@ const Page = () => {
     router.push(`/operations/assignJob?id=${jobList.id}`);
   };
 
+  const handleBack = () => {
+    router.back();
+  };
+
   return (
     <div>
       <JobDetails jobList={jobList} />
@@ -90,6 +94,10 @@ const Page = () => {
           <GreenButton onClick={handleAssignJob} title={"Assign job"} />
         </div>
       )}
+
+      <div className="mt-5">
+        <GreenButton onClick={handleBack} title={"Back to Calender"} />
+      </div>
     </div>
   );
 };

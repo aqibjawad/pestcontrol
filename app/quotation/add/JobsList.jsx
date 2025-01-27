@@ -25,6 +25,9 @@ const JobsList = ({
   const quoteService = findQuoteService();
 
   // Initialize state with values from jobData by default, use formData only if it exists
+  const [jobsPerMonth, setJobsPerMonth] = useState();
+  
+
   const [totalJobs, setTotalJobs] = useState(jobData.totalJobs || 0);
   const [rate, setRate] = useState(jobData.rate || 0);
   const [noJobs, setNoJobs] = useState(jobData.no_of_jobs || 0);
@@ -58,16 +61,17 @@ const JobsList = ({
 
   const serviceOptions = getUniqueServiceOptions(allServices);
 
-  // Calculate total jobs based on job type
+  // Calculate total jobs based on job type and jobs per month
   useEffect(() => {
     let calculatedTotalJobs = 0;
     if (selectedJobType === "custom") {
       calculatedTotalJobs = Math.floor(duration_in_months / 3); // Quarterly
     } else if (selectedJobType === "monthly") {
-      calculatedTotalJobs = noJobs * duration_in_months; // Monthly
+      calculatedTotalJobs = jobsPerMonth * duration_in_months; // Monthly
+      setNoJobs(calculatedTotalJobs); 
     }
-    setTotalJobs(calculatedTotalJobs);
-  }, [noJobs, duration_in_months, selectedJobType]);
+    // setTotalJobs(calculatedTotalJobs);
+  }, [jobsPerMonth, duration_in_months, selectedJobType]);
 
   // Update parent component with all necessary data
   useEffect(() => {
@@ -109,6 +113,7 @@ const JobsList = ({
     setSelectedJobType(value);
     if (value === "custom") {
       setNoJobs(1);
+      setTotalJobs(1); 
     }
   };
 
@@ -129,6 +134,7 @@ const JobsList = ({
     if (!hasInitialized && formData?.quote_services?.length > 0) {
       const matchingQuoteService = findQuoteService();
       if (matchingQuoteService) {
+        setJobsPerMonth(matchingQuoteService.no_of_services);
         setNoJobs(matchingQuoteService.no_of_services);
         setRate(matchingQuoteService.rate);
         setSelectedJobType(matchingQuoteService.job_type);
@@ -168,21 +174,21 @@ const JobsList = ({
           <>
             <Grid item lg={3} xs={4}>
               <InputWithTitle
-                title="No of Jobs"
+                title="Jobs Per Month"
                 type="text"
-                name="noJobs"
-                placeholder="No of Jobs"
-                value={noJobs}
-                onChange={(value) => setNoJobs(value)}
+                placeholder="Jobs Per Month"
+                value={jobsPerMonth}
+                onChange={(value) => setJobsPerMonth(parseInt(value) || 0)}
               />
             </Grid>
             <Grid item lg={3} xs={4}>
               <InputWithTitle
                 title="Total Jobs"
                 type="text"
-                name="totalJobs"
+                name="noJobs"
                 placeholder="Total Jobs"
-                value={totalJobs}
+                value={noJobs}
+                onChange={(value) => setNoJobs(value)}
                 readOnly
               />
             </Grid>

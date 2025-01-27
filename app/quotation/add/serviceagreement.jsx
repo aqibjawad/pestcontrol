@@ -164,7 +164,7 @@ const ServiceAgreement = ({ setFormData, formData }) => {
         ...newServices[index],
         ...updatedJob,
         subTotal:
-          updatedJob.no_of_jobs * updatedJob.rate * formData.duration_in_months,
+          updatedJob.no_of_jobs * updatedJob.rate,
         detail: [
           {
             job_type: updatedJob.jobType,
