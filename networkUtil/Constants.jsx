@@ -87,3 +87,5 @@ export const removeDeviceAssignment = apiPrefix + "/device/assign";
 export const adminn = apiPrefix + "/admin";
 
 export const salaries = apiPrefix + "/salary";
+
+export const branches = apiPrefix + "/branch";
