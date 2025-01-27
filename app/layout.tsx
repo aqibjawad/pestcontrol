@@ -19,6 +19,7 @@ export default function RootLayout({
     "/account/supplier_ledger/",
     "/invoiceDetails/",
     "/paySlip/",
+    "/deviceDoc/",
     // "/paymentInvoice/",
   ];
   const pathname = usePathname();

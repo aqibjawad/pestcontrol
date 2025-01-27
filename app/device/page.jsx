@@ -25,11 +25,13 @@ import {
   getAllEmpoyesUrl,
   removeDeviceAssignment,
 } from "@/networkUtil/Constants";
-import { Table } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const Page = () => {
   const api = new APICall();
   const alert = new AppAlerts();
+  const router = useRouter();
+
   const [deviceName, setDeviceName] = useState("");
   const [deviceModel, setDeviceModel] = useState("");
   const [code, setCode] = useState("");
@@ -38,6 +40,7 @@ const Page = () => {
   const [fetchingData, setFetchingData] = useState(false);
   const [updateDeviceID, setUpdateDeviceID] = useState("");
   const [allDevices, setAllDevices] = useState([]);
+
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [selectedItem, setSelectedItem] = React.useState({});
   const [allEmployees, setAllEmployees] = React.useState(null);
@@ -62,9 +65,6 @@ const Page = () => {
   };
 
   const handleRemoveAssignment = () => {
-    // Handle remove assignment logic here
-    console.log("Remove assignment clicked", selectedItem.item.id);
-
     alert.confirmAlert(
       "Are you sure you want to Remove Assignment",
       async () => {
@@ -132,6 +132,7 @@ const Page = () => {
     setFetchingData(true);
     var response = await api.getDataWithToken(getDevicesURL);
     setAllDevices(response.data);
+    // You might want to add console.log here to check the data
     resetValues();
     setFetchingData(false);
   };
@@ -148,6 +149,10 @@ const Page = () => {
     setDeviceModel(allDevices[index].model);
     setCode(allDevices[index].code_no);
     setDesc(allDevices[index].desc);
+  };
+
+  const handleDoc = (index) => {
+    router.push(`/deviceDoc/?id=${selectedItem.item.id}`);
   };
 
   const renderSkeletons = () => {
@@ -211,7 +216,7 @@ const Page = () => {
           <div className="mt-5">
             <InputWithTitle
               value={desc}
-              title={"Other Description"}
+              title={"Accessories"}
               onChange={setDesc}
             />
           </div>
@@ -305,6 +310,10 @@ const Page = () => {
                                 }}
                                 sx={{ boxShadow: "none" }}
                               >
+                                {" "}
+                                <MenuItem onClick={() => handleDoc(index)}>
+                                  View Document
+                                </MenuItem>
                                 <MenuItem onClick={() => handleUpdate(index)}>
                                   Update
                                 </MenuItem>
