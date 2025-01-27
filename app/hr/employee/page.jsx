@@ -7,7 +7,7 @@ import PersonalInformation from "./personalInformation";
 import Insurance from "./insurance";
 import OtherInfo from "./otherInformation.jsx";
 import APICall from "@/networkUtil/APICall";
-import { addEmployee } from "@/networkUtil/Constants";
+import { addEmployee, branches } from "@/networkUtil/Constants";
 import { AppAlerts } from "@/Helper/AppAlerts";
 import { useRouter } from "next/navigation";
 
@@ -18,6 +18,7 @@ const Page = () => {
   const [sendingData, setSendingData] = useState(false);
 
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [rows, setRows] = useState([]);
 
   const [formData, setFormData] = useState({
     profile_image: "",
@@ -43,6 +44,7 @@ const Page = () => {
     commission_per: "0",
     labour_card_expiry: "abc",
     country: "",
+    branch_id: "",
   });
 
   const [errors, setErrors] = useState({
@@ -58,7 +60,6 @@ const Page = () => {
   };
 
   useEffect(() => {
-    console.log(formData);
   }, [formData]);
 
   const validateForm = () => {
@@ -192,6 +193,20 @@ const Page = () => {
     }
   };
 
+  const fetchData = async () => {
+    try {
+      const response = await api.getDataWithToken(`${branches}`);
+      const data = response.data;
+      setRows(data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   return (
     <div>
       <div className="employ-head">Employee</div>
@@ -205,6 +220,7 @@ const Page = () => {
               onChange={(field, value) => handleInputChange(field, value)}
               handleSubmit={handleSubmit}
               sendingData={sendingData}
+              branches={rows}
             />
           </div>
 

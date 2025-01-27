@@ -10,7 +10,12 @@ import GreenButton from "@/components/generic/GreenButton";
 import { CircularProgress } from "@mui/material";
 import Tabs from "./tabs";
 
-import { expense_category, bank, expense } from "@/networkUtil/Constants";
+import {
+  expense_category,
+  bank,
+  expense,
+  branches,
+} from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
 
 import { AppAlerts } from "../../../Helper/AppAlerts";
@@ -44,6 +49,8 @@ const Page = () => {
   const [allExpenseNameList, setExpenseNameList] = useState([]);
   const [selectedExpenseId, setSelectedExpenseId] = useState("");
 
+  const [selectedBranchId, setSelectedBranchId] = useState("");
+
   // All Banks States
   const [allBanksList, setAllBankList] = useState([]);
   const [allBankNameList, setBankNameList] = useState([]);
@@ -52,18 +59,17 @@ const Page = () => {
   const [sendingData, setSendingData] = useState(false);
 
   const [loading, setLoading] = useState(false);
+  const [rows, setRows] = useState([]);
+  const [allBranchNameList, setBranchNameList] = useState([]);
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
-    // setFormData((prevState) => ({
-    //   ...prevState,
-    //   payment_type: tab,
-    // }));
   };
 
   useEffect(() => {
     getAllExpenses();
     getAllBanks();
+    fetchBranches();
   }, []);
 
   const getAllExpenses = async () => {
@@ -95,6 +101,19 @@ const Page = () => {
     }
   };
 
+  const fetchBranches = async () => {
+    try {
+      const response = await api.getDataWithToken(`${branches}`);
+      const data = response.data;
+      setRows(data);
+
+      const branchNames = response.data.map((item) => item.name);
+      setBranchNameList(branchNames);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
   const handleFileSelect = (file) => {
     setExpenseFile(file);
   };
@@ -102,6 +121,11 @@ const Page = () => {
   const handleExpenseChange = (name, index) => {
     const idAtIndex = allExpensesList[index].id;
     setSelectedExpenseId(idAtIndex);
+  };
+
+  const handleBranchChange = (name, index) => {
+    const idAtIndex = rows[index].id;
+    setSelectedBranchId(idAtIndex);
   };
 
   const handleBankChange = (name, index) => {
@@ -117,6 +141,7 @@ const Page = () => {
       vat,
       total,
       description,
+      branch_id: selectedBranchId,
       payment_type: activeTab,
     };
     if (expense_file) {
@@ -225,6 +250,14 @@ const Page = () => {
             onChange={(name, index) => handleExpenseChange(name, index)}
             title={"Category"}
             options={allExpenseNameList}
+          />
+        </div>
+
+        <div className="mt-5">
+          <Dropdown
+            onChange={(name, index) => handleBranchChange(name, index)}
+            title={"Branches"}
+            options={allBranchNameList}
           />
         </div>
 

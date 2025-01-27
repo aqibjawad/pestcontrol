@@ -17,9 +17,13 @@ import Dropdown from "@/components/generic/Dropdown";
 
 import GreenButton from "@/components/generic/GreenButton";
 
-const PersonalInformation = ({ data, onChange, handleSubmit, sendingData }) => {
-  const [brands, setBrandList] = useState([]);
-
+const PersonalInformation = ({
+  data,
+  onChange,
+  handleSubmit,
+  sendingData,
+  branches,
+}) => {
   const [productImage, setProductForImage] = useState();
 
   const roles = [
@@ -40,11 +44,23 @@ const PersonalInformation = ({ data, onChange, handleSubmit, sendingData }) => {
   };
 
   const [selectedProfession, setSelectedProfession] = useState("");
+  const [selectedBranch, setSelectedBranch] = useState("");
+
+  console.log(selectedBranch);
 
   const handleProfessionChange = (value) => {
     setSelectedProfession(value);
     onChange("profession", value);
-    console.log("Selected Profession:", value);
+  };
+
+  const handleBranchChange = (value) => {
+    // Find the selected branch object from the branches array
+    const selectedBranchObj = branches.find((branch) => branch.name === value);
+    if (selectedBranchObj) {
+      // Update both branch name and branch_id
+      onChange("branch", selectedBranchObj.name);
+      onChange("branch_id", selectedBranchObj.id);
+    }
   };
 
   const professions = [
@@ -61,6 +77,9 @@ const PersonalInformation = ({ data, onChange, handleSubmit, sendingData }) => {
     "Recovery Officer",
     "operation supervisor",
   ];
+
+  // Transform branches data for dropdown if needed
+  const branchOptions = branches?.map((branch) => branch.name) || [];
 
   return (
     <>
@@ -126,7 +145,7 @@ const PersonalInformation = ({ data, onChange, handleSubmit, sendingData }) => {
               onChange={(name, value) => onChange("email", value)}
             />
           </Grid>
-          {data.role_id === "4" && ( // Conditionally render based on role_id
+          {data.role_id === "4" && (
             <Grid item lg={6} xs={12} md={6}>
               <InputWithTitle2
                 title="Sales Target"
@@ -143,6 +162,15 @@ const PersonalInformation = ({ data, onChange, handleSubmit, sendingData }) => {
               onChange={handleProfessionChange}
               title={"Select Profession"}
               options={professions}
+            />
+          </Grid>
+
+          <Grid item lg={6} xs={12} md={6}>
+            <Dropdown
+              title={"Select Branch"}
+              options={branchOptions}
+              onChange={handleBranchChange}
+              value={data.branch}
             />
           </Grid>
         </Grid>
@@ -239,7 +267,7 @@ const PersonalInformation = ({ data, onChange, handleSubmit, sendingData }) => {
               onChange={(name, value) => onChange("other", value)}
             />
           </Grid>
-          {data.role_id === "4" && ( // Conditionally render based on role_id
+          {data.role_id === "4" && (
             <Grid item xs={12} md={6}>
               <InputWithTitle2
                 title="Comission %"
