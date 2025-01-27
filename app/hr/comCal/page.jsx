@@ -155,7 +155,7 @@ const SalaryCal = () => {
                     ))}
                   </TableRow>
                 ))
-              : filteredEmployees.map((row, index) => (
+              : filteredEmployees?.map((row, index) => (
                   <TableRow key={row.id}>
                     <TableCell align="center">{index + 1}</TableCell>
                     <TableCell align="center">

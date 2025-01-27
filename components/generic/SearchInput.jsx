@@ -2,7 +2,7 @@
 import React from "react";
 import styles from "../../styles/generics/serachInputStyles.module.css";
 
-const SearchInput = ({ onSearch }) => {
+const SearchInput = ({ onSearch, placeholder }) => {
   const handleChange = (e) => {
     onSearch(e.target.value);
   };
@@ -19,7 +19,7 @@ const SearchInput = ({ onSearch }) => {
       <input
         className={styles.inputBox}
         type="text"
-        placeholder="Search"
+        placeholder={placeholder || "Search"}
         onChange={handleChange}
       />
     </div>
