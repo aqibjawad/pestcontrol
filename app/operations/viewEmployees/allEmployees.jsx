@@ -1,8 +1,6 @@
-"use client";
-import { useState, useEffect, use } from "react";
-import { Skeleton, Switch, Tabs, Tab } from "@mui/material";
+import { useState, useEffect } from "react";
+import { Skeleton, Switch, Tabs, Tab, Select, MenuItem } from "@mui/material";
 import Link from "next/link";
-import { FaPencil } from "react-icons/fa6";
 import Swal from "sweetalert2";
 import EmployeeUpdateModal from "../../../components/employeeUpdate";
 import APICall from "@/networkUtil/APICall";
@@ -20,14 +18,25 @@ const AllEmployees = () => {
   const [open, setOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [selectedRole, setSelectedRole] = useState("All");
+  const [selectedBranch, setSelectedBranch] = useState("All");
+  const [branches, setBranches] = useState([
+    { id: "All", name: "All Branches" },
+  ]);
 
-  const roles = [
-    { label: "All", value: 0 },
-    { label: "HR-Manager", value: 2 },
-    { label: "Operations", value: 3 },
-    { label: "Office Staff", value: 4 },
-    { label: "Sales-Manager", value: 5 },
-    { label: "Accountant", value: 6 },
+  const professions = [
+    "All",
+    "HR Manager",
+    "Accountant",
+    "Operation Manager",
+    "Agriculture Engineer",
+    "Sales Manager",
+    "Pesticides Technician",
+    "Sales Officer",
+    "Receptionist",
+    "Office Boy",
+    "Technician helper",
+    "Recovery Officer",
+    "operation supervisor",
   ];
 
   useEffect(() => {
@@ -35,15 +44,39 @@ const AllEmployees = () => {
   }, []);
 
   useEffect(() => {
-    // Filter employees when selectedRole changes
-    if (selectedRole === "All") {
-      setFilteredEmployees(employeesList);
-    } else {
-      setFilteredEmployees(
-        employeesList.filter((emp) => emp.employee?.profession === selectedRole)
+    if (employeesList.length > 0) {
+      const uniqueBranches = [
+        ...new Set(employeesList.map((emp) => emp.branch?.id)),
+      ]
+        .filter((id) => id !== undefined)
+        .map((id) => {
+          const branch = employeesList.find(
+            (emp) => emp.branch?.id === id
+          )?.branch;
+          return { id: branch.id, name: branch.name };
+        });
+      setBranches([{ id: "All", name: "All Branches" }, ...uniqueBranches]);
+    }
+  }, [employeesList]);
+
+  useEffect(() => {
+    let branchFiltered = employeesList;
+    if (selectedBranch !== "All") {
+      branchFiltered = employeesList.filter(
+        (emp) => emp.branch?.id === selectedBranch
       );
     }
-  }, [selectedRole, employeesList]);
+
+    if (selectedRole === "All") {
+      setFilteredEmployees(branchFiltered);
+    } else {
+      setFilteredEmployees(
+        branchFiltered.filter(
+          (emp) => emp.employee?.profession === selectedRole
+        )
+      );
+    }
+  }, [selectedRole, selectedBranch, employeesList]);
 
   const fetchAllEmployees = async () => {
     setFetchingData(true);
@@ -128,10 +161,14 @@ const AllEmployees = () => {
     setSelectedEmployee(null);
   };
 
+  const addEmployee = () => {
+    router.push("/hr/employee/");
+  };
+
   const renderSkeleton = () => (
-    <div className="flex flex-wrap gap-4 mt-5">
-      {[...Array(5)].map((_, index) => (
-        <div key={index} className="w-72 p-4 bg-white rounded shadow-md">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-5">
+      {[...Array(8)].map((_, index) => (
+        <div key={index} className="p-4 bg-white rounded shadow-md">
           <Skeleton variant="rectangular" height={150} />
           <Skeleton width="60%" className="mt-4" />
           <Skeleton width="80%" />
@@ -142,96 +179,94 @@ const AllEmployees = () => {
     </div>
   );
 
-  const addEmployee = () => {
-    router.push("/hr/employee/");
-  };
-
   const renderCards = () => (
-    <div className="flex flex-wrap gap-4 mt-5">
-      {filteredEmployees?.map((employee) => {
-        return (
-          <div key={employee.id} className="p-4 bg-white rounded shadow-md" style={{minWidth:"250px", maxWidth:"250px"}}>
-            <img
-              className="w-24 h-24 rounded-full mx-auto"
-              src={employee?.employee?.profile_image || "/default-avatar.png"}
-              alt={employee.name}
-            />
-            <div className="text-center mt-4">
-              <h3 className="font-semibold text-lg">{employee.name}</h3>
-              <p className="text-gray-600">{employee.email}</p>
-              <p className="text-gray-600">
-                {employee.employee?.phone_number || "N/A"}
-              </p>
-              <p className="text-gray-400">
-                Employee ID : {employee.employee?.id || "N/A"}
-              </p>
-            </div>
-
-            <div className="mt-4 flex justify-between items-center">
-              <Switch
-                checked={employee.is_active === 1}
-                onChange={(e) =>
-                  handleStatusToggle(e, employee.id, employee.is_active)
-                }
-                disabled={loading[employee.id]}
-                color="primary"
-                size="small"
-              />
-              <Link href={`/hr/employeeDetails?id=${employee.id}`}>
-                <span className="text-blue-600 hover:text-blue-800">
-                  View Details
-                </span>
-              </Link>
-            </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-5">
+      {filteredEmployees?.map((employee) => (
+        <div
+          key={employee.id}
+          className="p-4 bg-white rounded shadow-md w-full"
+        >
+          <img
+            className="w-24 h-24 rounded-full mx-auto"
+            src={employee?.employee?.profile_image || "/default-avatar.png"}
+            alt={employee.name}
+          />
+          <div className="text-center mt-4">
+            <h3 className="font-semibold text-lg">{employee.name}</h3>
+            <p className="text-gray-600">{employee.email}</p>
+            <p className="text-gray-600">
+              {employee.employee?.phone_number || "N/A"}
+            </p>
+            <p className="text-gray-400">
+              Employee ID: {employee.employee?.id || "N/A"}
+            </p>
+            <p className="text-gray-400">
+              Branch: {employee.branch?.name || "N/A"}
+            </p>
           </div>
-        );
-      })}
+
+          <div className="mt-4 flex justify-between items-center">
+            <Switch
+              checked={employee.is_active === 1}
+              onChange={(e) =>
+                handleStatusToggle(e, employee.id, employee.is_active)
+              }
+              disabled={loading[employee.id]}
+              color="primary"
+              size="small"
+            />
+            <Link href={`/hr/employeeDetails?id=${employee.id}`}>
+              <span className="text-blue-600 hover:text-blue-800">
+                View Details
+              </span>
+            </Link>
+          </div>
+        </div>
+      ))}
     </div>
   );
 
-  const professions = [
-    "All",
-    "HR Manager",
-    "Accountant",
-    "Operation Manager",
-    "Agriculture Engineer",
-    "Sales Manager",
-    "Pesticides Technician",
-    "Sales Officer",
-    "Receptionist",
-    "Office Boy",
-    "Technician helper",
-    "Recovery Officer",
-    "operation supervisor",
-  ];
-
   return (
-    <div>
-      <div className="flex">
-        <div className="flex-grow">
+    <div className="container mx-auto px-4 max-w-7xl">
+      <div className="flex justify-between items-center">
+        <div>
           <h1 className="text-xl font-bold">All Employees</h1>
         </div>
-        <div>
-          <GreenButton onClick={() => addEmployee()} title={"+ Employee"} />
+        <div className="flex items-center gap-4">
+          <Select
+            value={selectedBranch}
+            onChange={(e) => setSelectedBranch(e.target.value)}
+            className="min-w-[200px]"
+            size="small"
+          >
+            {branches.map((branch) => (
+              <MenuItem key={branch.id} value={branch.id}>
+                {branch.name}
+              </MenuItem>
+            ))}
+          </Select>
+          <GreenButton onClick={() => addEmployee()} title="+ Employee" />
         </div>
       </div>
 
-      <div style={{ maxWidth: "1000px" }}>
-        <Tabs
-          value={selectedRole}
-          onChange={(e, newValue) => setSelectedRole(newValue)}
-          indicatorColor="primary"
-          textColor="primary"
-          className="mt-4"
-          variant="scrollable" // Makes the Tabs scrollable
-          scrollButtons="auto" // Automatically shows scroll buttons if needed
-          aria-label="Scrollable professions tabs"
-        >
-          {professions.map((role) => (
-            <Tab key={role} label={role} value={role} />
-          ))}
-        </Tabs>
+      <div className="mt-4 w-full overflow-x-auto">
+        <div className="min-w-full">
+          <Tabs
+            value={selectedRole}
+            onChange={(e, newValue) => setSelectedRole(newValue)}
+            indicatorColor="primary"
+            textColor="primary"
+            variant="scrollable"
+            scrollButtons="auto"
+            aria-label="Scrollable professions tabs"
+          >
+            {professions.map((role) => (
+              <Tab key={role} label={role} value={role} />
+            ))}
+          </Tabs>
+        </div>
       </div>
+
       {fetchingData ? renderSkeleton() : renderCards()}
 
       <EmployeeUpdateModal
@@ -239,6 +274,7 @@ const AllEmployees = () => {
         handleClose={handleClose}
         selectedEmployee={selectedEmployee}
       />
+
       <div className="mt-5"></div>
       <hr />
       <div className="mt-5"></div>
