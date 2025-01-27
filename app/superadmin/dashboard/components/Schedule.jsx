@@ -377,6 +377,10 @@ const MyCalendar = () => {
                   value={selectedEvent.client_address?.area}
                 />
                 <JobDetailItem
+                  label="Tag"
+                  value={selectedEvent.tag}
+                />
+                <JobDetailItem
                   label="Status"
                   value={
                     <Box

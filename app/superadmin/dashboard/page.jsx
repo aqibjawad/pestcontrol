@@ -38,7 +38,6 @@ import {
   CircularProgress,
 } from "@mui/material";
 
-// Import the correct icons
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
@@ -57,20 +56,36 @@ const Page = () => {
 
   const router = useRouter();
 
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  // Initialize selectedIndex from localStorage if available
+  const [selectedIndex, setSelectedIndex] = useState(() => {
+    if (typeof window !== "undefined") {
+      const savedIndex = localStorage.getItem("selectedTabIndex");
+      return savedIndex ? parseInt(savedIndex) : 0;
+    }
+    return 0;
+  });
+
   const [selectedIndexTabs, setSelectedIndexTabs] = useState(0);
   const [paymentList, setPaymentsList] = useState([]);
   const [fetchingData, setFetchingData] = useState(false);
   const [employeeList, setEmployeeList] = useState([]);
-
   const [profession, setProfession] = useState("");
   const [documents, setDocuments] = useState([]);
-
   const [missingDocs, setMissingDocs] = useState([]);
   const [requiredDocs, setRequiredDocs] = useState([]);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
+
+  // Update localStorage when selectedIndex changes
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("selectedTabIndex", selectedIndex.toString());
+
+      // Set schedule state in localStorage based on whether Schedule tab is selected
+      const isScheduleTab = selectedIndex === 2;
+      localStorage.setItem("isScheduleTab", isScheduleTab.toString());
+    }
+  }, [selectedIndex]);
 
   useEffect(() => {
     if (profession) {
@@ -81,11 +96,9 @@ const Page = () => {
 
   useEffect(() => {
     if (profession) {
-      // Get required documents for profession
       const docs = getDocumentsByProfession(profession);
       setRequiredDocs(docs);
 
-      // Find missing documents
       const missing = docs.filter(
         (doc) =>
           !employeeList?.employee?.documents?.some(
@@ -134,9 +147,7 @@ const Page = () => {
     try {
       const response = await api.getDataWithToken(`${getAllEmpoyesUrl}`);
 
-      // Sort the employee list by the earliest expiry date
       const sortedEmployees = response.data.sort((a, b) => {
-        // Extract the dates for both employees and parse them to Date objects
         const getDates = (emp) =>
           [
             emp.employee.eid_expiry,
@@ -152,7 +163,6 @@ const Page = () => {
         const datesA = getDates(a);
         const datesB = getDates(b);
 
-        // Get the earliest date for each employee
         const earliestDateA = datesA.length ? Math.min(...datesA) : Infinity;
         const earliestDateB = datesB.length ? Math.min(...datesB) : Infinity;
 
@@ -163,12 +173,10 @@ const Page = () => {
         .map((employee) => employee.employee.profession)
         .filter(
           (profession, index, self) =>
-            // Remove duplicates and null/undefined values
             profession && self.indexOf(profession) === index
         );
 
       setEmployeeList(sortedEmployees);
-
       setProfession(professions);
     } catch (error) {
       console.error("Error fetching employees:", error);
@@ -223,7 +231,6 @@ const Page = () => {
     };
   };
 
-
   return (
     <div className="w-full">
       {tabs()}
@@ -233,7 +240,6 @@ const Page = () => {
           <div className={selectedIndex === 0 ? `block` : "hidden"}>
             <Operations />
             <AllJobs />
-            {/* <Vendors /> */}
             <Quotation />
             <Contracts />
           </div>
@@ -338,7 +344,6 @@ const Page = () => {
                           </Typography>
                         </Stack>
 
-                        {/* Documents Display */}
                         <Box sx={{ mt: 2 }}>
                           {documents.map((item) => {
                             const document =
@@ -409,29 +414,27 @@ const Page = () => {
                                 </Box>
                               );
                             } else {
-                              if (!document) {
-                                return (
-                                  <Box
-                                    key={item}
-                                    sx={{
-                                      display: "flex",
-                                      alignItems: "center",
-                                      p: 1.5,
-                                      borderRadius: 1,
-                                      mb: 1,
-                                      backgroundColor: "lightgray",
-                                      color: "red",
-                                    }}
+                              return (
+                                <Box
+                                  key={item}
+                                  sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    p: 1.5,
+                                    borderRadius: 1,
+                                    mb: 1,
+                                    backgroundColor: "lightgray",
+                                    color: "red",
+                                  }}
+                                >
+                                  <Typography
+                                    variant="body2"
+                                    sx={{ fontWeight: "medium" }}
                                   >
-                                    <Typography
-                                      variant="body2"
-                                      sx={{ fontWeight: "medium" }}
-                                    >
-                                      <strong>{item}: </strong> Missing
-                                    </Typography>
-                                  </Box>
-                                );
-                              }
+                                    <strong>{item}: </strong> Missing
+                                  </Typography>
+                                </Box>
+                              );
                             }
                           })}
                         </Box>

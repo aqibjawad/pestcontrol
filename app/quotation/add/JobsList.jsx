@@ -24,13 +24,14 @@ const JobsList = ({
 
   const quoteService = findQuoteService();
 
-  // Initialize state with values from jobData by default, use formData only if it exists
   const [jobsPerMonth, setJobsPerMonth] = useState();
-  
 
   const [totalJobs, setTotalJobs] = useState(jobData.totalJobs || 0);
   const [rate, setRate] = useState(jobData.rate || 0);
   const [noJobs, setNoJobs] = useState(jobData.no_of_jobs || 0);
+
+  console.log(noJobs);
+
   const [selectedJobType, setSelectedJobType] = useState(
     jobData.jobType || "monthly"
   );
@@ -66,9 +67,10 @@ const JobsList = ({
     let calculatedTotalJobs = 0;
     if (selectedJobType === "custom") {
       calculatedTotalJobs = Math.floor(duration_in_months / 3); // Quarterly
+      setNoJobs(calculatedTotalJobs);
     } else if (selectedJobType === "monthly") {
       calculatedTotalJobs = jobsPerMonth * duration_in_months; // Monthly
-      setNoJobs(calculatedTotalJobs); 
+      setNoJobs(calculatedTotalJobs);
     }
     // setTotalJobs(calculatedTotalJobs);
   }, [jobsPerMonth, duration_in_months, selectedJobType]);
@@ -111,10 +113,6 @@ const JobsList = ({
 
   const handleJobTypeChange = (value) => {
     setSelectedJobType(value);
-    if (value === "custom") {
-      setNoJobs(1);
-      setTotalJobs(1); 
-    }
   };
 
   const handleServiceChange = (value) => {
@@ -129,7 +127,6 @@ const JobsList = ({
     }
   };
 
-  // Initialize values from formData only once when component mounts
   useEffect(() => {
     if (!hasInitialized && formData?.quote_services?.length > 0) {
       const matchingQuoteService = findQuoteService();
@@ -202,7 +199,8 @@ const JobsList = ({
               type="text"
               name="totalJobs"
               placeholder="Total Jobs"
-              value={totalJobs}
+              value={noJobs}
+              onChange={(value) => setNoJobs(value)}
               readOnly
             />
           </Grid>
