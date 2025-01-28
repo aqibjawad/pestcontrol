@@ -9,9 +9,12 @@ import { AppHelpers } from "@/Helper/AppHelpers";
 import Link from "next/link";
 import DateFilters2 from "@/components/generic/DateFilters2";
 import { startOfMonth, endOfMonth, format } from "date-fns";
+import { Download } from "lucide-react";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import * as XLSX from "xlsx";
 
 const ListServiceTable = ({
-  handleDateChange,
   startDate,
   endDate,
   updateTotalAmount,
@@ -25,7 +28,6 @@ const ListServiceTable = ({
   const [invoiceList, setQuoteList] = useState([]);
   const [loadingDetails, setLoadingDetails] = useState(true);
   const [brandsList, setBrandsList] = useState([]);
-
   const [referenceList, setReferenceList] = useState([]);
 
   const formatDate = (dateString) => {
@@ -37,6 +39,86 @@ const ListServiceTable = ({
     }
   };
 
+  const generateExportData = () => {
+    return invoiceList.map((row, index) => ({
+      "Sr.": index + 1,
+      "Invoice Issue Date": formatDate(row.issued_date),
+      Client: row?.user?.name || "N/A",
+      "Firm Name": row?.user?.client?.firm_name || "N/A",
+      Reference: row?.user?.client?.referencable?.name || "N/A",
+      "Paid Amount": row.paid_amt || 0,
+      "Total Amount": row.total_amt || 0,
+      Status: row.status,
+    }));
+  };
+
+  const downloadCSV = () => {
+    const data = generateExportData();
+    const headers = Object.keys(data[0]);
+    const csvContent = [
+      headers.join(","),
+      ...data.map((row) =>
+        headers.map((header) => `"${row[header]}"`).join(",")
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `invoices_${startDate}_${endDate}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const downloadExcel = () => {
+    const data = generateExportData();
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Invoices");
+    XLSX.writeFile(workbook, `invoices_${startDate}_${endDate}.xlsx`);
+  };
+
+  const downloadPDF = () => {
+    const doc = new jsPDF();
+    
+    // Add logo - adjust size to match the image shown
+    const logoUrl = '/logo.jpeg';
+    const logoWidth = 40;
+    const logoHeight = 40;
+    
+    // Position logo in top-left corner with some margin
+    doc.addImage(logoUrl, 'jpeg', 15, 10, logoWidth, logoHeight);
+
+    // Add title next to logo
+    // doc.setFontSize(16);
+    // doc.text('Invoice Report', 70, 25);
+    
+    // Add details below with proper spacing
+    doc.setFontSize(12);
+    const startY = 70; // Start text below logo
+    const lineSpacing = 10; // Space between lines
+    
+    doc.text(`Date Range: ${startDate} to ${endDate}`, 15, startY);
+    doc.text(`Status: ${statusFilter}`, 15, startY + lineSpacing);
+    doc.text(`Reference: ${selectedReference}`, 15, startY + (lineSpacing * 2));
+
+    // Add table with proper spacing from header
+    const data = generateExportData();
+    const headers = Object.keys(data[0]);
+    const rows = data.map((row) => Object.values(row));
+
+    doc.autoTable({
+        head: [headers],
+        body: rows,
+        startY: startY + (lineSpacing * 3) + 10, // Add extra padding before table
+        margin: { top: 10 },
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [66, 139, 202] },
+    });
+
+    doc.save(`invoices_${startDate}_${endDate}.pdf`);
+};
   const getAllQuotes = async () => {
     setFetchingData(true);
     setLoadingDetails(true);
@@ -61,14 +143,12 @@ const ListServiceTable = ({
 
         let filteredData = response.data;
 
-        // Filter by status
         if (statusFilter !== "all") {
           filteredData = filteredData.filter(
             (invoice) => invoice.status.toLowerCase() === statusFilter
           );
         }
 
-        // Filter by reference
         if (selectedReference !== "all") {
           filteredData = filteredData.filter(
             (invoice) =>
@@ -76,16 +156,14 @@ const ListServiceTable = ({
           );
         }
 
-        // Extract references
         const references = new Set(
           filteredData
             .map((invoice) => invoice?.user?.client?.referencable?.name)
-            .filter((name) => name) // Remove undefined/null values
+            .filter((name) => name)
         );
 
-        setReferenceList([...references]); // Convert Set to Array
+        setReferenceList([...references]);
         if (setReferenceOptions) {
-          // Add check to ensure prop exists
           setReferenceOptions([...references]);
         }
         setQuoteList(filteredData);
@@ -106,211 +184,239 @@ const ListServiceTable = ({
   }, [startDate, endDate, statusFilter, selectedReference, isVisible]);
 
   return (
-    <div className={tableStyles.tableContainer}>
-      <div
-        style={{
-          overflow: "hidden",
-          display: "flex",
-          flexDirection: "column",
-          maxHeight: "500px",
-        }}
-      >
-        {/* Fixed Header Table */}
-        <table className="min-w-full bg-white" style={{ tableLayout: "fixed" }}>
-          <thead>
-            <tr>
-              <th
-                style={{ width: "5%" }}
-                className="py-5 px-4 border-b border-gray-200 text-left"
-              >
-                Sr.
-              </th>
-              <th
-                style={{ width: "15%" }}
-                className="py-2 px-4 border-b border-gray-200 text-left"
-              >
-                Invoice Issue Date
-              </th>
-              <th
-                style={{ width: "15%" }}
-                className="py-2 px-4 border-b border-gray-200 text-left"
-              >
-                Client
-              </th>
-              <th
-                style={{ width: "15%" }}
-                className="py-2 px-4 border-b border-gray-200 text-left"
-              >
-                Firm Name
-              </th>
-              <th
-                style={{ width: "10%" }}
-                className="py-2 px-4 border-b border-gray-200 text-left"
-              >
-                Reference
-              </th>
-              <th
-                style={{ width: "10%" }}
-                className="py-2 px-4 border-b border-gray-200 text-left"
-              >
-                Paid Amount
-              </th>
-              <th
-                style={{ width: "10%" }}
-                className="py-2 px-4 border-b border-gray-200 text-left"
-              >
-                Total Amount
-              </th>
-              <th
-                style={{ width: "10%" }}
-                className="py-2 px-4 border-b border-gray-200 text-left"
-              >
-                Status
-              </th>
-              <th
-                style={{ width: "10%" }}
-                className="py-2 px-4 border-b border-gray-200 text-left"
-              >
-                Action
-              </th>
-            </tr>
-          </thead>
-        </table>
+    <div>
+      <div className="flex gap-2 mb-4 justify-end">
+        <button
+          onClick={downloadPDF}
+          className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+        >
+          <Download size={16} />
+          PDF
+        </button>
+        <button
+          onClick={downloadExcel}
+          className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+        >
+          <Download size={16} />
+          Excel
+        </button>
+        <button
+          onClick={downloadCSV}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          <Download size={16} />
+          CSV
+        </button>
+      </div>
 
-        {/* Scrollable Body Table */}
-        <div style={{ overflowY: "auto", maxHeight: "500px" }}>
+      {/* Table */}
+      <div className={tableStyles.tableContainer}>
+        <div
+          style={{
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: "column",
+            maxHeight: "500px",
+          }}
+        >
           <table
             className="min-w-full bg-white"
             style={{ tableLayout: "fixed" }}
           >
-            <tbody>
-              {loadingDetails
-                ? Array.from({ length: 5 }).map((_, index) => (
-                    <tr key={index} className="border-b border-gray-200">
-                      <td style={{ width: "5%" }} className="py-5 px-4">
-                        <Skeleton
-                          variant="rectangular"
-                          width={30}
-                          height={20}
-                        />
-                      </td>
-                      <td style={{ width: "15%" }} className="py-2 px-4">
-                        <Skeleton
-                          variant="rectangular"
-                          width={120}
-                          height={20}
-                        />
-                      </td>
-                      <td style={{ width: "15%" }} className="py-2 px-4">
-                        <Skeleton
-                          variant="rectangular"
-                          width={150}
-                          height={20}
-                        />
-                      </td>
-                      <td style={{ width: "15%" }} className="py-2 px-4">
-                        <Skeleton
-                          variant="rectangular"
-                          width={100}
-                          height={20}
-                        />
-                      </td>
-                      <td style={{ width: "10%" }} className="py-2 px-4">
-                        <Skeleton
-                          variant="rectangular"
-                          width={100}
-                          height={20}
-                        />
-                      </td>
-                      <td style={{ width: "10%" }} className="py-2 px-4">
-                        <Skeleton
-                          variant="rectangular"
-                          width={80}
-                          height={20}
-                        />
-                      </td>
-                      <td style={{ width: "10%" }} className="py-2 px-4">
-                        <Skeleton
-                          variant="rectangular"
-                          width={100}
-                          height={20}
-                        />
-                      </td>
-                      <td style={{ width: "10%" }} className="py-2 px-4">
-                        <Skeleton
-                          variant="rectangular"
-                          width={100}
-                          height={20}
-                        />
-                      </td>
-                      <td style={{ width: "10%" }} className="py-2 px-4">
-                        <Skeleton
-                          variant="rectangular"
-                          width={100}
-                          height={20}
-                        />
-                      </td>
-                    </tr>
-                  ))
-                : invoiceList?.map((row, index) => (
-                    <tr key={index} className="border-b border-gray-200">
-                      <td style={{ width: "5%" }} className="py-5 px-4">
-                        {index + 1}
-                      </td>
-                      <td style={{ width: "15%" }} className="py-2 px-4">
-                        <div className={tableStyles.clientContact}>
-                          {formatDate(row.issued_date)}
-                        </div>
-                      </td>
-                      <td style={{ width: "15%" }} className="py-2 px-4">
-                        <div className={tableStyles.clientContact}>
-                          {row?.user?.name || "N/A"}
-                        </div>
-                      </td>
-                      <td style={{ width: "15%" }} className="py-2 px-4">
-                        <div className={tableStyles.clientContact}>
-                          {row?.user?.client?.firm_name || "N/A"}
-                        </div>
-                      </td>
-                      <td style={{ width: "10%" }} className="py-2 px-4">
-                        <div className={tableStyles.clientContact}>
-                          {row?.user?.client?.referencable?.name || "N/A"}
-                        </div>
-                      </td>
-                      <td style={{ width: "10%" }} className="py-2 px-4">
-                        <div className={tableStyles.clientContact}>
-                          {row.paid_amt || 0}
-                        </div>
-                      </td>
-                      <td style={{ width: "10%" }} className="py-2 px-4">
-                        <div className={tableStyles.clientContact}>
-                          {row.total_amt || 0}
-                        </div>
-                      </td>
-                      <td style={{ width: "10%" }} className="py-2 px-4">
-                        <div
-                          className={`${tableStyles.clientContact} ${
-                            row.status.toLowerCase() === "paid"
-                              ? "text-green-600"
-                              : "text-red-600"
-                          }`}
-                        >
-                          {row.status}
-                        </div>
-                      </td>
-                      <td style={{ width: "10%" }} className="py-2 px-4">
-                        <div className={tableStyles.clientContact}>
-                          <Link href={`/invoiceDetails?id=${row.id}`}>
-                            <span className="text-blue-600 hover:text-blue-800">
-                              View Details
-                            </span>
-                          </Link>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-            </tbody>
+            <thead>
+              <tr>
+                <th
+                  style={{ width: "5%" }}
+                  className="py-5 px-4 border-b border-gray-200 text-left"
+                >
+                  Sr.
+                </th>
+                <th
+                  style={{ width: "15%" }}
+                  className="py-2 px-4 border-b border-gray-200 text-left"
+                >
+                  Invoice Issue Date
+                </th>
+                <th
+                  style={{ width: "15%" }}
+                  className="py-2 px-4 border-b border-gray-200 text-left"
+                >
+                  Client
+                </th>
+                <th
+                  style={{ width: "15%" }}
+                  className="py-2 px-4 border-b border-gray-200 text-left"
+                >
+                  Firm Name
+                </th>
+                <th
+                  style={{ width: "10%" }}
+                  className="py-2 px-4 border-b border-gray-200 text-left"
+                >
+                  Reference
+                </th>
+                <th
+                  style={{ width: "10%" }}
+                  className="py-2 px-4 border-b border-gray-200 text-left"
+                >
+                  Paid Amount
+                </th>
+                <th
+                  style={{ width: "10%" }}
+                  className="py-2 px-4 border-b border-gray-200 text-left"
+                >
+                  Total Amount
+                </th>
+                <th
+                  style={{ width: "10%" }}
+                  className="py-2 px-4 border-b border-gray-200 text-left"
+                >
+                  Status
+                </th>
+                <th
+                  style={{ width: "10%" }}
+                  className="py-2 px-4 border-b border-gray-200 text-left"
+                >
+                  Action
+                </th>
+              </tr>
+            </thead>
           </table>
+
+          <div style={{ overflowY: "auto", maxHeight: "500px" }}>
+            <table
+              className="min-w-full bg-white"
+              style={{ tableLayout: "fixed" }}
+            >
+              <tbody>
+                {loadingDetails
+                  ? Array.from({ length: 5 }).map((_, index) => (
+                      <tr key={index} className="border-b border-gray-200">
+                        <td style={{ width: "5%" }} className="py-5 px-4">
+                          <Skeleton
+                            variant="rectangular"
+                            width={30}
+                            height={20}
+                          />
+                        </td>
+                        <td style={{ width: "15%" }} className="py-2 px-4">
+                          <Skeleton
+                            variant="rectangular"
+                            width={120}
+                            height={20}
+                          />
+                        </td>
+                        <td style={{ width: "15%" }} className="py-2 px-4">
+                          <Skeleton
+                            variant="rectangular"
+                            width={150}
+                            height={20}
+                          />
+                        </td>
+                        <td style={{ width: "15%" }} className="py-2 px-4">
+                          <Skeleton
+                            variant="rectangular"
+                            width={100}
+                            height={20}
+                          />
+                        </td>
+                        <td style={{ width: "10%" }} className="py-2 px-4">
+                          <Skeleton
+                            variant="rectangular"
+                            width={100}
+                            height={20}
+                          />
+                        </td>
+                        <td style={{ width: "10%" }} className="py-2 px-4">
+                          <Skeleton
+                            variant="rectangular"
+                            width={80}
+                            height={20}
+                          />
+                        </td>
+                        <td style={{ width: "10%" }} className="py-2 px-4">
+                          <Skeleton
+                            variant="rectangular"
+                            width={100}
+                            height={20}
+                          />
+                        </td>
+                        <td style={{ width: "10%" }} className="py-2 px-4">
+                          <Skeleton
+                            variant="rectangular"
+                            width={100}
+                            height={20}
+                          />
+                        </td>
+                        <td style={{ width: "10%" }} className="py-2 px-4">
+                          <Skeleton
+                            variant="rectangular"
+                            width={100}
+                            height={20}
+                          />
+                        </td>
+                      </tr>
+                    ))
+                  : invoiceList?.map((row, index) => (
+                      <tr key={index} className="border-b border-gray-200">
+                        <td style={{ width: "5%" }} className="py-5 px-4">
+                          {index + 1}
+                        </td>
+                        <td style={{ width: "15%" }} className="py-2 px-4">
+                          <div className={tableStyles.clientContact}>
+                            {formatDate(row.issued_date)}
+                          </div>
+                        </td>
+                        <td style={{ width: "15%" }} className="py-2 px-4">
+                          <div className={tableStyles.clientContact}>
+                            {row?.user?.name || "N/A"}
+                          </div>
+                        </td>
+                        <td style={{ width: "15%" }} className="py-2 px-4">
+                          <div className={tableStyles.clientContact}>
+                            {row?.user?.client?.firm_name || "N/A"}
+                          </div>
+                        </td>
+                        <td style={{ width: "10%" }} className="py-2 px-4">
+                          <div className={tableStyles.clientContact}>
+                            {row?.user?.client?.referencable?.name || "N/A"}
+                          </div>
+                        </td>
+                        <td style={{ width: "10%" }} className="py-2 px-4">
+                          <div className={tableStyles.clientContact}>
+                            {row.paid_amt || 0}
+                          </div>
+                        </td>
+                        <td style={{ width: "10%" }} className="py-2 px-4">
+                          <div className={tableStyles.clientContact}>
+                            {row.total_amt || 0}
+                          </div>
+                        </td>
+                        <td style={{ width: "10%" }} className="py-2 px-4">
+                          <div
+                            className={`${tableStyles.clientContact} ${
+                              row.status.toLowerCase() === "paid"
+                                ? "text-green-600"
+                                : "text-red-600"
+                            }`}
+                          >
+                            {row.status}
+                          </div>
+                        </td>
+                        <td style={{ width: "10%" }} className="py-2 px-4">
+                          <div className={tableStyles.clientContact}>
+                            <Link href={`/invoiceDetails?id=${row.id}`}>
+                              <span className="text-blue-600 hover:text-blue-800">
+                                View Details
+                              </span>
+                            </Link>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
