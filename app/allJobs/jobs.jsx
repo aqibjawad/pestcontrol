@@ -1,4 +1,3 @@
-// AllJobs.js
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -11,14 +10,16 @@ const AllJobs = ({ isVisible }) => {
   const api = new APICall();
   const [fetchingData, setFetchingData] = useState(false);
   const [jobsList, setJobsList] = useState([]);
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [startDate, setStartDate] = useState(format(new Date(), "yyyy-MM-dd"));
+  const [endDate, setEndDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [filteredList, setFilteredList] = useState([]);
   const [filterType, setFilterType] = useState("all");
 
   const handleDateChange = (start, end) => {
     setStartDate(start);
     setEndDate(end);
+    // Trigger getAllQuotes immediately when dates change
+    getAllQuotes(start, end);
   };
 
   const handleFilter = (type) => {
@@ -31,13 +32,12 @@ const AllJobs = ({ isVisible }) => {
         filtered = jobsList.filter((job) => {
           const isAssigned = job.captain?.name;
           const jobDate = new Date(job.date);
+          const startDateTime = startDate ? new Date(startDate) : null;
+          const endDateTime = endDate ? new Date(endDate) : null;
 
-          // Check if dates are selected
-          if (startDate && endDate) {
+          if (startDateTime && endDateTime) {
             return (
-              isAssigned &&
-              jobDate >= new Date(startDate) &&
-              jobDate <= new Date(endDate)
+              isAssigned && jobDate >= startDateTime && jobDate <= endDateTime
             );
           }
           return isAssigned;
@@ -48,12 +48,14 @@ const AllJobs = ({ isVisible }) => {
         filtered = jobsList.filter((job) => {
           const isNotAssigned = !job.captain?.name;
           const jobDate = new Date(job.date);
+          const startDateTime = startDate ? new Date(startDate) : null;
+          const endDateTime = endDate ? new Date(endDate) : null;
 
-          if (startDate && endDate) {
+          if (startDateTime && endDateTime) {
             return (
               isNotAssigned &&
-              jobDate >= new Date(startDate) &&
-              jobDate <= new Date(endDate)
+              jobDate >= startDateTime &&
+              jobDate <= endDateTime
             );
           }
           return isNotAssigned;
@@ -77,24 +79,20 @@ const AllJobs = ({ isVisible }) => {
   };
 
   useEffect(() => {
-    getAllQuotes();
-  }, [startDate, endDate]);
+    getAllQuotes(startDate, endDate);
+  }, []); // Only run on mount
 
   useEffect(() => {
     handleFilter(filterType);
-  }, [jobsList]);
+  }, [jobsList, startDate, endDate, filterType]); // Added dependencies
 
-  const getAllQuotes = async () => {
+  const getAllQuotes = async (start = startDate, end = endDate) => {
     setFetchingData(true);
     const queryParams = [];
 
-    if (startDate && endDate) {
-      queryParams.push(`start_date=${startDate}`);
-      queryParams.push(`end_date=${endDate}`);
-    } else {
-      const currentDate = format(new Date(), "yyyy-MM-dd");
-      queryParams.push(`start_date=${currentDate}`);
-      queryParams.push(`end_date=${currentDate}`);
+    if (start && end) {
+      queryParams.push(`start_date=${start}`);
+      queryParams.push(`end_date=${end}`);
     }
 
     try {
@@ -121,11 +119,11 @@ const AllJobs = ({ isVisible }) => {
         isVisible={isVisible}
         jobsList={filteredList.length > 0 ? filteredList : jobsList}
         handleDateChange={handleDateChange}
-        handleFilter={handleFilter} // Changed from handleAssignmentFilter to handleFilter
+        handleFilter={handleFilter}
         currentFilter={filterType}
         isLoading={fetchingData}
-        startDate={startDate}     // Added this
-        endDate={endDate}  
+        startDate={startDate}
+        endDate={endDate}
       />
     </div>
   );

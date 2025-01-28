@@ -19,7 +19,7 @@ import { useRouter } from "next/navigation";
 export default function Login() {
   const apiCall = new APICall();
   const router = useRouter();
-  
+
   const [isChecking, setIsChecking] = useState(true);
   const [checked, setChecked] = useState(true);
   const [userEmail, setUserEmail] = useState("");
@@ -33,9 +33,9 @@ export default function Login() {
     const checkAuthStatus = async () => {
       const token = User.getAccessToken();
       const roleId = User.getUserRoleId();
+      const userId = User.getUserId();
 
-      if (token && roleId) {
-        // Redirect based on role if already authenticated
+      if (token && roleId && userId) {
         redirectBasedOnRole(roleId);
       } else {
         setIsChecking(false);
@@ -45,7 +45,7 @@ export default function Login() {
     checkAuthStatus();
   }, []);
 
-  const redirectBasedOnRole = (roleId: number) => {
+  const redirectBasedOnRole = (roleId) => {
     switch (roleId) {
       case 1:
         router.replace("/superadmin/dashboard");
@@ -54,14 +54,16 @@ export default function Login() {
         router.replace("/hr/hr");
         break;
       case 4:
-        router.replace("/jobs/");
+        // Using the actual userId from local storage
+        const storedUserId = User.getUserId();
+        router.replace(`/hr/employeeDetails/?id=${storedUserId}`);
         break;
       default:
         router.replace("/accountant");
     }
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (event) => {
     if (event.key === "Enter") {
       tryLogin();
     }
@@ -69,7 +71,13 @@ export default function Login() {
 
   const LoadingLogo = () => (
     <div className="flex flex-col items-center justify-center min-h-screen">
-      <img src="/logo.jpeg" height={100} width={100} alt="Logo" className="mb-4" />
+      <img
+        src="/logo.jpeg"
+        height={100}
+        width={100}
+        alt="Logo"
+        className="mb-4"
+      />
       <CircularProgress color="primary" />
     </div>
   );
@@ -78,14 +86,20 @@ export default function Login() {
     <div className={styles.loginBg}>
       <div className={styles.formContainer}>
         <div className="mb-6">
-          <img src="/logo-black.png" height={80} width={80} alt="Logo" className="mx-auto" />
+          <img
+            src="/logo-black.png"
+            height={80}
+            width={80}
+            alt="Logo"
+            className="mx-auto"
+          />
         </div>
         <div className={styles.loginTextContainer}>
           {"Sign in to your account"}
         </div>
         <div className={styles.subTitle}>
-          Please sign in to your account to access all features and
-          personalized content.
+          Please sign in to your account to access all features and personalized
+          content.
         </div>
         <div className={styles.userFormContainer}>
           <div className={styles.formTitle}>Enter Email Address</div>
@@ -129,9 +143,7 @@ export default function Login() {
                   />
                 </FormGroup>
               </div>
-              <div className={styles.forgotPassword}>
-                {"Forgot password?"}
-              </div>
+              <div className={styles.forgotPassword}>{"Forgot password?"}</div>
             </div>
           </div>
           <div onClick={() => tryLogin()} className={styles.loginBtn}>
@@ -178,7 +190,8 @@ export default function Login() {
       } else {
         const user = new User(response);
         const roleId = response.data.role_id;
-        redirectBasedOnRole(roleId);
+        const userId = response.data.user_id;
+        redirectBasedOnRole(roleId, userId);
       }
     } catch (error) {
       setErrorMsg("An unexpected error occurred. Please try again.");
@@ -188,7 +201,7 @@ export default function Login() {
     }
   };
 
-  function isValidEmail(email: string) {
+  function isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   }
@@ -207,9 +220,7 @@ export default function Login() {
               <img src="/loginImg.png" alt="Login Illustration" />
             </div>
           </div>
-          <div className="md:col-span-6 p-4">
-            {loginForm()}
-          </div>
+          <div className="md:col-span-6 p-4">{loginForm()}</div>
         </div>
       </div>
     </div>

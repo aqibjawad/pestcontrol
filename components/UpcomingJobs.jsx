@@ -153,13 +153,13 @@ const JobsTablePDF = ({ data, startDate, endDate }) => (
         <Image src="/logo.jpeg" style={pdfStyles.logo} />
         <Text style={pdfStyles.title}>Upcoming Jobs</Text>
         <Text style={pdfStyles.dateRange}>
-          {startDate && endDate
-            ? `Date Range: ${new Date(
-                startDate
-              ).toLocaleDateString()} to ${new Date(
-                endDate
-              ).toLocaleDateString()}`
-            : "All Dates"}
+          {startDate &&
+            endDate &&
+            `Date Range: ${new Date(
+              startDate
+            ).toLocaleDateString()} to ${new Date(
+              endDate
+            ).toLocaleDateString()}`}
         </Text>
       </View>
 

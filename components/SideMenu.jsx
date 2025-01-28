@@ -124,7 +124,6 @@ export default function SideMenu({ children }) {
       ];
     } else if (userRoleId === 4) {
       userPermissions = [
-        { name: "Jobs", url: "hr/jobs", icon: "/jobs.png" },
         {
           name: "Profile",
           url: `hr/employeeDetails?id=${userId}`,
