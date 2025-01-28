@@ -116,6 +116,22 @@ export default function SideMenu({ children }) {
       userPermissions = [
         { name: "Dashbaord", url: "hr/hr", icon: "/home.png" },
         { name: "Employees", url: `operations/viewEmployees`, icon: "/hr.png" },
+        { name: "Vehicles", url: `operations/vehciles`, icon: "/hr.png" },
+        {
+          name: "View Vehicle",
+          url: `account/viewAllVehciles`,
+          icon: "/hr.png",
+        },
+        {
+          name: "Vehicle Expense",
+          url: `account/addVehiclesExpense`,
+          icon: "/hr.png",
+        },
+        {
+          name: "Rented Properties",
+          url: `account/addVehiclesExpense`,
+          icon: "/hr.png",
+        },
         {
           name: "Profile",
           url: `hr/employeeDetails?id=${userId}`,
