@@ -72,7 +72,6 @@ const FirstSection = ({ userId, onAddressChange }) => {
           title="Address"
           value={address}
           onChange={(value) => setAddress(value)}
-          disabled
         />
       </Grid>
 
@@ -81,7 +80,6 @@ const FirstSection = ({ userId, onAddressChange }) => {
           title="Longitude"
           value={lang}
           onChange={(value) => setLongitude(value)}
-          disabled
         />
       </Grid>
 
@@ -90,7 +88,6 @@ const FirstSection = ({ userId, onAddressChange }) => {
           title="Latitude"
           value={lat}
           onChange={(value) => setLatitude(value)}
-          disabled
         />
       </Grid>
 
@@ -99,7 +96,6 @@ const FirstSection = ({ userId, onAddressChange }) => {
           title="Area"
           value={area}
           onChange={(value) => setArea(value)}
-          disabled
         />
       </Grid>
     </Grid>

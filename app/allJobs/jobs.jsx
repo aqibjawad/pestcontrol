@@ -25,15 +25,52 @@ const AllJobs = ({ isVisible }) => {
     setFilterType(type);
     let filtered;
 
+    // First filter by assignment type
     switch (type) {
       case "assigned":
-        filtered = jobsList.filter((job) => job.captain?.name);
+        filtered = jobsList.filter((job) => {
+          const isAssigned = job.captain?.name;
+          const jobDate = new Date(job.date);
+
+          // Check if dates are selected
+          if (startDate && endDate) {
+            return (
+              isAssigned &&
+              jobDate >= new Date(startDate) &&
+              jobDate <= new Date(endDate)
+            );
+          }
+          return isAssigned;
+        });
         break;
+
       case "not-assigned":
-        filtered = jobsList.filter((job) => !job.captain?.name);
+        filtered = jobsList.filter((job) => {
+          const isNotAssigned = !job.captain?.name;
+          const jobDate = new Date(job.date);
+
+          if (startDate && endDate) {
+            return (
+              isNotAssigned &&
+              jobDate >= new Date(startDate) &&
+              jobDate <= new Date(endDate)
+            );
+          }
+          return isNotAssigned;
+        });
         break;
+
       default:
-        filtered = jobsList;
+        if (startDate && endDate) {
+          filtered = jobsList.filter((job) => {
+            const jobDate = new Date(job.date);
+            return (
+              jobDate >= new Date(startDate) && jobDate <= new Date(endDate)
+            );
+          });
+        } else {
+          filtered = jobsList;
+        }
     }
 
     setFilteredList(filtered);
@@ -87,6 +124,8 @@ const AllJobs = ({ isVisible }) => {
         handleFilter={handleFilter} // Changed from handleAssignmentFilter to handleFilter
         currentFilter={filterType}
         isLoading={fetchingData}
+        startDate={startDate}     // Added this
+        endDate={endDate}  
       />
     </div>
   );

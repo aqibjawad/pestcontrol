@@ -28,9 +28,9 @@ const PersonalInformation = ({
 
   const roles = [
     { label: "HR-Manager", value: 2 },
-    { label: "Operations", value: 3 },
+    { label: "Sales-Manager", value: 3 },
     { label: "Office Staff", value: 8 },
-    { label: "Sales-Manger", value: 4 },
+    { label: "Operations", value: 4 },
     { label: "Accountant", value: 6 },
   ];
 
