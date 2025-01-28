@@ -5,7 +5,8 @@ import { useTermHook } from "./useTermHook";
 import Loading from "../../components/generic/Loading";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import GreenButton from "@/components/generic/GreenButton";
-import Dropdown from "@/components/generic/Dropdown";
+import { Editor } from "@tinymce/tinymce-react";
+
 import {
   Table,
   TableBody,
@@ -38,17 +39,27 @@ const Page = () => {
           <TableRow>
             <TableCell>Name</TableCell>
             <TableCell>Text</TableCell>
+            <TableCell>Created At</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          <TableRow sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
-            <TableCell component="th" scope="row">
-              <div>{brandsList?.name}</div>
-            </TableCell>
-            <TableCell component="th" scope="row">
-              <div>{brandsList?.text}</div>
-            </TableCell>
-          </TableRow>
+          {Array.isArray(brandsList) &&
+            brandsList.map((item) => (
+              <TableRow
+                key={item.id}
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell component="th" scope="row">
+                  <div>{item.name}</div>
+                </TableCell>
+                <TableCell>
+                  <div dangerouslySetInnerHTML={{ __html: item.text }} />
+                </TableCell>
+                <TableCell>
+                  <div>{new Date(item.created_at).toLocaleDateString()}</div>
+                </TableCell>
+              </TableRow>
+            ))}
         </TableBody>
       </Table>
     </TableContainer>
@@ -83,13 +94,42 @@ const Page = () => {
                 onChange={(value) => setName(value)}
               />
             </div>
- 
+
             <div className="mt-5">
-              <InputWithTitle
-                title="Enter Text"
-                placeholder="Enter Text"
+              <div className="text-sm font-medium mb-2">Enter Text</div>
+              <Editor
+                apiKey="gz7lzl53pn7erx245ajl5zprzl79zhcadvybrd9hzbil53sv"
                 value={text}
-                onChange={(value) => setText(value)}
+                onEditorChange={(content) => setText(content)}
+                init={{
+                  height: 300,
+                  menubar: false,
+                  plugins: [
+                    "advlist",
+                    "autolink",
+                    "lists",
+                    "link",
+                    "image",
+                    "charmap",
+                    "preview",
+                    "anchor",
+                    "searchreplace",
+                    "visualblocks",
+                    "code",
+                    "fullscreen",
+                    "insertdatetime",
+                    "media",
+                    "table",
+                    "code",
+                    "help",
+                    "wordcount",
+                  ],
+                  toolbar:
+                    "undo redo | blocks | " +
+                    "bold italic forecolor | alignleft aligncenter " +
+                    "alignright alignjustify | bullist numlist outdent indent | " +
+                    "removeformat | help",
+                }}
               />
             </div>
             <div className="mt-20">
