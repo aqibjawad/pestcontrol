@@ -19,6 +19,9 @@ export const useVendor = () => {
     acc_contact: "",
     acc_email: "",
     percentage: "",
+    tag: "",
+    vat: "",
+    opening_balance: "",
   });
   const [sendingData, setSendingData] = useState(false);
 
@@ -39,6 +42,9 @@ export const useVendor = () => {
       acc_contact: "",
       acc_email: "",
       percentage: "",
+      tag: "",
+      vat: "",
+      opening_balance: "",
     });
   };
 
@@ -68,6 +74,9 @@ export const useVendor = () => {
         mng_name: vendorData.mng_name,
         mng_email: vendorData.mng_email,
         mng_contact: vendorData.mng_contact,
+        tag: vendorData.tag,
+        vat: vendorData.vat,
+        opening_balance: vendorData.opening_balance,
       };
       setSendingData(true);
       try {
@@ -88,7 +97,7 @@ export const useVendor = () => {
           "error"
         );
       } finally {
-        setSendingData(false); // Ensure this is called whether successful or not
+        setSendingData(false); 
       }
     }
 

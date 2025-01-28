@@ -39,7 +39,6 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
   const jobTypes =
     quoteData?.quote_services?.map((service) => service.job_type) || [];
   const isCustomJob = jobTypes.includes("custom");
-  console.log(jobTypes);
 
   const api = new APICall();
 
@@ -125,7 +124,19 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
     if (quoteData?.quote_services?.[0]) {
       const total = quoteData.quote_services[0].no_of_services;
       const duration = quoteData.duration_in_months;
-      setTotalServices(total);
+
+      // Extract job types and check if "custom" exists
+      const jobTypes =
+        quoteData.quote_services.map((service) => service.job_type) || [];
+      const isCustomJob = jobTypes.includes("custom");
+
+      // Calculate services per month based on job type
+      const servicesPerMonth = isCustomJob
+        ? duration / total // For "custom" job type
+        : total / duration; // For other job types
+
+      // Save the calculated value in the state
+      setTotalServices(servicesPerMonth);
       setDurationMonths(duration);
     }
   }, [quoteData]);
@@ -535,11 +546,7 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
         <Button
           onClick={handleSubmit}
           color="primary"
-          disabled={
-            loading ||
-            (isCustomJob && selectedDates.length > 1) ||
-            selectedDates.length !== totalServices
-          }
+          disabled={loading || selectedDates.length !== totalServices}
         >
           {loading ? <CircularProgress size={24} /> : "Save Dates"}
         </Button>

@@ -188,7 +188,7 @@ const AllEmployees = () => {
         >
           <img
             className="w-24 h-24 rounded-full mx-auto"
-            src={employee?.employee?.profile_image || "/default-avatar.png"}
+            src={employee?.employee?.profile_image || "/Asset 1@2x.png"}
             alt={employee.name}
           />
           <div className="text-center mt-4">

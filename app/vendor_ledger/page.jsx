@@ -18,11 +18,8 @@ import {
 } from "@mui/material";
 
 import "jspdf-autotable";
-
 import { vendors } from "../../networkUtil/Constants";
-
 import APICall from "../../networkUtil/APICall";
-
 import withAuth from "@/utils/withAuth";
 
 const getIdFromUrl = (url) => {
@@ -41,44 +38,44 @@ const getIdFromUrl = (url) => {
 
 const Page = () => {
   const api = new APICall();
-
   const [id, setId] = useState(null);
-
   const [tableData, setTableData] = useState([]);
   const [rowData, setRowData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalData, setModalData] = useState(null);
-
   const tableRef = useRef(null);
 
   useEffect(() => {
     // Get the current URL
     const currentUrl = window.location.href;
-
     const urlId = getIdFromUrl(currentUrl);
     setId(urlId);
+  }, []);
 
-    if (urlId) {
-      fetchData(urlId);
-    }
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        // First try to get all vendors if no ID
+        if (!id) {
+          const response = await api.getDataWithToken(vendors);
+          setTableData(response.data);
+        } else {
+          // If ID exists, get specific vendor data
+          const response = await api.getDataWithToken(`${vendors}/${id}`);
+          setRowData(response.data);
+        }
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, [id]);
-
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const response = await api.getDataWithToken(`${vendors}/${id}`);
-
-      const data = response.data;
-
-      setRowData(data);
-    } catch (error) {
-      setError(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleViewDetails = (row) => {
     setModalData(row);
@@ -92,14 +89,52 @@ const Page = () => {
 
   const handlePrint = () => {
     // window.print();
-    // router.push("/supplier_invoice");
   };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString(); // Formats date as MM/DD/YYYY by default, adjust as needed
+    return date.toLocaleDateString();
   };
 
+  if (loading) {
+    return <Skeleton variant="rectangular" height={400} />;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+  // Render all vendors if no ID
+  if (!id) {
+    return (
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Supplier Name</TableCell>
+              <TableCell>Number</TableCell>
+              <TableCell>Balance</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {tableData.map((vendor) => (
+              <TableRow key={vendor.id}>
+                <TableCell>{vendor.supplier_name}</TableCell>
+                <TableCell>{vendor.number}</TableCell>
+                <TableCell>{vendor.balance}</TableCell>
+                <TableCell>
+                  <Button onClick={() => setId(vendor.id)}>View Details</Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    );
+  }
+
+  // Render specific vendor details if ID exists
   return (
     <div>
       <div className={styles.container}>
@@ -120,18 +155,24 @@ const Page = () => {
           <TableHead>
             <TableRow>
               <TableCell>Date</TableCell>
-              <TableCell> HSN </TableCell>
-              <TableCell> VAT </TableCell>
-              <TableCell> Naam / Jama </TableCell>
+              <TableCell>Firm Name</TableCell>
+              <TableCell>Contact</TableCell>
+              <TableCell>Manager Name</TableCell>
+              <TableCell>Manager Contact</TableCell>
+              <TableCell>Accountant Name</TableCell>
+              <TableCell>Accountant Contact</TableCell>
               <TableCell>Balance</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             <TableRow>
-              <TableCell>{formatDate(rowData?.created_at)}</TableCell>
-              <TableCell>{rowData?.hsn}</TableCell>
-              <TableCell>{rowData?.vat}</TableCell>
-              <TableCell>{rowData?.balance < 0 ? "Naam" : "Jama"}</TableCell>
+              <TableCell>{rowData?.created_at}</TableCell>
+              <TableCell>{rowData?.firm_name}</TableCell>
+              <TableCell>{rowData?.contact}</TableCell>
+              <TableCell>{rowData?.mng_name}</TableCell>
+              <TableCell>{rowData?.mng_contact}</TableCell>
+              <TableCell>{rowData?.acc_contact}</TableCell>
+              <TableCell>{rowData?.acc_contact}</TableCell>
               <TableCell>{rowData?.opening_balance}</TableCell>
             </TableRow>
           </TableBody>
@@ -163,16 +204,6 @@ const Page = () => {
           {modalData && (
             <TableContainer component={Paper} sx={{ mt: 2 }}>
               <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>
-                      <strong>Field</strong>
-                    </TableCell>
-                    <TableCell>
-                      <strong>Value</strong>
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
                 <TableBody>
                   <TableRow>
                     <TableCell>

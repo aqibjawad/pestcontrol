@@ -64,8 +64,8 @@ const Page = () => {
 
         <div className="mt-5">
           <InputWithTitle
-            value={vendorData.email}
-            onChange={(value) => handleInputChange("email", value)}
+            value={vendorData.tag}
+            onChange={(value) => handleInputChange("tag", value)}
             title={"Add Tag"}
             placeholder={"Add Tag"}
           />
@@ -73,19 +73,19 @@ const Page = () => {
 
         <div className="mt-5">
           <InputWithTitle
-            value={vendorData.email}
-            onChange={(value) => handleInputChange("email", value)}
-            title={"Vat "}
-            placeholder={"Vat "}
+            value={vendorData.vat}
+            onChange={(value) => handleInputChange("vat", value)}
+            title={"Vat"}
+            placeholder={"Vat"}
           />
         </div>
 
         <div className="mt-5">
           <InputWithTitle
-            value={vendorData.email}
-            onChange={(value) => handleInputChange("email", value)}
-            title={"Opening Balance "}
-            placeholder={"Opening Balance "}
+            value={vendorData.opening_balance}
+            onChange={(value) => handleInputChange("opening_balance", value)}
+            title={"Opening Balance"}
+            placeholder={"Opening Balance"}
           />
         </div>
       </div>

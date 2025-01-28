@@ -104,7 +104,7 @@ const Page = () => {
         Local Calls Only: The assigned SIM card is intended strictly for local
         business-related calls. International calls are not permitted. Any
         unauthorized international calls made using the assigned SIM card will
-        result in the charges being deducted directly from the employee's
+        result in the charges being deducted directly from the employee
         salary.
       </div>
 

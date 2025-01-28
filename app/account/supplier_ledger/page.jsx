@@ -135,23 +135,12 @@ const Page = () => {
   const sortedData = loading ? [] : sortData(rowData);
 
   console.log(sortedData);
-  
 
   return (
     <div>
       <div className={styles.container}>
         <div className={styles.leftSection}>{supplierName}</div>
         <div>
-          <div>
-            <Button
-              className={styles.hideOnPrint}
-              variant="contained"
-              color="primary"
-              onClick={handlePrint}
-            >
-              Generate PDF
-            </Button>
-          </div>
           <div className="mt-2">
             <Button
               className={styles.hideOnPrint}
@@ -189,7 +178,6 @@ const Page = () => {
                   Description
                 </TableSortLabel>
               </TableCell>
-              <TableCell>Invoice</TableCell>
               <TableCell>
                 <TableSortLabel
                   active={orderBy === "cr_amt"}
@@ -247,7 +235,6 @@ const Page = () => {
                       {format(new Date(row.updated_at), "yyyy-MM-dd")}
                     </TableCell>
                     <TableCell>{row.description}</TableCell>
-                    <TableCell>-</TableCell>
                     <TableCell>{row.cr_amt}</TableCell>
                     <TableCell>{row.dr_amt}</TableCell>
                     <TableCell>{row.cash_balance}</TableCell>

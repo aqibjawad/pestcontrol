@@ -54,7 +54,7 @@ const FiredEmployees = () => {
 
         if (response.status === "success") {
           await Swal.fire({
-            title: "Employee Fired",
+            title: "Employee Reactive!",
             text: `Employee has been Reactive again`,
             icon: "success",
             timer: 2000,

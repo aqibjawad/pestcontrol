@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { useExpenseCategory } from "./useExpenseHook"; // Adjust the import path as needed
+import { useExpenseCategory } from "./useExpenseHook";
 import Loading from "../../../components/generic/Loading";
 import styles from "../../../styles/account/addBrandStyles.module.css";
 import { Delete, Edit, Check, Close } from "@mui/icons-material";
@@ -31,8 +31,10 @@ const Page = () => {
     cancelEditing,
   } = useExpenseCategory();
 
-  const handleEditClick = (id, number) => {
-    startEditing(id, number);
+  // Updated edit handler to set the expense category value
+  const handleEditClick = (id, category) => {
+    startEditing(id, category);
+    setExpenseCategory(category); // Set the current category name in the input
   };
 
   const handleUpdateClick = () => {
@@ -41,6 +43,12 @@ const Page = () => {
 
   const handleCancelClick = () => {
     cancelEditing();
+    setExpenseCategory(""); // Clear the input field when canceling
+  };
+
+  // Handle input change for inline editing
+  const handleInlineEdit = (e) => {
+    setExpenseCategory(e.target.value);
   };
 
   const viewList = () => (
@@ -62,8 +70,9 @@ const Page = () => {
                   <input
                     type="text"
                     value={expense_category}
-                    onChange={(e) => setExpenseCategory(e.target.value)}
+                    onChange={handleInlineEdit}
                     className={styles.editInput}
+                    autoFocus // Automatically focus the input when editing starts
                   />
                 ) : (
                   item.expense_category
@@ -92,13 +101,6 @@ const Page = () => {
                       onClick={() =>
                         handleEditClick(item.id, item.expense_category)
                       }
-                    />
-                    <Delete
-                      sx={{
-                        color: "red",
-                        marginLeft: "10px",
-                        cursor: "pointer",
-                      }}
                     />
                   </>
                 )}
@@ -136,7 +138,11 @@ const Page = () => {
                   ? () => updateExpense(editingExpenseId, expense_category)
                   : addExpense
               }
-              title={editingExpenseId ? "Update Expense Category" : "Add Expense Category"}
+              title={
+                editingExpenseId
+                  ? "Update Expense Category"
+                  : "Add Expense Category"
+              }
             />
           </div>
         </div>

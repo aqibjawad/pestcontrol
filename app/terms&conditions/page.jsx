@@ -83,7 +83,7 @@ const Page = () => {
                 onChange={(value) => setName(value)}
               />
             </div>
-
+ 
             <div className="mt-5">
               <InputWithTitle
                 title="Enter Text"

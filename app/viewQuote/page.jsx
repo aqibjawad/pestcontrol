@@ -257,7 +257,7 @@ const Quotation = () => {
                   onClick={() => handleRequestSort("sub_total")}
                   sx={sortLabelStyles}
                 >
-                  Sub Total
+                  Grand Total
                 </TableSortLabel>
               </TableCell>
               <TableCell className="contractHeader">Actions</TableCell>
@@ -316,7 +316,7 @@ const Quotation = () => {
                     )}
                   </TableCell>
                   <TableCell className="contractTable">
-                    {row?.sub_total || 0}
+                    {row?.grand_total || 0}
                   </TableCell>
                   <TableCell className="contractTable">
                     <div className="flex space-x-2">
@@ -353,7 +353,7 @@ const Quotation = () => {
                     {row?.contract_cancel_reason ? (
                       <div className="text-red-600">Contract Cancel</div>
                     ) : row?.is_contracted === 0 ? (
-                      <Link href={`/quotation?id=${row?.id}`}>Edit</Link>
+                      <Link href={`/quoteEdit?id=${row?.id}`}>Edit</Link>
                     ) : (
                       <span className="text-gray-400 cursor-not-allowed">
                         Edit
