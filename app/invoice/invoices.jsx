@@ -663,7 +663,7 @@ const Invoices = ({ isVisible }) => {
                 <p>End Date: {urlEndDate || "Not Set"}</p>
               </div>
             ) : (
-              <div className="text-white font-semibold text-base h-11 w-52 flex justify-center items-center px-4 py-3 rounded-lg">
+              <div className=" bg-green-600 text-white font-semibold text-base h-11 w-52 flex justify-center items-center px-4 py-3 rounded-lg">
                 <DateFilters2 onDateChange={handleDateChange} />
               </div>
             )}
