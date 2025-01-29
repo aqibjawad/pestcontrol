@@ -12,11 +12,14 @@ import {
   expense_category,
   adminn,
   payments,
+  bank,
 } from "../../networkUtil/Constants";
 import APICall from "../../networkUtil/APICall";
 import withAuth from "@/utils/withAuth";
 
 import DateFilters2 from "@/components/generic/DateFilters2";
+
+import Link from "next/link";
 
 const FinancialDashboard = () => {
   const api = new APICall();
@@ -41,29 +44,24 @@ const FinancialDashboard = () => {
 
   const [selectedDate, setSelectedDate] = useState(new Date());
 
-  // New function to format start and end dates
   const formatStartEndDates = (date) => {
     const year = date.getFullYear();
-    const month = date.getMonth(); // 0-based month
+    const month = date.getMonth();
 
-    // Create start date (first day of the selected month)
     const startDate = new Date(year, month, 1);
 
-    // Create end date (last day of the selected month)
     const endDate = new Date(year, month + 1, 0);
 
     return {
-      startDate: startDate.toISOString().slice(0, 10), // YYYY-MM-DD
+      startDate: startDate.toISOString().slice(0, 10),
       endDate: endDate.toISOString().slice(0, 10),
     };
   };
 
-  // Fetch all financial data based on selected month
   const fetchFinancialData = async (startDate, endDate) => {
     setFetchingData(true);
 
     try {
-      // Parallel API calls with the received dates
       await Promise.all([
         getFinancial(startDate, endDate),
         getVehiclesExpense(startDate, endDate),
@@ -89,7 +87,7 @@ const FinancialDashboard = () => {
       // Extract year and month from startDate
       const date = new Date(startDate);
       const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0"); 
+      const month = String(date.getMonth() + 1).padStart(2, "0");
 
       const monthParam = `${year}-${month}`;
 
@@ -172,11 +170,7 @@ const FinancialDashboard = () => {
 
   const getBank = async (startDate, endDate) => {
     try {
-      const response = await api.getDataWithToken(
-        `${dashboard}/bank_collection?start_date=${startDate}&end_date=${endDate}`
-      );
-      console.log(response);
-
+      const response = await api.getDataWithToken(`${bank}`);
       setBankList(response.data);
     } catch (error) {
       console.error(error.message);
@@ -246,7 +240,7 @@ const FinancialDashboard = () => {
     { category: "Bank", amount: bankList?.total_cheque_transfer },
     { category: "Unapproved Payments", amount: paymentList },
   ];
-  
+
   const calculateDetailTotal = () => {
     return detailData.reduce(
       (sum, item) => sum + parseFloat(item.amount || 0),
@@ -256,8 +250,8 @@ const FinancialDashboard = () => {
 
   const overAllData = [
     { category: "Cash", amount: allAdminFinance?.cash_balance },
-    { category: "Bank", amount: allAdminFinance?.bank_balance },
     { category: "POS", amount: allAdminFinance?.pos_collection },
+    { category: "Bank", amount: allAdminFinance?.bank_balance },
   ];
 
   const calculateOverAllTotal = () => {
@@ -266,7 +260,6 @@ const FinancialDashboard = () => {
       0
     );
   };
-
 
   const Card = ({ title, children }) => (
     <div className="bg-white rounded-lg shadow-md p-4">
@@ -343,26 +336,58 @@ const FinancialDashboard = () => {
 
           {/* Detail Report */}
           <Card title="Detail Report of the Month">
-            {detailData.map((item, index) => (
-              <ExpenseItem
-                key={index}
-                category={item.category}
-                amount={item.amount}
-              />
-            ))}
-            <TotalRow amount={calculateDetailTotal()} />
+            <div>
+              {detailData.map((item, index) => (
+                <ExpenseItem
+                  key={index}
+                  category={item.category}
+                  amount={item.amount}
+                />
+              ))}
+              <TotalRow amount={calculateDetailTotal()} />
+            </div>
           </Card>
 
           {/* Overall Report */}
           <Card title="Overall Report">
-            {overAllData.map((item, index) => (
-              <ExpenseItem
-                key={index}
-                category={item.category}
-                amount={item.amount}
-              />
-            ))}
-            <TotalRow amount={calculateOverAllTotal()} />
+            <div>
+              {overAllData.map((item, index) => (
+                <ExpenseItem
+                  key={index}
+                  category={item.category}
+                  amount={item.amount}
+                />
+              ))}
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="p-2 text-left">Bank Name</th>
+                      <th className="p-2 text-right">Balance</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {bankList?.map((bank) => (
+                      <tr key={bank.id} className="border-b hover:bg-gray-50">
+                        <td className="p-2">
+                          <Link
+                            href={`/operations/bankInfo?id=${bank.id}`}
+                            className="text-blue-500"
+                          >
+                            {bank.bank_name}
+                          </Link>
+                        </td>
+                        <td className="p-2 text-right">
+                          {parseFloat(bank.balance).toFixed(2)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <TotalRow amount={calculateOverAllTotal()} />
+            </div>
           </Card>
         </div>
       )}

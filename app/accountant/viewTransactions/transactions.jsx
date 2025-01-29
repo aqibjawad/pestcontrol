@@ -188,6 +188,19 @@ const Transactions = () => {
   };
 
   const listServiceTable = () => {
+    // Calculate total amount
+    const totalAmount = quoteList.reduce((sum, quote) => {
+      const latestEntry = getLatestEntry(quote.ledger_entries);
+      if (!latestEntry) return sum;
+
+      const amount =
+        latestEntry.entry_type === "cr"
+          ? latestEntry.cr_amt
+          : latestEntry.dr_amt;
+
+      return sum + parseFloat(amount || 0);
+    }, 0);
+
     return (
       <>
         {/* Export Buttons */}
@@ -280,6 +293,19 @@ const Transactions = () => {
                     </TableRow>
                   );
                 })
+              )}
+
+              {/* Total Amount Row */}
+              {!fetchingData && (
+                <TableRow>
+                  <TableCell colSpan={3} style={{ fontWeight: "bold" }}>
+                    Total Amount:
+                  </TableCell>
+                  <TableCell style={{ fontWeight: "bold" }}>
+                    {totalAmount.toFixed(2)}
+                  </TableCell>
+                  <TableCell colSpan={2}></TableCell>
+                </TableRow>
               )}
             </TableBody>
           </Table>

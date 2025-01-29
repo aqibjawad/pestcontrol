@@ -102,7 +102,11 @@ const Page = () => {
           <>
             <Grid item xs={12} sm={6} md={4}>
               <img
-                style={{ width: "100px", height: "100px", objectFit:"contain" }}
+                style={{
+                  width: "100px",
+                  height: "100px",
+                  objectFit: "contain",
+                }}
                 src={stock?.product?.product_picture}
                 alt={stock?.product?.product_name}
               />
@@ -119,7 +123,11 @@ const Page = () => {
             <Grid item xs={12} sm={6} md={4}></Grid>
             <Grid item xs={12} sm={6} md={4}>
               <img
-                style={{ width: "100px", height: "100px", objectFit:"contain" }}
+                style={{
+                  width: "100px",
+                  height: "100px",
+                  objectFit: "contain",
+                }}
                 src={stock?.user?.employee?.profile_image}
                 alt={stock?.user?.name}
               />
@@ -155,11 +163,10 @@ const Page = () => {
               <TableRow>
                 <TableCell>Sr No</TableCell>
                 <TableCell>Client Name</TableCell>
+                <TableCell>Firm Name</TableCell>
                 <TableCell>Date</TableCell>
                 <TableCell>Dose</TableCell>
-                <TableCell>Price</TableCell>
                 <TableCell>Quantity</TableCell>
-                <TableCell>Total</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -167,11 +174,10 @@ const Page = () => {
                 <TableRow key={index}>
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{row?.job?.user?.name}</TableCell>
+                  <TableCell>{row?.job?.user?.client?.firm_name}</TableCell>
                   <TableCell>{formatDate(row?.updated_at)}</TableCell>
                   <TableCell>{row.dose}</TableCell>
-                  <TableCell>{row.price}</TableCell>
                   <TableCell>{row.qty}</TableCell>
-                  <TableCell>{row.total}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

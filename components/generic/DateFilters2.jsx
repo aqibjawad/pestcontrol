@@ -41,13 +41,6 @@ const DateFilters2 = ({ onDateChange }) => {
         setAnchorEl(null); // Close popover for non-custom options
         break;
 
-      case "This Week":
-        start = startOfWeek(today, { weekStartsOn: 1 });
-        end = endOfWeek(today, { weekStartsOn: 1 });
-        setCustomRange(false);
-        setAnchorEl(null); // Close popover for non-custom options
-        break;
-
       case "Custom Range":
         setCustomRange(true);
         start = null;
