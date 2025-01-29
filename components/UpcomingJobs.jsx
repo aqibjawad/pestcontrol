@@ -4,71 +4,13 @@ import styles from "../styles/upcomingJobsStyles.module.css";
 import SearchInput from "../components/generic/SearchInput";
 import GreenButton from "../components/generic/GreenButton";
 import { useRouter, usePathname } from "next/navigation";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import Skeleton from "@mui/material/Skeleton";
 import DateFilters from "./generic/DateFilters";
 import APICall from "../networkUtil/APICall";
 import { job } from "../networkUtil/Constants";
-import {
-  PDFDownloadLink,
-  Document,
-  Page,
-  View,
-  Text,
-  StyleSheet,
-  Image,
-} from "@react-pdf/renderer";
 import * as XLSX from "xlsx";
-
-// PDF styles
-const pdfStyles = StyleSheet.create({
-  page: { padding: 30, fontSize: 10 },
-  table: {
-    display: "table",
-    width: "auto",
-    borderStyle: "solid",
-    borderWidth: 1,
-    borderColor: "#000",
-  },
-  tableRow: {
-    flexDirection: "row",
-    borderBottomWidth: 1,
-    borderBottomColor: "#000",
-    minHeight: 30,
-    alignItems: "center",
-  },
-  tableCell: {
-    padding: 5,
-    borderRightWidth: 1,
-    borderRightColor: "#000",
-    flex: 1,
-  },
-  tableHeader: {
-    backgroundColor: "#f0f0f0",
-    fontWeight: "bold",
-  },
-  header: {
-    marginBottom: 20,
-    alignItems: "center",
-  },
-  logo: {
-    width: 100,
-    height: 50,
-    marginBottom: 10,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  dateRange: {
-    fontSize: 12,
-    marginTop: 5,
-    textAlign: "center",
-    color: "#666666",
-  },
-});
 
 // Helper functions
 const getStatusText = (status) => {
@@ -145,84 +87,16 @@ const downloadExcel = (data) => {
   XLSX.writeFile(wb, "jobs_data.xlsx");
 };
 
-// PDF Document Component
-const JobsTablePDF = ({ data, startDate, endDate }) => (
-  <Document>
-    <Page size="A4" style={pdfStyles.page}>
-      <View style={pdfStyles.header}>
-        <Image src="/logo.jpeg" style={pdfStyles.logo} />
-        <Text style={pdfStyles.title}>Upcoming Jobs</Text>
-        <Text style={pdfStyles.dateRange}>
-          {startDate &&
-            endDate &&
-            `Date Range: ${new Date(
-              startDate
-            ).toLocaleDateString()} to ${new Date(
-              endDate
-            ).toLocaleDateString()}`}
-        </Text>
-      </View>
-
-      <View style={pdfStyles.table}>
-        <View style={[pdfStyles.tableRow, pdfStyles.tableHeader]}>
-          {[
-            "Sr No",
-            "Client Name",
-            "Firm Name",
-            "Job Name",
-            "Status",
-            "Job Schedule",
-            "Team Captain",
-          ].map((header) => (
-            <View key={header} style={pdfStyles.tableCell}>
-              <Text>{header}</Text>
-            </View>
-          ))}
-        </View>
-        {data.map((row) => (
-          <View key={row.id} style={pdfStyles.tableRow}>
-            <View style={pdfStyles.tableCell}>
-              <Text>{row.id}</Text>
-            </View>
-            <View style={pdfStyles.tableCell}>
-              <Text>{`${row.job_title}\n${new Date(
-                row.job_date
-              ).toLocaleDateString()}\n${
-                row?.client_address?.area || "No Area"
-              }`}</Text>
-            </View>
-            <View style={pdfStyles.tableCell}>
-              <Text>{row?.user?.client?.firm_name}</Text>
-            </View>
-            <View style={pdfStyles.tableCell}>
-              <Text>{row.job_title}</Text>
-            </View>
-            <View style={pdfStyles.tableCell}>
-              <Text>{getStatusText(row.is_completed)}</Text>
-            </View>
-            <View style={pdfStyles.tableCell}>
-              <Text>
-                {row.reschedule_dates?.length > 1
-                  ? `Reschedule\n${formatDateTime(
-                      row.reschedule_dates[row.reschedule_dates.length - 1]
-                        .job_date
-                    )}`
-                  : `Regular${
-                      row.reschedule_dates?.[0]?.job_date
-                        ? "\n" +
-                          formatDateTime(row.reschedule_dates[0].job_date)
-                        : ""
-                    }`}
-              </Text>
-            </View>
-            <View style={pdfStyles.tableCell}>
-              <Text>{row?.captain?.name || "Not Assigned"}</Text>
-            </View>
-          </View>
-        ))}
-      </View>
-    </Page>
-  </Document>
+const PDFDownloadButton = dynamic(
+  () => import("./PDFComponents").then((mod) => mod.PDFDownloadButton),
+  {
+    ssr: false,
+    loading: () => (
+      <button className="py-2 px-4 rounded text-white ml-3 bg-green-500">
+        Loading PDF...
+      </button>
+    ),
+  }
 );
 
 const UpcomingJobs = ({
@@ -421,19 +295,11 @@ const UpcomingJobs = ({
 
   const renderFilterButtons = () => (
     <>
-      <PDFDownloadLink
-        document={
-          <JobsTablePDF
-            data={filteredJobs}
-            startDate={startDate}
-            endDate={endDate}
-          />
-        }
-        fileName="jobs-table.pdf"
-        className="py-2 px-4 rounded text-white ml-3 bg-green-500 hover:bg-green-600"
-      >
-        {({ loading }) => (loading ? "Generating PDF..." : "PDF")}
-      </PDFDownloadLink>
+      <PDFDownloadButton
+        filteredJobs={filteredJobs}
+        startDate={startDate}
+        endDate={endDate}
+      />
       <button
         style={{ fontSize: "12px" }}
         onClick={() => downloadExcel(filteredJobs)}

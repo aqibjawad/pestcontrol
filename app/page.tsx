@@ -45,7 +45,7 @@ export default function Login() {
     checkAuthStatus();
   }, []);
 
-  const redirectBasedOnRole = (roleId) => {
+  const redirectBasedOnRole = (roleId: number) => {
     switch (roleId) {
       case 1:
         router.replace("/superadmin/dashboard");
@@ -66,7 +66,7 @@ export default function Login() {
     }
   };
 
-  const handleKeyDown = (event) => {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       tryLogin();
     }
@@ -194,7 +194,7 @@ export default function Login() {
         const user = new User(response);
         const roleId = response.data.role_id;
         const userId = response.data.user_id;
-        redirectBasedOnRole(roleId, userId);
+        redirectBasedOnRole(roleId);
       }
     } catch (error) {
       setErrorMsg("An unexpected error occurred. Please try again.");
@@ -204,7 +204,7 @@ export default function Login() {
     }
   };
 
-  function isValidEmail(email) {
+  function isValidEmail(email: string) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   }
