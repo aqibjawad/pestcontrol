@@ -55,7 +55,7 @@ const Vehciles = () => {
 
   // Calculate the total sum of the total_amount field
   const calculateTotalAmount = () => {
-    return expenseList.reduce(
+    return expenseList?.reduce(
       (sum, row) => sum + (parseFloat(row.total_amount) || 0),
       0
     );

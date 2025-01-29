@@ -237,7 +237,7 @@ const Transactions = () => {
                 <TableCell>Date</TableCell>
                 <TableCell>Client Name</TableCell>
                 <TableCell>Amount</TableCell>
-                <TableCell>Reference</TableCell>
+                <TableCell>Recieved By</TableCell>
                 <TableCell>View Details</TableCell>
               </TableRow>
             </TableHead>

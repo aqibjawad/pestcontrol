@@ -236,6 +236,14 @@ export default function SideMenu({ children }) {
           icon: "/clients.png",
         },
       ];
+    } else if (userRoleId === 7) {
+      userPermissions = [
+        {
+          name: "Dashboard",
+          url: "recovery/dashboard?id=${userId}",
+          icon: "/home.png",
+        },
+      ];
     }
 
     userPermissions.push({

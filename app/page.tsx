@@ -54,9 +54,12 @@ export default function Login() {
         router.replace("/hr/hr");
         break;
       case 4:
-        // Using the actual userId from local storage
         const storedUserId = User.getUserId();
         router.replace(`/hr/employeeDetails/?id=${storedUserId}`);
+        break;
+      case 7:
+        const storedUserIdRecovery = User.getUserId();
+        router.replace(`/recovery/dashboard/?id=${storedUserIdRecovery}`);
         break;
       default:
         router.replace("/accountant");
