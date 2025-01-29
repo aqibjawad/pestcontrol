@@ -24,6 +24,10 @@ const ListServiceTable = ({
   selectedReference,
   isVisible,
   setReferenceOptions,
+  setAreaOptions,
+  setFirmNameOptions,
+  selectedArea,
+  selectedFirmName,
 }) => {
   const api = new APICall();
   const [fetchingData, setFetchingData] = useState(false);
@@ -34,6 +38,8 @@ const ListServiceTable = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState(null);
   const [salesManagers, setSalesManagers] = useState([]);
+  const [areaList, setAreaList] = useState([]);
+  const [firmNameList, setFirmNameList] = useState([]);
 
   const handleAssignClick = (invoiceId) => {
     setSelectedInvoiceId(invoiceId);
@@ -157,39 +163,63 @@ const ListServiceTable = ({
     }
 
     try {
-      if (queryParams.length > 0) {
-        const response = await api.getDataWithToken(
-          `${serviceInvoice}?${queryParams.join("&")}`
+      const response = await api.getDataWithToken(
+        `${serviceInvoice}?${queryParams.join("&")}`
+      );
+
+      // Collect unique values for dropdowns
+      const allReferences = new Set();
+      const allAreas = new Set();
+      const allFirmNames = new Set();
+
+      response.data.forEach((invoice) => {
+        const referenceName = invoice?.user?.client?.referencable?.name;
+        if (referenceName) allReferences.add(referenceName);
+
+        const area = invoice?.address?.area;
+        if (area) allAreas.add(area);
+
+        const firmName = invoice?.user?.client?.firm_name;
+        if (firmName) allFirmNames.add(firmName);
+      });
+
+      // Update dropdown options
+      setReferenceOptions(Array.from(allReferences));
+      setAreaOptions(Array.from(allAreas));
+      setFirmNameOptions(Array.from(allFirmNames));
+
+      // Apply filters
+      let filteredData = response.data;
+
+      // Apply each filter independently
+      if (selectedReference && selectedReference !== "all") {
+        filteredData = filteredData.filter(
+          (invoice) =>
+            invoice?.user?.client?.referencable?.name === selectedReference
         );
-
-        let filteredData = response.data;
-
-        if (statusFilter !== "all") {
-          filteredData = filteredData.filter(
-            (invoice) => invoice.status.toLowerCase() === statusFilter
-          );
-        }
-
-        if (selectedReference !== "all") {
-          filteredData = filteredData.filter(
-            (invoice) =>
-              invoice?.user?.client?.referencable?.name === selectedReference
-          );
-        }
-
-        const references = new Set(
-          filteredData
-            .map((invoice) => invoice?.user?.client?.referencable?.name)
-            .filter((name) => name)
-        );
-
-        setReferenceList([...references]);
-        if (setReferenceOptions) {
-          setReferenceOptions([...references]);
-        }
-        setQuoteList(filteredData);
-        updateTotalAmount(filteredData);
       }
+
+      if (selectedArea && selectedArea !== "all") {
+        filteredData = filteredData.filter(
+          (invoice) => invoice?.address?.area === selectedArea
+        );
+      }
+
+      if (selectedFirmName && selectedFirmName !== "all") {
+        filteredData = filteredData.filter(
+          (invoice) => invoice?.user?.client?.firm_name === selectedFirmName
+        );
+      }
+
+      if (statusFilter && statusFilter !== "all") {
+        filteredData = filteredData.filter(
+          (invoice) =>
+            invoice.status.toLowerCase() === statusFilter.toLowerCase()
+        );
+      }
+
+      setQuoteList(filteredData);
+      updateTotalAmount(filteredData);
     } catch (error) {
       console.error("Error fetching quotes:", error);
       setQuoteList([]);
@@ -219,7 +249,14 @@ const ListServiceTable = ({
 
   useEffect(() => {
     getAllQuotes();
-  }, [startDate, endDate, statusFilter, selectedReference, isVisible]);
+  }, [
+    startDate,
+    endDate,
+    statusFilter,
+    selectedReference,
+    selectedArea,
+    selectedFirmName,
+  ]);
 
   return (
     <div>
@@ -503,6 +540,10 @@ const Invoices = ({ isVisible }) => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedReference, setSelectedReference] = useState("all");
   const [referenceOptions, setReferenceOptions] = useState([]);
+  const [selectedArea, setSelectedArea] = useState("all");
+  const [selectedFirmName, setSelectedFirmName] = useState("all");
+  const [areaOptions, setAreaOptions] = useState([]);
+  const [firmNameOptions, setFirmNameOptions] = useState([]);
 
   useEffect(() => {
     if (urlStartDate && urlEndDate) {
@@ -572,7 +613,6 @@ const Invoices = ({ isVisible }) => {
           </div>
           <div className="flex gap-4">
             <div className="flex items-center gap-2">
-              <label className="text-gray-700">Search By Reference:</label>
               <select
                 value={selectedReference}
                 onChange={(e) => setSelectedReference(e.target.value)}
@@ -587,13 +627,43 @@ const Invoices = ({ isVisible }) => {
               </select>
             </div>
 
+            <div className="flex items-center gap-2">
+              <select
+                value={selectedArea}
+                onChange={(e) => setSelectedArea(e.target.value)}
+                className="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">All Areas</option>
+                {areaOptions.map((area, index) => (
+                  <option key={index} value={area}>
+                    {area}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <select
+                value={selectedFirmName}
+                onChange={(e) => setSelectedFirmName(e.target.value)}
+                className="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">All Firms</option>
+                {firmNameOptions.map((firmName, index) => (
+                  <option key={index} value={firmName}>
+                    {firmName}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {urlStartDate ? (
               <div>
                 <p>Start Date: {urlStartDate}</p>
                 <p>End Date: {urlEndDate || "Not Set"}</p>
               </div>
             ) : (
-              <div className="bg-green-600 text-white font-semibold text-base h-11 w-52 flex justify-center items-center px-4 py-3 rounded-lg">
+              <div className="text-white font-semibold text-base h-11 w-52 flex justify-center items-center px-4 py-3 rounded-lg">
                 <DateFilters2 onDateChange={handleDateChange} />
               </div>
             )}
@@ -612,6 +682,8 @@ const Invoices = ({ isVisible }) => {
             selectedReference={selectedReference}
             isVisible={isVisible}
             setReferenceOptions={setReferenceOptions}
+            setAreaOptions={setAreaOptions}
+            setFirmNameOptions={setFirmNameOptions}
           />
         </div>
       </div>
