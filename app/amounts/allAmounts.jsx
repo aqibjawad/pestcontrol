@@ -44,21 +44,6 @@ const ListServiceTable = ({
       queryParams.push(`start_date=${startDate}`);
       queryParams.push(`end_date=${endDate}`);
     } else {
-      // const currentDate = new Date();
-      // const firstDateOfMonth = new Date(
-      //   currentDate.getFullYear(),
-      //   currentDate.getMonth(),
-      //   1
-      // ); // 1st of the current month
-      // const lastDateOfMonth = new Date(
-      //   currentDate.getFullYear(),
-      //   currentDate.getMonth() + 1,
-      //   0
-      // ); // Last day of the current month
-      // const formattedFirstDateOfMonth = format(firstDateOfMonth, "yyyy-MM-dd");
-      // const formattedLastDateOfMonth = format(lastDateOfMonth, "yyyy-MM-dd");
-      // queryParams.push(`start_date=${formattedFirstDateOfMonth}`);
-      // queryParams.push(`end_date=${formattedLastDateOfMonth}`);
     }
 
     try {

@@ -28,6 +28,7 @@ const ListServiceTable = ({
   setFirmNameOptions,
   selectedArea,
   selectedFirmName,
+  searchQuery,
 }) => {
   const api = new APICall();
   const [fetchingData, setFetchingData] = useState(false);
@@ -167,31 +168,22 @@ const ListServiceTable = ({
         `${serviceInvoice}?${queryParams.join("&")}`
       );
 
-      // Collect unique values for dropdowns
+      // Collect unique values for reference dropdown
       const allReferences = new Set();
-      const allAreas = new Set();
-      const allFirmNames = new Set();
 
       response.data.forEach((invoice) => {
         const referenceName = invoice?.user?.client?.referencable?.name;
         if (referenceName) allReferences.add(referenceName);
-
-        const area = invoice?.address?.area;
-        if (area) allAreas.add(area);
-
-        const firmName = invoice?.user?.client?.firm_name;
-        if (firmName) allFirmNames.add(firmName);
       });
 
-      // Update dropdown options
+      // Update reference options
       setReferenceOptions(Array.from(allReferences));
-      setAreaOptions(Array.from(allAreas));
-      setFirmNameOptions(Array.from(allFirmNames));
 
-      // Apply filters
-      let filteredData = response.data;
+      let filteredData = [...response.data];
 
-      // Apply each filter independently
+      // Apply filters independently
+
+      // Reference filter (if selected)
       if (selectedReference && selectedReference !== "all") {
         filteredData = filteredData.filter(
           (invoice) =>
@@ -199,18 +191,24 @@ const ListServiceTable = ({
         );
       }
 
-      if (selectedArea && selectedArea !== "all") {
-        filteredData = filteredData.filter(
-          (invoice) => invoice?.address?.area === selectedArea
-        );
+      // Search filter (independent of reference selection)
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        filteredData = filteredData.filter((invoice) => {
+          const area = (invoice?.address?.area || "").toLowerCase();
+          const firmName = (
+            invoice?.user?.client?.firm_name || ""
+          ).toLowerCase();
+          const clientName = (invoice?.user?.name || "").toLowerCase();
+          return (
+            area.includes(query) ||
+            firmName.includes(query) ||
+            clientName.includes(query)
+          );
+        });
       }
 
-      if (selectedFirmName && selectedFirmName !== "all") {
-        filteredData = filteredData.filter(
-          (invoice) => invoice?.user?.client?.firm_name === selectedFirmName
-        );
-      }
-
+      // Status filter
       if (statusFilter && statusFilter !== "all") {
         filteredData = filteredData.filter(
           (invoice) =>
@@ -249,14 +247,7 @@ const ListServiceTable = ({
 
   useEffect(() => {
     getAllQuotes();
-  }, [
-    startDate,
-    endDate,
-    statusFilter,
-    selectedReference,
-    selectedArea,
-    selectedFirmName,
-  ]);
+  }, [startDate, endDate, statusFilter, selectedReference, searchQuery]);
 
   return (
     <div>
@@ -545,6 +536,8 @@ const Invoices = ({ isVisible }) => {
   const [areaOptions, setAreaOptions] = useState([]);
   const [firmNameOptions, setFirmNameOptions] = useState([]);
 
+  const [searchQuery, setSearchQuery] = useState("");
+
   useEffect(() => {
     if (urlStartDate && urlEndDate) {
       setStartDate(urlStartDate);
@@ -628,33 +621,13 @@ const Invoices = ({ isVisible }) => {
             </div>
 
             <div className="flex items-center gap-2">
-              <select
-                value={selectedArea}
-                onChange={(e) => setSelectedArea(e.target.value)}
-                className="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="all">All Areas</option>
-                {areaOptions.map((area, index) => (
-                  <option key={index} value={area}>
-                    {area}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <select
-                value={selectedFirmName}
-                onChange={(e) => setSelectedFirmName(e.target.value)}
-                className="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="all">All Firms</option>
-                {firmNameOptions.map((firmName, index) => (
-                  <option key={index} value={firmName}>
-                    {firmName}
-                  </option>
-                ))}
-              </select>
+              <input
+                type="text"
+                placeholder="Search by area, firm or client name..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
+              />
             </div>
 
             {urlStartDate ? (
@@ -682,8 +655,7 @@ const Invoices = ({ isVisible }) => {
             selectedReference={selectedReference}
             isVisible={isVisible}
             setReferenceOptions={setReferenceOptions}
-            setAreaOptions={setAreaOptions}
-            setFirmNameOptions={setFirmNameOptions}
+            searchQuery={searchQuery}
           />
         </div>
       </div>

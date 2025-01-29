@@ -107,7 +107,7 @@ const DateFilters2 = ({ onDateChange }) => {
         anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
       >
         <div className={styles.popoverContent}>
-          {["This Month", "Last Month", "This Week", "Custom Range"].map(
+          {["This Month", "Last Month", "Custom Range"].map(
             (option) => (
               <div
                 key={option}
