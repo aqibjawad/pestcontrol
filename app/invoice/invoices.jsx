@@ -80,45 +80,55 @@ const ListServiceTable = ({
   };
 
   const downloadPDF = () => {
-    const doc = new jsPDF();
-    
-    // Add logo - adjust size to match the image shown
-    const logoUrl = '/logo.jpeg';
-    const logoWidth = 40;
-    const logoHeight = 40;
-    
-    // Position logo in top-left corner with some margin
-    doc.addImage(logoUrl, 'jpeg', 15, 10, logoWidth, logoHeight);
+    const img = new Image();
+    img.src = "/logo.jpeg"; // Update with your logo path
 
-    // Add title next to logo
-    // doc.setFontSize(16);
-    // doc.text('Invoice Report', 70, 25);
-    
-    // Add details below with proper spacing
-    doc.setFontSize(12);
-    const startY = 70; // Start text below logo
-    const lineSpacing = 10; // Space between lines
-    
-    doc.text(`Date Range: ${startDate} to ${endDate}`, 15, startY);
-    doc.text(`Status: ${statusFilter}`, 15, startY + lineSpacing);
-    doc.text(`Reference: ${selectedReference}`, 15, startY + (lineSpacing * 2));
+    img.onload = () => {
+      const doc = new jsPDF();
 
-    // Add table with proper spacing from header
-    const data = generateExportData();
-    const headers = Object.keys(data[0]);
-    const rows = data.map((row) => Object.values(row));
+      // Calculate dimensions while maintaining aspect ratio
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const logoWidth = 50; // mm
+      const logoHeight = (img.height * logoWidth) / img.width;
+      const xPosition = (pageWidth - logoWidth) / 2;
 
-    doc.autoTable({
+      // Add logo
+      doc.addImage(img, "jpeg", xPosition, 10, logoWidth, logoHeight);
+
+      // Add header text
+      doc.setFontSize(12);
+      doc.text(`Approved Payments Report`, pageWidth / 2, logoHeight + 20, {
+        align: "center",
+      });
+      // doc.text(`Status: ${statusFilter}`, pageWidth / 2, logoHeight + 20, {
+      //   align: "center",
+      // });
+
+      doc.text(
+        `Date Range: ${startDate || "All"} to ${endDate || "All"}`,
+        pageWidth / 2,
+        logoHeight + 30,
+        { align: "center" }
+      );
+
+      // Add table
+      const data = generateExportData();
+      const headers = Object.keys(data[0]);
+      const rows = data.map((row) => Object.values(row));
+
+      doc.autoTable({
         head: [headers],
         body: rows,
-        startY: startY + (lineSpacing * 3) + 10, // Add extra padding before table
-        margin: { top: 10 },
+        startY: logoHeight + 40,
+        margin: { top: logoHeight + 40 },
         styles: { fontSize: 8 },
-        headStyles: { fillColor: [66, 139, 202] },
-    });
+        headStyles: { fillColor: [50, 169, 46] },
+      });
 
-    doc.save(`invoices_${startDate}_${endDate}.pdf`);
-};
+      doc.save(`transactions_${startDate || "all"}_${endDate || "all"}.pdf`);
+    };
+  };
+
   const getAllQuotes = async () => {
     setFetchingData(true);
     setLoadingDetails(true);

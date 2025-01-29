@@ -12,24 +12,128 @@ import {
 } from "@mui/material";
 import APICall from "../../../networkUtil/APICall";
 import { clients } from "../../../networkUtil/Constants";
-
 import Link from "next/link";
-
 import DateFilters2 from "@/components/generic/DateFilters2";
 import { format } from "date-fns";
+import { Download } from "lucide-react";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import * as XLSX from "xlsx";
 
 const Transactions = () => {
   const api = new APICall();
-
   const [fetchingData, setFetchingData] = useState(false);
   const [quoteList, setQuoteList] = useState([]);
-
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
   const handleDateChange = (start, end) => {
     setStartDate(start);
     setEndDate(end);
+  };
+
+  // Generate data for export
+  const generateExportData = () => {
+    return quoteList
+      .map((quote, index) => {
+        const latestEntry = getLatestEntry(quote.ledger_entries);
+        if (!latestEntry) return null;
+
+        return {
+          "Sr No": index + 1,
+          Date: new Date(latestEntry.created_at).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }),
+          "Client Name": quote.name,
+          Amount:
+            latestEntry.entry_type === "cr"
+              ? latestEntry.cr_amt
+              : latestEntry.dr_amt,
+          Reference: latestEntry.referenceable?.name || "N/A",
+        };
+      })
+      .filter(Boolean); // Remove null entries
+  };
+
+  // Download as CSV
+  const downloadCSV = () => {
+    const data = generateExportData();
+    const headers = Object.keys(data[0]);
+    const csvContent = [
+      headers.join(","),
+      ...data.map((row) =>
+        headers.map((header) => `"${row[header]}"`).join(",")
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `transactions_${startDate || "all"}_${endDate || "all"}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  // Download as Excel
+  const downloadExcel = () => {
+    const data = generateExportData();
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Transactions");
+    XLSX.writeFile(
+      workbook,
+      `transactions_${startDate || "all"}_${endDate || "all"}.xlsx`
+    );
+  };
+
+  // Download as PDF
+  const downloadPDF = () => {
+    const img = new Image();
+    img.src = "/logo.jpeg"; // Update with your logo path
+
+    img.onload = () => {
+      const doc = new jsPDF();
+
+      // Calculate dimensions while maintaining aspect ratio
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const logoWidth = 50; // mm
+      const logoHeight = (img.height * logoWidth) / img.width;
+      const xPosition = (pageWidth - logoWidth) / 2;
+
+      // Add logo
+      doc.addImage(img, "jpeg", xPosition, 10, logoWidth, logoHeight);
+
+      // Add header text
+      doc.setFontSize(12);
+      doc.text(`Approved Payments Report`, pageWidth / 2, logoHeight + 20, {
+        align: "center",
+      });
+      doc.text(
+        `Date Range: ${startDate || "All"} to ${endDate || "All"}`,
+        pageWidth / 2,
+        logoHeight + 30,
+        { align: "center" }
+      );
+
+      // Add table
+      const data = generateExportData();
+      const headers = Object.keys(data[0]);
+      const rows = data.map((row) => Object.values(row));
+
+      doc.autoTable({
+        head: [headers],
+        body: rows,
+        startY: logoHeight + 40,
+        margin: { top: logoHeight + 40 },
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [50, 169, 46] },
+      });
+
+      doc.save(`transactions_${startDate || "all"}_${endDate || "all"}.pdf`);
+    };
   };
 
   useEffect(() => {
@@ -65,7 +169,7 @@ const Transactions = () => {
 
     try {
       const response = await api.getDataWithToken(
-        `${`${clients}/received_amount/get`}?${queryParams.join("&")}`
+        `${clients}/received_amount/get?${queryParams.join("&")}`
       );
       setQuoteList(response.data);
     } catch (error) {
@@ -75,60 +179,112 @@ const Transactions = () => {
     }
   };
 
+  const getLatestEntry = (ledgerEntries) => {
+    if (!ledgerEntries || ledgerEntries.length === 0) return null;
+    const sortedEntries = [...ledgerEntries].sort(
+      (a, b) => new Date(b.created_at) - new Date(a.created_at)
+    );
+    return sortedEntries[0];
+  };
+
   const listServiceTable = () => {
     return (
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Sr No</TableCell>
-              <TableCell>Date</TableCell>
-              <TableCell>Client Name</TableCell>
-              <TableCell>Amount</TableCell>
-              <TableCell>View Details</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {fetchingData ? (
+      <>
+        {/* Export Buttons */}
+        <div className="flex gap-2 mb-4 justify-end px-4">
+          <button
+            onClick={downloadPDF}
+            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            <Download size={16} />
+            PDF
+          </button>
+          <button
+            onClick={downloadExcel}
+            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+          >
+            <Download size={16} />
+            Excel
+          </button>
+          <button
+            onClick={downloadCSV}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            <Download size={16} />
+            CSV
+          </button>
+        </div>
+
+        {/* Table */}
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
               <TableRow>
-                <TableCell colSpan={7} style={{ textAlign: "center" }}>
-                  <CircularProgress />
-                </TableCell>
+                <TableCell>Sr No</TableCell>
+                <TableCell>Date</TableCell>
+                <TableCell>Client Name</TableCell>
+                <TableCell>Amount</TableCell>
+                <TableCell>Reference</TableCell>
+                <TableCell>View Details</TableCell>
               </TableRow>
-            ) : (
-              quoteList?.map((row, index) => (
-                <TableRow key={index}>
-                  <TableCell>{index + 1}</TableCell>
-                  <TableCell>
-                    {new Date(row.created_at).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </TableCell>
-                  <TableCell>{row?.name}</TableCell>
-                  <TableCell>{row?.ledger_cr_amt_sum}</TableCell>
-                  <TableCell>
-                    <Link
-                      href={`/client/clientLedger/?id=${
-                        row.id
-                      }&name=${encodeURIComponent(
-                        row.name
-                      )}&phone_number=${encodeURIComponent(
-                        row?.client?.phone_number
-                      )}`}
-                    >
-                      <span className="text-blue-600 hover:text-blue-800">
-                        View Details
-                      </span>
-                    </Link>
+            </TableHead>
+            <TableBody>
+              {fetchingData ? (
+                <TableRow>
+                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                    <CircularProgress />
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+              ) : (
+                quoteList?.map((quote, index) => {
+                  const latestEntry = getLatestEntry(quote.ledger_entries);
+                  if (!latestEntry) return null;
+
+                  return (
+                    <TableRow key={index}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>
+                        {new Date(latestEntry.created_at).toLocaleDateString(
+                          "en-US",
+                          {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          }
+                        )}
+                      </TableCell>
+                      <TableCell>{quote.name}</TableCell>
+                      <TableCell>
+                        {latestEntry.entry_type === "cr"
+                          ? latestEntry.cr_amt
+                          : latestEntry.dr_amt}
+                      </TableCell>
+                      <TableCell>
+                        {latestEntry.referenceable?.name || "N/A"}
+                      </TableCell>
+                      <TableCell>
+                        <Link
+                          href={`/client/clientLedger/?id=${
+                            quote.id
+                          }&name=${encodeURIComponent(
+                            quote.name
+                          )}&phone_number=${encodeURIComponent(
+                            quote?.client?.phone_number
+                          )}`}
+                        >
+                          <span className="text-blue-600 hover:text-blue-800">
+                            View Details
+                          </span>
+                        </Link>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </>
     );
   };
 
