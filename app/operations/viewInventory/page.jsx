@@ -7,12 +7,15 @@ import APICall from "@/networkUtil/APICall";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@mui/material";
-
 import { format } from "date-fns";
-
 import DateFilters from "../../../components/generic/DateFilters";
 import withAuth from "@/utils/withAuth";
-import AddStockModal from "./addStkQnt"; // Import the modal component
+import AddStockModal from "./addStkQnt";
+
+// Import export libraries
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
+import * as XLSX from "xlsx";
 
 const Page = () => {
   const apiCall = new APICall();
@@ -21,8 +24,6 @@ const Page = () => {
   const [suppliersList, setSuppliersList] = useState([]);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-
-  // State for modal visibility
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
@@ -32,7 +33,6 @@ const Page = () => {
 
   const getSuppliers = async () => {
     setFetchingData(true);
-
     const queryParams = [];
 
     if (startDate && endDate) {
@@ -71,12 +71,132 @@ const Page = () => {
     setIsModalOpen(false);
   };
 
+  const generateExportData = () => {
+    return suppliersList.map((row, index) => {
+      const stock = row.stocks[0] || {};
+      const remainingQty =
+        (stock.remaining_qty || 0) * (stock.per_item_qty || 1);
+
+      return {
+        "Sr No": index + 1,
+        "Product Name": row.product_name || "N/A",
+        "Product Type": row.product_type || "N/A",
+        "Batch Number": row.batch_number || "N/A",
+        "Total Quantity": stock.total_qty || 0,
+        "Remaining Quantity": `${remainingQty} ${stock.unit || ""}`,
+      };
+    });
+  };
+
+  // Export Functions
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+
+    // Logo original dimensions
+    const originalWidth = 397;
+    const originalHeight = 175;
+
+    // Desired width for PDF (adjust as needed)
+    const pdfWidth = 50;
+    const aspectRatio = originalHeight / originalWidth;
+    const pdfHeight = pdfWidth * aspectRatio; // Maintain aspect ratio
+
+    // Add logo
+    const img = new Image();
+    img.src = "/logo.jpeg"; // Replace with actual image path
+    img.onload = function () {
+      doc.addImage(img, "PNG", 75, 10, pdfWidth, pdfHeight); // Adjusted height
+
+      // Add title (centered)
+      const title = "Inventory Report";
+      doc.setFontSize(14);
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const textWidth = doc.getTextWidth(title);
+      doc.text(title, (pageWidth - textWidth) / 2, 30 + pdfHeight); // Positioned below the image
+
+      // Table data
+      const tableColumn = [
+        "Sr No",
+        "Name",
+        "Product Type",
+        "Batch Number",
+        "Total",
+        "Remaining",
+      ];
+      const tableRows = suppliersList.map((row, index) => {
+        const stock = row.stocks[0] || {};
+        const remainingQty =
+          (stock.remaining_qty || 0) * (stock.per_item_qty || 1);
+        return [
+          index + 1,
+          row.product_name,
+          row.product_type,
+          row.batch_number,
+          stock.total_qty || 0,
+          `${remainingQty} ${stock.unit || ""}`,
+        ];
+      });
+
+      // Add table
+      doc.autoTable({
+        head: [tableColumn],
+        body: tableRows,
+        startY: 40 + pdfHeight, // Adjusted to fit under the title
+        theme: "grid",
+        styles: {
+          fontSize: 8,
+          cellPadding: 3,
+        },
+        headStyles: {
+          fillColor: [50, 169, 46],
+        },
+      });
+
+      // Save PDF
+      doc.save("inventory.pdf");
+    };
+  };
+
+  const exportToExcel = () => {
+    const data = generateExportData();
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Inventory");
+
+    // Generate filename with date range if available
+    const filename =
+      startDate && endDate
+        ? `inventory_${startDate}_${endDate}.xlsx`
+        : "inventory.xlsx";
+
+    XLSX.writeFile(workbook, filename);
+  };
+
+  const exportToCSV = () => {
+    const data = generateExportData();
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const csvContent = XLSX.utils.sheet_to_csv(worksheet);
+
+    // Create and trigger download
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = window.URL.createObjectURL(blob);
+    link.download =
+      startDate && endDate
+        ? `inventory_${startDate}_${endDate}.csv`
+        : "inventory.csv";
+    link.click();
+  };
+
   const ListTable = () => {
     return (
       <div className={tableStyles.tableContainer}>
         <table className="min-w-full bg-white">
           <thead>
             <tr>
+              <th className="py-5 px-4 border-b border-gray-200 text-left">
+                Sr No
+              </th>
               <th className="py-5 px-4 border-b border-gray-200 text-left">
                 Product Picture
               </th>
@@ -118,6 +238,7 @@ const Page = () => {
 
               return (
                 <tr className="border-b border-gray-200" key={index}>
+                  <td className="py-5 px-4">{index + 1}</td>
                   <td className="py-5 px-4">
                     <img
                       src={row.product_picture}
@@ -192,8 +313,30 @@ const Page = () => {
         >
           Inventory
         </div>
-        <div className="flex">
-          <div className="flex-grow"></div>
+        <div className="flex" style={{ marginLeft: "10rem" }}>
+          <div className="flex-grow">
+            {/* Export Buttons */}
+            <div className="mt-8 flex gap-2">
+              <button
+                onClick={exportToPDF}
+                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                PDF
+              </button>
+              <button
+                onClick={exportToExcel}
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              >
+                Excel
+              </button>
+              <button
+                onClick={exportToCSV}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                CSV
+              </button>
+            </div>
+          </div>
           <div
             className="flex"
             style={{ display: "flex", alignItems: "center" }}
@@ -234,7 +377,6 @@ const Page = () => {
         </div>
       </div>
 
-      {/* Modal for Adding Stock */}
       <AddStockModal
         open={isModalOpen}
         onClose={closeModal}
