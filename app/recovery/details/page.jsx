@@ -16,10 +16,13 @@ import {
   Box,
   Skeleton,
 } from "@mui/material";
-import { serviceInvoice } from "../../../networkUtil/Constants";
+import {
+  serviceInvoice,
+  getAllEmpoyesUrl,
+} from "../../../networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
-
 import DateFilters2 from "@/components/generic/DateFilters2";
+import Dropdown from "@/components/generic/Dropdown";
 
 const Page = () => {
   const api = new APICall();
@@ -27,6 +30,8 @@ const Page = () => {
   const [vendorsData, setVendorsData] = useState([]);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
+  const [salesManagers, setSalesManagers] = useState([]);
+  const [selectedOfficer, setSelectedOfficer] = useState(null);
 
   const handleDateChange = (start, end) => {
     setStartDate(start);
@@ -39,12 +44,10 @@ const Page = () => {
 
   const fetchVendors = async () => {
     setFetchingData(true);
-
     const queryParams = [];
     if (startDate && endDate) {
       queryParams.push(`start_promise_date=${startDate}`);
       queryParams.push(`end_promise_date=${endDate}`);
-    } else {
     }
 
     try {
@@ -57,6 +60,31 @@ const Page = () => {
     }
     setFetchingData(false);
   };
+
+  const handleOfficerChange = (selectedOption) => {
+    setSelectedOfficer(selectedOption);
+  };
+
+  const getAllSalesManagers = async () => {
+    try {
+      const response = await api.getDataWithToken(
+        `${getAllEmpoyesUrl}/recovery_officer/get`
+      );
+
+      // Format the data for the dropdown
+      const formattedManagers = response.data.map((manager) => ({
+        label: manager.name,
+        value: manager.id,
+      }));
+      setSalesManagers(formattedManagers);
+    } catch (error) {
+      console.error("Error fetching sales managers:", error);
+    }
+  };
+
+  useEffect(() => {
+    getAllSalesManagers();
+  }, []);
 
   // Calculate summary statistics
   const summary = vendorsData?.reduce(
@@ -86,9 +114,7 @@ const Page = () => {
   return (
     <Box sx={{ p: 3 }}>
       <div style={{ padding: "30px", borderRadius: "10px" }}>
-        {/* Parent Flex Container */}
         <div className="flex justify-between items-center mb-6">
-          {/* Heading */}
           <div
             style={{
               fontSize: "20px",
@@ -99,7 +125,16 @@ const Page = () => {
             All Recoveries
           </div>
 
-          {/* Date Filter */}
+          <div style={{ width: "200px" }}>
+            <Dropdown
+              value={selectedOfficer}
+              onChange={handleOfficerChange}
+              title="Recovery Officers"
+              options={salesManagers}
+              className="w-full"
+            />
+          </div>
+
           <div className="bg-green-600 text-white font-semibold text-base h-11 w-52 flex justify-center items-center px-4 py-3 rounded-lg">
             <DateFilters2 onDateChange={handleDateChange} />
           </div>
