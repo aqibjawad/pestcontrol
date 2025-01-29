@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import tableStyles from "../../styles/upcomingJobsStyles.module.css";
-import { serviceInvoice, clients } from "@/networkUtil/Constants";
+import { serviceInvoice, getAllEmpoyesUrl } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
 import Skeleton from "@mui/material/Skeleton";
 import { AppHelpers } from "@/Helper/AppHelpers";
@@ -13,6 +13,8 @@ import { Download } from "lucide-react";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import * as XLSX from "xlsx";
+
+import AssignmentModal from "./assignRecovery";
 
 const ListServiceTable = ({
   startDate,
@@ -29,6 +31,25 @@ const ListServiceTable = ({
   const [loadingDetails, setLoadingDetails] = useState(true);
   const [brandsList, setBrandsList] = useState([]);
   const [referenceList, setReferenceList] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState(null);
+  const [salesManagers, setSalesManagers] = useState([]);
+
+  const handleAssignClick = (invoiceId) => {
+    setSelectedInvoiceId(invoiceId);
+    setIsModalOpen(true);
+  };
+
+  const handleAssignment = async (invoiceId, managerId) => {
+    try {
+      // Add your API call here
+      console.log(`Assigned invoice ${invoiceId} to manager ${managerId}`);
+      setIsModalOpen(false);
+      await getAllQuotes();
+    } catch (error) {
+      console.error("Error assigning invoice:", error);
+    }
+  };
 
   const formatDate = (dateString) => {
     try {
@@ -81,29 +102,20 @@ const ListServiceTable = ({
 
   const downloadPDF = () => {
     const img = new Image();
-    img.src = "/logo.jpeg"; // Update with your logo path
+    img.src = "/logo.jpeg";
 
     img.onload = () => {
       const doc = new jsPDF();
-
-      // Calculate dimensions while maintaining aspect ratio
       const pageWidth = doc.internal.pageSize.getWidth();
-      const logoWidth = 50; // mm
+      const logoWidth = 50;
       const logoHeight = (img.height * logoWidth) / img.width;
       const xPosition = (pageWidth - logoWidth) / 2;
 
-      // Add logo
       doc.addImage(img, "jpeg", xPosition, 10, logoWidth, logoHeight);
-
-      // Add header text
       doc.setFontSize(12);
       doc.text(`Approved Payments Report`, pageWidth / 2, logoHeight + 20, {
         align: "center",
       });
-      // doc.text(`Status: ${statusFilter}`, pageWidth / 2, logoHeight + 20, {
-      //   align: "center",
-      // });
-
       doc.text(
         `Date Range: ${startDate || "All"} to ${endDate || "All"}`,
         pageWidth / 2,
@@ -111,7 +123,6 @@ const ListServiceTable = ({
         { align: "center" }
       );
 
-      // Add table
       const data = generateExportData();
       const headers = Object.keys(data[0]);
       const rows = data.map((row) => Object.values(row));
@@ -189,6 +200,23 @@ const ListServiceTable = ({
     }
   };
 
+  const getAllSalesManagers = async () => {
+    try {
+      const response = await api.getDataWithToken(
+        `${getAllEmpoyesUrl}/recovery_officer/get`
+      );
+
+      const managers = response.data || [];
+      setSalesManagers(managers);
+    } catch (error) {
+      console.error("Error fetching sales managers:", error);
+    }
+  };
+
+  useEffect(() => {
+    getAllSalesManagers();
+  }, []);
+
   useEffect(() => {
     getAllQuotes();
   }, [startDate, endDate, statusFilter, selectedReference, isVisible]);
@@ -219,7 +247,6 @@ const ListServiceTable = ({
         </button>
       </div>
 
-      {/* Table */}
       <div className={tableStyles.tableContainer}>
         <div
           style={{
@@ -288,6 +315,12 @@ const ListServiceTable = ({
                   className="py-2 px-4 border-b border-gray-200 text-left"
                 >
                   Action
+                </th>
+                <th
+                  style={{ width: "10%" }}
+                  className="py-2 px-4 border-b border-gray-200 text-left"
+                >
+                  Assign
                 </th>
               </tr>
             </thead>
@@ -422,6 +455,16 @@ const ListServiceTable = ({
                             </Link>
                           </div>
                         </td>
+                        <td style={{ width: "10%" }} className="py-2 px-4">
+                          <div className={tableStyles.clientContact}>
+                            <button
+                              onClick={() => handleAssignClick(row.id)}
+                              className="text-blue-600 hover:text-blue-800 cursor-pointer"
+                            >
+                              Assign
+                            </button>
+                          </div>
+                        </td>
                       </tr>
                     ))}
               </tbody>
@@ -429,6 +472,14 @@ const ListServiceTable = ({
           </div>
         </div>
       </div>
+
+      <AssignmentModal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        invoiceId={selectedInvoiceId}
+        salesManagers={salesManagers}
+        onAssign={handleAssignment}
+      />
     </div>
   );
 };
@@ -458,7 +509,7 @@ const Invoices = ({ isVisible }) => {
       setStartDate(urlStartDate);
       setEndDate(urlEndDate);
     }
-  }, []);
+  }, [urlStartDate, urlEndDate]);
 
   const handleDateChange = (start, end) => {
     setStartDate(start);

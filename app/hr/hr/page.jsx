@@ -77,9 +77,6 @@ const Page = () => {
             Employee Ledger
           </div>
         </div>
-        <div>
-          test
-        </div>
       </div>
 
       <TabPanel value={activeTab} index={0}>

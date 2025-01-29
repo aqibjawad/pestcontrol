@@ -213,6 +213,17 @@ const Page = () => {
               />
             </div>
 
+            <div className="mt-5">
+              <InputWithTitle3
+                title="Price"
+                placeholder="Price"
+                value={expiry_date}
+                type="text"
+                onChange={handleDateChange}
+                name="expiry_date"
+              />
+            </div>
+
             <div className="mt-10"></div>
             <GreenButton
               sendingData={sendingData}

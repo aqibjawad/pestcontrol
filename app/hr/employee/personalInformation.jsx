@@ -32,6 +32,7 @@ const PersonalInformation = ({
     { label: "Office Staff", value: 8 },
     { label: "Operations", value: 4 },
     { label: "Accountant", value: 6 },
+    { label: "Recovey Officer", value: 7 },
   ];
 
   const handleFileSelect = (file) => {
