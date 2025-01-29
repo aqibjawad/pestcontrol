@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import {
   Table,
   TableBody,
@@ -15,12 +16,21 @@ import APICall from "../../../networkUtil/APICall";
 import { payments } from "../../../networkUtil/Constants";
 import Link from "next/link";
 
+// Dynamically import MUI components with ssr disabled
+const DynamicTableContainer = dynamic(
+  () => import("@mui/material/TableContainer"),
+  { ssr: false }
+);
+
+const DynamicTable = dynamic(() => import("@mui/material/Table"), {
+  ssr: false,
+});
+
 const Pending = () => {
   const api = new APICall();
-
   const [fetchingData, setFetchingData] = useState(false);
   const [quoteList, setPaymentsList] = useState([]);
-  const [approving, setApproving] = useState(null); // Track approval loading state per row
+  const [approving, setApproving] = useState(null);
 
   useEffect(() => {
     getAllQuotes();
@@ -44,8 +54,7 @@ const Pending = () => {
       const response = await api.postFormDataWithToken(`${payments}/approve`, {
         received_cash_record_id: id,
       });
-      console.log("Approval response:", response.data);
-      getAllQuotes();
+      await getAllQuotes();
     } catch (error) {
       console.error("Error approving payment:", error);
     } finally {
@@ -53,114 +62,89 @@ const Pending = () => {
     }
   };
 
-  const listServiceTable = () => {
-    return (
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Sr No</TableCell>
-              <TableCell>Date</TableCell>
-              <TableCell>Client Name</TableCell>
-              <TableCell>Employee Name</TableCell>
-              <TableCell>Amount</TableCell>
-              <TableCell>Approve</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>View Details</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {fetchingData ? (
-              <TableRow>
-                <TableCell colSpan={8} style={{ textAlign: "center" }}>
-                  <CircularProgress />
-                </TableCell>
-              </TableRow>
-            ) : quoteList?.length > 0 ? (
-              quoteList.map((row, index) => (
-                <TableRow key={index}>
-                  <TableCell>{index + 1}</TableCell>
-                  <TableCell>
-                    {new Date(row.created_at).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </TableCell>
-                  <TableCell>{row?.client_user?.name}</TableCell>
-                  <TableCell>{row?.employee_user?.name}</TableCell>
-                  <TableCell>{row?.paid_amt}</TableCell>
-                  <TableCell>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      disabled={approving === row.id}
-                      onClick={() => handleApprove(row.id)}
-                    >
-                      {approving === row.id ? (
-                        <CircularProgress size={24} />
-                      ) : (
-                        "Approve"
-                      )}
-                    </Button>
-                  </TableCell>
-                  <TableCell>{row?.status}</TableCell>
-                  <TableCell>
-                    <Link href={`/invoiceDetails?id=${row.service_invoice_id}`}>
-                      <span className="text-blue-600 hover:text-blue-800">
-                        View Details
-                      </span>
-                    </Link>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              " No Pending Amounts"
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    );
-  };
-
   return (
     <div>
       <div style={{ padding: "30px", borderRadius: "10px" }}>
         <div
-          style={{ fontSize: "20px", fontWeight: "600", marginBottom: "-4rem" }}
+          style={{ fontSize: "20px", fontWeight: "600", marginBottom: "2rem" }}
         >
           Pending Payments
-        </div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            marginTop: "2rem",
-          }}
-        >
-          {/* <div
-            style={{
-              backgroundColor: "#32A92E",
-              color: "white",
-              fontWeight: "600",
-              fontSize: "16px",
-              height: "44px",
-              width: "202px",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              marginLeft: "1rem",
-              padding: "12px 16px",
-              borderRadius: "10px",
-            }}
-          >
-            Date
-          </div> */}
         </div>
       </div>
 
       <div className="grid grid-cols-12 gap-4">
-        <div className="col-span-12">{listServiceTable()}</div>
+        <div className="col-span-12">
+          <DynamicTableContainer component={Paper}>
+            <DynamicTable>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Sr No</TableCell>
+                  <TableCell>Date</TableCell>
+                  <TableCell>Client Name</TableCell>
+                  <TableCell>Employee Name</TableCell>
+                  <TableCell>Amount</TableCell>
+                  <TableCell>Approve</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>View Details</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {fetchingData ? (
+                  <TableRow>
+                    <TableCell colSpan={8} style={{ textAlign: "center" }}>
+                      <CircularProgress />
+                    </TableCell>
+                  </TableRow>
+                ) : quoteList?.length > 0 ? (
+                  quoteList.map((row, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>
+                        {new Date(row.created_at).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </TableCell>
+                      <TableCell>{row?.client_user?.name}</TableCell>
+                      <TableCell>{row?.employee_user?.name}</TableCell>
+                      <TableCell>{row?.paid_amt}</TableCell>
+                      <TableCell>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          disabled={approving === row.id}
+                          onClick={() => handleApprove(row.id)}
+                        >
+                          {approving === row.id ? (
+                            <CircularProgress size={24} />
+                          ) : (
+                            "Approve"
+                          )}
+                        </Button>
+                      </TableCell>
+                      <TableCell>{row?.status}</TableCell>
+                      <TableCell>
+                        <Link
+                          href={`/invoiceDetails?id=${row.service_invoice_id}`}
+                          style={{ color: "#2196f3", textDecoration: "none" }}
+                        >
+                          View Details
+                        </Link>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={8} style={{ textAlign: "center" }}>
+                      No Pending Amounts
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </DynamicTable>
+          </DynamicTableContainer>
+        </div>
       </div>
     </div>
   );

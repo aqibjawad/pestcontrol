@@ -240,8 +240,13 @@ export default function SideMenu({ children }) {
       userPermissions = [
         {
           name: "Dashboard",
-          url: "recovery/dashboard?id=${userId}",
+          url: `recovery/dashboard?id=${userId}`,
           icon: "/home.png",
+        },
+        {
+          name: "Profile",
+          url: `hr/employeeDetails?id=${userId}`,
+          icon: "/clients.png",
         },
       ];
     }

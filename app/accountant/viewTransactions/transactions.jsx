@@ -189,7 +189,7 @@ const Transactions = () => {
 
   const listServiceTable = () => {
     // Calculate total amount
-    const totalAmount = quoteList.reduce((sum, quote) => {
+    const totalAmount = quoteList?.reduce((sum, quote) => {
       const latestEntry = getLatestEntry(quote.ledger_entries);
       if (!latestEntry) return sum;
 
@@ -302,7 +302,7 @@ const Transactions = () => {
                     Total Amount:
                   </TableCell>
                   <TableCell style={{ fontWeight: "bold" }}>
-                    {totalAmount.toFixed(2)}
+                    {totalAmount?.toFixed(2)}
                   </TableCell>
                   <TableCell colSpan={2}></TableCell>
                 </TableRow>
