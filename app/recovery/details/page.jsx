@@ -30,14 +30,21 @@ import * as XLSX from "xlsx";
 
 const Page = () => {
   const api = new APICall();
+
+  const getTodayDateString = () => {
+    const today = new Date();
+    return today.toISOString().split("T")[0];
+  };
+
   const [fetchingData, setFetchingData] = useState(false);
   const [vendorsData, setVendorsData] = useState([]);
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
   const [salesManagers, setSalesManagers] = useState([]);
   const [selectedOfficer, setSelectedOfficer] = useState("All");
   const [allRecoveryList, setAllRecoveryList] = useState([]);
   const [selectedRecoveryId, setSelectedRecoveryId] = useState("");
+
+  const [startDate, setStartDate] = useState(getTodayDateString());
+  const [endDate, setEndDate] = useState(getTodayDateString());
 
   const handleDateChange = (start, end) => {
     setStartDate(start);
@@ -51,10 +58,10 @@ const Page = () => {
   const fetchVendors = async () => {
     setFetchingData(true);
     const queryParams = [];
-    if (startDate && endDate) {
-      queryParams.push(`start_promise_date=${startDate}`);
-      queryParams.push(`end_promise_date=${endDate}`);
-    }
+
+    // Always include date parameters since they're initialized with today's date
+    queryParams.push(`start_promise_date=${startDate}`);
+    queryParams.push(`end_promise_date=${endDate}`);
 
     try {
       const response = await api.getDataWithToken(
@@ -135,19 +142,59 @@ const Page = () => {
 
   const exportToPDF = () => {
     const doc = new jsPDF();
-    const logo = "/logo.jpeg"; // 🔹 Uploaded file path
-
-    // 📌 Page Width Calculation for Centering
+    const logo = "/logo.jpeg";
     const pageWidth = doc.internal.pageSize.width;
 
-    // ✅ Adjusted Logo Size (Width = 40, Height = 30)
-    doc.addImage(logo, "PNG", pageWidth / 2 - 20, 10, 40, 30);
+    // Add logo with reduced height
+    doc.addImage(logo, "PNG", pageWidth / 2 - 20, 10, 40, 20); // Height reduced from 30 to 20
 
-    // ✅ Title Below Logo
-    doc.text("Recovery Officers Data", pageWidth / 2, 50, { align: "center" });
+    // Add title
+    doc.text("Recovery Officers Data", pageWidth / 2, 35, { align: "center" });
 
+    // Add filters in a single line
+    let currentY = 45;
+    doc.setFontSize(11);
+
+    let filterText = `Recovery Officer: ${selectedOfficer}`;
+    if (startDate && endDate) {
+      const formattedStartDate = new Date(startDate).toLocaleDateString();
+      const formattedEndDate = new Date(endDate).toLocaleDateString();
+      filterText += ` | Date Range: ${formattedStartDate} - ${formattedEndDate}`;
+    }
+    doc.text(filterText, 20, currentY);
+    currentY += 8;
+
+    // Add summary heading
+    doc.setFontSize(12);
+    doc.text("Summary", 20, currentY);
+    currentY += 5;
+
+    // Create summary table
     autoTable(doc, {
-      startY: 60, // ⬆ Move table below logo
+      startY: currentY,
+      head: [["Metric", "Value"]],
+      body: [
+        ["Total Amount", `${summary.totalAmount.toFixed(2)}`],
+        ["Paid Amount", `${summary.paidAmount.toFixed(2)}`],
+        ["Total Invoices", `${summary.totalInvoices}`],
+        ["Paid Invoices", `${summary.paidInvoices}`],
+        ["Promise Invoices", `${summary.promiseInvoices}`],
+        ["Other Invoices", `${summary.otherInvoices}`],
+      ],
+      theme: "grid",
+      headStyles: {
+        fillColor: [0, 128, 0],
+        textColor: [255, 255, 255],
+        fontStyle: "bold",
+      },
+      margin: { left: 20 },
+      tableWidth: 160,
+    });
+
+    // Add main data table
+    const filteredData = getFilteredData();
+    autoTable(doc, {
+      startY: doc.lastAutoTable.finalY + 10,
       head: [
         [
           "ID",
@@ -160,7 +207,7 @@ const Page = () => {
           "Other",
         ],
       ],
-      body: vendorsData.map((row, index) => {
+      body: filteredData.map((row, index) => {
         const lastHistory =
           row.assigned_histories?.[row.assigned_histories?.length - 1];
         return [
@@ -175,10 +222,12 @@ const Page = () => {
         ];
       }),
       headStyles: {
-        fillColor: [0, 128, 0], // ✅ Green color (RGB format)
-        textColor: [255, 255, 255], // ✅ White text for contrast
+        fillColor: [0, 128, 0],
+        textColor: [255, 255, 255],
         fontStyle: "bold",
       },
+      margin: { top: 0 },
+      styles: { cellPadding: 2 },
     });
 
     doc.save("Recovery_Officers_Data.pdf");
@@ -244,6 +293,29 @@ const Page = () => {
         </div>
       </div>
 
+      <div className="flex justify-end mb-4 space-x-2 mt-5">
+        <button
+          onClick={exportToPDF}
+          className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+        >
+          PDF
+        </button>
+
+        <button
+          onClick={() => exportToExcelOrCSV("xlsx")}
+          className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+        >
+          Excel
+        </button>
+
+        <button
+          onClick={() => exportToExcelOrCSV("csv")}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          CSV
+        </button>
+      </div>
+
       <Card>
         <CardContent>
           <Typography variant="h6" gutterBottom>
@@ -288,26 +360,6 @@ const Page = () => {
           </Grid>
         </CardContent>
       </Card>
-
-      <div className="flex justify-end mb-4 space-x-2 mt-5">
-        <Button variant="contained" color="primary" onClick={exportToPDF}>
-          Download PDF
-        </Button>
-        <Button
-          variant="contained"
-          color="success"
-          onClick={() => exportToExcelOrCSV("xlsx")}
-        >
-          Download Excel
-        </Button>
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={() => exportToExcelOrCSV("csv")}
-        >
-          Download CSV
-        </Button>
-      </div>
 
       <TableContainer className="mt-5" component={Paper} sx={{ mb: 4 }}>
         <Table>
