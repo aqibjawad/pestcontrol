@@ -32,6 +32,8 @@ const Page = () => {
   const [endDate, setEndDate] = useState(null);
   const [salesManagers, setSalesManagers] = useState([]);
   const [selectedOfficer, setSelectedOfficer] = useState(null);
+  const [allRecoveryList, setAllRecoveryList] = useState([]);
+  const [selectedRecoveryId, setSelectedRecoveryId] = useState("");
 
   const handleDateChange = (start, end) => {
     setStartDate(start);
@@ -61,27 +63,33 @@ const Page = () => {
     setFetchingData(false);
   };
 
-  const handleOfficerChange = (selectedOption) => {
-    setSelectedOfficer(selectedOption);
-  };
-
   const getAllSalesManagers = async () => {
     try {
       const response = await api.getDataWithToken(
         `${getAllEmpoyesUrl}/recovery_officer/get`
       );
+      setAllRecoveryList(response.data);
 
-      // Format the data for the dropdown
-      const formattedManagers = response.data.map((manager) => ({
-        label: manager.name,
-        value: manager.id,
+      // Store the full data in a separate state for reference
+      const formattedManagersWithIds = response.data.map((officer) => ({
+        name: officer.name,
+        id: officer.id,
       }));
-      setSalesManagers(formattedManagers);
+      setAllRecoveryList(formattedManagersWithIds);
+
+      // Only names for the dropdown
+      const managerNames = response.data.map((officer) => officer.name);
+      setSalesManagers(managerNames);
     } catch (error) {
       console.error("Error fetching sales managers:", error);
     }
   };
 
+  const handleOfficerChange = (name, index) => {
+    // Get the ID from allRecoveryList using the index
+    const idAtIndex = allRecoveryList[index]?.id;
+    setSelectedRecoveryId(idAtIndex);
+  };
   useEffect(() => {
     getAllSalesManagers();
   }, []);
@@ -110,6 +118,16 @@ const Page = () => {
       otherInvoices: 0,
     }
   );
+
+  const getFilteredData = () => {
+    if (!selectedRecoveryId) return vendorsData;
+
+    return vendorsData?.filter((row) => {
+      const lastHistory =
+        row.assigned_histories?.[row.assigned_histories?.length - 1];
+      return lastHistory?.employee_user?.id === selectedRecoveryId;
+    });
+  };
 
   return (
     <Box sx={{ p: 3 }}>
@@ -146,7 +164,8 @@ const Page = () => {
           <TableHead>
             <TableRow>
               <TableCell>ID</TableCell>
-              <TableCell>Name</TableCell>
+              <TableCell>Firm Name</TableCell>
+              <TableCell>Recovery Officer Name</TableCell>
               <TableCell>Paid Amount</TableCell>
               <TableCell>Total Amount</TableCell>
               <TableCell>Status</TableCell>
@@ -179,9 +198,12 @@ const Page = () => {
                     <TableCell>
                       <Skeleton variant="text" width={50} />
                     </TableCell>
+                    <TableCell>
+                      <Skeleton variant="text" width={50} />
+                    </TableCell>
                   </TableRow>
                 ))
-              : vendorsData?.map((row, index) => {
+              : getFilteredData()?.map((row, index) => {
                   const lastHistory =
                     row.assigned_histories?.[
                       row?.assigned_histories?.length - 1
@@ -190,6 +212,9 @@ const Page = () => {
                     <TableRow key={index}>
                       <TableCell>{index + 1}</TableCell>
                       <TableCell>{row?.user?.name}</TableCell>
+                      <TableCell>
+                        {lastHistory?.employee_user?.name || "-"}
+                      </TableCell>
                       <TableCell>{row?.paid_amt}</TableCell>
                       <TableCell>{row?.total_amt}</TableCell>
                       <TableCell>{row?.status}</TableCell>
