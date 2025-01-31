@@ -12,7 +12,7 @@ import withAuth from "@/utils/withAuth";
 import {
   getAllSuppliers,
   product,
-  purchaseOrder,
+  deliveryOrder,
 } from "@/networkUtil/Constants";
 
 import { Grid, CircularProgress } from "@mui/material";
@@ -149,7 +149,7 @@ const Page = () => {
     };
 
     const response = await api.postFormDataWithToken(
-      `${purchaseOrder}/create`,
+      `${deliveryOrder}/create`,
       obj
     );
 
@@ -157,7 +157,7 @@ const Page = () => {
       Swal.fire({
         icon: "success",
         title: "Success",
-        text: "Purchase added successfully.",
+        text: "Delivery added successfully.",
       });
       router.push("/account/purchaseOrders");
     } else {

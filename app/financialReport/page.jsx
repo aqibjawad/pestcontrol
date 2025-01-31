@@ -201,8 +201,8 @@ const FinancialDashboard = () => {
       amount: allClientsList?.supplier_balance || 0,
     },
     {
-      category: "Selected Month Purchase",
-      amount: allClientsList?.purchase_order || 0,
+      category: "Selected Month Delivery Note",
+      amount: allClientsList?.delivery_note || 0,
     },
     {
       category: "Paid Salaries",

@@ -55,14 +55,14 @@ const Page = () => {
               {/* Add Purchase Order */}
               <Grid item xs={12} sm={6} md={4} lg={3}>
                 <div className={styles.addProd}>
-                  <Link href="/account/addPurchase">Add Purchase Order</Link>
+                  <Link href="/account/addPurchase">Add Delivery Order</Link>
                 </div>
               </Grid>
 
               <Grid className="" item xs={12} sm={6} md={4} lg={3}>
                 <div className={styles.addProd}>
                   <Link href="/account/purchaseOrders">
-                    View Purchase Order
+                    View Delivery Order
                   </Link>
                 </div>
               </Grid>

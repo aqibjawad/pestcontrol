@@ -15,14 +15,18 @@ import {
   Typography,
   Box,
   Skeleton,
+  Button,
 } from "@mui/material";
 import {
   serviceInvoice,
   getAllEmpoyesUrl,
 } from "../../../networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
-import DateFilters2 from "@/components/generic/DateFilters2";
+import DateFilters from "@/components/generic/DateFilters";
 import Dropdown from "@/components/generic/Dropdown";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
 
 const Page = () => {
   const api = new APICall();
@@ -31,7 +35,7 @@ const Page = () => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [salesManagers, setSalesManagers] = useState([]);
-  const [selectedOfficer, setSelectedOfficer] = useState(null);
+  const [selectedOfficer, setSelectedOfficer] = useState("All");
   const [allRecoveryList, setAllRecoveryList] = useState([]);
   const [selectedRecoveryId, setSelectedRecoveryId] = useState("");
 
@@ -68,28 +72,29 @@ const Page = () => {
       const response = await api.getDataWithToken(
         `${getAllEmpoyesUrl}/recovery_officer/get`
       );
-      setAllRecoveryList(response.data);
 
-      // Store the full data in a separate state for reference
-      const formattedManagersWithIds = response.data.map((officer) => ({
-        name: officer.name,
-        id: officer.id,
-      }));
+      // Add "All" option at the beginning
+      const formattedManagersWithIds = [
+        { name: "All", id: "" },
+        ...response.data.map((officer) => ({
+          name: officer.name,
+          id: officer.id,
+        })),
+      ];
+
       setAllRecoveryList(formattedManagersWithIds);
-
-      // Only names for the dropdown
-      const managerNames = response.data.map((officer) => officer.name);
-      setSalesManagers(managerNames);
+      setSalesManagers(formattedManagersWithIds.map((officer) => officer.name));
     } catch (error) {
       console.error("Error fetching sales managers:", error);
     }
   };
 
   const handleOfficerChange = (name, index) => {
-    // Get the ID from allRecoveryList using the index
-    const idAtIndex = allRecoveryList[index]?.id;
+    const idAtIndex = allRecoveryList[index]?.id || ""; // If "All" is selected, set to empty string
     setSelectedRecoveryId(idAtIndex);
+    setSelectedOfficer(name);
   };
+
   useEffect(() => {
     getAllSalesManagers();
   }, []);
@@ -104,37 +109,108 @@ const Page = () => {
     });
   };
 
-  // Calculate summary statistics
-  const getSummary = () => {
-    const dataToUse = getFilteredData(); // Use filtered data instead of vendorsData directly
+  const summary = getFilteredData()?.reduce(
+    (acc, row) => {
+      acc.totalAmount += parseFloat(row.total_amt || 0);
+      acc.paidAmount += parseFloat(row.paid_amt || 0);
+      acc.totalInvoices += 1;
+      if (row.status === "paid") acc.paidInvoices += 1;
 
-    return dataToUse?.reduce(
-      (acc, row) => {
-        acc.totalAmount += parseFloat(row.total_amt || 0);
-        acc.paidAmount += parseFloat(row.paid_amt || 0);
-        acc.totalInvoices += 1;
-        if (row.status === "paid") acc.paidInvoices += 1;
+      const lastHistory =
+        row.assigned_histories?.[row.assigned_histories.length - 1];
+      if (lastHistory?.promise_date) acc.promiseInvoices += 1;
+      if (lastHistory?.other) acc.otherInvoices += 1;
 
+      return acc;
+    },
+    {
+      totalAmount: 0,
+      paidAmount: 0,
+      totalInvoices: 0,
+      paidInvoices: 0,
+      promiseInvoices: 0,
+      otherInvoices: 0,
+    }
+  );
+
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    const logo = "/logo.jpeg"; // 🔹 Uploaded file path
+
+    // 📌 Page Width Calculation for Centering
+    const pageWidth = doc.internal.pageSize.width;
+
+    // ✅ Adjusted Logo Size (Width = 40, Height = 30)
+    doc.addImage(logo, "PNG", pageWidth / 2 - 20, 10, 40, 30);
+
+    // ✅ Title Below Logo
+    doc.text("Recovery Officers Data", pageWidth / 2, 50, { align: "center" });
+
+    autoTable(doc, {
+      startY: 60, // ⬆ Move table below logo
+      head: [
+        [
+          "ID",
+          "Firm Name",
+          "Recovery Officer",
+          "Paid Amount",
+          "Total Amount",
+          "Status",
+          "Promise",
+          "Other",
+        ],
+      ],
+      body: vendorsData.map((row, index) => {
         const lastHistory =
-          row.assigned_histories?.[row.assigned_histories.length - 1];
-        if (lastHistory?.promise_date) acc.promiseInvoices += 1;
-        if (lastHistory?.other) acc.otherInvoices += 1;
-
-        return acc;
+          row.assigned_histories?.[row.assigned_histories?.length - 1];
+        return [
+          index + 1,
+          row?.user?.name || "-",
+          lastHistory?.employee_user?.name || "-",
+          row?.paid_amt || "-",
+          row?.total_amt || "-",
+          row?.status || "-",
+          lastHistory?.promise_date || "-",
+          lastHistory?.other || "-",
+        ];
+      }),
+      headStyles: {
+        fillColor: [0, 128, 0], // ✅ Green color (RGB format)
+        textColor: [255, 255, 255], // ✅ White text for contrast
+        fontStyle: "bold",
       },
-      {
-        totalAmount: 0,
-        paidAmount: 0,
-        totalInvoices: 0,
-        paidInvoices: 0,
-        promiseInvoices: 0,
-        otherInvoices: 0,
-      }
-    );
+    });
+
+    doc.save("Recovery_Officers_Data.pdf");
   };
 
-  // Then in your JSX, use getSummary() instead of summary directly:
-  const summary = getSummary();
+  // Export to Excel/CSV
+  const exportToExcelOrCSV = (format) => {
+    const data = vendorsData.map((row, index) => {
+      const lastHistory =
+        row.assigned_histories?.[row.assigned_histories?.length - 1];
+      return {
+        ID: index + 1,
+        "Firm Name": row?.user?.name || "-",
+        "Recovery Officer": lastHistory?.employee_user?.name || "-",
+        "Paid Amount": row?.paid_amt || "-",
+        "Total Amount": row?.total_amt || "-",
+        Status: row?.status || "-",
+        Promise: lastHistory?.promise_date || "-",
+        Other: lastHistory?.other || "-",
+      };
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Recovery Officers Data");
+
+    if (format === "xlsx") {
+      XLSX.writeFile(workbook, "Recovery_Officers_Data.xlsx");
+    } else {
+      XLSX.writeFile(workbook, "Recovery_Officers_Data.csv");
+    }
+  };
 
   return (
     <Box sx={{ p: 3 }}>
@@ -150,18 +226,20 @@ const Page = () => {
             All Recoveries
           </div>
 
-          <div style={{ width: "200px" }}>
-            <Dropdown
-              value={selectedOfficer}
-              onChange={handleOfficerChange}
-              title="Recovery Officers"
-              options={salesManagers}
-              className="w-full"
-            />
-          </div>
+          <div className="flex items-center gap-4">
+            <div style={{ width: "250px" }}>
+              <Dropdown
+                value={selectedOfficer}
+                onChange={handleOfficerChange}
+                title="Recovery Officers"
+                options={salesManagers}
+                className="w-full"
+              />
+            </div>
 
-          <div className="bg-green-600 text-white font-semibold text-base h-11 w-52 flex justify-center items-center px-4 py-3 rounded-lg">
-            <DateFilters2 onDateChange={handleDateChange} />
+            <div className="bg-green-600 text-white font-semibold text-base h-11 w-52 flex justify-center items-center px-4 py-3 rounded-lg mt-8">
+              <DateFilters onDateChange={handleDateChange} />
+            </div>
           </div>
         </div>
       </div>
@@ -192,22 +270,13 @@ const Page = () => {
                     label: "Paid Amount",
                     value: summary?.paidAmount.toFixed(2),
                   },
-                  {
-                    label: "Total Invoices",
-                    value: summary?.totalInvoices,
-                  },
-                  {
-                    label: "Paid Invoices",
-                    value: summary?.paidInvoices,
-                  },
+                  { label: "Total Invoices", value: summary?.totalInvoices },
+                  { label: "Paid Invoices", value: summary?.paidInvoices },
                   {
                     label: "Promise Invoices",
                     value: summary?.promiseInvoices,
                   },
-                  {
-                    label: "Other Invoices",
-                    value: summary?.otherInvoices,
-                  },
+                  { label: "Other Invoices", value: summary?.otherInvoices },
                 ].map((item, index) => (
                   <Grid item xs={12} sm={6} md={4} key={index}>
                     <Typography variant="subtitle2" color="text.secondary">
@@ -219,6 +288,26 @@ const Page = () => {
           </Grid>
         </CardContent>
       </Card>
+
+      <div className="flex justify-end mb-4 space-x-2 mt-5">
+        <Button variant="contained" color="primary" onClick={exportToPDF}>
+          Download PDF
+        </Button>
+        <Button
+          variant="contained"
+          color="success"
+          onClick={() => exportToExcelOrCSV("xlsx")}
+        >
+          Download Excel
+        </Button>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => exportToExcelOrCSV("csv")}
+        >
+          Download CSV
+        </Button>
+      </div>
 
       <TableContainer className="mt-5" component={Paper} sx={{ mb: 4 }}>
         <Table>
@@ -238,36 +327,19 @@ const Page = () => {
             {fetchingData
               ? Array.from({ length: 5 }).map((_, index) => (
                   <TableRow key={index}>
-                    <TableCell>
-                      <Skeleton variant="text" width={30} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="text" width={100} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="text" width={70} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="text" width={70} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="text" width={50} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="text" width={50} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="text" width={50} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="text" width={50} />
-                    </TableCell>
+                    {Array(8)
+                      .fill(null)
+                      .map((_, cellIndex) => (
+                        <TableCell key={cellIndex}>
+                          <Skeleton variant="text" width={50} />
+                        </TableCell>
+                      ))}
                   </TableRow>
                 ))
               : getFilteredData()?.map((row, index) => {
                   const lastHistory =
                     row.assigned_histories?.[
-                      row?.assigned_histories?.length - 1
+                      row.assigned_histories?.length - 1
                     ];
                   return (
                     <TableRow key={index}>
