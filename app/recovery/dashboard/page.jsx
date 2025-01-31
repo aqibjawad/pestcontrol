@@ -28,6 +28,8 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
 import { serviceInvoice, getAllEmpoyesUrl } from "@/networkUtil/Constants";
 
+import DateFilters from "@/components/generic/DateFilters";
+
 const getParamFromUrl = (url, param) => {
   const searchParams = new URLSearchParams(url.split("?")[1]);
   return searchParams.get(param);
@@ -35,6 +37,11 @@ const getParamFromUrl = (url, param) => {
 
 const Page = () => {
   const api = new APICall();
+
+  const getTodayDateString = () => {
+    const today = new Date();
+    return today.toISOString().split("T")[0];
+  };
   const [fetchingData, setFetchingData] = useState(false);
   const [buttonLoading, setButtonLoading] = useState(false);
   const [quoteList, setQuoteList] = useState([]);
@@ -46,6 +53,14 @@ const Page = () => {
   const [comment, setComment] = useState("");
   const [paid_amt, setPaidAmt] = useState(0);
 
+  const [startDate, setStartDate] = useState(getTodayDateString());
+  const [endDate, setEndDate] = useState(getTodayDateString());
+
+  const handleDateChange = (start, end) => {
+    setStartDate(start);
+    setEndDate(end);
+  };
+
   useEffect(() => {
     const currentUrl = window.location.href;
     const urlId = getParamFromUrl(currentUrl, "id");
@@ -55,12 +70,19 @@ const Page = () => {
     if (urlId) {
       getAllRecoveries(urlId);
     }
-  }, []);
+  }, [startDate, endDate]);
 
   const getAllRecoveries = async (id) => {
     setFetchingData(true);
+    const queryParams = [];
+
+    queryParams.push(`start_date=${startDate}`);
+    queryParams.push(`end_date=${endDate}`);
+
     try {
-      const response = await api.getDataWithToken(`${getAllEmpoyesUrl}/${id}`);
+      const response = await api.getDataWithToken(
+        `${getAllEmpoyesUrl}/${id}?${queryParams.join("&")}`
+      );
       setQuoteList(response?.data?.assigned_invoices);
     } catch (error) {
       console.error("Error fetching quotes:", error);
@@ -68,6 +90,10 @@ const Page = () => {
       setFetchingData(false);
     }
   };
+
+  // useEffect(() => {
+  //   getAllRecoveries();
+  // }, [startDate, endDate]);
 
   const handleOpenModal = (invoice) => {
     setSelectedInvoice(invoice);
@@ -410,13 +436,41 @@ const Page = () => {
 
   return (
     <div>
-      <div style={{ padding: "30px", borderRadius: "10px" }}>
-        <div
+      {/* <div style={{ padding: "30px", borderRadius: "10px" }}>
+        {/* <div
           style={{ fontSize: "20px", fontWeight: "600", marginBottom: "-4rem" }}
         >
           Recovery Details
         </div>
+
+        <div className="bg-green-600 text-white font-semibold text-base h-11 w-52 flex justify-center items-center px-4 py-3 rounded-lg mt-8">
+          <DateFilters onDateChange={handleDateChange} />
+        </div>
+      </div> */}
+
+
+<div style={{ padding: "30px", borderRadius: "10px" }}>
+        <div className="flex justify-between items-center mb-6">
+          <div
+            style={{
+              fontSize: "20px",
+              fontFamily: "semibold",
+              marginBottom: "1rem",
+            }}
+          >
+            Assigned Invoices
+          </div>
+
+          <div className="flex items-center gap-4">
+
+            <div className="bg-green-600 text-white font-semibold text-base h-11 w-52 flex justify-center items-center px-4 py-3 rounded-lg mt-8">
+              <DateFilters onDateChange={handleDateChange} />
+            </div>
+          </div>
+        </div>
       </div>
+
+
 
       <Card>
         <CardContent>

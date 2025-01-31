@@ -94,13 +94,7 @@ const Page = () => {
     } catch (error) {
       console.error("Error fetching sales managers:", error);
     }
-  };
-
-  const handleOfficerChange = (name, index) => {
-    const idAtIndex = allRecoveryList[index]?.id || ""; // If "All" is selected, set to empty string
-    setSelectedRecoveryId(idAtIndex);
-    setSelectedOfficer(name);
-  };
+  };;
 
   useEffect(() => {
     getAllSalesManagers();
@@ -273,44 +267,34 @@ const Page = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            <div style={{ width: "250px" }}>
-              <Dropdown
-                value={selectedOfficer}
-                onChange={handleOfficerChange}
-                title="Recovery Officers"
-                options={salesManagers}
-                className="w-full"
-              />
+            <div className="flex justify-end mb-4 space-x-2 mt-5">
+              <button
+                onClick={exportToPDF}
+                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                PDF
+              </button>
+
+              <button
+                onClick={() => exportToExcelOrCSV("xlsx")}
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              >
+                Excel
+              </button>
+
+              <button
+                onClick={() => exportToExcelOrCSV("csv")}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                CSV
+              </button>
             </div>
 
-            <div className="bg-green-600 text-white font-semibold text-base h-11 w-52 flex justify-center items-center px-4 py-3 rounded-lg mt-8">
+            <div className="bg-green-600 text-white font-semibold text-base h-11 w-52 flex justify-center items-center px-4 py-3 rounded-lg">
               <DateFilters onDateChange={handleDateChange} />
             </div>
           </div>
         </div>
-      </div>
-
-      <div className="flex justify-end mb-4 space-x-2 mt-5">
-        <button
-          onClick={exportToPDF}
-          className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-        >
-          PDF
-        </button>
-
-        <button
-          onClick={() => exportToExcelOrCSV("xlsx")}
-          className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-        >
-          Excel
-        </button>
-
-        <button
-          onClick={() => exportToExcelOrCSV("csv")}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          CSV
-        </button>
       </div>
 
       <Card>
@@ -365,7 +349,6 @@ const Page = () => {
               <TableCell sx={{ color: "white" }}>Total Amount</TableCell>
               <TableCell sx={{ color: "white" }}>Status</TableCell>
               <TableCell sx={{ color: "white" }}>Promise</TableCell>
-              <TableCell sx={{ color: "white" }}>Other</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -396,8 +379,7 @@ const Page = () => {
                       <TableCell>{row?.paid_amt}</TableCell>
                       <TableCell>{row?.total_amt}</TableCell>
                       <TableCell>{row?.status}</TableCell>
-                      <TableCell>{lastHistory?.promise_date || "-"}</TableCell>
-                      <TableCell>{lastHistory?.other || "-"}</TableCell>
+                      <TableCell>{row?.promise_date || "-"}</TableCell>
                     </TableRow>
                   );
                 })}
