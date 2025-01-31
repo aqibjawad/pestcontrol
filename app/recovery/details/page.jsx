@@ -94,31 +94,6 @@ const Page = () => {
     getAllSalesManagers();
   }, []);
 
-  // Calculate summary statistics
-  const summary = vendorsData?.reduce(
-    (acc, row) => {
-      acc.totalAmount += parseFloat(row.total_amt || 0);
-      acc.paidAmount += parseFloat(row.paid_amt || 0);
-      acc.totalInvoices += 1;
-      if (row.status === "paid") acc.paidInvoices += 1;
-
-      const lastHistory =
-        row.assigned_histories?.[row.assigned_histories.length - 1];
-      if (lastHistory?.promise_date) acc.promiseInvoices += 1;
-      if (lastHistory?.other) acc.otherInvoices += 1;
-
-      return acc;
-    },
-    {
-      totalAmount: 0,
-      paidAmount: 0,
-      totalInvoices: 0,
-      paidInvoices: 0,
-      promiseInvoices: 0,
-      otherInvoices: 0,
-    }
-  );
-
   const getFilteredData = () => {
     if (!selectedRecoveryId) return vendorsData;
 
@@ -128,6 +103,38 @@ const Page = () => {
       return lastHistory?.employee_user?.id === selectedRecoveryId;
     });
   };
+
+  // Calculate summary statistics
+  const getSummary = () => {
+    const dataToUse = getFilteredData(); // Use filtered data instead of vendorsData directly
+
+    return dataToUse?.reduce(
+      (acc, row) => {
+        acc.totalAmount += parseFloat(row.total_amt || 0);
+        acc.paidAmount += parseFloat(row.paid_amt || 0);
+        acc.totalInvoices += 1;
+        if (row.status === "paid") acc.paidInvoices += 1;
+
+        const lastHistory =
+          row.assigned_histories?.[row.assigned_histories.length - 1];
+        if (lastHistory?.promise_date) acc.promiseInvoices += 1;
+        if (lastHistory?.other) acc.otherInvoices += 1;
+
+        return acc;
+      },
+      {
+        totalAmount: 0,
+        paidAmount: 0,
+        totalInvoices: 0,
+        paidInvoices: 0,
+        promiseInvoices: 0,
+        otherInvoices: 0,
+      }
+    );
+  };
+
+  // Then in your JSX, use getSummary() instead of summary directly:
+  const summary = getSummary();
 
   return (
     <Box sx={{ p: 3 }}>
@@ -159,7 +166,61 @@ const Page = () => {
         </div>
       </div>
 
-      <TableContainer component={Paper} sx={{ mb: 4 }}>
+      <Card>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            Summary
+          </Typography>
+          <Grid container spacing={3}>
+            {fetchingData
+              ? Array.from({ length: 6 }).map((_, index) => (
+                  <Grid item xs={12} sm={6} md={4} key={index}>
+                    <Typography variant="subtitle2" color="text.secondary">
+                      <Skeleton variant="text" width={120} />
+                    </Typography>
+                    <Typography variant="h6">
+                      <Skeleton variant="text" width={80} />
+                    </Typography>
+                  </Grid>
+                ))
+              : [
+                  {
+                    label: "Total Amount",
+                    value: summary?.totalAmount.toFixed(2),
+                  },
+                  {
+                    label: "Paid Amount",
+                    value: summary?.paidAmount.toFixed(2),
+                  },
+                  {
+                    label: "Total Invoices",
+                    value: summary?.totalInvoices,
+                  },
+                  {
+                    label: "Paid Invoices",
+                    value: summary?.paidInvoices,
+                  },
+                  {
+                    label: "Promise Invoices",
+                    value: summary?.promiseInvoices,
+                  },
+                  {
+                    label: "Other Invoices",
+                    value: summary?.otherInvoices,
+                  },
+                ].map((item, index) => (
+                  <Grid item xs={12} sm={6} md={4} key={index}>
+                    <Typography variant="subtitle2" color="text.secondary">
+                      {item.label}
+                    </Typography>
+                    <Typography variant="h6">{item.value}</Typography>
+                  </Grid>
+                ))}
+          </Grid>
+        </CardContent>
+      </Card>
+
+      <TableContainer className="mt-5" component={Paper} sx={{ mb: 4 }}>
         <Table>
           <TableHead>
             <TableRow>
@@ -226,60 +287,6 @@ const Page = () => {
           </TableBody>
         </Table>
       </TableContainer>
-
-      <Card>
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
-            Summary
-          </Typography>
-          <Grid container spacing={3}>
-            {fetchingData
-              ? Array.from({ length: 6 }).map((_, index) => (
-                  <Grid item xs={12} sm={6} md={4} key={index}>
-                    <Typography variant="subtitle2" color="text.secondary">
-                      <Skeleton variant="text" width={120} />
-                    </Typography>
-                    <Typography variant="h6">
-                      <Skeleton variant="text" width={80} />
-                    </Typography>
-                  </Grid>
-                ))
-              : [
-                  {
-                    label: "Total Amount",
-                    value: summary?.totalAmount.toFixed(2),
-                  },
-                  {
-                    label: "Paid Amount",
-                    value: summary?.paidAmount.toFixed(2),
-                  },
-                  {
-                    label: "Total Invoices",
-                    value: summary?.totalInvoices,
-                  },
-                  {
-                    label: "Paid Invoices",
-                    value: summary?.paidInvoices,
-                  },
-                  {
-                    label: "Promise Invoices",
-                    value: summary?.promiseInvoices,
-                  },
-                  {
-                    label: "Other Invoices",
-                    value: summary?.otherInvoices,
-                  },
-                ].map((item, index) => (
-                  <Grid item xs={12} sm={6} md={4} key={index}>
-                    <Typography variant="subtitle2" color="text.secondary">
-                      {item.label}
-                    </Typography>
-                    <Typography variant="h6">{item.value}</Typography>
-                  </Grid>
-                ))}
-          </Grid>
-        </CardContent>
-      </Card>
     </Box>
   );
 };
