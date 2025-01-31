@@ -120,8 +120,7 @@ const Page = () => {
         "Name",
         "Product Type",
         "Batch Number",
-        "Total",
-        "Remaining",
+        "Remaining Stock",
       ];
       const tableRows = suppliersList.map((row, index) => {
         const stock = row.stocks[0] || {};
@@ -189,8 +188,14 @@ const Page = () => {
   };
 
   const ListTable = () => {
+    const calculateTotalPrice = (remainingQty, avgPrice) => {
+      const total = (parseFloat(remainingQty) * parseFloat(avgPrice)).toFixed(
+        2
+      );
+      return total;
+    };
     return (
-      <div className={tableStyles.tableContainer}>
+      <div className="overflow-x-auto">
         <table className="min-w-full bg-white">
           <thead>
             <tr>
@@ -210,10 +215,13 @@ const Page = () => {
                 Batch Number
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Total
+                Remaining Stock
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Remaining
+                Average Price
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Total Price
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 View Attachments
@@ -234,7 +242,9 @@ const Page = () => {
               const stock = row.stocks[0] || {};
               const attachments = row.attachments || [];
               const remainingQty =
-                (stock.remaining_qty || 0) * (stock.per_item_qty || 1);
+                (stock.remaining_qty || 0) * (row.per_item_qty || 1);
+              const avgPrice = stock.avg_price || 0;
+              const totalPrice = calculateTotalPrice(remainingQty, avgPrice);
 
               return (
                 <tr className="border-b border-gray-200" key={index}>
@@ -249,10 +259,11 @@ const Page = () => {
                   <td className="py-5 px-4">{row.product_name}</td>
                   <td className="py-2 px-4">{row.product_type}</td>
                   <td className="py-2 px-4">{row.batch_number}</td>
-                  <td className="py-2 px-4">{stock.total_qty || 0}</td>
                   <td className="py-2 px-4">
-                    {remainingQty} {stock.unit || ""}
+                    {remainingQty}
                   </td>
+                  <td className="py-2 px-4">{avgPrice}</td>
+                  <td className="py-2 px-4">{totalPrice}</td>
                   <td className="py-2 px-4">
                     {attachments.length > 0 ? (
                       attachments.map((attachment, i) => (

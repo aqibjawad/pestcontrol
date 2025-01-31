@@ -18,6 +18,7 @@ export const useVehicles = () => {
   const [condition, setCondition] = useState("");
   const [expiry_date, setExpiryDate] = useState("");
   const [oil_change_limit, setOilChange] = useState("");
+  const [meter_reading, setMeterRead] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState("");
   const [employeesList, setEmployeesList] = useState([]);
 
@@ -60,6 +61,7 @@ export const useVehicles = () => {
         condition,
         expiry_date,
         oil_change_limit,
+        meter_reading,
         user_id: selectedEmployee,
       };
       const response = await api.postFormDataWithToken(
@@ -92,6 +94,7 @@ export const useVehicles = () => {
         condition,
         expiry_date,
         oil_change_limit,
+        meter_reading,
         user_id: selectedEmployee,
       };
       const response = await api.updateFormDataWithToken(
@@ -123,6 +126,7 @@ export const useVehicles = () => {
       setCondition(vehicleToEdit.condition);
       setExpiryDate(vehicleToEdit.expiry_date);
       setOilChange(vehicleToEdit.oil_change_limit);
+      setMeterRead(vehicleToEdit.meter_reading);
       setSelectedEmployee(vehicleToEdit.user_id);
     }
   };
@@ -149,6 +153,7 @@ export const useVehicles = () => {
     condition,
     expiry_date,
     oil_change_limit,
+    meter_reading,
     employeesList,
     selectedEmployee,
     setSelectedEmployee,
@@ -157,6 +162,7 @@ export const useVehicles = () => {
     setCondition,
     setExpiryDate,
     setOilChange,
+    setMeterRead,
     sendingData,
     addVehicle,
     updateVehicle,

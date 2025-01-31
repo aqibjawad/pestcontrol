@@ -17,6 +17,7 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Grid,
 } from "@mui/material";
 import withAuth from "@/utils/withAuth";
 
@@ -29,6 +30,7 @@ const Page = () => {
     condition,
     expiry_date,
     oil_change_limit,
+    meter_reading,
     employeesList,
     selectedEmployee,
     setSelectedEmployee,
@@ -37,6 +39,7 @@ const Page = () => {
     setCondition,
     setExpiryDate,
     setOilChange,
+    setMeterRead,
 
     sendingData,
     addVehicle,
@@ -129,29 +132,32 @@ const Page = () => {
       {fetchingData ? (
         <Loading />
       ) : (
-        <div className="grid grid-cols-2 gap-4">
-          {/* <div>{viewList()}</div> */}
-          <div>
-            <div className="pageTitle">Add Vehicle</div>
-            <div className="mt-10"></div>
+        <div>
+          <div className="pageTitle">Add Vehicle</div>
 
-            <InputWithTitle
-              title={"Enter Modal Name"}
-              placeholder={"Enter Modal Number"}
-              value={modal_name}
-              onChange={(value) => setModalNumber(value)}
-            />
+          <Grid container spacing={3} className="mt-10">
+            {/* Model Name */}
+            <Grid item xs={12} md={6}>
+              <InputWithTitle
+                title={"Enter Modal Name"}
+                placeholder={"Enter Modal Number"}
+                value={modal_name}
+                onChange={(value) => setModalNumber(value)}
+              />
+            </Grid>
 
-            <div className="mt-5">
+            {/* Plate Number */}
+            <Grid item xs={12} md={6}>
               <InputWithTitle
                 title={"Enter Plate Number"}
                 placeholder={"Enter Plate Number"}
                 value={vehicle_number}
                 onChange={(value) => setVehicleNumber(value)}
               />
-            </div>
+            </Grid>
 
-            <div className="mt-5">
+            {/* Assign To */}
+            <Grid item xs={12} md={6}>
               <label className="text-black text-sm font-medium mb-1 block">
                 Assign To
               </label>
@@ -178,22 +184,20 @@ const Page = () => {
                   </option>
                 )}
               </select>
-              {/* Add this temporarily to debug */}
-              <div style={{ display: "none" }}>
-                Debug: {employeesList?.length || 0} employees loaded
-              </div>
-            </div>
+            </Grid>
 
-            <div className="mt-5">
+            {/* Condition */}
+            <Grid item xs={12} md={6}>
               <InputWithTitle
                 title={"Condition"}
                 placeholder={"Condition"}
                 value={condition}
                 onChange={(value) => setCondition(value)}
               />
-            </div>
+            </Grid>
 
-            <div className="mt-5">
+            {/* Mulkia Expiry Date */}
+            <Grid item xs={12} md={6}>
               <InputWithTitle3
                 title="Mulkia Expiry Date"
                 placeholder="Mulkia Expiry Date"
@@ -202,18 +206,20 @@ const Page = () => {
                 onChange={handleDateChange}
                 name="expiry_date"
               />
-            </div>
+            </Grid>
 
-            <div className="mt-5">
+            {/* Oil Change Limit */}
+            <Grid item xs={12} md={6}>
               <InputWithTitle
                 title={"Oil Change Limit"}
                 placeholder={"Oil Change Limit"}
                 value={oil_change_limit}
                 onChange={(value) => setOilChange(value)}
               />
-            </div>
+            </Grid>
 
-            <div className="mt-5">
+            {/* Price */}
+            {/* <Grid item xs={12} md={6}>
               <InputWithTitle3
                 title="Price"
                 placeholder="Price"
@@ -222,19 +228,32 @@ const Page = () => {
                 onChange={handleDateChange}
                 name="expiry_date"
               />
-            </div>
+            </Grid> */}
 
-            <div className="mt-10"></div>
-            <GreenButton
-              sendingData={sendingData}
-              onClick={
-                editingVehiclesId
-                  ? () => updateVehicle(editingVehiclesId, vehicle_number)
-                  : addVehicle
-              }
-              title={editingVehiclesId ? "Update Vehicle" : "Add Vehicle"}
-            />
-          </div>
+            <Grid item xs={12} md={6}>
+              <InputWithTitle3
+                title="Meter Reading"
+                placeholder="Meter Reading"
+                value={meter_reading}
+                type="text"
+                onChange={(value) => setOilChange(value)}
+                name="meter_reading"
+              />
+            </Grid>
+
+            {/* Submit Button */}
+            <Grid item xs={12} className="mt-10">
+              <GreenButton
+                sendingData={sendingData}
+                onClick={
+                  editingVehiclesId
+                    ? () => updateVehicle(editingVehiclesId, vehicle_number)
+                    : addVehicle
+                }
+                title={editingVehiclesId ? "Update Vehicle" : "Add Vehicle"}
+              />
+            </Grid>
+          </Grid>
         </div>
       )}
     </div>

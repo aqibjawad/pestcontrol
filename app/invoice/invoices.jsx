@@ -321,6 +321,12 @@ const ListServiceTable = ({
                   Reference
                 </th>
                 <th
+                  style={{ width: "15%" }}
+                  className="py-2 px-4 border-b border-gray-200 text-left"
+                >
+                  Assign To
+                </th>
+                <th
                   style={{ width: "10%" }}
                   className="py-2 px-4 border-b border-gray-200 text-left"
                 >
@@ -451,6 +457,11 @@ const ListServiceTable = ({
                         <td style={{ width: "10%" }} className="py-2 px-4">
                           <div className={tableStyles.clientContact}>
                             {row?.user?.client?.referencable?.name || "N/A"}
+                          </div>
+                        </td>
+                        <td style={{ width: "10%" }} className="py-2 px-4">
+                          <div className={tableStyles.clientContact}>
+                            {row?.assigned_recovery_officer?.name || "N/A"}
                           </div>
                         </td>
                         <td style={{ width: "10%" }} className="py-2 px-4">

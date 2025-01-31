@@ -45,6 +45,7 @@ const Page = () => {
   const [product_picture, setProductPicture] = useState(null);
   const [attachments, setAttachments] = useState([]);
   const [product_category, setProductCategory] = useState("");
+  const [opening_stock_price, setOpenStkPrice] = useState("");
 
   useEffect(() => {
     getAllBrands();
@@ -109,6 +110,7 @@ const Page = () => {
       product_picture,
       product_category,
       opening_stock_qty,
+      opening_stock_price,
     };
     attachments.forEach((file, index) => {
       obj[`attachments[${index}]`] = file;
@@ -187,6 +189,15 @@ const Page = () => {
               placeholder={"Please enter opening stock number"}
               value={opening_stock_qty}
               onChange={setOpenQuant}
+            />
+          </div>
+          <div>
+            <InputWithTitle
+              title={"Opening Price"}
+              type={"text"}
+              placeholder={"Please enter opening stock number"}
+              value={opening_stock_price}
+              onChange={setOpenStkPrice}
             />
           </div>
         </div>

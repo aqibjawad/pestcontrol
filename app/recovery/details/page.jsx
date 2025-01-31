@@ -363,16 +363,16 @@ const Page = () => {
 
       <TableContainer className="mt-5" component={Paper} sx={{ mb: 4 }}>
         <Table>
-          <TableHead>
+          <TableHead sx={{backgroundColor:"#16A34A"}}>
             <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Firm Name</TableCell>
-              <TableCell>Recovery Officer Name</TableCell>
-              <TableCell>Paid Amount</TableCell>
-              <TableCell>Total Amount</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Promise</TableCell>
-              <TableCell>Other</TableCell>
+              <TableCell sx={{color:"white"}}>ID</TableCell>
+              <TableCell sx={{color:"white"}}>Firm Name</TableCell>
+              <TableCell sx={{color:"white"}}>Recovery Officer Name</TableCell>
+              <TableCell sx={{color:"white"}}>Paid Amount</TableCell>
+              <TableCell sx={{color:"white"}}>Total Amount</TableCell>
+              <TableCell sx={{color:"white"}}>Status</TableCell>
+              <TableCell sx={{color:"white"}}>Promise</TableCell>
+              <TableCell sx={{color:"white"}}>Other</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
