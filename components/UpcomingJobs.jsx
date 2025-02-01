@@ -99,6 +99,18 @@ const PDFDownloadButton = dynamic(
   }
 );
 
+const PDFButton = dynamic(
+  () => import("./pdfGrouped").then((mod) => mod.GroupedPDFDownloadButton),
+  {
+    ssr: false,
+    loading: () => (
+      <button className="py-2 px-4 rounded text-white ml-3 bg-green-500 mt-5">
+        Loading PDF...
+      </button>
+    ),
+  }
+);
+
 const UpcomingJobs = ({
   jobsList,
   handleDateChange,
@@ -293,47 +305,86 @@ const UpcomingJobs = ({
 
   const isActiveFilter = (filterType) => currentFilter === filterType;
 
-  const renderFilterButtons = () => (
-    <>
-      <PDFDownloadButton
-        filteredJobs={filteredJobs}
-        startDate={startDate}
-        endDate={endDate}
-      />
-      <button
-        style={{ fontSize: "12px" }}
-        onClick={() => downloadExcel(filteredJobs)}
-        className="py-2 px-4 rounded text-white ml-3 bg-green-500 hover:bg-green-600"
-      >
-        Excel
-      </button>
-      <button
-        style={{ fontSize: "12px" }}
-        onClick={() => downloadCSV(filteredJobs)}
-        className="py-2 px-4 rounded text-white ml-3 bg-green-500 hover:bg-green-600"
-      >
-        CSV
-      </button>
-      <button
-        style={{ fontSize: "12px" }}
-        onClick={() => handleFilter("assigned")}
-        className={`py-2 px-4 rounded text-white ml-3 ${
-          isActiveFilter("assigned") ? "bg-green-700" : "bg-green-500"
-        }`}
-      >
-        Assign
-      </button>
-      <button
-        style={{ fontSize: "12px" }}
-        onClick={() => handleFilter("not-assigned")}
-        className={`py-2 px-4 rounded text-white ml-5 ${
-          isActiveFilter("not-assigned") ? "bg-green-700" : "bg-green-500"
-        }`}
-      >
-        Not Assign
-      </button>
-    </>
-  );
+  const renderFilterButtons = () => {
+    const [isOpen, setIsOpen] = React.useState(false);
+
+    return (
+      <div className="relative inline-block text-left">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="inline-flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-green-500 rounded hover:bg-green-600"
+        >
+          Options
+        </button>
+
+        {isOpen && (
+          <>
+            <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
+              <div className="py-1" role="menu">
+                <PDFDownloadButton
+                  filteredJobs={filteredJobs}
+                  startDate={startDate}
+                  endDate={endDate}
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                />
+
+                <PDFButton
+                  filteredJobs={filteredJobs}
+                  startDate={startDate}
+                  endDate={endDate}
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 mt-2" // Reduced margin
+                />
+
+                <button
+                  onClick={() => {
+                    downloadExcel(filteredJobs);
+                    setIsOpen(false);
+                  }}
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 mt-2"
+                >
+                  Excel
+                </button>
+
+                <button
+                  onClick={() => {
+                    downloadCSV(filteredJobs);
+                    setIsOpen(false);
+                  }}
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 mt-2"
+                >
+                  CSV
+                </button>
+              </div>
+            </div>
+
+            <div
+              className="fixed inset-0 z-0"
+              onClick={() => setIsOpen(false)}
+            ></div>
+          </>
+        )}
+
+        <button
+          style={{ fontSize: "12px" }}
+          onClick={() => handleFilter("assigned")}
+          className={`py-2 px-4 rounded text-white ml-3 ${
+            isActiveFilter("assigned") ? "bg-green-700" : "bg-green-500"
+          }`}
+        >
+          Assign
+        </button>
+        <button
+          style={{ fontSize: "12px" }}
+          onClick={() => handleFilter("not-assigned")}
+          className={`py-2 px-4 rounded text-white ml-5 ${
+            isActiveFilter("not-assigned") ? "bg-green-700" : "bg-green-500"
+          }`}
+        >
+          Not Assign
+        </button>
+      </div>
+    );
+  };
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
@@ -373,7 +424,6 @@ const UpcomingJobs = ({
             />
             <DateFilters onDateChange={handleDateChange} />
           </div>
-          <div className="mr-2">{renderFilterButtons()}</div>
           <div className="flex items-center">
             <input
               type="text"
@@ -390,6 +440,8 @@ const UpcomingJobs = ({
               Search
             </button>
           </div>
+
+          <div className="ml-10">{renderFilterButtons()}</div>
         </div>
       </div>
       <div className={styles.tableContainer}>
