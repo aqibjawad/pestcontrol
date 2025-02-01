@@ -19,7 +19,7 @@ const Tabs = ({ activeTab, setActiveTab }) => {
           }`}
           onClick={() => handleTabClick("cash")}
         >
-          Cash
+          Cash 
         </div>
         <div
           className={`${styles.tabPaymentButton} ${

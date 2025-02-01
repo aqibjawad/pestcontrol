@@ -25,6 +25,8 @@ import {
 } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
 
+import Tabs from "./tabs";
+
 const Page = () => {
   const api = new APICall();
 
@@ -39,6 +41,7 @@ const Page = () => {
   const [maintenance_amount, setMainAmount] = useState();
   const [oil_amount, setOilAmount] = useState();
   const [oil_change_limit, setOilChangeLimit] = useState();
+  const [meter_reading, setMeterRead] = useState();
 
   const [vat_per, setVat] = useState();
   const [total, setTotal] = useState();
@@ -54,9 +57,15 @@ const Page = () => {
 
   const [selectedVehicleId, setSelectedVehicleId] = useState("");
 
+  const [transactionId, setTransactionId] = useState("");
+
   const [fetchingData, setFetchingData] = useState(false);
 
   const [selectedBank, setSelectedBank] = useState({ id: "", name: "" });
+
+  const [cheque_date, setChequeDate] = useState();
+
+  const [cheque_no, setChequeNo] = useState();
 
   useEffect(() => {
     getAllBanks();
@@ -109,9 +118,9 @@ const Page = () => {
     }
   };
 
-  // const handleTabChange = (tab) => {
-  //   setActiveTab(tab);
-  // };
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+  };
 
   const createVehicleObject = () => {
     let vehicleObj = {
@@ -124,6 +133,7 @@ const Page = () => {
       maintenance_amount,
       payment_type: "cash",
       oil_change_limit,
+      meter_reading,
     };
 
     return vehicleObj;
@@ -173,7 +183,7 @@ const Page = () => {
     value: vehcilees.id,
     label: `${vehcilees.vehicle_number} - ${vehcilees.modal_name}- ${vehcilees?.user?.name}`,
   }));
-  
+
   const handleDateChange = (name, value) => {
     setExpDate(value);
   };
@@ -246,7 +256,7 @@ const Page = () => {
           />
         </Grid>
 
-        <Grid item lg={4} xs={12} sm={6} md={4}>
+        {/* <Grid item lg={4} xs={12} sm={6} md={4}>
           <InputWithTitle
             title={"VAT"}
             type={"text"}
@@ -263,18 +273,19 @@ const Page = () => {
             placeholder={"Total"}
             readOnly
           />
-        </Grid>
+        </Grid> */}
 
         <Grid item lg={4} xs={12} sm={6} md={4}>
           <InputWithTitle
-            value={total}
+            value={meter_reading}
             title={"Meter Reading"}
             type="text"
             placeholder={"Meter Reading"}
+            onChange={setMeterRead}
           />
         </Grid>
 
-        {/* <Grid item lg={6} xs={12} sm={6} md={6}>
+        <Grid item lg={12} xs={12} sm={6} md={6}>
           <Tabs activeTab={activeTab} setActiveTab={handleTabChange} />
         </Grid>
 
@@ -304,7 +315,11 @@ const Page = () => {
         </Grid>
 
         {activeTab === "cheque" && (
-          <Grid className={styles.fromGrid} container spacing={3}>
+          <Grid
+            style={{ paddingLeft: "2rem", paddingRight: "2rem" }}
+            container
+            spacing={3}
+          >
             <Grid item lg={6} xs={12}>
               <Dropdown2
                 onChange={handleBankChange}
@@ -353,8 +368,12 @@ const Page = () => {
         )}
 
         {activeTab === "online" && (
-          <Grid className={styles.fromGrid} container spacing={3}>
-            <Grid item xs={12}>
+          <Grid
+            style={{ paddingLeft: "2rem", paddingRight: "2rem" }}
+            container
+            spacing={3}
+          >
+            <Grid item xs={6}>
               <Dropdown2
                 onChange={handleBankChange}
                 title={"Banks"}
@@ -380,16 +399,17 @@ const Page = () => {
               />
             </Grid>
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid item lg={4} xs={12} sm={6} md={4}>
               <InputWithTitle
+                value={total}
                 title={"Total"}
-                type={"text"}
+                type="text"
                 placeholder={"Total"}
-                onChange={setTotal}
+                readOnly
               />
             </Grid>
           </Grid>
-        )} */}
+        )}
       </Grid>
 
       <div className={styles.btnSubmitt}>
