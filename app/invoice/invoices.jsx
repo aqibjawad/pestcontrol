@@ -439,7 +439,7 @@ const ListServiceTable = ({
                             </Link>
                           </td>
                           <td style={{ width: "10%" }} className="py-2 px-4">
-                            <Link href={`/recovery/viewHistory`}>
+                            <Link href={`/recovery/viewHistory?id=${row.id}`}>
                               <span className="text-blue-600 hover:text-blue-800">
                                 View History
                               </span>
@@ -448,7 +448,12 @@ const ListServiceTable = ({
                           <td style={{ width: "10%" }} className="py-2 px-4">
                             <button
                               onClick={() => handleAssignClick(row.id)}
-                              className="text-blue-600 hover:text-blue-800"
+                              className={`text-blue-600 hover:text-blue-800 ${
+                                row.status.toLowerCase() === "paid"
+                                  ? "opacity-50 cursor-not-allowed"
+                                  : ""
+                              }`}
+                              disabled={row.status.toLowerCase() === "paid"}
                             >
                               Assign
                             </button>

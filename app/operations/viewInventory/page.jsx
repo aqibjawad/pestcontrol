@@ -71,11 +71,26 @@ const Page = () => {
     setIsModalOpen(false);
   };
 
-  const generateExportData = () => {
-    return suppliersList.map((row, index) => {
+  const calculateTotals = () => {
+    return suppliersList.reduce((acc, row) => {
       const stock = row.stocks[0] || {};
-      const remainingQty =
-        (stock.remaining_qty || 0) * (stock.per_item_qty || 1);
+      const remainingQty = (stock.remaining_qty || 0) * (row.per_item_qty || 1);
+      const avgPrice = stock.avg_price || 0;
+      const totalPrice = (parseFloat(remainingQty) * parseFloat(avgPrice)).toFixed(2);
+      
+      return {
+        totalAvgPrice: acc.totalAvgPrice + parseFloat(avgPrice),
+        grandTotal: acc.grandTotal + parseFloat(totalPrice)
+      };
+    }, { totalAvgPrice: 0, grandTotal: 0 });
+  };
+
+  const generateExportData = () => {
+    const data = suppliersList.map((row, index) => {
+      const stock = row.stocks[0] || {};
+      const remainingQty = (stock.remaining_qty || 0) * (row.per_item_qty || 1);
+      const avgPrice = stock.avg_price || 0;
+      const totalPrice = (parseFloat(remainingQty) * parseFloat(avgPrice)).toFixed(2);
 
       return {
         "Sr No": index + 1,
@@ -84,11 +99,26 @@ const Page = () => {
         "Batch Number": row.batch_number || "N/A",
         "Total Quantity": stock.total_qty || 0,
         "Remaining Quantity": `${remainingQty} ${stock.unit || ""}`,
+        "Average Price": avgPrice,
+        "Total Price": totalPrice
       };
     });
+
+    const totals = calculateTotals();
+    data.push({
+      "Sr No": "",
+      "Product Name": "TOTAL",
+      "Product Type": "",
+      "Batch Number": "",
+      "Total Quantity": "",
+      "Remaining Quantity": "",
+      "Average Price": totals.totalAvgPrice.toFixed(2),
+      "Total Price": totals.grandTotal.toFixed(2)
+    });
+
+    return data;
   };
 
-  // Export Functions
   const exportToPDF = () => {
     const doc = new jsPDF();
 
@@ -96,51 +126,66 @@ const Page = () => {
     const originalWidth = 397;
     const originalHeight = 175;
 
-    // Desired width for PDF (adjust as needed)
+    // Desired width for PDF
     const pdfWidth = 50;
     const aspectRatio = originalHeight / originalWidth;
-    const pdfHeight = pdfWidth * aspectRatio; // Maintain aspect ratio
+    const pdfHeight = pdfWidth * aspectRatio;
 
     // Add logo
     const img = new Image();
-    img.src = "/logo.jpeg"; // Replace with actual image path
+    img.src = "/logo.jpeg";
     img.onload = function () {
-      doc.addImage(img, "PNG", 75, 10, pdfWidth, pdfHeight); // Adjusted height
+      doc.addImage(img, "PNG", 75, 10, pdfWidth, pdfHeight);
 
       // Add title (centered)
       const title = "Inventory Report";
       doc.setFontSize(14);
       const pageWidth = doc.internal.pageSize.getWidth();
       const textWidth = doc.getTextWidth(title);
-      doc.text(title, (pageWidth - textWidth) / 2, 30 + pdfHeight); // Positioned below the image
+      doc.text(title, (pageWidth - textWidth) / 2, 30 + pdfHeight);
 
-      // Table data
       const tableColumn = [
         "Sr No",
         "Name",
         "Product Type",
         "Batch Number",
         "Remaining Stock",
+        "Average Price",
+        "Total Price"
       ];
+
       const tableRows = suppliersList.map((row, index) => {
         const stock = row.stocks[0] || {};
-        const remainingQty =
-          (stock.remaining_qty || 0) * (stock.per_item_qty || 1);
+        const remainingQty = (stock.remaining_qty || 0) * (row.per_item_qty || 1);
+        const avgPrice = stock.avg_price || 0;
+        const totalPrice = (parseFloat(remainingQty) * parseFloat(avgPrice)).toFixed(2);
+        
         return [
           index + 1,
           row.product_name,
           row.product_type,
           row.batch_number,
-          stock.total_qty || 0,
-          `${remainingQty} ${stock.unit || ""}`,
+          remainingQty,
+          avgPrice,
+          totalPrice
         ];
       });
 
-      // Add table
+      const totals = calculateTotals();
+      tableRows.push([
+        "",
+        "TOTAL",
+        "",
+        "",
+        "",
+        totals.totalAvgPrice.toFixed(2),
+        totals.grandTotal.toFixed(2)
+      ]);
+
       doc.autoTable({
         head: [tableColumn],
         body: tableRows,
-        startY: 40 + pdfHeight, // Adjusted to fit under the title
+        startY: 40 + pdfHeight,
         theme: "grid",
         styles: {
           fontSize: 8,
@@ -149,9 +194,12 @@ const Page = () => {
         headStyles: {
           fillColor: [50, 169, 46],
         },
+        footStyles: {
+          fillColor: [240, 240, 240],
+          fontStyle: 'bold'
+        }
       });
 
-      // Save PDF
       doc.save("inventory.pdf");
     };
   };
@@ -162,11 +210,9 @@ const Page = () => {
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Inventory");
 
-    // Generate filename with date range if available
-    const filename =
-      startDate && endDate
-        ? `inventory_${startDate}_${endDate}.xlsx`
-        : "inventory.xlsx";
+    const filename = startDate && endDate
+      ? `inventory_${startDate}_${endDate}.xlsx`
+      : "inventory.xlsx";
 
     XLSX.writeFile(workbook, filename);
   };
@@ -176,73 +222,47 @@ const Page = () => {
     const worksheet = XLSX.utils.json_to_sheet(data);
     const csvContent = XLSX.utils.sheet_to_csv(worksheet);
 
-    // Create and trigger download
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     link.href = window.URL.createObjectURL(blob);
-    link.download =
-      startDate && endDate
-        ? `inventory_${startDate}_${endDate}.csv`
-        : "inventory.csv";
+    link.download = startDate && endDate
+      ? `inventory_${startDate}_${endDate}.csv`
+      : "inventory.csv";
     link.click();
   };
 
   const ListTable = () => {
     const calculateTotalPrice = (remainingQty, avgPrice) => {
-      const total = (parseFloat(remainingQty) * parseFloat(avgPrice)).toFixed(
-        2
-      );
+      const total = (parseFloat(remainingQty) * parseFloat(avgPrice)).toFixed(2);
       return total;
     };
+
+    const totals = calculateTotals();
+
     return (
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white">
           <thead>
             <tr>
-              <th className="py-5 px-4 border-b border-gray-200 text-left">
-                Sr No
-              </th>
-              <th className="py-5 px-4 border-b border-gray-200 text-left">
-                Product Picture
-              </th>
-              <th className="py-5 px-4 border-b border-gray-200 text-left">
-                Name
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Product Type
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Batch Number
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Remaining Stock
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Average Price
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Total Price
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                View Attachments
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Actions
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Stock
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Add Stock Quantity
-              </th>
+              <th className="py-5 px-4 border-b border-gray-200 text-left">Sr No</th>
+              <th className="py-5 px-4 border-b border-gray-200 text-left">Product Picture</th>
+              <th className="py-5 px-4 border-b border-gray-200 text-left">Name</th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">Product Type</th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">Batch Number</th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">Remaining Stock</th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">Average Price</th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">Total Price</th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">View Attachments</th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">Actions</th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">Stock</th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">Add Stock Quantity</th>
             </tr>
           </thead>
           <tbody>
             {suppliersList?.map((row, index) => {
               const stock = row.stocks[0] || {};
               const attachments = row.attachments || [];
-              const remainingQty =
-                (stock.remaining_qty || 0) * (row.per_item_qty || 1);
+              const remainingQty = (stock.remaining_qty || 0) * (row.per_item_qty || 1);
               const avgPrice = stock.avg_price || 0;
               const totalPrice = calculateTotalPrice(remainingQty, avgPrice);
 
@@ -259,9 +279,7 @@ const Page = () => {
                   <td className="py-5 px-4">{row.product_name}</td>
                   <td className="py-2 px-4">{row.product_type}</td>
                   <td className="py-2 px-4">{row.batch_number}</td>
-                  <td className="py-2 px-4">
-                    {remainingQty}
-                  </td>
+                  <td className="py-2 px-4">{remainingQty}</td>
                   <td className="py-2 px-4">{avgPrice}</td>
                   <td className="py-2 px-4">{totalPrice}</td>
                   <td className="py-2 px-4">
@@ -306,6 +324,12 @@ const Page = () => {
                 </tr>
               );
             })}
+            <tr className="border-b border-gray-200 font-bold bg-gray-100">
+              <td colSpan="6" className="py-2 px-4 text-right">Total:</td>
+              <td className="py-2 px-4">{totals.totalAvgPrice.toFixed(2)}</td>
+              <td className="py-2 px-4">{totals.grandTotal.toFixed(2)}</td>
+              <td colSpan="4"></td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -326,7 +350,6 @@ const Page = () => {
         </div>
         <div className="flex" style={{ marginLeft: "10rem" }}>
           <div className="flex-grow">
-            {/* Export Buttons */}
             <div className="mt-8 flex gap-2">
               <button
                 onClick={exportToPDF}
