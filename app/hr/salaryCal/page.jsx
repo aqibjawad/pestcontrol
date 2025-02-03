@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
 import { Modal, Box, Button, Skeleton, Menu, MenuItem } from "@mui/material";
 import APICall from "@/networkUtil/APICall";
-import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
+import { getAllEmpoyesUrl, bank } from "@/networkUtil/Constants";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import styles from "../../../styles/salaryModal.module.css";
 import GreenButton from "@/components/generic/GreenButton";
@@ -12,14 +12,15 @@ import Swal from "sweetalert2";
 import CircularProgress from "@mui/material/CircularProgress";
 import withAuth from "@/utils/withAuth";
 import Grid from "@mui/material/Grid";
-import MoreVertIcon from "@mui/icons-material/MoreVert"; // Import the three-dots icon
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 import { useRouter } from "next/navigation";
 import MonthPicker from "../monthPicker";
-import Link from "next/link";
 
 import "./index.css";
-import { MoreVertical } from "lucide-react";
+import Tabs from "./tabs";
+
+import Dropdown2 from "@/components/generic/DropDown2";
 
 const SalaryCal = () => {
   const api = new APICall();
@@ -37,12 +38,15 @@ const SalaryCal = () => {
 
   const [adv_received, setAdvRec] = useState("");
   const [fine_received, setFineRec] = useState("");
+  const [bonus, setBonus] = useState("");
 
   const [description, setDescription] = useState("");
 
   const [adv_paid, setAdvPaid] = useState("");
 
   const [paymentType, setPaymentType] = useState(null);
+
+  const [activeTab, setActiveTab] = useState("cash");
 
   const handlePaymentType = (type) => {
     setPaymentType(type);
@@ -67,6 +71,12 @@ const SalaryCal = () => {
 
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [allEmployees, setAllEmployees] = useState();
+
+  // Bank related states
+  const [allBanksList, setAllBankList] = useState([]);
+  const [selectedBankId, setSelectedBankId] = useState("");
+  const [transactionId, setTransactionId] = useState("");
+  const [vat_per, setVat] = useState("");
 
   const getAllEmployees = async () => {
     setFetchingData(true);
@@ -229,7 +239,16 @@ const SalaryCal = () => {
       paid_salary: paid_salary,
       transection_type: paymentType,
       fine_received: fine_received,
+      payment_type: activeTab,
     };
+
+    if (activeTab === "online") {
+      return {
+        ...obj,
+        bank_id: selectedBankId,
+        transection_id: transactionId,
+      };
+    }
 
     try {
       const response = await api.postFormDataWithToken(
@@ -365,6 +384,28 @@ const SalaryCal = () => {
     }
   };
 
+  const getAllBanks = async () => {
+    setFetchingData(true);
+    try {
+      const response = await api.getDataWithToken(`${bank}`);
+      const banks = response.data;
+      setAllBankList(banks);
+    } catch (error) {
+      console.error("Error fetching banks:", error);
+    } finally {
+      setFetchingData(false);
+    }
+  };
+
+  useEffect(() => {
+    getAllBanks();
+  }, []);
+
+  const bankOptions = allBanksList?.map((bank) => ({
+    value: bank.id,
+    label: bank.bank_name,
+  }));
+
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedRow, setSelectedRow] = useState(null);
 
@@ -427,8 +468,17 @@ const SalaryCal = () => {
     padding: "12px 4px",
   };
 
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+  };
+
+  const handleBankChange = (selectedValue) => {
+    setSelectedBankId(selectedValue);
+  };
+
   return (
     <div>
+      {/* Salary Table */}
       <div className="mt-10 mb-10">
         <div className="pageTitle">Salary Calculations</div>
         <div className="mt-5"></div>
@@ -703,6 +753,7 @@ const SalaryCal = () => {
         </div>
       </div>
 
+      {/* Salary Clculation Modal */}
       <Modal
         open={openModal}
         onClose={handleCloseModal}
@@ -755,6 +806,15 @@ const SalaryCal = () => {
               <Grid item xs={4}>
                 <InputWithTitle
                   type="text"
+                  title="Bonus"
+                  placeholder="Enter Bonus"
+                  value={bonus}
+                  onChange={(value) => setBonus(value)}
+                />
+              </Grid>
+              <Grid item xs={4}>
+                <InputWithTitle
+                  type="text"
                   title="Description"
                   placeholder="Enter description"
                   value={description}
@@ -783,6 +843,45 @@ const SalaryCal = () => {
                 </div>
               </Grid>
             </Grid>
+            <Tabs activeTab={activeTab} setActiveTab={handleTabChange} />
+
+            {activeTab === "online" && (
+              <Grid
+                style={{
+                  paddingLeft: "2rem",
+                  paddingRight: "2rem",
+                  marginTop: "1rem",
+                }}
+                container
+                spacing={3}
+              >
+                <Grid item xs={6}>
+                  <Dropdown2
+                    onChange={handleBankChange}
+                    title="Select Bank"
+                    options={bankOptions}
+                    value={selectedBankId}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <InputWithTitle
+                    title={"Transaction Id"}
+                    type={"text"}
+                    placeholder={"Transaction Id"}
+                    onChange={setTransactionId}
+                  />
+                </Grid>
+
+                <Grid item xs={12} sm={6} md={6}>
+                  <InputWithTitle
+                    title={"VAT"}
+                    type={"text"}
+                    placeholder={"VAT"}
+                    onChange={setVat}
+                  />
+                </Grid>
+              </Grid>
+            )}
 
             <div className="mt-5">
               <GreenButton
@@ -801,6 +900,7 @@ const SalaryCal = () => {
         </Box>
       </Modal>
 
+      {/* Attendence Update Modal */}
       <Modal open={openAdvModal} onClose={handleClosAdveModal}>
         <Box className={styles.modalBox}>
           <div className={styles.modalHead}>
@@ -839,6 +939,7 @@ const SalaryCal = () => {
         </Box>
       </Modal>
 
+      {/* Pay Advance Modal */}
       <Modal open={openAdvPayModal} onClose={handleClosAdvePayModal}>
         <Box className={styles.modalBox}>
           <div className={styles.modalHead}>

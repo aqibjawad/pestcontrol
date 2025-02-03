@@ -92,7 +92,7 @@ const PDFDownloadButton = dynamic(
   {
     ssr: false,
     loading: () => (
-      <button className="py-2 px-4 rounded text-white ml-3 bg-green-500">
+      <button className="py-2 px-4 rounded text-black mt-2">
         Loading PDF...
       </button>
     ),
@@ -104,7 +104,7 @@ const PDFButton = dynamic(
   {
     ssr: false,
     loading: () => (
-      <button className="py-2 px-4 rounded text-white ml-3 bg-green-500 mt-5">
+      <button className="py-2 px-4 rounded text-black mt-2">
         Loading PDF...
       </button>
     ),
@@ -314,27 +314,30 @@ const UpcomingJobs = ({
           onClick={() => setIsOpen(!isOpen)}
           className="inline-flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-green-500 rounded hover:bg-green-600"
         >
-          Options
+          Download Options
         </button>
 
         {isOpen && (
           <>
-            <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
+            <div className="origin-top-right absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
               <div className="py-1" role="menu">
-                <PDFDownloadButton
-                  filteredJobs={filteredJobs}
-                  startDate={startDate}
-                  endDate={endDate}
+                <div className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 mt-2">
+                  <PDFDownloadButton
+                    filteredJobs={filteredJobs}
+                    startDate={startDate}
+                    endDate={endDate}
+                  />
+                </div>
+
+                <div
                   className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                />
-
-                <PDFButton
-                  filteredJobs={filteredJobs}
-                  startDate={startDate}
-                  endDate={endDate}
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 mt-2" // Reduced margin
-                />
-
+                >
+                  <PDFButton
+                    filteredJobs={filteredJobs}
+                    startDate={startDate}
+                    endDate={endDate}
+                  />
+                </div>
                 <button
                   onClick={() => {
                     downloadExcel(filteredJobs);
@@ -344,7 +347,6 @@ const UpcomingJobs = ({
                 >
                   Excel
                 </button>
-
                 <button
                   onClick={() => {
                     downloadCSV(filteredJobs);

@@ -120,7 +120,7 @@ const ListServiceTable = ({
 
       doc.addImage(img, "jpeg", xPosition, 10, logoWidth, logoHeight);
       doc.setFontSize(12);
-      doc.text(`Approved Payments Report`, pageWidth / 2, logoHeight + 20, {
+      doc.text(`Invoices`, pageWidth / 2, logoHeight + 20, {
         align: "center",
       });
       doc.text(

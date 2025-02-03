@@ -5,7 +5,7 @@ import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
 import Link from "next/link";
 import DateFilters from "../../../components/generic/DateFilters";
 import APICall from "@/networkUtil/APICall";
-import { vehciles, getAllEmpoyesUrl } from "@/networkUtil/Constants";
+import { vehciles, getAllEmpoyesUrl, bank } from "@/networkUtil/Constants";
 import {
   Skeleton,
   Modal,
@@ -22,6 +22,10 @@ import InputWithTitle3 from "@/components/generic/InputWithTitle3";
 import Swal from "sweetalert2";
 
 import GreenButton from "@/components/generic/GreenButton";
+
+import Tabs from "./tabs";
+
+import Dropdown2 from "@/components/generic/DropDown2";
 
 const Page = () => {
   const api = new APICall();
@@ -40,6 +44,16 @@ const Page = () => {
   const [selectedEmployee, setSelectedEmployee] = useState("");
 
   const [employeesList, setEmployeesList] = useState([]);
+
+  const [activeTab, setActiveTab] = useState("cash");
+
+  // Bank related states
+  const [allBanksList, setAllBankList] = useState([]);
+  const [selectedBankId, setSelectedBankId] = useState("");
+  const [cheque_date, setChequeDate] = useState("");
+  const [cheque_no, setChequeNo] = useState("");
+  const [transactionId, setTransactionId] = useState("");
+  const [vat_per, setVat] = useState("");
 
   const handleDateChange = (start, end) => {
     setStartDate(start);
@@ -83,6 +97,28 @@ const Page = () => {
       setFetchingData(false);
     }
   };
+
+  const getAllBanks = async () => {
+    setFetchingData(true);
+    try {
+      const response = await api.getDataWithToken(`${bank}`);
+      const banks = response.data;
+      setAllBankList(banks);
+    } catch (error) {
+      console.error("Error fetching banks:", error);
+    } finally {
+      setFetchingData(false);
+    }
+  };
+
+  useEffect(() => {
+    getAllBanks();
+  }, []);
+
+  const bankOptions = allBanksList?.map((bank) => ({
+    value: bank.id,
+    label: bank.bank_name,
+  }));
 
   const calculateTotalAmount = () => {
     return vehiclesList.reduce(
@@ -224,8 +260,25 @@ const Page = () => {
     const obj = {
       fine,
       fine_date,
+      vat_per,
       vehicle_id: selectedVehicleId,
+      payment_type: activeTab,
     };
+
+    if (activeTab === "cheque") {
+      return {
+        ...obj,
+        bank_id: selectedBankId,
+        cheque_date,
+        cheque_no,
+      };
+    } else if (activeTab === "online") {
+      return {
+        ...obj,
+        bank_id: selectedBankId,
+        transection_id: transactionId,
+      };
+    }
 
     try {
       const response = await api.postFormDataWithToken(
@@ -257,8 +310,6 @@ const Page = () => {
 
   const [isReassignModalOpen, setIsReassignModalOpen] = useState(false);
   const [reassignVehicleData, setReassignVehicleData] = useState(null);
-
-  console.log(reassignVehicleData);
 
   // Handler to open the reassign modal
   const handleOpenReassignModal = (vehicle) => {
@@ -321,6 +372,14 @@ const Page = () => {
     }
   };
 
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+  };
+
+  const handleBankChange = (selectedValue) => {
+    setSelectedBankId(selectedValue);
+  };
+
   return (
     <div>
       <div className="flex">
@@ -359,35 +418,104 @@ const Page = () => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: 400,
+            width: 800,
             bgcolor: "background.paper",
             boxShadow: 24,
             p: 4,
             borderRadius: 2,
           }}
         >
-          <Grid container spacing={2}>
-            {/* Header */}
-            <Grid item xs={12}>
-              <InputWithTitle
-                title={"Fine"}
-                type={"text"}
-                placeholder={"Fine"}
-                value={fine}
-                onChange={setFine}
-              />
-            </Grid>
+          <Tabs activeTab={activeTab} setActiveTab={handleTabChange} />
 
-            {/* Left Section */}
-            <Grid item xs={12}>
-              <InputWithTitle3
-                onChange={handleFineDateChange}
-                title={"Fine Date"}
-                type={"date"}
-                value={fine_date}
-              />
+          {activeTab === "cash" && (
+            <Grid className="mt-3" container spacing={2}>
+              <Grid item xs={6}>
+                <InputWithTitle
+                  title={"Fine"}
+                  type={"text"}
+                  placeholder={"Fine"}
+                  value={fine}
+                  onChange={setFine}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={6}>
+                <InputWithTitle
+                  title={"VAT"}
+                  type={"text"}
+                  placeholder={"VAT"}
+                  onChange={setVat}
+                />
+              </Grid>
+
+              <Grid item xs={6}>
+                <InputWithTitle3
+                  onChange={handleFineDateChange}
+                  title={"Fine Date"}
+                  type={"date"}
+                  value={fine_date}
+                />
+              </Grid>
             </Grid>
-          </Grid>
+          )} 
+
+          {activeTab === "online" && (
+            <Grid
+              style={{
+                paddingLeft: "2rem",
+                paddingRight: "2rem",
+                marginTop: "1rem",
+              }}
+              container
+              spacing={3}
+            >
+              <Grid item xs={6}>
+                <Dropdown2
+                  onChange={handleBankChange}
+                  title="Select Bank"
+                  options={bankOptions}
+                  value={selectedBankId}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <InputWithTitle
+                  title={"Transaction Id"}
+                  type={"text"}
+                  placeholder={"Transaction Id"}
+                  onChange={setTransactionId}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={6}>
+                <InputWithTitle
+                  title={"VAT"}
+                  type={"text"}
+                  placeholder={"VAT"}
+                  onChange={setVat}
+                />
+              </Grid>
+
+              <Grid item xs={6}>
+                <InputWithTitle
+                  title={"Fine"}
+                  type={"text"}
+                  placeholder={"Fine"}
+                  value={fine}
+                  onChange={setFine}
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+                <InputWithTitle3
+                  onChange={handleFineDateChange}
+                  title={"Fine Date"}
+                  type={"date"}
+                  value={fine_date}
+                />
+              </Grid>
+            </Grid>
+          )}
+
           <div className="mt-5">
             <GreenButton
               onClick={handleSubmit}

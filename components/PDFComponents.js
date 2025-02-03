@@ -171,8 +171,7 @@ export const PDFDownloadButton = ({ filteredJobs, startDate, endDate }) => (
       />
     }
     fileName="jobs-table.pdf"
-    className="py-2 px-4 rounded text-white ml-3 bg-green-500 hover:bg-green-600"
   >
-    {({ loading }) => (loading ? "Generating PDF..." : "PDF")}
+    {({ loading }) => (loading ? "Generating PDF..." : "All Jobs")}
   </PDFDownloadLink>
 );
