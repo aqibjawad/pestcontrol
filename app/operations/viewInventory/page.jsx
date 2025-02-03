@@ -326,7 +326,7 @@ const Page = () => {
             })}
             <tr className="border-b border-gray-200 font-bold bg-gray-100">
               <td colSpan="6" className="py-2 px-4 text-right">Total:</td>
-              <td className="py-2 px-4">{totals.totalAvgPrice.toFixed(2)}</td>
+              {/* <td className="py-2 px-4">{totals.totalAvgPrice.toFixed(2)}</td> */}
               <td className="py-2 px-4">{totals.grandTotal.toFixed(2)}</td>
               <td colSpan="4"></td>
             </tr>

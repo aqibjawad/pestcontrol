@@ -1,71 +1,47 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-
 import { Grid, CircularProgress } from "@mui/material";
-
 import InputWithTitle from "../../../components/generic/InputWithTitle";
 import InputWithTitle3 from "../../../components/generic/InputWithTitle3";
-
 import styles from "../../../styles/stock.module.css";
-
 import GreenButton from "@/components/generic/GreenButton";
-
 import Dropdown2 from "@/components/generic/DropDown2";
-
 import { useRouter } from "next/navigation";
-
 import withAuth from "@/utils/withAuth";
-
-import {
-  vehciles,
-  bank,
-  vehicleExpense,
-  expense,
-} from "@/networkUtil/Constants";
+import { vehciles, bank, vehicleExpense } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
-
 import Tabs from "./tabs";
 
 const Page = () => {
   const api = new APICall();
-
   const router = useRouter();
-
+  
+  // Core states
   const [loadingSubmit, setLoadingSubmit] = useState(false);
-
   const [activeTab, setActiveTab] = useState("cash");
-
-  const [fuel_amount, setFuelAmount] = useState();
-  const [expense_date, setExpDate] = useState();
-  const [maintenance_amount, setMainAmount] = useState();
-  const [oil_amount, setOilAmount] = useState();
-  const [oil_change_limit, setOilChangeLimit] = useState();
-  const [meter_reading, setMeterRead] = useState();
-
-  const [vat_per, setVat] = useState();
-  const [total, setTotal] = useState();
-  const [amount, setAmount] = useState();
-
-  // All Banks States
-  const [allBanksList, setAllBankList] = useState([]);
-  const [allBankNameList, setBankNameList] = useState([]);
-  const [selectedBankId, setSelectedBankId] = useState("");
-
-  // All Banks States
-  const [allVehiclesList, setAllVehicleList] = useState([]);
-
-  const [selectedVehicleId, setSelectedVehicleId] = useState("");
-
-  const [transactionId, setTransactionId] = useState("");
-
   const [fetchingData, setFetchingData] = useState(false);
 
-  const [selectedBank, setSelectedBank] = useState({ id: "", name: "" });
+  // Expense details
+  const [fuel_amount, setFuelAmount] = useState("");
+  const [expense_date, setExpDate] = useState("");
+  const [maintenance_amount, setMainAmount] = useState("");
+  const [oil_amount, setOilAmount] = useState("");
+  const [oil_change_limit, setOilChangeLimit] = useState("");
+  const [meter_reading, setMeterRead] = useState("");
+  const [vat_per, setVat] = useState("");
+  const [total, setTotal] = useState("");
 
-  const [cheque_date, setChequeDate] = useState();
+  // Bank related states
+  const [allBanksList, setAllBankList] = useState([]);
+  const [selectedBankId, setSelectedBankId] = useState("");
+  const [cheque_date, setChequeDate] = useState("");
+  const [cheque_no, setChequeNo] = useState("");
+  const [transactionId, setTransactionId] = useState("");
 
-  const [cheque_no, setChequeNo] = useState();
+  // Vehicle states
+  const [allVehiclesList, setAllVehicleList] = useState([]);
+  const [selectedVehicleId, setSelectedVehicleId] = useState("");
 
   useEffect(() => {
     getAllBanks();
@@ -73,15 +49,13 @@ const Page = () => {
   }, []);
 
   const getAllBanks = async () => {
-    true;
+    setFetchingData(true);
     try {
       const response = await api.getDataWithToken(`${bank}`);
-      setAllBankList(response.data);
-
-      const expenseNames = response.data.map((item) => item.bank_name);
-      setBankNameList(expenseNames);
+      const banks = response.data;
+      setAllBankList(banks);
     } catch (error) {
-      console.error("Error fetching brands:", error);
+      console.error("Error fetching banks:", error);
     } finally {
       setFetchingData(false);
     }
@@ -93,26 +67,22 @@ const Page = () => {
       const response = await api.getDataWithToken(`${vehciles}`);
       setAllVehicleList(response.data);
     } catch (error) {
-      console.error("Error fetching Banks:", error);
+      console.error("Error fetching vehicles:", error);
     } finally {
       setFetchingData(false);
     }
   };
 
-  const handleBankChange = (selectedValue, selectedLabel) => {
-    setSelectedBank({ id: selectedValue, name: selectedLabel });
+  // Modified bank change handler to work with Dropdown2
+  const handleBankChange = (selectedValue) => {
     setSelectedBankId(selectedValue);
   };
 
   const handleVehcileChange = (selectedValue) => {
     setSelectedVehicleId(selectedValue);
-
-    // Find the selected vehicle from allVehiclesList
     const selectedVehicle = allVehiclesList.find(
       (vehicle) => vehicle.id === selectedValue
     );
-
-    // If vehicle found, set its oil_change_limit
     if (selectedVehicle) {
       setOilChangeLimit(selectedVehicle.oil_change_limit);
     }
@@ -122,8 +92,35 @@ const Page = () => {
     setActiveTab(tab);
   };
 
+  // Format bank options for Dropdown2
+  const bankOptions = allBanksList?.map((bank) => ({
+    value: bank.id,
+    label: bank.bank_name
+  }));
+
+  // Format vehicle options
+  const vehicleOptions = allVehiclesList?.map((vehicle) => ({
+    value: vehicle.id,
+    label: `${vehicle.vehicle_number} - ${vehicle.modal_name}- ${vehicle?.user?.name}`
+  }));
+
+  useEffect(() => {
+    const parseValue = (value) =>
+      isNaN(parseFloat(value)) ? 0 : parseFloat(value);
+
+    const subtotal =
+      parseValue(fuel_amount) +
+      parseValue(oil_amount) +
+      parseValue(maintenance_amount);
+
+    const vatAmount = (parseValue(vat_per) / 100) * subtotal;
+    const finalTotal = subtotal + vatAmount;
+
+    setTotal(finalTotal);
+  }, [fuel_amount, oil_amount, maintenance_amount, vat_per]);
+
   const createVehicleObject = () => {
-    let vehicleObj = {
+    const baseObj = {
       fuel_amount,
       expense_date,
       vehicle_id: selectedVehicleId,
@@ -131,58 +128,51 @@ const Page = () => {
       total,
       oil_amount,
       maintenance_amount,
-      payment_type: "cash",
       oil_change_limit,
       meter_reading,
+      payment_type: activeTab
     };
 
-    return vehicleObj;
+    if (activeTab === "cheque") {
+      return {
+        ...baseObj,
+        bank_id: selectedBankId,
+        cheque_date,
+        cheque_no
+      };
+    } else if (activeTab === "online") {
+      return {
+        ...baseObj,
+        bank_id: selectedBankId,
+        transection_id: transactionId
+      };
+    }
+
+    return baseObj;
   };
 
   const handleSubmit = async () => {
-    const vehicleData = createVehicleObject();
     setLoadingSubmit(true);
-    const response = await api.postFormDataWithToken(
-      `${vehicleExpense}/create`,
-      vehicleData
-    );
-    if (response.status === "success") {
-      alert("Vehicle Expense Added Successfully");
-      router.push("/account/viewVehicles");
+    try {
+      const vehicleData = createVehicleObject();
+      const response = await api.postFormDataWithToken(
+        `${vehicleExpense}/create`,
+        vehicleData
+      );
+      
+      if (response.status === "success") {
+        alert("Vehicle Expense Added Successfully");
+        router.push("/account/viewVehicles");
+      } else {
+        alert("Vehicle Expense Not Added Successfully");
+      }
+    } catch (error) {
+      console.error("Error submitting vehicle expense:", error);
+      alert("Error submitting vehicle expense");
+    } finally {
       setLoadingSubmit(false);
-    } else {
-      alert("Vehicle Expense Not Added Successfully");
     }
   };
-
-  const parseValue = (value) =>
-    isNaN(parseFloat(value)) ? 0 : parseFloat(value);
-
-  useEffect(() => {
-    // Convert values to floats, defaulting to 0 if the value is not a valid number
-    const parseValue = (value) =>
-      isNaN(parseFloat(value)) ? 0 : parseFloat(value);
-
-    // Calculate the subtotal
-    const subtotal =
-      parseValue(fuel_amount) +
-      parseValue(oil_amount) +
-      parseValue(maintenance_amount);
-
-    // Calculate VAT amount
-    const vatAmount = (parseValue(vat_per) / 100) * subtotal;
-
-    // Calculate the final total
-    const finalTotal = subtotal + vatAmount;
-
-    // Update the total state
-    setTotal(finalTotal);
-  }, [fuel_amount, oil_amount, maintenance_amount, vat_per]);
-
-  const bankOptions = allVehiclesList.map((vehcilees) => ({
-    value: vehcilees.id,
-    label: `${vehcilees.vehicle_number} - ${vehcilees.modal_name}- ${vehcilees?.user?.name}`,
-  }));
 
   const handleDateChange = (name, value) => {
     setExpDate(value);
@@ -190,31 +180,22 @@ const Page = () => {
 
   return (
     <div>
-      <div className={styles.stockHead}>vehicles</div>
-
+      <div className={styles.stockHead}>Vehicles</div>
       <div className={styles.stockDescrp}>
         Thank you for choosing us to meet your needs. We look forward to serving
-        you with excellenc
+        you with excellence
       </div>
 
-      {/* Form section */}
       <Grid className={styles.fromGrid} container spacing={3}>
         <Grid item lg={4} xs={12}>
-          {/* <Dropdown2
-            title={"select Vehcile"}
-            options={allVehiclesList}
-            onChange={handleVehicleChange}
-            value={allVehiclesList.find(
-              (option) => option.value === selectedVehicleId
-            )}
-          /> */}
           <Dropdown2
             onChange={handleVehcileChange}
-            title="Select Vehciles"
-            options={bankOptions}
+            title="Select Vehicles"
+            options={vehicleOptions}
             value={selectedVehicleId}
           />
         </Grid>
+
         <Grid item lg={4} xs={12} sm={6} md={6}>
           <InputWithTitle3
             value={expense_date}
@@ -256,25 +237,6 @@ const Page = () => {
           />
         </Grid>
 
-        {/* <Grid item lg={4} xs={12} sm={6} md={4}>
-          <InputWithTitle
-            title={"VAT"}
-            type={"text"}
-            placeholder={"VAT"}
-            onChange={setVat}
-          />
-        </Grid>
-
-        <Grid item lg={4} xs={12} sm={6} md={4}>
-          <InputWithTitle
-            value={total}
-            title={"Total"}
-            type="text"
-            placeholder={"Total"}
-            readOnly
-          />
-        </Grid> */}
-
         <Grid item lg={4} xs={12} sm={6} md={4}>
           <InputWithTitle
             value={meter_reading}
@@ -313,7 +275,7 @@ const Page = () => {
             </Grid>
           )}
         </Grid>
-
+        
         {activeTab === "cheque" && (
           <Grid
             style={{ paddingLeft: "2rem", paddingRight: "2rem" }}
@@ -323,11 +285,11 @@ const Page = () => {
             <Grid item lg={6} xs={12}>
               <Dropdown2
                 onChange={handleBankChange}
-                title={"Banks"}
-                options={allBankNameList}
+                title="Select Bank"
+                options={bankOptions}
+                value={selectedBankId}
               />
             </Grid>
-
             <Grid item xs={12} sm={6} md={4}>
               <InputWithTitle
                 title={"Cheque Date"}
@@ -376,11 +338,11 @@ const Page = () => {
             <Grid item xs={6}>
               <Dropdown2
                 onChange={handleBankChange}
-                title={"Banks"}
-                options={allBankNameList}
+                title="Select Bank"
+                options={bankOptions}
+                value={selectedBankId}
               />
             </Grid>
-
             <Grid item xs={12} sm={6}>
               <InputWithTitle
                 title={"Transaction Id"}
