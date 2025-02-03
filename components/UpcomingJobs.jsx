@@ -229,7 +229,7 @@ const UpcomingJobs = ({
             {row?.client_address?.area || "No Area Specified"}
           </div>
         </td>
-        <td>{row?.user?.client?.firm_name}</td>
+        <td>{row?.client?.firm_name}</td>
         <td>{row.job_title}</td>
         <td>
           <div className={styles.statusContainer}>
@@ -305,7 +305,7 @@ const UpcomingJobs = ({
 
   const isActiveFilter = (filterType) => currentFilter === filterType;
 
-  const renderFilterButtons = () => {
+  const RenderFilterButtons = () => {
     const [isOpen, setIsOpen] = React.useState(false);
 
     return (
@@ -329,9 +329,7 @@ const UpcomingJobs = ({
                   />
                 </div>
 
-                <div
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                >
+                <div className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                   <PDFButton
                     filteredJobs={filteredJobs}
                     startDate={startDate}
@@ -443,7 +441,7 @@ const UpcomingJobs = ({
             </button>
           </div>
 
-          <div className="ml-10">{renderFilterButtons()}</div>
+          <div className="ml-10">{RenderFilterButtons()}</div>
         </div>
       </div>
       <div className={styles.tableContainer}>

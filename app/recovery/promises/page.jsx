@@ -140,7 +140,7 @@ const Page = () => {
     doc.addImage(logo, "PNG", pageWidth / 2 - 20, 10, 40, 20); // Height reduced from 30 to 20
 
     // Add title
-    doc.text("Recovery Officers Data", pageWidth / 2, 35, { align: "center" });
+    doc.text("Promised Invoices", pageWidth / 2, 35, { align: "center" });
 
     // Add filters in a single line
     let currentY = 45;

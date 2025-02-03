@@ -138,8 +138,20 @@ const BankTransactions = () => {
 
   return (
     <div className="space-y-4">
-      <div className="mb-4">
-        <DateFilters onDateChange={handleDateChange} />
+      <div className="flex">
+        <div className="flex-grow"></div>
+        <div
+          className="mb-4"
+          style={{
+            padding: "5px",
+            backgroundColor: "#32a92e",
+            borderRadius: "50px",
+            fontSize: "13px",
+            color: "white",
+          }}
+        >
+          <DateFilters onDateChange={handleDateChange} />
+        </div>
       </div>
 
       <Card>
@@ -171,8 +183,8 @@ const BankTransactions = () => {
                   <TableHead>
                     <TableRow>
                       <TableCell align="center">Date</TableCell>
-                      <TableCell align="center">Description</TableCell>
-                      <TableCell align="center">Transaction Id</TableCell>
+                      <TableCell align="left">Description</TableCell>
+                      <TableCell align="left">Transaction Id</TableCell>
                       <TableCell align="center">Reference Name</TableCell>
                       <TableCell align="center">Debit</TableCell>
                       <TableCell align="center">Credit</TableCell>
@@ -182,14 +194,12 @@ const BankTransactions = () => {
                   <TableBody>
                     {bankData.ledgers?.map((entry, index) => (
                       <TableRow key={entry.id || index}>
-                        <TableCell align="center">
+                        <TableCell align="left">
                           {formatDate(entry.created_at)}
                         </TableCell>
-                        <TableCell align="center">
-                          {entry.description}
-                        </TableCell>
-                        <TableCell align="center">
-                          {entry?.referenceable?.transection_id}
+                        <TableCell align="left">{entry.description}</TableCell>
+                        <TableCell align="left">
+                          {entry?.transection_id}
                         </TableCell>
                         <TableCell align="center">
                           {getReferenceName(entry)}

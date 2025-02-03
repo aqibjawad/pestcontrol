@@ -216,20 +216,6 @@ const SalaryCal = () => {
       return;
     }
 
-    if (!paymentType) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Please select a payment type.",
-        customClass: {
-          container: "swal-container-class",
-          popup: "swal-popup-class",
-        },
-      });
-      setLoadingSubmit(false);
-      return;
-    }
-
     // Object to send in the API request
     const obj = {
       employee_salary_id: selectedEmployee.id,
@@ -242,13 +228,19 @@ const SalaryCal = () => {
       payment_type: activeTab,
     };
 
+    // if (activeTab === "online") {
+    //   return {
+    //     ...obj,
+    //     bank_id: selectedBankId,
+    //     transection_id: transactionId,
+    //   };
+    // }
     if (activeTab === "online") {
-      return {
-        ...obj,
-        bank_id: selectedBankId,
-        transection_id: transactionId,
-      };
+      obj.bank_id = selectedBankId;
+      obj.transection_id = transactionId;
+      obj.vat = vat_per; // Adding VAT field if needed
     }
+
 
     try {
       const response = await api.postFormDataWithToken(
@@ -340,7 +332,15 @@ const SalaryCal = () => {
       employee_salary_id: selectedEmployee.id,
       adv_paid: adv_paid,
       description: description || "", // Optional field
+      payment_type: activeTab,
     };
+
+    // For online payment, add additional fields
+    if (activeTab === "online") {
+      obj.bank_id = selectedBankId;
+      obj.transection_id = transactionId;
+      obj.vat = vat_per; // Adding VAT field if needed
+    }
 
     try {
       const response = await api.postFormDataWithToken(
@@ -957,6 +957,46 @@ const SalaryCal = () => {
                 />
               </Grid>
             </Grid>
+
+            <Tabs activeTab={activeTab} setActiveTab={handleTabChange} />
+
+            {activeTab === "online" && (
+              <Grid
+                style={{
+                  paddingLeft: "2rem",
+                  paddingRight: "2rem",
+                  marginTop: "1rem",
+                }}
+                container
+                spacing={3}
+              >
+                <Grid item xs={6}>
+                  <Dropdown2
+                    onChange={handleBankChange}
+                    title="Select Bank"
+                    options={bankOptions}
+                    value={selectedBankId}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <InputWithTitle
+                    title={"Transaction Id"}
+                    type={"text"}
+                    placeholder={"Transaction Id"}
+                    onChange={setTransactionId}
+                  />
+                </Grid>
+
+                <Grid item xs={12} sm={6} md={6}>
+                  <InputWithTitle
+                    title={"VAT"}
+                    type={"text"}
+                    placeholder={"VAT"}
+                    onChange={setVat}
+                  />
+                </Grid>
+              </Grid>
+            )}
 
             <div className="mt-5">
               <GreenButton
