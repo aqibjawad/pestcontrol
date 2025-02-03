@@ -190,7 +190,7 @@ const JobsList = ({
                 type="text"
                 name="noJobs"
                 placeholder="Total Jobs"
-                value={noJobs}
+                value={noJobs || 0} // Default to 0 if noJobs is NaN or undefined
                 onChange={(value) => setNoJobs(value)}
                 readOnly
               />
@@ -199,13 +199,13 @@ const JobsList = ({
         )}
 
         {selectedJobType === "custom" && (
-          <Grid item lg={6} xs={4}>
+          <Grid item lg={3} xs={4}>
             <InputWithTitle
               title="Total Jobs"
               type="text"
-              name="totalJobs"
+              name="noJobs"
               placeholder="Total Jobs"
-              value={noJobs}
+              value={noJobs || 0} // Default to 0 if noJobs is NaN or undefined
               onChange={(value) => setNoJobs(value)}
               readOnly
             />
