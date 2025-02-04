@@ -449,7 +449,11 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>
-        Select Dates and Time (Maximum {totalServices} services per month)
+        Select Dates and Time (
+        {isCustomJob
+          ? "1 service per month"
+          : `Maximum ${totalServices} services per month`}
+        )
       </DialogTitle>
 
       <DialogContent>
@@ -546,7 +550,12 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
         <Button
           onClick={handleSubmit}
           color="primary"
-          disabled={loading || selectedDates.length !== totalServices}
+          disabled={
+            loading ||
+            (isCustomJob
+              ? selectedDates.length !== 1
+              : selectedDates.length !== totalServices)
+          }
         >
           {loading ? <CircularProgress size={24} /> : "Save Dates"}
         </Button>
