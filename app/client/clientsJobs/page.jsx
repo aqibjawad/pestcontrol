@@ -2,14 +2,11 @@
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import "jspdf-autotable";
-
 import { clients } from "../../../networkUtil/Constants";
 import APICall from "../../../networkUtil/APICall";
 import { useRouter } from "next/navigation";
 import withAuth from "@/utils/withAuth";
-
 import UpcomingJobs from "../../../components/UpcomingJobs";
-
 import { format } from "date-fns";
 
 const getParamsFromUrl = (url) => {
@@ -36,15 +33,14 @@ const Page = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const [startDate, setStartDate] = useState(format(new Date(), "yyyy-MM-dd"));
-  const [endDate, setEndDate] = useState(format(new Date(), "yyyy-MM-dd"));
+  const [startDate, setStartDate] = useState(null); // Changed initial state to null
+  const [endDate, setEndDate] = useState(null); // Changed initial state to null
   const [fetchingData, setFetchingData] = useState(false);
 
   const [filteredList, setFilteredList] = useState([]);
   const [filterType, setFilterType] = useState("all");
 
   useEffect(() => {
-    // Get the current URL
     const currentUrl = window.location.href;
     const urlParams = getParamsFromUrl(currentUrl);
 
@@ -71,15 +67,14 @@ const Page = () => {
     // First filter by assignment type
     switch (type) {
       case "assigned":
-        filtered = jobsList.filter((job) => {
+        filtered = rowData.filter((job) => {
           const isAssigned = job.captain?.name;
-          const jobDate = new Date(job.date);
-          const startDateTime = startDate ? new Date(startDate) : null;
-          const endDateTime = endDate ? new Date(endDate) : null;
-
-          if (startDateTime && endDateTime) {
+          if (startDate && endDate) {
+            const jobDate = new Date(job.date);
             return (
-              isAssigned && jobDate >= startDateTime && jobDate <= endDateTime
+              isAssigned &&
+              jobDate >= new Date(startDate) &&
+              jobDate <= new Date(endDate)
             );
           }
           return isAssigned;
@@ -87,17 +82,14 @@ const Page = () => {
         break;
 
       case "not-assigned":
-        filtered = jobsList.filter((job) => {
+        filtered = rowData.filter((job) => {
           const isNotAssigned = !job.captain?.name;
-          const jobDate = new Date(job.date);
-          const startDateTime = startDate ? new Date(startDate) : null;
-          const endDateTime = endDate ? new Date(endDate) : null;
-
-          if (startDateTime && endDateTime) {
+          if (startDate && endDate) {
+            const jobDate = new Date(job.date);
             return (
               isNotAssigned &&
-              jobDate >= startDateTime &&
-              jobDate <= endDateTime
+              jobDate >= new Date(startDate) &&
+              jobDate <= new Date(endDate)
             );
           }
           return isNotAssigned;
@@ -106,14 +98,14 @@ const Page = () => {
 
       default:
         if (startDate && endDate) {
-          filtered = jobsList.filter((job) => {
+          filtered = rowData.filter((job) => {
             const jobDate = new Date(job.date);
             return (
               jobDate >= new Date(startDate) && jobDate <= new Date(endDate)
             );
           });
         } else {
-          filtered = jobsList;
+          filtered = rowData; // Show all jobs when no date filter is applied
         }
     }
 
@@ -123,14 +115,19 @@ const Page = () => {
   const fetchData = async (id) => {
     setLoading(true);
     try {
-      const response = await api.getDataWithToken(
-        `${clients}/jobs/get/${id}?start_date=${startDate}&end_date=${endDate}`
-      );
+      let url = `${clients}/jobs/get/${id}`;
+
+      // Only add date parameters if both dates are selected
+      if (startDate && endDate) {
+        url += `?start_date=${startDate}&end_date=${endDate}`;
+      }
+
+      const response = await api.getDataWithToken(url);
       const data = response?.data?.client_jobs || [];
       setRowData(data);
     } catch (error) {
       setError(error.message);
-      setRowData([]); // Ensure rowData is an empty array on error
+      setRowData([]);
     } finally {
       setLoading(false);
     }
@@ -145,7 +142,7 @@ const Page = () => {
         isLoading={fetchingData}
         startDate={startDate}
         endDate={endDate}
-        jobsList={rowData}
+        jobsList={filteredList.length > 0 ? filteredList : rowData}
       />
     </div>
   );

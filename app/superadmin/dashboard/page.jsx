@@ -10,13 +10,15 @@ import Reports from "./components/Reports";
 
 import dynamic from "next/dynamic";
 
+import { Car, AlertCircle, CheckCircle, Clock } from "lucide-react";
+
 const Finance = dynamic(() => import("../dashboard/components/Finance"));
 const Schedule = dynamic(() => import("./components/Schedule"));
 
 import RescheduleJobs from "../../rescheduleJobs/reschedule";
 
 import APICall from "@/networkUtil/APICall";
-import { getAllEmpoyesUrl, payments } from "@/networkUtil/Constants";
+import { getAllEmpoyesUrl, payments, vehciles } from "@/networkUtil/Constants";
 import withAuth from "@/utils/withAuth";
 
 import {
@@ -41,6 +43,11 @@ import {
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+
+import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import WarningIcon from '@mui/icons-material/Warning';
+import ErrorIcon from '@mui/icons-material/Error';
 
 import { getDocumentsByProfession } from "../../../Helper/documents";
 
@@ -73,8 +80,9 @@ const Page = () => {
   const [documents, setDocuments] = useState([]);
   const [missingDocs, setMissingDocs] = useState([]);
   const [requiredDocs, setRequiredDocs] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
+
+  const [vehicleList, setVehicleList] = useState([]);
 
   // Update localStorage when selectedIndex changes
   useEffect(() => {
@@ -197,9 +205,22 @@ const Page = () => {
     }
   };
 
+  const getAllVehicle = async () => {
+    setFetchingData(true);
+    try {
+      const response = await api.getDataWithToken(`${vehciles}`);
+      setVehicleList(response.data);
+    } catch (error) {
+      console.error("Error fetching quotes:", error);
+    } finally {
+      setFetchingData(false);
+    }
+  };
+
   useEffect(() => {
     getAllExpenses();
     getAllPayments();
+    getAllVehicle();
   }, []);
 
   const getStatusStyle = (daysLeft) => {
@@ -229,6 +250,38 @@ const Page = () => {
       textColor: "#15803D",
       icon: <CheckCircleOutlineIcon sx={{ fontSize: 16, color: "#15803D" }} />,
     };
+  };
+
+  const getExpiryStatus = (expiryDate) => {
+    const today = new Date();
+    const expiry = new Date(expiryDate);
+    const diffTime = expiry - today;
+    const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    // More than 1 month
+    if (daysLeft > 30) {
+      return {
+        color: "bg-green-100 text-green-800",
+        icon: <CheckCircle className="h-5 w-5 text-green-600" />,
+        message: `${daysLeft} days left`,
+      };
+    }
+    // Less than 1 month but not expired
+    else if (daysLeft > 0) {
+      return {
+        color: "bg-yellow-100 text-yellow-800",
+        icon: <Clock className="h-5 w-5 text-yellow-600" />,
+        message: `${daysLeft} days left`,
+      };
+    }
+    // Expired
+    else {
+      return {
+        color: "bg-red-100 text-red-800",
+        icon: <AlertCircle className="h-5 w-5 text-red-600" />,
+        message: "Expired",
+      };
+    }
   };
 
   return (
@@ -296,6 +349,7 @@ const Page = () => {
             aria-label="Main tabs"
           >
             <Tab label="Employees" />
+            <Tab label="Vehicles" />
             <Tab label="Payment Collected" />
             <Tab label="Reschedule" />
           </Tabs>
@@ -446,6 +500,88 @@ const Page = () => {
             )}
 
             {selectedIndexTabs === 1 && (
+              <Box sx={{ p: 2 }}>
+                {vehicleList.map((vehicle) => {
+                  const status = getExpiryStatus(vehicle.expiry_date);
+
+                  return (
+                    <Card
+                      key={vehicle.id}
+                      sx={{
+                        mb: 2,
+                        boxShadow: 1,
+                        "&:hover": {
+                          boxShadow: 3,
+                        },
+                        transition: "box-shadow 0.3s",
+                      }}
+                    >
+                      <CardContent>
+                        <Stack
+                          direction="row"
+                          alignItems="center"
+                          spacing={2}
+                          sx={{ mb: 2 }}
+                        >
+                          <Avatar sx={{ bgcolor: "#e3f2fd" }}>
+                            <DirectionsCarIcon sx={{ color: "#1976d2" }} />
+                          </Avatar>
+                          <Box>
+                            <Typography variant="h6" component="div">
+                              {vehicle.vehicle_number}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              {vehicle.modal_name}
+                            </Typography>
+                          </Box>
+                        </Stack>
+
+                        <Box
+                          sx={{
+                            p: 2,
+                            borderRadius: 1,
+                            backgroundColor: status.backgroundColor,
+                            color: status.textColor,
+                            mb: 2,
+                          }}
+                        >
+                          <Stack
+                            direction="row"
+                            justifyContent="space-between"
+                            alignItems="center"
+                          >
+                            <Stack
+                              direction="row"
+                              spacing={1}
+                              alignItems="center"
+                            >
+                              <Typography
+                                variant="body1"
+                                sx={{ fontWeight: "medium" }}
+                              >
+                                Mulkia Expiry
+                              </Typography>
+                            </Stack>
+                            <Box sx={{ textAlign: "right" }}>
+                              <Typography variant="body2">
+                                {new Date(
+                                  vehicle.expiry_date
+                                ).toLocaleDateString()}
+                              </Typography>
+                              <Typography variant="caption">
+                                {status.message}
+                              </Typography>
+                            </Box>
+                          </Stack>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </Box>
+            )}
+
+            {selectedIndexTabs === 2 && (
               <TableContainer component={Paper}>
                 <Table>
                   <TableHead>
@@ -491,7 +627,7 @@ const Page = () => {
               </TableContainer>
             )}
 
-            {selectedIndexTabs === 2 && <RescheduleJobs />}
+            {selectedIndexTabs === 3 && <RescheduleJobs />}
           </Box>
         </div>
       </div>

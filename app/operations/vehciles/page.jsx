@@ -219,7 +219,7 @@ const Page = () => {
             </Grid>
 
             {/* Price */}
-            {/* <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={6}>
               <InputWithTitle3
                 title="Price"
                 placeholder="Price"
@@ -228,7 +228,7 @@ const Page = () => {
                 onChange={handleDateChange}
                 name="expiry_date"
               />
-            </Grid> */}
+            </Grid>
 
             <Grid item xs={12} md={6}>
               <InputWithTitle3
@@ -236,7 +236,7 @@ const Page = () => {
                 placeholder="Meter Reading"
                 value={meter_reading}
                 type="text"
-                onChange={(value) => setOilChange(value)}
+                onChange={(value) => setMeterRead(value)}
                 name="meter_reading"
               />
             </Grid>

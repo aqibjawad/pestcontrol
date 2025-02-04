@@ -143,6 +143,9 @@ const Page = () => {
                 Total Amount
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Mulkia Expiry
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
                 View
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
@@ -165,6 +168,11 @@ const Page = () => {
                 <td className="py-2 px-4">
                   <div className={tableStyles.clientContact}>
                     {row.total_amount}
+                  </div>
+                </td>
+                <td className="py-2 px-4">
+                  <div className={tableStyles.clientContact}>
+                    {row.expiry_date}
                   </div>
                 </td>
                 <td className="py-2 px-4">
@@ -457,7 +465,7 @@ const Page = () => {
                 />
               </Grid>
             </Grid>
-          )} 
+          )}
 
           {activeTab === "online" && (
             <Grid

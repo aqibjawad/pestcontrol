@@ -221,6 +221,13 @@ const Page = () => {
             />
           </div>
           <div className="mt-5">
+            <InputWithTitle
+              value={desc}
+              title={"Price"}
+              onChange={setDesc}
+            />
+          </div>
+          <div className="mt-5">
             <GreenButton
               onClick={() => addDevice()}
               title={
