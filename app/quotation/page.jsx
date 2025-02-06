@@ -47,7 +47,7 @@ const Page = () => {
     tag: "",
     duration_in_months: "",
     is_food_watch_account: false,
-    billing_method: "",
+    billing_method: "service",
     services: [],
     processedQuoteServices: false,
   });

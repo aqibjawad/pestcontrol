@@ -25,13 +25,9 @@ const JobsList = ({
   const quoteService = findQuoteService();
 
   const [jobsPerMonth, setJobsPerMonth] = useState();
-
   const [totalJobs, setTotalJobs] = useState(jobData.totalJobs || 0);
   const [rate, setRate] = useState(jobData.rate || 0);
   const [noJobs, setNoJobs] = useState(jobData.no_of_jobs || 0);
-
-  console.log("no of", noJobs);
-
   const [selectedJobType, setSelectedJobType] = useState(
     jobData.jobType || "monthly"
   );
@@ -100,19 +96,57 @@ const JobsList = ({
 
   const handleJobTypeChange = (value) => {
     setSelectedJobType(value);
+
+    // Reset jobs when changing type
+    if (value === "custom") {
+      if (formData?.quote_services?.length > 0) {
+        const customService = formData.quote_services.find(
+          (service) => service.job_type === "custom"
+        );
+        if (customService) {
+          setNoJobs(customService.no_of_services);
+          setRate(customService.rate);
+        } else {
+          const calculatedTotalJobs = Math.floor(duration_in_months / 3);
+          setNoJobs(calculatedTotalJobs);
+        }
+      } else {
+        const calculatedTotalJobs = Math.floor(duration_in_months / 3);
+        setNoJobs(calculatedTotalJobs);
+      }
+    }
   };
 
   useEffect(() => {
-    
+    if (selectedJobType === "monthly") {
+      const calculatedTotalJobs = jobsPerMonth * duration_in_months;
+      setNoJobs(calculatedTotalJobs);
+    } else if (selectedJobType === "custom") {
+      const calculatedTotalJobs = duration_in_months / 3;
+      setNoJobs(calculatedTotalJobs);
+    }
+  }, [selectedJobType, jobsPerMonth, duration_in_months]);
 
-      if (selectedJobType === "custom") {
-       const  calculatedTotalJobs = Math.floor(duration_in_months / 3); // Quarterly
-        setNoJobs(calculatedTotalJobs);
-      } else {
-       const  calculatedTotalJobs = jobsPerMonth * duration_in_months; // Monthly
-        setNoJobs(calculatedTotalJobs);
+  // Initialize from formData
+  useEffect(() => {
+    if (!hasInitialized && formData?.quote_services?.length > 0) {
+      const matchingQuoteService = findQuoteService();
+      if (matchingQuoteService) {
+        if (matchingQuoteService.job_type === "monthly") {
+          const calculatedTotalJobs = matchingQuoteService.no_of_services;
+          setNoJobs(calculatedTotalJobs);
+          setRate(matchingQuoteService.rate);
+          setJobsPerMonth(
+            matchingQuoteService.no_of_services / duration_in_months
+          );
+        } else if (matchingQuoteService.job_type === "custom") {
+          setNoJobs(matchingQuoteService.no_of_services);
+          setRate(matchingQuoteService.rate);
+        }
+        setHasInitialized(true);
       }
-  }, [selectedJobType]);
+    }
+  }, [formData, hasInitialized, duration_in_months]);
 
   const handleServiceChange = (value) => {
     setSelectedService(value);
@@ -125,38 +159,6 @@ const JobsList = ({
       });
     }
   };
-
-  useEffect(() => {
-    if (!hasInitialized && formData?.quote_services?.length === null) {
-      let calculatedTotalJobs = 0;
-
-      if (selectedJobType === "custom") {
-        calculatedTotalJobs = Math.floor(duration_in_months / 3); // Quarterly
-        setNoJobs(calculatedTotalJobs);
-      } else if (selectedJobType === "monthly") {
-        calculatedTotalJobs = jobsPerMonth * duration_in_months; // Monthly
-        setNoJobs(calculatedTotalJobs);
-      }
-    }
-
-    // setTotalJobs(calculatedTotalJobs);
-  }, [jobsPerMonth, duration_in_months, selectedJobType]);
-
-  useEffect(() => {
-    if (!hasInitialized && formData?.quote_services?.length > 0) {
-      const matchingQuoteService = findQuoteService();
-      if (matchingQuoteService) {
-        if (matchingQuoteService.job_type === "monthly") {
-          const calculatedTotalJobs = matchingQuoteService.no_of_services;
-          setNoJobs(calculatedTotalJobs);
-          setJobsPerMonth(
-            matchingQuoteService.no_of_services / formData.duration_in_months
-          );
-        }
-        setHasInitialized(true);
-      }
-    }
-  }, [formData, hasInitialized]);
 
   const handleJobsPerMonthChange = (value) => {
     const newJobsPerMonth = parseInt(value) || 0;
@@ -197,7 +199,7 @@ const JobsList = ({
                 type="text"
                 placeholder="Jobs Per Month"
                 value={jobsPerMonth}
-                onChange={handleJobsPerMonthChange} // Use the new handler here
+                onChange={handleJobsPerMonthChange}
               />
             </Grid>
             <Grid item lg={3} xs={4}>

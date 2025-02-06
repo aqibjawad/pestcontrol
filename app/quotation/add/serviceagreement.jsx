@@ -6,7 +6,7 @@ import ContractSummary from "./contract";
 import { Button } from "@mui/material";
 import { Grid } from "@mui/material";
 import Scope from "./scope";
-import Invoice from "./invoice";
+// import Invoice from "./invoice";
 
 const ServiceAgreement = ({ setFormData, formData }) => {
   const api = new APICall();
@@ -243,7 +243,7 @@ const ServiceAgreement = ({ setFormData, formData }) => {
           />
         </Grid>
         <Grid item lg={6} xs={12} sm={6} md={4}>
-          <Invoice formData={formData} setFormData={setFormData} />
+          {/* <Invoice formData={formData} setFormData={setFormData} /> */}
         </Grid>
       </Grid>
 

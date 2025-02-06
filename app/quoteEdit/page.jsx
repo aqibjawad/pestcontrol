@@ -47,11 +47,11 @@ const Page = () => {
     tag: "",
     duration_in_months: "",
     is_food_watch_account: false,
-    billing_method: "",
+    billing_method: "service",
     services: [],
     processedQuoteServices: false,
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [fetchingData, setFetchingData] = useState(false);
 
@@ -87,7 +87,7 @@ const Page = () => {
       });
       return;
     }
-    
+
     setLoading(true);
     try {
       const endpoint = `${quotation}/manage`;

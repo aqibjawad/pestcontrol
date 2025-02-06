@@ -103,7 +103,7 @@ const getAllQuotes = async () => {
             <CustomerDetails quote={quoteList} />
             <ServiceProduct quote={quoteList} />
             <Treatment quote={quoteList} />
-            <Invoice quote={quoteList} />
+            {/* <Invoice quote={quoteList} /> */}
             <ContractSummary quote={quoteList} />
           </>
         )}
