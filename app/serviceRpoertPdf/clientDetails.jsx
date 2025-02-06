@@ -53,6 +53,13 @@ const ClientDetails = ({ serviceReportList }) => {
                   </TableCell>
                   <TableCell> {serviceReportList?.type_of_visit} </TableCell>
                 </TableRow>
+
+                <TableRow sx={{ border: "none" }}>
+                  <TableCell>
+                    <strong> Invoice Id:</strong>
+                  </TableCell>
+                  <TableCell> {serviceReportList?.service_invoice || "No invoice"} </TableCell>
+                </TableRow>
               </TableBody>
             </Table>
           </TableContainer>

@@ -374,6 +374,11 @@ const Page = () => {
               ? 3
               : "unknown"}
           </div>
+
+          <div style={{ textAlign: "right" }} className={styles.totalAmount}>
+            Invoice Id: 
+            {invoiceList?.job || "No Invoice"}
+          </div>
         </Grid>
       </Grid>
 
