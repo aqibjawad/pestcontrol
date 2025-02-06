@@ -120,10 +120,10 @@ const JobsList = ({
   useEffect(() => {
     if (selectedJobType === "monthly") {
       const calculatedTotalJobs = jobsPerMonth * duration_in_months;
-      setNoJobs(calculatedTotalJobs);
+      setNoJobs(Math.floor(calculatedTotalJobs)); // Rounds down
     } else if (selectedJobType === "custom") {
       const calculatedTotalJobs = duration_in_months / 3;
-      setNoJobs(calculatedTotalJobs);
+      setNoJobs(Math.floor(calculatedTotalJobs)); // Rounds down
     }
   }, [selectedJobType, jobsPerMonth, duration_in_months]);
 
