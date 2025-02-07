@@ -27,6 +27,7 @@ import { useRouter } from "next/navigation";
 
 import { CircularProgress } from "@mui/material";
 
+import Swal from "sweetalert2";
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
   if (parts.length > 1) {
@@ -130,6 +131,10 @@ const Page = () => {
     setShowPaymentForm(false);
   };
 
+  const handleSettlementChange = (e) => {
+    setIsSettelemt(e.target.checked);
+  };
+
   const handleTabChange = (tab) => {
     setActiveTab(tab);
     setSelectedBankId("");
@@ -187,6 +192,21 @@ const Page = () => {
   const handleSubmit = async () => {
     setButtonLoading(true);
 
+    if (settlement) {
+      // Show confirmation dialog first if settlement is checked
+      const result = await Swal.fire({
+        title: "Confirm Settlement",
+        text: "Are you sure you want to settle this invoice?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, settle it",
+        cancelButtonText: "Cancel",
+      });
+
+      if (!result.isConfirmed) {
+        return; // Exit if user doesn't confirm
+      }
+    }
     const vehicleData = createVehicleObject();
     try {
       const response = await api.postFormDataWithToken(
@@ -332,7 +352,7 @@ const Page = () => {
                   type="checkbox"
                   id="settlement"
                   checked={settlement}
-                  onChange={(e) => setIsSettelemt(e.target.checked)}
+                  onChange={handleSettlementChange}
                   className="w-4 h-4"
                 />
                 <label htmlFor="settlement">Settlement</label>
