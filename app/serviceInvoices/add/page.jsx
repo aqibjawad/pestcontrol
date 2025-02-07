@@ -51,6 +51,8 @@ const Page = () => {
   const [selectedInvoiceId, setSelectedInvoiceId] = useState(null);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
 
+  const [autoFillCheck, setAutoFillCheck] = useState(false);
+
   // Basic states
   const [id, setId] = useState("");
   const [paid_amt, setPaidAmount] = useState("");
@@ -58,7 +60,7 @@ const Page = () => {
   const [buttonLoading, setButtonLoading] = useState(false);
   const [fetchingData, setFetchingData] = useState(false);
   const [activeTab, setActiveTab] = useState("cash");
-  const [isAllAmtPay, setIsAllAmtPay] = useState(false);
+  const [settlement, setIsSettelemt] = useState(false);
 
   // Bank states
   const [allBanksList, setAllBankList] = useState([]);
@@ -120,7 +122,6 @@ const Page = () => {
     setPaidAmount("");
     setDescrp("");
     setActiveTab("cash");
-    setIsAllAmtPay(false);
     setSelectedBankId("");
     setChequeAmount("");
     setChequeNo("");
@@ -159,7 +160,7 @@ const Page = () => {
       service_invoice_id: selectedInvoice.id,
       paid_amt,
       descrp,
-      is_all_amt_pay: isAllAmtPay ? 1 : 0,
+      is_settlement: settlement ? 1 : 0,
       payment_type: activeTab,
     };
 
@@ -323,6 +324,19 @@ const Page = () => {
                 value={paid_amt}
                 title="Paid Amount"
               />
+            </Grid>
+
+            <Grid item lg={4} xs={12} md={6}>
+              <div className="flex items-center gap-2 mt-10">
+                <input
+                  type="checkbox"
+                  id="settlement"
+                  checked={settlement}
+                  onChange={(e) => setIsSettelemt(e.target.checked)}
+                  className="w-4 h-4"
+                />
+                <label htmlFor="settlement">Settlement</label>
+              </div>
             </Grid>
 
             <Grid item lg={12} xs={12} md={12}>

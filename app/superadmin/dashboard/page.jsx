@@ -44,10 +44,10 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 
-import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import WarningIcon from '@mui/icons-material/Warning';
-import ErrorIcon from '@mui/icons-material/Error';
+import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import WarningIcon from "@mui/icons-material/Warning";
+import ErrorIcon from "@mui/icons-material/Error";
 
 import { getDocumentsByProfession } from "../../../Helper/documents";
 
@@ -261,24 +261,27 @@ const Page = () => {
     // More than 1 month
     if (daysLeft > 30) {
       return {
-        color: "bg-green-100 text-green-800",
-        icon: <CheckCircle className="h-5 w-5 text-green-600" />,
+        backgroundColor: "#f0fdf4", // Light green background
+        textColor: "#166534", // Dark green text
+        icon: <CheckCircle className="h-5 w-5" color="#16a34a" />,
         message: `${daysLeft} days left`,
       };
     }
     // Less than 1 month but not expired
     else if (daysLeft > 0) {
       return {
-        color: "bg-yellow-100 text-yellow-800",
-        icon: <Clock className="h-5 w-5 text-yellow-600" />,
+        backgroundColor: "#fefce8", // Light yellow background
+        textColor: "#854d0e", // Dark yellow text
+        icon: <Clock className="h-5 w-5" color="#ca8a04" />,
         message: `${daysLeft} days left`,
       };
     }
     // Expired
     else {
       return {
-        color: "bg-red-100 text-red-800",
-        icon: <AlertCircle className="h-5 w-5 text-red-600" />,
+        backgroundColor: "#fef2f2", // Light red background
+        textColor: "#991b1b", // Dark red text
+        icon: <AlertCircle className="h-5 w-5" color="#dc2626" />,
         message: "Expired",
       };
     }
@@ -561,6 +564,7 @@ const Page = () => {
                               >
                                 Mulkia Expiry
                               </Typography>
+                              {status.icon}
                             </Stack>
                             <Box sx={{ textAlign: "right" }}>
                               <Typography variant="body2">
