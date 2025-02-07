@@ -52,6 +52,7 @@ const Page = () => {
   const [promiseDate, setPayLaterDate] = useState(null);
   const [comment, setComment] = useState("");
   const [paid_amt, setPaidAmt] = useState(0);
+  const [settlement, setIsSettelemt] = useState(false);
 
   const [startDate, setStartDate] = useState(getTodayDateString());
   const [endDate, setEndDate] = useState(getTodayDateString());
@@ -59,6 +60,10 @@ const Page = () => {
   const handleDateChange = (start, end) => {
     setStartDate(start);
     setEndDate(end);
+  };
+
+  const handleSettlementChange = (e) => {
+    setIsSettelemt(e.target.checked);
   };
 
   useEffect(() => {
@@ -90,10 +95,6 @@ const Page = () => {
       setFetchingData(false);
     }
   };
-
-  // useEffect(() => {
-  //   getAllRecoveries();
-  // }, [startDate, endDate]);
 
   const handleOpenModal = (invoice) => {
     setSelectedInvoice(invoice);
@@ -150,6 +151,7 @@ const Page = () => {
           service_invoice_id: selectedInvoice.id,
           paid_amt,
           payment_type: "cash",
+          is_settlement: settlement ? 1 : 0,
         };
 
         const paymentResponse = await api.postFormDataWithToken(
@@ -328,15 +330,28 @@ const Page = () => {
           </Select>
 
           {paymentOption === "payment" && (
-            <TextField
-              fullWidth
-              type="number"
-              label="Payment Amount"
-              value={paid_amt}
-              onChange={(e) => setPaidAmt(Number(e.target.value))}
-              sx={{ mb: 2 }}
-              inputProps={{ min: 0, max: selectedInvoice.total_amt }}
-            />
+            <>
+              <TextField
+                fullWidth
+                type="number"
+                label="Payment Amount"
+                value={paid_amt}
+                onChange={(e) => setPaidAmt(Number(e.target.value))}
+                sx={{ mb: 2 }}
+                inputProps={{ min: 0, max: selectedInvoice.total_amt }}
+              />
+
+              <div className="flex items-center gap-2 mt-10">
+                <input
+                  type="checkbox"
+                  id="settlement"
+                  checked={settlement}
+                  onChange={handleSettlementChange}
+                  className="w-4 h-4"
+                />
+                <label htmlFor="settlement">Settlement</label>
+              </div>
+            </>
           )}
 
           {paymentOption === "promise" && (
@@ -436,20 +451,7 @@ const Page = () => {
 
   return (
     <div>
-      {/* <div style={{ padding: "30px", borderRadius: "10px" }}>
-        {/* <div
-          style={{ fontSize: "20px", fontWeight: "600", marginBottom: "-4rem" }}
-        >
-          Recovery Details
-        </div>
-
-        <div className="bg-green-600 text-white font-semibold text-base h-11 w-52 flex justify-center items-center px-4 py-3 rounded-lg mt-8">
-          <DateFilters onDateChange={handleDateChange} />
-        </div>
-      </div> */}
-
-
-<div style={{ padding: "30px", borderRadius: "10px" }}>
+      <div style={{ padding: "30px", borderRadius: "10px" }}>
         <div className="flex justify-between items-center mb-6">
           <div
             style={{
@@ -462,15 +464,12 @@ const Page = () => {
           </div>
 
           <div className="flex items-center gap-4">
-
             <div className="bg-green-600 text-white font-semibold text-base h-11 w-52 flex justify-center items-center px-4 py-3 rounded-lg mt-8">
               <DateFilters onDateChange={handleDateChange} />
             </div>
           </div>
         </div>
       </div>
-
-
 
       <Card>
         <CardContent>
