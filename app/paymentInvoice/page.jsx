@@ -229,7 +229,7 @@ const Page = () => {
                   </div>
                   {/* {allInvoiceList.service_invoice_id} */}
                   <div className="h-16 p-2">
-                    {allInvoiceList.service_invoice_id}
+                    {allInvoiceList?.service_invoice_id}
                   </div>
                 </div>
 
@@ -243,7 +243,7 @@ const Page = () => {
                       تاريخ
                     </span>
                   </div>
-                  <div className="h-16 p-2">{allInvoiceList.issued_date}</div>
+                  <div className="h-16 p-2">{allInvoiceList?.issued_date}</div>
                 </div>
               </div>
             </div>
@@ -287,7 +287,7 @@ const Page = () => {
         {/* Main Title Section */}
         <div className="flex-1 border-y border-black py-2 px-4">
           <h1 className="text-xl text-center font-handwriting tracking-wide">
-            {numberToWords(allInvoiceList.paid_amt)} only /-
+            {numberToWords(allInvoiceList?.paid_amt)} only /-
           </h1>
         </div>
 
