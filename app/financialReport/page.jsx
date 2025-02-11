@@ -18,12 +18,12 @@ import {
 import APICall from "../../networkUtil/APICall";
 import withAuth from "@/utils/withAuth";
 
-import DateFilters2 from "@/components/generic/DateFilters2";
-
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const FinancialDashboard = () => {
   const api = new APICall();
+  const router = useRouter();
 
   const [allClientsList, setAllClientsList] = useState([]);
 
@@ -232,8 +232,20 @@ const FinancialDashboard = () => {
     },
     { category: "Vehicles Expense", amount: allVehicleExpense },
     { category: "Expenses", amount: expenseList },
-    { category: "Settlement Invoices", amount: settleList },
+    {
+      category: "Settlement Invoices",
+      amount: settleList,
+      path: "/settelmentedInvoice",
+    },
   ];
+
+  const handleClick = (path) => {
+    if (typeof path === "string" && path.trim() !== "") {
+      router.push(path);
+    } else {
+      console.error("Invalid path:", path);
+    }
+  };
 
   const calculateClosingTotal = () => {
     const includedCategories = [
@@ -287,8 +299,11 @@ const FinancialDashboard = () => {
     </div>
   );
 
-  const ExpenseItem = ({ category, amount }) => (
-    <div className="flex justify-between py-2 border-b border-gray-100">
+  const ExpenseItem = ({ category, amount, path, onClick }) => (
+    <div
+      onClick={() => (path ? onClick(path) : null)}
+      className="flex justify-between py-2 border-b border-gray-100"
+    >
       <span className="text-gray-700">{category}</span>
       <span className="font-medium">
         {amount != null
@@ -348,6 +363,8 @@ const FinancialDashboard = () => {
                 key={index}
                 category={item.category}
                 amount={item.amount}
+                path={item.path}
+                onClick={handleClick}
               />
             ))}
             <TotalRow amount={calculateClosingTotal()} />
