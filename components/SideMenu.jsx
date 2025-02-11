@@ -162,6 +162,11 @@ export default function SideMenu({ children }) {
           icon: <MdOutlineQueryStats />,
         },
         {
+          name: "Sattelment Invoices",
+          url: "settelmentedInvoice",
+          icon: <MdOutlineQueryStats />,
+        },
+        {
           name: "Add Inventory",
           url: "account/addProduct/",
           icon: <MdOutlineProductionQuantityLimits />,

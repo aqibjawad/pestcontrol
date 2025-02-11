@@ -13,6 +13,7 @@ import {
   adminn,
   payments,
   bank,
+  serviceInvoice,
 } from "../../networkUtil/Constants";
 import APICall from "../../networkUtil/APICall";
 import withAuth from "@/utils/withAuth";
@@ -39,6 +40,8 @@ const FinancialDashboard = () => {
   const [bankList, setBankList] = useState([]);
 
   const [paymentList, setPaymentsList] = useState(0);
+
+  const [settleList, setSettleList] = useState(0);
 
   const [fetchingData, setFetchingData] = useState(false);
 
@@ -70,6 +73,7 @@ const FinancialDashboard = () => {
         getBank(startDate, endDate),
         getPos(startDate, endDate),
         getCash(startDate, endDate),
+        getSettle(startDate, endDate),
       ]);
     } catch (error) {
       console.error("Error fetching financial data:", error);
@@ -191,6 +195,20 @@ const FinancialDashboard = () => {
     }
   };
 
+  const getSettle = async (startDate, endDate) => {
+    try {
+      const response = await api.getDataWithToken(
+        `${serviceInvoice}/settlement/get?start_date=${startDate}&end_date=${endDate}`
+      );
+      const totalPending = response.data.reduce((sum, item) => {
+        return sum + parseFloat(item.settlement_amt || 0);
+      }, 0);
+      setSettleList(totalPending);
+    } catch (error) {
+      console.error("Error fetching payments:", error);
+    }
+  };
+
   const closingData = [
     {
       category: "PRO Docs Expense",
@@ -214,6 +232,7 @@ const FinancialDashboard = () => {
     },
     { category: "Vehicles Expense", amount: allVehicleExpense },
     { category: "Expenses", amount: expenseList },
+    { category: "Settlement Invoices", amount: settleList },
   ];
 
   const calculateClosingTotal = () => {
