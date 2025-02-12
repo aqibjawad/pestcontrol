@@ -189,7 +189,81 @@ const Page = () => {
     return vehicleObj;
   };
 
+  const validateForm = async () => {
+    if (!paid_amt || isNaN(paid_amt) || paid_amt <= 0) {
+      await Swal.fire(
+        "Validation Error",
+        "Please enter a valid payment amount.",
+        "error"
+      );
+      return false;
+    }
+
+    if (!descrp.trim()) {
+      await Swal.fire("Validation Error", "Description is required.", "error");
+      return false;
+    }
+
+    if (activeTab === "cheque") {
+      if (!selectedBankId) {
+        await Swal.fire(
+          "Validation Error",
+          "Please select a bank for cheque payment.",
+          "error"
+        );
+        return false;
+      }
+      if (!cheque_amount || isNaN(cheque_amount) || cheque_amount <= 0) {
+        await Swal.fire(
+          "Validation Error",
+          "Please enter a valid cheque amount.",
+          "error"
+        );
+        return false;
+      }
+      if (!cheque_no.trim()) {
+        await Swal.fire(
+          "Validation Error",
+          "Cheque number is required.",
+          "error"
+        );
+        return false;
+      }
+      if (!cheque_date) {
+        await Swal.fire(
+          "Validation Error",
+          "Cheque date is required.",
+          "error"
+        );
+        return false;
+      }
+    } else if (activeTab === "online") {
+      if (!selectedBankId) {
+        await Swal.fire(
+          "Validation Error",
+          "Please select a bank for online payment.",
+          "error"
+        );
+        return false;
+      }
+      if (!transection_id.trim()) {
+        await Swal.fire(
+          "Validation Error",
+          "Transaction ID is required.",
+          "error"
+        );
+        return false;
+      }
+    }
+
+    return true; // All validations passed
+  };
+
   const handleSubmit = async () => {
+    if (!(await validateForm())) {
+      return; // Stop execution if validation fails
+    }
+
     setButtonLoading(true);
 
     if (settlement) {
@@ -374,14 +448,14 @@ const Page = () => {
 
             {activeTab !== "cash" && (
               <Grid className={styles.fromGrid} container spacing={3}>
-                <Grid item xs={12}>
+                {/* <Grid item xs={12}>
                   <Dropdown2
                     onChange={handleBankChange}
                     title="Banks"
                     options={bankOptions}
                     value={selectedBankId}
                   />
-                </Grid>
+                </Grid> */}
 
                 {activeTab === "cheque" && (
                   <>

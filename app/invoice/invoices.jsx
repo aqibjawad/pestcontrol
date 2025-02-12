@@ -22,12 +22,7 @@ const ListServiceTable = ({
   updateTotalAmount,
   statusFilter,
   selectedReference,
-  isVisible,
   setReferenceOptions,
-  setAreaOptions,
-  setFirmNameOptions,
-  selectedArea,
-  selectedFirmName,
   searchQuery,
 }) => {
   const api = new APICall();

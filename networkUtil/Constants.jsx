@@ -89,3 +89,5 @@ export const adminn = apiPrefix + "/admin";
 export const salaries = apiPrefix + "/salary";
 
 export const branches = apiPrefix + "/branch";
+
+export const Cheques = apiPrefix + "/adv_cheques";

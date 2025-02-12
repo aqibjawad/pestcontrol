@@ -2,23 +2,41 @@
 
 import React, { useState, useEffect } from "react";
 import tableStyles from "../../styles/upcomingJobsStyles.module.css";
-import { serviceInvoice } from "@/networkUtil/Constants";
+import { Cheques } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
-import Skeleton from "@mui/material/Skeleton";
+import { Skeleton, Modal, Box, Select, MenuItem } from "@mui/material";
 import { AppHelpers } from "@/Helper/AppHelpers";
 import DateFilters2 from "@/components/generic/DateFilters2";
 import { startOfMonth, endOfMonth, format } from "date-fns";
-import { Download } from "lucide-react";
-import jsPDF from "jspdf";
-import "jspdf-autotable";
-import * as XLSX from "xlsx";
+import InputWithTitle3 from "@/components/generic/InputWithTitle3";
 
-const ListServiceTable = ({ startDate, endDate, updateTotalAmount }) => {
+const modalStyle = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 400,
+  bgcolor: "background.paper",
+  boxShadow: 24,
+  borderRadius: "8px",
+  p: 4,
+};
+
+const ListServiceTable = ({
+  startDate,
+  endDate,
+  selectedReference,
+  setReferenceOptions,
+}) => {
   const api = new APICall();
   const [fetchingData, setFetchingData] = useState(false);
   const [invoiceList, setQuoteList] = useState([]);
   const [loadingDetails, setLoadingDetails] = useState(true);
-
+  const [filteredList, setFilteredList] = useState([]);
+  const [newChequeDate, setNewChequeDate] = useState("");
+  const [totalChequeAmount, setTotalChequeAmount] = useState(0);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [selectedRowId, setSelectedRowId] = useState(null);
   const formatDate = (dateString) => {
     try {
       return AppHelpers.convertDate(dateString);
@@ -27,6 +45,58 @@ const ListServiceTable = ({ startDate, endDate, updateTotalAmount }) => {
       return dateString;
     }
   };
+
+  const getAllCheques = async () => {
+    setFetchingData(true);
+    setLoadingDetails(true);
+
+    const queryParams = [];
+    if (startDate && endDate) {
+      queryParams.push(`start_date=${startDate}`);
+      queryParams.push(`end_date=${endDate}`);
+    } else {
+      const currentDate = new Date();
+      const startDate = startOfMonth(currentDate);
+      const endDate = endOfMonth(currentDate);
+      queryParams.push(`start_date=${format(startDate, "yyyy-MM-dd")}`);
+      queryParams.push(`end_date=${format(endDate, "yyyy-MM-dd")}`);
+    }
+
+    try {
+      const response = await api.getDataWithToken(
+        `${Cheques}/pending?${queryParams.join("&")}`
+      );
+
+      setQuoteList(response.data);
+
+      const allReferences = new Set();
+      response.data.forEach((banks) => {
+        const referenceBank = banks?.bank?.bank_name;
+        if (referenceBank) allReferences.add(referenceBank);
+      });
+      setReferenceOptions(Array.from(allReferences));
+    } catch (error) {
+      console.error("Error fetching quotes:", error);
+    } finally {
+      setFetchingData(false);
+      setLoadingDetails(false);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedReference === "all") {
+      setFilteredList(invoiceList);
+    } else {
+      const filtered = invoiceList.filter(
+        (item) => item?.bank?.bank_name === selectedReference
+      );
+      setFilteredList(filtered);
+    }
+  }, [selectedReference, invoiceList]);
+
+  useEffect(() => {
+    getAllCheques();
+  }, [startDate, endDate]);
 
   const generateExportData = () => {
     return invoiceList.map((row, index) => ({
@@ -55,7 +125,7 @@ const ListServiceTable = ({ startDate, endDate, updateTotalAmount }) => {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `settelment Amount_${startDate}_${endDate}.csv`;
+    a.download = `invoices_${startDate}_${endDate}.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
   };
@@ -65,7 +135,7 @@ const ListServiceTable = ({ startDate, endDate, updateTotalAmount }) => {
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Invoices");
-    XLSX.writeFile(workbook, `Settelment Amount_${startDate}_${endDate}.xlsx`);
+    XLSX.writeFile(workbook, `invoices_${startDate}_${endDate}.xlsx`);
   };
 
   const downloadPDF = () => {
@@ -81,7 +151,7 @@ const ListServiceTable = ({ startDate, endDate, updateTotalAmount }) => {
 
       doc.addImage(img, "jpeg", xPosition, 10, logoWidth, logoHeight);
       doc.setFontSize(12);
-      doc.text(`settelment Amount`, pageWidth / 2, logoHeight + 20, {
+      doc.text(`Invoices`, pageWidth / 2, logoHeight + 20, {
         align: "center",
       });
       doc.text(
@@ -108,68 +178,60 @@ const ListServiceTable = ({ startDate, endDate, updateTotalAmount }) => {
     };
   };
 
-  const getAllQuotes = async () => {
-    setFetchingData(true);
-    setLoadingDetails(true);
+  useEffect(() => {
+    const total = filteredList.reduce(
+      (sum, item) => sum + (Number(item.cheque_amount) || 0),
+      0
+    );
+    setTotalChequeAmount(total);
+  }, [filteredList]);
 
-    const queryParams = [];
-    if (startDate && endDate) {
-      queryParams.push(`start_date=${startDate}`);
-      queryParams.push(`end_date=${endDate}`);
-    } else {
-      const currentDate = new Date();
-      const startDate = startOfMonth(currentDate);
-      const endDate = endOfMonth(currentDate);
-      queryParams.push(`start_date=${format(startDate, "yyyy-MM-dd")}`);
-      queryParams.push(`end_date=${format(endDate, "yyyy-MM-dd")}`);
-    }
+  const handleCreateClick = (rowId) => {
+    setSelectedRowId(rowId);
+    setIsCreateModalOpen(true);
+  };
 
+  const [cheque_date, setChequeDate] = useState("");
+
+  const handleChequeDateChange = (name, value) => {
+    setChequeDate(value);
+  };
+
+  const handleCreateSubmit = async () => {
     try {
-      const response = await api.getDataWithToken(
-        `${serviceInvoice}/settlement/get?${queryParams.join("&")}`
+      console.log("Selected Row ID:", selectedRowId);
+      console.log("Selected Status:", selectedStatus);
+      console.log("Selected Date:", newChequeDate);
+
+      // Now both status and date are passed as URL parameters
+      await api.getDataWithToken(
+        `${Cheques}/status/change/${selectedRowId}/${selectedStatus}/${cheque_date}`
       );
 
-      setQuoteList(response.data);
-      // Update total amounts
-      updateTotalAmount(response.data); // Pass the entire data array
+      await getAllCheques();
+      setIsCreateModalOpen(false);
+      setNewChequeDate("");
+      setSelectedRowId(null);
+      setSelectedStatus(""); // Reset status after submission
     } catch (error) {
-      console.error("Error fetching quotes:", error);
-    } finally {
-      setFetchingData(false);
-      setLoadingDetails(false);
+      console.error("Error updating cheque:", error);
     }
   };
 
-  useEffect(() => {
-    getAllQuotes();
-  }, [startDate, endDate]);
+  const handleCloseModal = () => {
+    setIsCreateModalOpen(false);
+    setSelectedRowId(null);
+    setNewChequeDate("");
+  };
 
+  const [selectedStatus, setSelectedStatus] = useState("");
+
+  // Handler for status change
+  const handleStatusChange = (event) => {
+    setSelectedStatus(event.target.value);
+  };
   return (
     <div>
-      <div className="flex gap-2 mb-4 justify-end">
-        <button
-          onClick={downloadPDF}
-          className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-        >
-          <Download size={16} />
-          PDF
-        </button>
-        <button
-          onClick={downloadExcel}
-          className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-        >
-          <Download size={16} />
-          Excel
-        </button>
-        <button
-          onClick={downloadCSV}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          <Download size={16} />
-          CSV
-        </button>
-      </div>
-
       <div className={tableStyles.tableContainer}>
         <div
           style={{
@@ -198,25 +260,31 @@ const ListServiceTable = ({ startDate, endDate, updateTotalAmount }) => {
                       style={{ width: "15%" }}
                       className="py-2 px-4 border-b border-gray-200 text-left"
                     >
-                      Invoice Issue Date
+                      Name
                     </th>
                     <th
                       style={{ width: "15%" }}
                       className="py-2 px-4 border-b border-gray-200 text-left"
                     >
-                      Client
+                      Bank Name
                     </th>
                     <th
                       style={{ width: "15%" }}
                       className="py-2 px-4 border-b border-gray-200 text-left"
                     >
-                      Firm Name
+                      Cheque Amount
+                    </th>
+                    <th
+                      style={{ width: "15%" }}
+                      className="py-2 px-4 border-b border-gray-200 text-left"
+                    >
+                      Cheque Date
                     </th>
                     <th
                       style={{ width: "10%" }}
                       className="py-2 px-4 border-b border-gray-200 text-left"
                     >
-                      Paid Amount
+                      Cheque No
                     </th>
                     <th
                       style={{ width: "10%" }}
@@ -228,20 +296,14 @@ const ListServiceTable = ({ startDate, endDate, updateTotalAmount }) => {
                       style={{ width: "10%" }}
                       className="py-2 px-4 border-b border-gray-200 text-left"
                     >
-                      Total Amount
+                      Status
                     </th>
                     <th
                       style={{ width: "10%" }}
                       className="py-2 px-4 border-b border-gray-200 text-left"
                     >
-                      Status
+                      Actions
                     </th>
-                    {/* <th
-                      style={{ width: "10%" }}
-                      className="py-2 px-4 border-b border-gray-200 text-left"
-                    >
-                      Action
-                    </th> */}
                   </tr>
                 </thead>
               </table>
@@ -271,28 +333,28 @@ const ListServiceTable = ({ startDate, endDate, updateTotalAmount }) => {
                           ))}
                         </tr>
                       ))
-                    : invoiceList?.map((row, index) => (
+                    : filteredList?.map((row, index) => (
                         <tr key={index} className="border-b border-gray-200">
                           <td style={{ width: "5%" }} className="py-5 px-4">
                             {index + 1}
                           </td>
                           <td style={{ width: "15%" }} className="py-2 px-4">
-                            {formatDate(row.issued_date)}
+                            {row?.user?.name}
                           </td>
                           <td style={{ width: "15%" }} className="py-2 px-4">
-                            {row?.user?.name || "N/A"}
+                            {row?.bank?.bank_name}
                           </td>
                           <td style={{ width: "15%" }} className="py-2 px-4">
-                            {row?.user?.client?.firm_name || "N/A"}
+                            {row?.cheque_amount || "N/A"}
+                          </td>
+                          <td style={{ width: "15%" }} className="py-2 px-4">
+                            {row?.cheque_date || "N/A"}
                           </td>
                           <td style={{ width: "10%" }} className="py-2 px-4">
-                            {row.paid_amt || 0}
+                            {row.cheque_no || 0}
                           </td>
                           <td style={{ width: "10%" }} className="py-2 px-4">
                             {row.settlement_amt || 0}
-                          </td>
-                          <td style={{ width: "10%" }} className="py-2 px-4">
-                            {row.total_amt || 0}
                           </td>
                           <td style={{ width: "10%" }} className="py-2 px-4">
                             <div
@@ -305,13 +367,14 @@ const ListServiceTable = ({ startDate, endDate, updateTotalAmount }) => {
                               {row.status}
                             </div>
                           </td>
-                          {/* <td style={{ width: "10%" }} className="py-2 px-4">
-                            <Link href={`/invoiceDetails?id=${row.id}`}>
-                              <span className="text-blue-600 hover:text-blue-800">
-                                View Details
-                              </span>
-                            </Link>
-                          </td> */}
+                          <td style={{ width: "10%" }} className="py-2 px-4">
+                            <button
+                              onClick={() => handleCreateClick(row.id)}
+                              className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-sm"
+                            >
+                              Pay
+                            </button>
+                          </td>
                         </tr>
                       ))}
                 </tbody>
@@ -320,6 +383,62 @@ const ListServiceTable = ({ startDate, endDate, updateTotalAmount }) => {
           </div>
         </div>
       </div>
+
+      <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+        <div className="text-right">
+          <span className="font-semibold">Total Cheque Amount: </span>
+          <span className="text-green-600 font-bold">
+            {totalChequeAmount.toLocaleString()}
+          </span>
+        </div>
+      </div>
+
+      <Modal
+        open={isCreateModalOpen}
+        onClose={handleCloseModal}
+        aria-labelledby="create-modal-title"
+        aria-describedby="create-modal-description"
+      >
+        <Box sx={modalStyle}>
+          <h2 id="create-modal-title" className="text-xl font-semibold mb-4">
+            Update Cheque
+          </h2>
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-1">Date</label>
+            <InputWithTitle3
+              onChange={handleChequeDateChange}
+              value={cheque_date}
+              type="date"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-1">Status</label>
+            <Select
+              value={selectedStatus}
+              onChange={handleStatusChange}
+              fullWidth
+              className="bg-white"
+            >
+              <MenuItem value="paid">Paid</MenuItem>
+              <MenuItem value="deferred">Deferred</MenuItem>
+            </Select>
+          </div>
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={handleCloseModal}
+              className="px-4 py-2 border rounded-lg"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleCreateSubmit}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+            >
+              Submit
+            </button>
+          </div>
+        </Box>
+      </Modal>
     </div>
   );
 };
@@ -339,7 +458,6 @@ const Invoices = ({ isVisible }) => {
     getDateParamsFromUrl();
   const [startDate, setStartDate] = useState(urlStartDate);
   const [endDate, setEndDate] = useState(urlEndDate);
-  const [totalSettlementAmount, setTotalSettlementAmount] = useState(0);
 
   useEffect(() => {
     if (urlStartDate && urlEndDate) {
@@ -353,19 +471,8 @@ const Invoices = ({ isVisible }) => {
     setEndDate(end);
   };
 
-  const updateTotalAmount = (data) => {
-    if (!Array.isArray(data)) {
-      console.error("Expected an array of invoices");
-      return;
-    }
-
-    const settlementTotal = data.reduce((acc, invoice) => {
-      const amount = parseFloat(invoice.settlement_amt) || 0;
-      return acc + amount;
-    }, 0);
-
-    setTotalSettlementAmount(Number(settlementTotal.toFixed(2)));
-  };
+  const [selectedReference, setSelectedReference] = useState("all");
+  const [referenceOptions, setReferenceOptions] = useState([]);
 
   return (
     <div>
@@ -379,21 +486,31 @@ const Invoices = ({ isVisible }) => {
                 fontFamily: "semibold",
               }}
             >
-              Settlemented Invoices
+              Advance Cheques
             </div>
           </div>
 
           {/* Date filter aligned to the right */}
-          {urlStartDate ? (
-            <div className="flex gap-4 items-center">
-              <p>Start Date: {urlStartDate}</p>
-              <p>End Date: {urlEndDate || "Not Set"}</p>
-            </div>
-          ) : (
-            <div className="bg-green-600 text-white font-semibold text-base h-11 w-52 flex justify-center items-center px-4 py-3 rounded-lg">
+          <div className="flex items-center gap-4">
+            {/* Reference Dropdown */}
+            <select
+              value={selectedReference}
+              onChange={(e) => setSelectedReference(e.target.value)}
+              className="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">All Banks</option>
+              {referenceOptions.map((reference, index) => (
+                <option key={index} value={reference}>
+                  {reference}
+                </option>
+              ))}
+            </select>
+
+            {/* Date Filter Component */}
+            <div className="flex items-center bg-green-600 text-white font-semibold text-base h-11 px-4 py-3 rounded-lg">
               <DateFilters2 onDateChange={handleDateChange} />
             </div>
-          )}
+          </div>
         </div>
       </div>
 
@@ -403,23 +520,9 @@ const Invoices = ({ isVisible }) => {
             handleDateChange={handleDateChange}
             startDate={startDate}
             endDate={endDate}
-            updateTotalAmount={updateTotalAmount}
-            isVisible={isVisible}
+            selectedReference={selectedReference}
+            setReferenceOptions={setReferenceOptions}
           />
-        </div>
-      </div>
-
-      <div className="flex justify-end gap-4 p-6">
-        <div className="bg-gray-100 p-4 rounded-lg">
-          <span className="font-semibold text-lg">
-            Total Settlement Amount:{" "}
-          </span>
-          <span className="text-lg text-green-600">
-            {totalSettlementAmount.toLocaleString(undefined, {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}
-          </span>
         </div>
       </div>
     </div>
