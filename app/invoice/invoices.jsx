@@ -425,7 +425,13 @@ const ListServiceTable = ({
                             >
                               {row.status}
                             </div>
+                            <div>
+                              {row.is_taken_cheque === 1
+                                ? "Cheque Taken"
+                                : "N/A"}
+                            </div>
                           </td>
+
                           <td style={{ width: "10%" }} className="py-2 px-4">
                             <Link href={`/invoiceDetails?id=${row.id}`}>
                               <span className="text-blue-600 hover:text-blue-800">

@@ -199,20 +199,20 @@ const ListServiceTable = ({
 
   const handleCreateSubmit = async () => {
     try {
-      console.log("Selected Row ID:", selectedRowId);
-      console.log("Selected Status:", selectedStatus);
-      console.log("Selected Date:", newChequeDate);
+      const requestData = {
+        id: selectedRowId,
+        status: selectedStatus,
+        date: cheque_date,
+        deferred_reason: rejectReason,
+      };
 
-      // Now both status and date are passed as URL parameters
-      await api.getDataWithToken(
-        `${Cheques}/status/change/${selectedRowId}/${selectedStatus}/${cheque_date}`
-      );
+      await api.postFormDataWithToken(`${Cheques}/status/change`, requestData);
 
       await getAllCheques();
       setIsCreateModalOpen(false);
       setNewChequeDate("");
       setSelectedRowId(null);
-      setSelectedStatus(""); // Reset status after submission
+      setSelectedStatus("");
     } catch (error) {
       console.error("Error updating cheque:", error);
     }
@@ -225,6 +225,7 @@ const ListServiceTable = ({
   };
 
   const [selectedStatus, setSelectedStatus] = useState("");
+  const [rejectReason, setRejectReason] = useState("");
 
   // Handler for status change
   const handleStatusChange = (event) => {
@@ -420,9 +421,28 @@ const ListServiceTable = ({
               className="bg-white"
             >
               <MenuItem value="paid">Paid</MenuItem>
-              <MenuItem value="deferred">Deferred</MenuItem>
+              <MenuItem sx={{ color: "red" }} value="deferred">
+                Reject
+              </MenuItem>
             </Select>
           </div>
+
+          {/* Agar status "Reject" ho to input field show ho */}
+          {selectedStatus === "deferred" && (
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1">
+                Reason for Rejection
+              </label>
+              <input
+                type="text"
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                className="w-full border rounded-lg px-3 py-2"
+                placeholder="Enter reason"
+              />
+            </div>
+          )}
+
           <div className="flex justify-end gap-2">
             <button
               onClick={handleCloseModal}

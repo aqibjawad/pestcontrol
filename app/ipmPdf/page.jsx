@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Grid,
   Paper,
@@ -13,7 +13,27 @@ import {
   Button,
   CircularProgress,
   Typography,
+  IconButton,
 } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import dynamic from "next/dynamic";
+
+const Ipm = dynamic(() => import("../ipm/ipm"), {
+  ssr: false,
+});
+
+const initialImages = [
+  {
+    id: 1,
+    src: "https://worldcitizenconsultants.com/wp-content/uploads/sb-instagram-feed-images/475112712_122269245788179403_7328766855650196834_nlow.webp",
+    description: "",
+  },
+  {
+    id: 2,
+    src: "https://worldcitizenconsultants.com/wp-content/uploads/sb-instagram-feed-images/475184712_122269906364179403_7093659696345052302_nlow.webp",
+    description: "",
+  },
+];
 
 const Header = () => (
   <Grid
@@ -22,17 +42,17 @@ const Header = () => (
     alignItems="center"
     sx={{ width: "100%", padding: "20px" }}
   >
-    <Grid item xs={9}>
-      <Typography variant="h6" sx={{ fontWeight: 500 }}>
-        Accurate Pest Control
-      </Typography>
-    </Grid>
-    <Grid item xs={3} sx={{ textAlign: "right" }}>
+    <Grid item xs={12} sx={{ textAlign: "center", marginBottom: "20px" }}>
       <img
-        style={{ height: "60px" }}
+        style={{ height: "80px" }}
         src="/logo.jpeg"
         alt="Accurate Pest Control Logo"
       />
+    </Grid>
+    <Grid item xs={12} sx={{ textAlign: "center" }}>
+      <Typography variant="h6" sx={{ fontWeight: 500 }}>
+        Accurate Pest Control
+      </Typography>
     </Grid>
   </Grid>
 );
@@ -62,13 +82,34 @@ const Footer = () => (
 );
 
 const IpmPdf = () => {
-  const reportRef = React.useRef();
+  const reportRef = useRef();
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [selectedImages, setSelectedImages] = useState([]);
+  const [availableImages, setAvailableImages] = useState(initialImages);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setMounted(true);
   }, []);
+
+  const handleImageSelect = (image) => {
+    setSelectedImages([...selectedImages, image]);
+  };
+
+  const handleDeleteImage = (id) => {
+    const deletedImage = selectedImages.find((img) => img.id === id);
+    const recycledImage = {
+      ...deletedImage,
+      description: "",
+    };
+
+    setAvailableImages([...availableImages, recycledImage]);
+    setSelectedImages(selectedImages.filter((img) => img.id !== id));
+  };
+
+  const handleAvailableImagesChange = (newImages) => {
+    setAvailableImages(newImages);
+  };
 
   const generatePDF = async () => {
     setLoading(true);
@@ -79,7 +120,11 @@ const IpmPdf = () => {
         margin: [0.5, 0.5],
         filename: "inspection-report.pdf",
         image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true, // Enable cross-origin image loading
+          allowTaint: true, // Allow loading of cross-origin images
+        },
         jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
         pagebreak: { mode: ["avoid-all", "css", "legacy"] },
       };
@@ -97,6 +142,11 @@ const IpmPdf = () => {
 
   return (
     <>
+      <Ipm
+        onImageSelect={handleImageSelect}
+        availableImages={availableImages}
+        onImagesChange={handleAvailableImagesChange}
+      />
       <Button
         variant="contained"
         onClick={generatePDF}
@@ -112,14 +162,17 @@ const IpmPdf = () => {
         {loading ? <CircularProgress size={24} /> : "Download PDF"}
       </Button>
 
-      <div ref={reportRef}>
-        {/* Table Page (Now First) */}
-        <div>
+      <div ref={reportRef} style={{ width: "100%" }}>
+        <div style={{ width: "100%" }}>
           <Header />
 
           <TableContainer
             component={Paper}
-            sx={{ margin: "20px", marginBottom: "100px" }}
+            sx={{
+              margin: "20px",
+              marginBottom: "100px",
+              width: "calc(100% - 40px)",
+            }}
           >
             {mounted && (
               <MuiTable>
@@ -129,41 +182,39 @@ const IpmPdf = () => {
                     <TableCell style={{ fontWeight: "bold" }}>
                       Description
                     </TableCell>
+                    <TableCell style={{ fontWeight: "bold" }}>Action</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  <TableRow style={{ pageBreakInside: "avoid" }}>
-                    <TableCell>
-                      <img
-                        src="/example1.jpeg"
-                        alt="Example 1"
-                        style={{ width: "100px", height: "70px" }}
-                      />
-                    </TableCell>
-                    <TableCell>Pest Control Inspection at Site</TableCell>
-                  </TableRow>
-
-                  <TableRow style={{ pageBreakInside: "avoid" }}>
-                    <TableCell>
-                      <img
-                        src="/example2.jpeg"
-                        alt="Example 2"
-                        style={{ width: "100px", height: "70px" }}
-                      />
-                    </TableCell>
-                    <TableCell>Equipment Used for Treatment</TableCell>
-                  </TableRow>
-
-                  <TableRow style={{ pageBreakInside: "avoid" }}>
-                    <TableCell>
-                      <img
-                        src="/example3.jpeg"
-                        alt="Example 3"
-                        style={{ width: "100px", height: "70px" }}
-                      />
-                    </TableCell>
-                    <TableCell>Safety Measures Implemented</TableCell>
-                  </TableRow>
+                  {selectedImages.map((image, index) => (
+                    <TableRow
+                      key={image.id}
+                      style={{ pageBreakInside: "avoid" }}
+                    >
+                      <TableCell style={{ width: "120px" }}>
+                        <img
+                          src={image.src}
+                          alt={`Selected ${index + 1}`}
+                          style={{
+                            width: "100px",
+                            height: "70px",
+                            objectFit: "cover",
+                            display: "block", // Ensure image is properly displayed
+                          }}
+                          crossOrigin="anonymous" // Enable cross-origin image loading
+                        />
+                      </TableCell>
+                      <TableCell>{image.description}</TableCell>
+                      <TableCell>
+                        <IconButton
+                          onClick={() => handleDeleteImage(image.id)}
+                          color="error"
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </MuiTable>
             )}
@@ -172,7 +223,6 @@ const IpmPdf = () => {
           <Footer />
         </div>
 
-        {/* Thank You Page */}
         <div
           style={{
             pageBreakBefore: "always",
@@ -208,6 +258,7 @@ const IpmPdf = () => {
               style={{ width: "150px", height: "100px", marginTop: "2rem" }}
               src="/logo.jpeg"
               alt="Logo"
+              crossOrigin="anonymous"
             />
           </Paper>
 

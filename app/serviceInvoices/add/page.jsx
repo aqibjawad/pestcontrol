@@ -448,14 +448,14 @@ const Page = () => {
 
             {activeTab !== "cash" && (
               <Grid className={styles.fromGrid} container spacing={3}>
-                {/* <Grid item xs={12}>
+                <Grid item xs={12}>
                   <Dropdown2
                     onChange={handleBankChange}
                     title="Banks"
                     options={bankOptions}
                     value={selectedBankId}
                   />
-                </Grid> */}
+                </Grid>
 
                 {activeTab === "cheque" && (
                   <>
