@@ -44,13 +44,13 @@ const AllEmployees = () => {
   }, []);
 
   useEffect(() => {
-    if (employeesList.length > 0) {
+    if (employeesList?.length > 0) {
       const uniqueBranches = [
-        ...new Set(employeesList.map((emp) => emp.branch?.id)),
+        ...new Set(employeesList?.map((emp) => emp.branch?.id)),
       ]
         .filter((id) => id !== undefined)
         .map((id) => {
-          const branch = employeesList.find(
+          const branch = employeesList?.find(
             (emp) => emp.branch?.id === id
           )?.branch;
           return { id: branch.id, name: branch.name };

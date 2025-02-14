@@ -308,13 +308,13 @@ const Page = () => {
 
         {activeTab === "cheque" && (
           <div>
-            <div className="mt-5">
+            {/* <div className="mt-5">
               <Dropdown
                 onChange={handleBankChange}
                 title={"Banks"}
                 options={allBankNameList}
               />
-            </div>
+            </div> */}
 
             <div className="mt-5">
               <InputWithTitle3
@@ -358,13 +358,13 @@ const Page = () => {
 
         {activeTab === "online" && (
           <div>
-            <div className="mt-5">
+            {/* <div className="mt-5">
               <Dropdown
                 onChange={handleBankChange}
                 title={"Banks"}
                 options={allBankNameList}
               />
-            </div>
+            </div> */}
 
             <div className="mt-5">
               <InputWithTitle

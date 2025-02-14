@@ -74,7 +74,10 @@ const Pending = () => {
 
       <div className="grid grid-cols-12 gap-4">
         <div className="col-span-12">
-          <DynamicTableContainer component={Paper}>
+          <DynamicTableContainer
+            component={Paper}
+            style={{height:"300px"}}
+          >
             <DynamicTable>
               <TableHead>
                 <TableRow>
@@ -91,7 +94,7 @@ const Pending = () => {
               <TableBody>
                 {fetchingData ? (
                   <TableRow>
-                    <TableCell colSpan={8} style={{ textAlign: "center" }}>
+                    <TableCell colSpan={8} className="text-center">
                       <CircularProgress />
                     </TableCell>
                   </TableRow>
@@ -127,7 +130,7 @@ const Pending = () => {
                       <TableCell>
                         <Link
                           href={`/invoiceDetails?id=${row.service_invoice_id}`}
-                          style={{ color: "#2196f3", textDecoration: "none" }}
+                          className="text-blue-500 no-underline"
                         >
                           View Details
                         </Link>
@@ -136,7 +139,7 @@ const Pending = () => {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={8} style={{ textAlign: "center" }}>
+                    <TableCell colSpan={8} className="text-center">
                       No Pending Amounts
                     </TableCell>
                   </TableRow>

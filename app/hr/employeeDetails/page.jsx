@@ -28,6 +28,8 @@ import {
 
 import Swal from "sweetalert2";
 
+import Leaves from "./leaves.jsx";
+
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
   if (parts.length > 1) {
@@ -600,6 +602,12 @@ const Page = () => {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {activeTab === "leaves" && (
+        <div className={styles.personalDetailsContainer}>
+          <Leaves />
         </div>
       )}
     </div>

@@ -45,6 +45,8 @@ const Page = () => {
     labour_card_expiry: "abc",
     country: "",
     branch_id: "",
+    joining_date:"",
+    remaining_off_days: ""
   });
 
   const [errors, setErrors] = useState({

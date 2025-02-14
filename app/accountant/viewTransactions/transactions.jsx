@@ -229,7 +229,7 @@ const Transactions = () => {
         </div>
 
         {/* Table */}
-        <TableContainer component={Paper}>
+        <TableContainer style={{height:"300px"}} component={Paper}>
           <Table>
             <TableHead>
               <TableRow>

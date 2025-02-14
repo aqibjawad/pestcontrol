@@ -131,7 +131,7 @@ const Page = () => {
     } else if (activeTab === "cheque") {
       expenseObj = {
         ...expenseObj,
-        bank_id: selectedBankId,
+        // bank_id: selectedBankId,
         amount,
         cheque_no,
         cheque_date,
@@ -139,7 +139,7 @@ const Page = () => {
     } else if (activeTab === "online") {
       expenseObj = {
         ...expenseObj,
-        bank_id: selectedBankId,
+        // bank_id: selectedBankId,
         amount,
         transection_id,
       };
@@ -237,13 +237,13 @@ const Page = () => {
 
         {activeTab === "cheque" && (
           <div>
-            <div className="mt-5">
+            {/* <div className="mt-5">
               <Dropdown
                 onChange={handleBankChange}
                 title={"Banks"}
                 options={allBankNameList}
               />
-            </div>
+            </div> */}
 
             <div className="mt-5">
               <InputWithTitle3
@@ -297,13 +297,13 @@ const Page = () => {
 
         {activeTab === "online" && (
           <div>
-            <div className="mt-5">
+            {/* <div className="mt-5">
               <Dropdown
                 onChange={handleBankChange}
                 title={"Banks"}
                 options={allBankNameList}
               />
-            </div>
+            </div> */}
 
             <div className="mt-5">
               <InputWithTitle

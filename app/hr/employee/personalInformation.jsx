@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import InputWithTitle2 from "@/components/generic/InputWithTitle2";
+import InputWithTitle3 from "@/components/generic/InputWithTitle3";
 
 import "./index.css";
 import UploadImagePlaceholder from "../../../components/generic/uploadImage";
@@ -172,6 +173,23 @@ const PersonalInformation = ({
               options={branchOptions}
               onChange={handleBranchChange}
               value={data.branch}
+            />
+          </Grid>
+
+          <Grid className="mt-4" item lg={6} xs={12} md={6}>
+            <InputWithTitle3
+              title={"Joining Date"}
+              type="date"
+              onChange={(name, value) => onChange("joining_date", value)}
+              value={data.joining_date}
+            />
+          </Grid>
+
+          <Grid item lg={6} xs={12} md={6}>
+            <InputWithTitle2
+              title={"Remaining Off Days"}
+              onChange={(name, value) => onChange("remaining_off_days", value)}
+              value={data.remaining_off_days}
             />
           </Grid>
         </Grid>

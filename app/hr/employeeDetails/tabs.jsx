@@ -9,7 +9,7 @@ const Tabs = ({ activeTab, setActiveTab }) => {
   };
 
   const currentTab = activeTab || "documents";
- 
+
   return (
     <div className="mt-5">
       <div className={styles.tabContainer}>
@@ -55,6 +55,15 @@ const Tabs = ({ activeTab, setActiveTab }) => {
           onClick={() => handleTabClick("devices")}
         >
           Devices
+        </div>
+
+        <div
+          className={`${styles.tabPaymentButton} ${
+            currentTab === "leaves" ? styles.active : ""
+          }`}
+          onClick={() => handleTabClick("leaves")}
+        >
+          Leaves
         </div>
       </div>
     </div>

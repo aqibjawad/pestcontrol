@@ -8,6 +8,7 @@ import CommissionCal from "../comCal/page";
 import SalaryTotal from "../salaryTotal/page";
 import Ledger from "../employeeLedger/ledger";
 import withAuth from "@/utils/withAuth";
+import EmpLeaves from "../empLeaves/empLeaves";
 
 const TabPanel = (props) => {
   const { children, value, index, ...other } = props;
@@ -76,6 +77,15 @@ const Page = () => {
           >
             Employee Ledger
           </div>
+
+          <div
+            className={`${styles.tabPaymentButton} ${
+              activeTab === 5 ? styles.active : ""
+            }`}
+            onClick={() => handleTabClick(5)}
+          >
+            Employee Leaves
+          </div>
         </div>
       </div>
 
@@ -97,6 +107,10 @@ const Page = () => {
 
       <TabPanel value={activeTab} index={4}>
         <Ledger />
+      </TabPanel>
+
+      <TabPanel value={activeTab} index={5}>
+        <EmpLeaves />
       </TabPanel>
     </div>
   );
