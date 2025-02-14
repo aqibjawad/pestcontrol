@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { startOfMonth, endOfMonth, format } from "date-fns";
+import { format } from "date-fns";
 import {
   Table,
   TableBody,
@@ -19,7 +19,6 @@ import APICall from "../../../networkUtil/APICall";
 import { bank } from "../../../networkUtil/Constants";
 import DateFilters from "@/components/generic/DateFilters";
 
-// TableSkeleton component remains the same...
 const TableSkeleton = ({ rows = 5, columns = 7 }) => {
   return (
     <TableContainer component={Paper}>
@@ -55,32 +54,24 @@ const TableSkeleton = ({ rows = 5, columns = 7 }) => {
 
 const BankTransactions = () => {
   const api = new APICall();
+  const today = format(new Date(), "yyyy-MM-dd");
 
   const [bankData, setBankData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [startDate, setStartDate] = useState(today);
+  const [endDate, setEndDate] = useState(today);
 
-  const [startDate, setStartDate] = useState(
-    format(startOfMonth(new Date()), "yyyy-MM-dd")
-  );
-  const [endDate, setEndDate] = useState(
-    format(endOfMonth(new Date()), "yyyy-MM-dd")
-  );
-
-  const fetchBankData = async (start, end) => {
+  const fetchBankData = async () => {
     setIsLoading(true);
     try {
       const urlParams = new URLSearchParams(window.location.search);
       const id = urlParams.get("id");
 
       if (id) {
-        // Format dates properly for API call
-        const formattedStartDate = start
-          ? format(new Date(start), "yyyy-MM-dd")
-          : "";
-        const formattedEndDate = end ? format(new Date(end), "yyyy-MM-dd") : "";
+        const queryParams = [`start_date=${startDate}`, `end_date=${endDate}`];
 
         const response = await api.getDataWithToken(
-          `${bank}/${id}?start_date=${formattedStartDate}&end_date=${formattedEndDate}`
+          `${bank}/${id}?${queryParams.join("&")}`
         );
         setBankData(response.data);
       }
@@ -91,21 +82,14 @@ const BankTransactions = () => {
     }
   };
 
-  const handleDateChange = (dates) => {
-    if (dates?.start && dates?.end) {
-      const formattedStart = format(new Date(dates.start), "yyyy-MM-dd");
-      const formattedEnd = format(new Date(dates.end), "yyyy-MM-dd");
-      setStartDate(formattedStart);
-      setEndDate(formattedEnd);
-      // Immediately call fetchBankData with new dates
-      fetchBankData(formattedStart, formattedEnd);
-    }
+  const handleDateChange = (start, end) => {
+    setStartDate(start);
+    setEndDate(end);
   };
 
-  // Initial load
   useEffect(() => {
-    fetchBankData(startDate, endDate);
-  }, []); // Remove startDate and endDate from dependencies
+    fetchBankData();
+  }, [startDate, endDate]);
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -115,7 +99,6 @@ const BankTransactions = () => {
     });
   };
 
-  // Rest of the component remains the same...
   const getReferenceName = (entry) => {
     if (!entry.referenceable) return "-";
     if (entry.referenceable_type === "App\\Models\\Supplier") {

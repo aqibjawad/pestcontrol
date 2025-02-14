@@ -280,7 +280,6 @@ const ListServiceTable = ({
           }}
         >
           <div className="relative">
-            {/* Table Header */}
             <div className="overflow-x-auto">
               <table
                 className="min-w-full bg-white"
@@ -295,19 +294,19 @@ const ListServiceTable = ({
                       Sr.
                     </th>
                     <th
-                      style={{ width: "15%" }}
+                      style={{ width: "10%" }}
                       className="py-2 px-4 border-b border-gray-200 text-left"
                     >
                       Invoice Issue Date
                     </th>
                     <th
-                      style={{ width: "15%" }}
+                      style={{ width: "12%" }}
                       className="py-2 px-4 border-b border-gray-200 text-left"
                     >
                       Client
                     </th>
                     <th
-                      style={{ width: "15%" }}
+                      style={{ width: "12%" }}
                       className="py-2 px-4 border-b border-gray-200 text-left"
                     >
                       Firm Name
@@ -319,43 +318,55 @@ const ListServiceTable = ({
                       Reference
                     </th>
                     <th
-                      style={{ width: "15%" }}
+                      style={{ width: "10%" }}
+                      className="py-2 px-4 border-b border-gray-200 text-left"
+                    >
+                      Cheque Date
+                    </th>
+                    <th
+                      style={{ width: "8%" }}
+                      className="py-2 px-4 border-b border-gray-200 text-left"
+                    >
+                      Bank ID
+                    </th>
+                    <th
+                      style={{ width: "10%" }}
                       className="py-2 px-4 border-b border-gray-200 text-left"
                     >
                       Assign To
                     </th>
                     <th
-                      style={{ width: "10%" }}
+                      style={{ width: "8%" }}
                       className="py-2 px-4 border-b border-gray-200 text-left"
                     >
                       Paid Amount
                     </th>
                     <th
-                      style={{ width: "10%" }}
+                      style={{ width: "8%" }}
                       className="py-2 px-4 border-b border-gray-200 text-left"
                     >
                       Total Amount
                     </th>
                     <th
-                      style={{ width: "10%" }}
+                      style={{ width: "8%" }}
                       className="py-2 px-4 border-b border-gray-200 text-left"
                     >
                       Status
                     </th>
                     <th
-                      style={{ width: "10%" }}
+                      style={{ width: "8%" }}
                       className="py-2 px-4 border-b border-gray-200 text-left"
                     >
                       Action
                     </th>
                     <th
-                      style={{ width: "10%" }}
+                      style={{ width: "8%" }}
                       className="py-2 px-4 border-b border-gray-200 text-left"
                     >
                       View
                     </th>
                     <th
-                      style={{ width: "10%" }}
+                      style={{ width: "8%" }}
                       className="py-2 px-4 border-b border-gray-200 text-left"
                     >
                       Assign
@@ -365,7 +376,6 @@ const ListServiceTable = ({
               </table>
             </div>
 
-            {/* Scrollable Table Body */}
             <div
               style={{ overflowY: "auto", maxHeight: "500px" }}
               className="overflow-x-auto"
@@ -378,7 +388,7 @@ const ListServiceTable = ({
                   {loadingDetails
                     ? Array.from({ length: 5 }).map((_, index) => (
                         <tr key={index} className="border-b border-gray-200">
-                          {Array.from({ length: 11 }).map((_, colIndex) => (
+                          {Array.from({ length: 14 }).map((_, colIndex) => (
                             <td key={colIndex} className="py-2 px-4">
                               <Skeleton
                                 variant="rectangular"
@@ -394,28 +404,34 @@ const ListServiceTable = ({
                           <td style={{ width: "5%" }} className="py-5 px-4">
                             {index + 1}
                           </td>
-                          <td style={{ width: "15%" }} className="py-2 px-4">
+                          <td style={{ width: "10%" }} className="py-2 px-4">
                             {formatDate(row.issued_date)}
                           </td>
-                          <td style={{ width: "15%" }} className="py-2 px-4">
+                          <td style={{ width: "12%" }} className="py-2 px-4">
                             {row?.user?.name || "N/A"}
                           </td>
-                          <td style={{ width: "15%" }} className="py-2 px-4">
+                          <td style={{ width: "12%" }} className="py-2 px-4">
                             {row?.user?.client?.firm_name || "N/A"}
                           </td>
                           <td style={{ width: "10%" }} className="py-2 px-4">
                             {row?.user?.client?.referencable?.name || "N/A"}
                           </td>
-                          <td style={{ width: "15%" }} className="py-2 px-4">
+                          <td style={{ width: "10%" }} className="py-2 px-4">
+                            {row?.advance_cheques?.[0]?.cheque_date || "N/A"}
+                          </td>
+                          <td style={{ width: "8%" }} className="py-2 px-4">
+                            {row?.advance_cheques?.[0]?.bank?.bank_name || "N/A"}
+                          </td>
+                          <td style={{ width: "10%" }} className="py-2 px-4">
                             {row?.assigned_recovery_officer?.name || "N/A"}
                           </td>
-                          <td style={{ width: "10%" }} className="py-2 px-4">
+                          <td style={{ width: "8%" }} className="py-2 px-4">
                             {row.paid_amt || 0}
                           </td>
-                          <td style={{ width: "10%" }} className="py-2 px-4">
+                          <td style={{ width: "8%" }} className="py-2 px-4">
                             {row.total_amt || 0}
                           </td>
-                          <td style={{ width: "10%" }} className="py-2 px-4">
+                          <td style={{ width: "8%" }} className="py-2 px-4">
                             <div
                               className={
                                 row.status.toLowerCase() === "paid"
@@ -426,27 +442,24 @@ const ListServiceTable = ({
                               {row.status}
                             </div>
                             <div>
-                              {row.is_taken_cheque === 1
-                                ? "Cheque Taken"
-                                : "N/A"}
+                              {row.is_taken_cheque === 1 ? "Cheque Taken" : ""}
                             </div>
                           </td>
-
-                          <td style={{ width: "10%" }} className="py-2 px-4">
+                          <td style={{ width: "8%" }} className="py-2 px-4">
                             <Link href={`/invoiceDetails?id=${row.id}`}>
                               <span className="text-blue-600 hover:text-blue-800">
                                 View Details
                               </span>
                             </Link>
                           </td>
-                          <td style={{ width: "10%" }} className="py-2 px-4">
+                          <td style={{ width: "8%" }} className="py-2 px-4">
                             <Link href={`/recovery/viewHistory?id=${row.id}`}>
                               <span className="text-blue-600 hover:text-blue-800">
                                 View History
                               </span>
                             </Link>
                           </td>
-                          <td style={{ width: "10%" }} className="py-2 px-4">
+                          <td style={{ width: "8%" }} className="py-2 px-4">
                             <button
                               onClick={() => handleAssignClick(row.id)}
                               className={`text-blue-600 hover:text-blue-800 ${

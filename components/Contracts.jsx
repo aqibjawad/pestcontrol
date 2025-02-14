@@ -17,7 +17,7 @@ import { quotation } from "@/networkUtil/Constants";
 import Link from "next/link";
 
 import DateFilters from "./generic/DateFilters";
-import { format } from "date-fns";
+import { format } from "date-fns"; 
 
 const Contracts = () => {
   const api = new APICall();

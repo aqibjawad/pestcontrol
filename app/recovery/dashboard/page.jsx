@@ -20,13 +20,22 @@ import {
   CardContent,
   Grid,
   Skeleton,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import APICall from "../../../networkUtil/APICall";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
-import { serviceInvoice, getAllEmpoyesUrl } from "@/networkUtil/Constants";
+import Dropdown2 from "../../../components/generic/DropDown2";
+
+import {
+  serviceInvoice,
+  getAllEmpoyesUrl,
+  bank,
+} from "@/networkUtil/Constants";
+import InputWithTitle from "@/components/generic/InputWithTitle";
 
 import DateFilters from "@/components/generic/DateFilters";
 
@@ -53,9 +62,14 @@ const Page = () => {
   const [comment, setComment] = useState("");
   const [paid_amt, setPaidAmt] = useState(0);
   const [settlement, setIsSettelemt] = useState(false);
-
+  const [cheque_no, setChequeNo] = useState("");
+  const [cheque_date, setChequeDate] = useState("");
   const [startDate, setStartDate] = useState(getTodayDateString());
   const [endDate, setEndDate] = useState(getTodayDateString());
+  const [paymentMethod, setPaymentMethod] = React.useState("cash");
+
+  const [allBanksList, setAllBankList] = useState([]);
+  const [selectedBankId, setSelectedBankId] = useState("");
 
   const handleDateChange = (start, end) => {
     setStartDate(start);
@@ -148,9 +162,12 @@ const Page = () => {
       if (responseSubmission.status === "success") {
         // After successful payment, automatically submit the response
         const paymentData = {
+          bank_id: selectedBankId,
           service_invoice_id: selectedInvoice.id,
           paid_amt,
-          payment_type: "cash",
+          payment_type: paymentMethod,
+          cheque_no: cheque_no,
+          cheque_date: cheque_date,
           is_settlement: settlement ? 1 : 0,
         };
 
@@ -287,6 +304,30 @@ const Page = () => {
       </TableContainer>
     );
   };
+  const bankOptions = allBanksList.map((bank) => ({
+    value: bank.id,
+    label: bank.bank_name,
+  }));
+
+  const getAllBanks = async () => {
+    setFetchingData(true);
+    try {
+      const response = await api.getDataWithToken(`${bank}`);
+      setAllBankList(response.data);
+    } catch (error) {
+      console.error("Error fetching Banks:", error);
+    } finally {
+      setFetchingData(false);
+    }
+  };
+
+  useEffect(() => {
+    getAllBanks();
+  }, []);
+
+  const handleBankChange = (selectedValue) => {
+    setSelectedBankId(selectedValue);
+  };
 
   const modalContent = () => (
     <Box
@@ -331,15 +372,64 @@ const Page = () => {
 
           {paymentOption === "payment" && (
             <>
-              <TextField
-                fullWidth
-                type="number"
-                label="Payment Amount"
-                value={paid_amt}
-                onChange={(e) => setPaidAmt(Number(e.target.value))}
-                sx={{ mb: 2 }}
-                inputProps={{ min: 0, max: selectedInvoice.total_amt }}
-              />
+              <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
+                <Tabs
+                  value={paymentMethod}
+                  onChange={(e, newValue) => setPaymentMethod(newValue)}
+                  variant="fullWidth"
+                >
+                  <Tab label="Cash" value="cash" />
+                  <Tab label="Cheque" value="cheque" />
+                </Tabs>
+              </Box>
+
+              {paymentMethod === "cash" && (
+                <TextField
+                  fullWidth
+                  type="number"
+                  label="Cash Amount"
+                  value={paid_amt}
+                  onChange={(e) => setPaidAmt(Number(e.target.value))}
+                  sx={{ mb: 2 }}
+                  inputProps={{ min: 0, max: selectedInvoice.total_amt }}
+                />
+              )}
+
+              {paymentMethod === "cheque" && (
+                <>
+                  <Dropdown2
+                    onChange={handleBankChange}
+                    title="Banks"
+                    options={bankOptions}
+                    value={selectedBankId}
+                  />
+                  <div className="mt-3">
+                    <TextField
+                      fullWidth
+                      type="number"
+                      label="Cheque Amount"
+                      value={paid_amt}
+                      onChange={(e) => setPaidAmt(Number(e.target.value))}
+                      sx={{ mb: 2 }}
+                      inputProps={{ min: 0, max: selectedInvoice.total_amt }}
+                    />
+                  </div>
+                  <InputWithTitle
+                    title="Cheque Date"
+                    type="date"
+                    value={cheque_date}
+                    onChange={(value) => setChequeDate(value)}
+                  />
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <InputWithTitle
+                      title="Cheque Number"
+                      type="text"
+                      value={cheque_no}
+                      onChange={(value) => setChequeNo(value)}
+                    />
+                  </LocalizationProvider>
+                </>
+              )}
 
               <div className="flex items-center gap-2 mt-10">
                 <input
