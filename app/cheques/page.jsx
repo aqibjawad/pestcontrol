@@ -1,11 +1,11 @@
 import React from 'react';
 
-import advanceCheques from "./advanceCheques";
+import AdvanceCheques from "./advanceCheques";
 
 const Page =()=>{
   return(
     <div>
-      <advanceCheques />
+      <AdvanceCheques />
     </div>
   )
 }

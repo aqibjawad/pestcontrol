@@ -173,6 +173,7 @@ const Page = () => {
       vehicleObj = {
         ...vehicleObj,
         bank_id: selectedBankId,
+        paid_amt: cheque_amount,
         cheque_amount,
         cheque_no,
         cheque_date,
@@ -190,18 +191,24 @@ const Page = () => {
   };
 
   const validateForm = async () => {
-    if (!paid_amt || isNaN(paid_amt) || paid_amt <= 0) {
-      await Swal.fire(
-        "Validation Error",
-        "Please enter a valid payment amount.",
-        "error"
-      );
-      return false;
-    }
+    if (activeTab === "cash") {
+      if (!paid_amt || isNaN(paid_amt) || paid_amt <= 0) {
+        await Swal.fire(
+          "Validation Error",
+          "Please enter a valid payment amount.",
+          "error"
+        );
+        return false;
+      }
 
-    if (!descrp.trim()) {
-      await Swal.fire("Validation Error", "Description is required.", "error");
-      return false;
+      if (!descrp.trim()) {
+        await Swal.fire(
+          "Validation Error",
+          "Description is required.",
+          "error"
+        );
+        return false;
+      }
     }
 
     if (activeTab === "cheque") {
@@ -410,42 +417,44 @@ const Page = () => {
           sm={6}
           md={6}
         >
-          <Grid container spacing={2}>
-            <Grid item lg={8} xs={12} md={6}>
-              <InputWithTitle
-                onChange={(value) => setPaidAmount(value)}
-                type="text"
-                value={paid_amt}
-                title="Paid Amount"
-              />
-            </Grid>
-
-            <Grid item lg={4} xs={12} md={6}>
-              <div className="flex items-center gap-2 mt-10">
-                <input
-                  type="checkbox"
-                  id="settlement"
-                  checked={settlement}
-                  onChange={handleSettlementChange}
-                  className="w-4 h-4"
+          <Grid item lg={6} xs={12} sm={6} md={6}>
+            <Tabs activeTab={activeTab} setActiveTab={handleTabChange} />
+          </Grid>
+          {activeTab === "cash" && (
+            <Grid className={styles.fromGrid} container spacing={3}>
+              <Grid item lg={8} xs={12} md={6}>
+                <InputWithTitle
+                  onChange={(value) => setPaidAmount(value)}
+                  type="text"
+                  value={paid_amt}
+                  title="Paid Amount"
                 />
-                <label htmlFor="settlement">Settlement</label>
-              </div>
-            </Grid>
+              </Grid>
 
-            <Grid item lg={12} xs={12} md={12}>
-              <InputWithTitle
-                onChange={(value) => setDescrp(value)}
-                type="text"
-                value={descrp}
-                title="Description"
-              />
-            </Grid>
+              <Grid item lg={4} xs={12} md={6}>
+                <div className="flex items-center gap-2 mt-10">
+                  <input
+                    type="checkbox"
+                    id="settlement"
+                    checked={settlement}
+                    onChange={handleSettlementChange}
+                    className="w-4 h-4"
+                  />
+                  <label htmlFor="settlement">Settlement</label>
+                </div>
+              </Grid>
 
-            <Grid item lg={6} xs={12} sm={6} md={6}>
-              <Tabs activeTab={activeTab} setActiveTab={handleTabChange} />
+              <Grid item lg={12} xs={12} md={12}>
+                <InputWithTitle
+                  onChange={(value) => setDescrp(value)}
+                  type="text"
+                  value={descrp}
+                  title="Description"
+                />
+              </Grid>
             </Grid>
-
+          )}
+          <Grid container spacing={2}>
             {activeTab !== "cash" && (
               <Grid className={styles.fromGrid} container spacing={3}>
                 <Grid item xs={12}>
