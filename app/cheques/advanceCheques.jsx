@@ -179,7 +179,7 @@ const ListServiceTable = ({
   };
 
   useEffect(() => {
-    const total = filteredList.reduce(
+    const total = filteredList?.reduce(
       (sum, item) => sum + (Number(item.cheque_amount) || 0),
       0
     );
@@ -389,7 +389,7 @@ const ListServiceTable = ({
         <div className="text-right">
           <span className="font-semibold">Total Cheque Amount: </span>
           <span className="text-green-600 font-bold">
-            {totalChequeAmount.toLocaleString()}
+            {totalChequeAmount?.toLocaleString()}
           </span>
         </div>
       </div>

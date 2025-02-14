@@ -51,6 +51,7 @@ const Page = () => {
   const [fetchingData, setFetchingData] = useState(false);
 
   const [employeeList, setEmployeeList] = useState([]);
+
   const [employeeCompany, setEmployeeCompany] = useState([]);
   const [employeeDevices, setEmployeeDevices] = useState([]);
   const [activeTab, setActiveTab] = useState("documents"); // State for active tab
@@ -607,7 +608,7 @@ const Page = () => {
 
       {activeTab === "leaves" && (
         <div className={styles.personalDetailsContainer}>
-          <Leaves />
+          <Leaves employeeData={employeeList} />
         </div>
       )}
     </div>

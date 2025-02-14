@@ -13,11 +13,12 @@ import { leave } from "@/networkUtil/Constants";
 
 import APICall from "@/networkUtil/APICall";
 
-const Leaves = () => {
-  const api = new APICall();
+const Leaves = ({ employeeData }) => {
 
-  const searchParams = useSearchParams();
-  const employee_id = searchParams.get("id"); // Extracting employee ID from URL
+  console.log(employeeData);
+  
+
+  const api = new APICall();
 
   const [start_date, setStartDate] = useState("");
   const [end_date, setEndDate] = useState("");
@@ -53,7 +54,7 @@ const Leaves = () => {
     setLoadingSubmit(true);
 
     const obj = {
-      employee_id, // Pass extracted employee ID
+      employee_id: employeeData?.employee?.id, // Pass extracted employee ID
       start_date,
       end_date,
       total_days,
