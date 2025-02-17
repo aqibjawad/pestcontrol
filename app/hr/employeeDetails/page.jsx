@@ -29,6 +29,7 @@ import {
 import Swal from "sweetalert2";
 
 import Leaves from "./leaves.jsx";
+import EmpAttendence from "./empAttendence";
 
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
@@ -52,6 +53,8 @@ const Page = () => {
 
   const [employeeList, setEmployeeList] = useState([]);
 
+  const [employeeListAtten, setEmployeeListAtten] = useState([]);
+
   const [employeeCompany, setEmployeeCompany] = useState([]);
   const [employeeDevices, setEmployeeDevices] = useState([]);
   const [activeTab, setActiveTab] = useState("documents"); // State for active tab
@@ -62,6 +65,10 @@ const Page = () => {
   const [loadingSubmit, setLoadingSubmit] = useState(false);
 
   const [target, setTarget] = useState("");
+
+  const [currentMonth, setCurrentMonth] = useState(
+    new Date().toISOString().slice(0, 7)
+  );
 
   useEffect(() => {
     if (employeeList?.employee?.target) {
@@ -82,6 +89,18 @@ const Page = () => {
     }
   }, []);
 
+  const getAttendanceData = async (employeeId, month) => {
+    try {
+      const response = await api.getDataWithToken(
+        `${getAllEmpoyesUrl}/salary/get?employee_user_id=${employeeId}&month=${month}`
+      );
+      setEmployeeListAtten(response?.data || []);
+    } catch (error) {
+      console.error("Error fetching attendance:", error);
+      setEmployeeListAtten([]);
+    }
+  };
+
   const getAllEmployees = async (employeeId) => {
     setFetchingData(true);
     try {
@@ -92,10 +111,22 @@ const Page = () => {
       setEmployeeCompany(response.data.captain_all_jobs);
       setEmployeeDevices(response.data.devices);
       setEmployeeProfession(response?.data?.employee?.profession);
+
+      // Initial attendance data fetch
+      await getAttendanceData(employeeId, currentMonth);
     } catch (error) {
       console.error("Error fetching employees:", error);
     } finally {
       setFetchingData(false);
+    }
+  };
+
+  // Handle month change
+  const handleMonthChange = async (dates) => {
+    const monthStr = dates.startDate;
+    setCurrentMonth(monthStr);
+    if (id) {
+      await getAttendanceData(id, monthStr);
     }
   };
 
@@ -252,6 +283,7 @@ const Page = () => {
                   <th>Email</th>
                   <th>Contact</th>
                   <th>Country</th>
+                  <th>Annual Leaves</th>
                 </tr>
               </thead>
               <tbody>
@@ -275,6 +307,13 @@ const Page = () => {
                       <Skeleton width="80%" />
                     ) : (
                       employeeList?.employee?.country
+                    )}
+                  </td>
+                  <td>
+                    {fetchingData ? (
+                      <Skeleton width="80%" />
+                    ) : (
+                      employeeList?.employee?.previous_leaves
                     )}
                   </td>
                 </tr>
@@ -609,6 +648,15 @@ const Page = () => {
       {activeTab === "leaves" && (
         <div className={styles.personalDetailsContainer}>
           <Leaves employeeData={employeeList} />
+        </div>
+      )}
+
+      {activeTab === "attendence" && (
+        <div className={styles.personalDetailsContainer}>
+          <EmpAttendence
+            attendence={employeeListAtten}
+            onMonthChange={handleMonthChange}
+          />
         </div>
       )}
     </div>

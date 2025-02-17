@@ -65,6 +65,15 @@ const Tabs = ({ activeTab, setActiveTab }) => {
         >
           Leaves
         </div>
+
+        <div
+          className={`${styles.tabPaymentButton} ${
+            currentTab === "attendence" ? styles.active : ""
+          }`}
+          onClick={() => handleTabClick("attendence")}
+        >
+          Attendence
+        </div>
       </div>
     </div>
   );

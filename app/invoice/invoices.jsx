@@ -15,7 +15,19 @@ import "jspdf-autotable";
 import * as XLSX from "xlsx";
 
 import AssignmentModal from "./assignRecovery";
-
+import PayModal from "./payModal";
+import {
+  TableContainer,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  Paper,
+  Menu,
+  MenuItem,
+  TableBody,
+  IconButton,
+} from "@mui/material";
 const ListServiceTable = ({
   startDate,
   endDate,
@@ -28,18 +40,24 @@ const ListServiceTable = ({
   const api = new APICall();
   const [fetchingData, setFetchingData] = useState(false);
   const [invoiceList, setQuoteList] = useState([]);
+  const [invoiceAllList, setInvoiceList] = useState([]);
   const [loadingDetails, setLoadingDetails] = useState(true);
-  const [brandsList, setBrandsList] = useState([]);
-  const [referenceList, setReferenceList] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedInvoiceId, setSelectedInvoiceId] = useState(null);
+
   const [salesManagers, setSalesManagers] = useState([]);
-  const [areaList, setAreaList] = useState([]);
-  const [firmNameList, setFirmNameList] = useState([]);
+
+  const [isModalOpenPay, setIsModalOpenPay] = useState(false);
+
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState(null);
 
   const handleAssignClick = (invoiceId) => {
     setSelectedInvoiceId(invoiceId);
     setIsModalOpen(true);
+  };
+
+  const handleClickPay = (invoiceId) => {
+    setSelectedInvoiceId(invoiceId);
+    setIsModalOpenPay(true);
   };
 
   const handleAssignment = async (invoiceId, managerId) => {
@@ -47,6 +65,17 @@ const ListServiceTable = ({
       // Add your API call here
       console.log(`Assigned invoice ${invoiceId} to manager ${managerId}`);
       setIsModalOpen(false);
+      await getAllQuotes();
+    } catch (error) {
+      console.error("Error assigning invoice:", error);
+    }
+  };
+
+  const handlePay = async (invoiceId) => {
+    try {
+      // Add your API call here
+      console.log(`Assigned invoice ${invoiceId}`);
+      setIsModalOpenPay(false);
       await getAllQuotes();
     } catch (error) {
       console.error("Error assigning invoice:", error);
@@ -162,6 +191,8 @@ const ListServiceTable = ({
       const response = await api.getDataWithToken(
         `${serviceInvoice}?${queryParams.join("&")}`
       );
+
+      setInvoiceList(response?.data);
 
       // Collect unique values for reference dropdown
       const allReferences = new Set();
@@ -420,7 +451,8 @@ const ListServiceTable = ({
                             {row?.advance_cheques?.[0]?.cheque_date || "N/A"}
                           </td>
                           <td style={{ width: "8%" }} className="py-2 px-4">
-                            {row?.advance_cheques?.[0]?.bank?.bank_name || "N/A"}
+                            {row?.advance_cheques?.[0]?.bank?.bank_name ||
+                              "N/A"}
                           </td>
                           <td style={{ width: "10%" }} className="py-2 px-4">
                             {row?.assigned_recovery_officer?.name || "N/A"}
@@ -471,6 +503,18 @@ const ListServiceTable = ({
                             >
                               Assign
                             </button>
+
+                            <button
+                              onClick={() => handleClickPay(row.id)}
+                              className={`text-blue-600 hover:text-blue-800 ${
+                                row.status.toLowerCase() === "paid"
+                                  ? "opacity-50 cursor-not-allowed"
+                                  : ""
+                              }`}
+                              disabled={row.status.toLowerCase() === "paid"}
+                            >
+                              Pay
+                            </button>
                           </td>
                         </tr>
                       ))}
@@ -487,6 +531,13 @@ const ListServiceTable = ({
         invoiceId={selectedInvoiceId}
         salesManagers={salesManagers}
         onAssign={handleAssignment}
+      />
+
+      <PayModal
+        open={isModalOpenPay}
+        onClose={() => setIsModalOpenPay(false)}
+        invoiceId={selectedInvoiceId}
+        onAssign={handlePay}
       />
     </div>
   );
