@@ -22,6 +22,8 @@ import Tabs from "./tabs";
 
 import Dropdown2 from "@/components/generic/DropDown2";
 
+import SalaryPDFGenerator from "./salarypdf";
+
 const SalaryCal = () => {
   const api = new APICall();
   const router = useRouter();
@@ -47,6 +49,8 @@ const SalaryCal = () => {
   const [paymentType, setPaymentType] = useState(null);
 
   const [activeTab, setActiveTab] = useState("cash");
+
+  const [showPDF, setShowPDF] = useState(false);
 
   const handlePaymentType = (type) => {
     setPaymentType(type);
@@ -228,19 +232,11 @@ const SalaryCal = () => {
       payment_type: activeTab,
     };
 
-    // if (activeTab === "online") {
-    //   return {
-    //     ...obj,
-    //     bank_id: selectedBankId,
-    //     transection_id: transactionId,
-    //   };
-    // }
     if (activeTab === "online") {
       obj.bank_id = selectedBankId;
       obj.transection_id = transactionId;
       obj.vat = vat_per; // Adding VAT field if needed
     }
-
 
     try {
       const response = await api.postFormDataWithToken(
@@ -478,6 +474,32 @@ const SalaryCal = () => {
 
   return (
     <div>
+      <GreenButton
+        onClick={() => setShowPDF(true)}
+        title="Generate PDF Report"
+      />
+
+      {showPDF && (
+        <Modal
+          open={showPDF}
+          onClose={() => setShowPDF(false)}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "100vh",
+          }}
+        >
+          <div
+            style={{ width: "95%", height: "95%", backgroundColor: "white" }}
+          >
+            <SalaryPDFGenerator
+              data={employeeList}
+              selectedMonth={selectedMonth}
+            />
+          </div>
+        </Modal>
+      )}
       {/* Salary Table */}
       <div className="mt-10 mb-10">
         <div className="pageTitle">Salary Calculations</div>
