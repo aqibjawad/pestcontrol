@@ -17,6 +17,7 @@ import {
   Button,
   TableSortLabel,
 } from "@mui/material";
+import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { getAllSuppliers } from "../../../networkUtil/Constants";
 import APICall from "../../../networkUtil/APICall";
@@ -132,23 +133,111 @@ const Page = () => {
     router.push(`/account/supplier_ledger/addSupplierBanks?id=${id}`);
   };
 
-  const sortedData = loading ? [] : sortData(rowData);
+  // PDF Generation Function
+  const generatePDF = () => {
+    const doc = new jsPDF();
 
-  console.log(sortedData);
+    // Add title and header information (moved down slightly to accommodate logo)
+    doc.setFontSize(18);
+    doc.text(`Supplier: ${supplierName}`, 14, 30);
+    doc.text(`Company: ${companyName}`, 14, 37);
+    doc.text(`Contact: ${number}`, 14, 44);
+    doc.text(`Generated on: ${format(new Date(), "yyyy-MM-dd")}`, 14, 51);
+
+    // Add logo to the right side
+    const logoURL = "/logo.jpeg"; // Replace with your actual logo path
+    doc.addImage(logoURL, "PNG", 140, 15, 50, 25); // Positioned on right side (x=140)
+
+    // Define the columns for the table
+    const tableColumn = ["Date", "Description", "Credit", "Debit", "Balance"];
+
+    // Define the rows for the table
+    const tableRows = [];
+
+    sortedData.forEach((item) => {
+      const formattedDate = format(new Date(item.updated_at), "yyyy-MM-dd");
+      const tableData = [
+        formattedDate,
+        item.description,
+        item.cr_amt,
+        item.dr_amt,
+        item.cash_balance,
+      ];
+      tableRows.push(tableData);
+    });
+
+    // Generate the table
+    doc.autoTable({
+      head: [tableColumn],
+      body: tableRows,
+      startY: 60,
+      theme: "grid",
+      styles: {
+        fontSize: 10,
+        cellPadding: 3,
+        lineColor: [222, 226, 230],
+        lineWidth: 0.1,
+      },
+      headStyles: {
+        fillColor: [66, 139, 202],
+        textColor: 255,
+        fontStyle: "bold",
+      },
+      alternateRowStyles: {
+        fillColor: [240, 240, 240],
+      },
+    });
+
+    // Add footer with total calculation
+    const totalCredit = sortedData
+      .reduce((sum, item) => sum + parseFloat(item.cr_amt || 0), 0)
+      .toFixed(2);
+    const totalDebit = sortedData
+      .reduce((sum, item) => sum + parseFloat(item.dr_amt || 0), 0)
+      .toFixed(2);
+    const finalBalance =
+      sortedData.length > 0
+        ? sortedData[sortedData.length - 1].cash_balance
+        : "0.00";
+
+    const finalY = doc.lastAutoTable.finalY || 60;
+    doc.setFontSize(10);
+    doc.setFont(undefined, "bold");
+    doc.text(`Total Credit: ${totalCredit}`, 14, finalY + 10);
+    doc.text(`Total Debit: ${totalDebit}`, 14, finalY + 17);
+    doc.text(`Final Balance: ${finalBalance}`, 14, finalY + 24);
+
+    // Save the PDF
+    doc.save(
+      `supplier_ledger_${supplierName}_${format(new Date(), "yyyyMMdd")}.pdf`
+    );
+  };
+
+  const sortedData = loading ? [] : sortData(rowData);
 
   return (
     <div>
       <div className={styles.container}>
         <div className={styles.leftSection}>{supplierName}</div>
-        <div>
+        <div className={styles.buttonGroup}>
           <div className="mt-2">
             <Button
               className={styles.hideOnPrint}
               variant="contained"
               color="primary"
               onClick={addViewBank}
+              style={{ marginRight: "10px" }}
             >
               Add / View Banks
+            </Button>
+            <Button
+              className={styles.hideOnPrint}
+              variant="contained"
+              color="secondary"
+              onClick={generatePDF}
+              style={{ backgroundColor: "#4caf50" }}
+            >
+              Export PDF
             </Button>
           </div>
         </div>

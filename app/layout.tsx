@@ -16,7 +16,7 @@ export default function RootLayout({
   const noLayoutPages = [
     "/serviceRpoertPdf/",
     "/quotePdf/",
-    "/account/supplier_ledger/",
+    // "/account/supplier_ledger/",
     "/invoiceDetails/",
     "/paySlip/",
     "/deviceDoc/",

@@ -64,7 +64,7 @@ const ListServiceTable = ({
 
     try {
       const response = await api.getDataWithToken(
-        `${Cheques}/pending?${queryParams.join("&")}`
+        `${Cheques}/receive/pending?${queryParams.join("&")}`
       );
 
       setQuoteList(response.data);

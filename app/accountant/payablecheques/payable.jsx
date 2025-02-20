@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import tableStyles from "../../../styles/invoiceDetails.module.css";
-import { bank } from "@/networkUtil/Constants";
+import { Cheques } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
 import { Skeleton, Modal, Box, Select, MenuItem } from "@mui/material";
 import { AppHelpers } from "@/Helper/AppHelpers";
@@ -63,7 +63,9 @@ const ListServiceTable = ({
     }
 
     try {
-      const response = await api.getDataWithToken(`${bank}/cheques/paid`);
+      const response = await api.getDataWithToken(
+        `${Cheques}/pay/pending?${queryParams.join("&")}`
+      );
 
       setQuoteList(response.data);
 
@@ -178,7 +180,7 @@ const ListServiceTable = ({
 
   useEffect(() => {
     const total = filteredList?.reduce(
-      (sum, item) => sum + (Number(item.cheque_amt) || 0),
+      (sum, item) => sum + (Number(item.cheque_amount) || 0),
       0
     );
     setTotalChequeAmount(total);
@@ -229,6 +231,79 @@ const ListServiceTable = ({
   const handleStatusChange = (event) => {
     setSelectedStatus(event.target.value);
   };
+
+  // For Pay action
+  const [isPayModalOpen, setIsPayModalOpen] = useState(false);
+  const [paymentDate, setPaymentDate] = useState("");
+
+  const handlePayClick = (rowId) => {
+    setSelectedRowId(rowId);
+    setIsPayModalOpen(true);
+  };
+
+  const handlePaySubmit = async () => {
+    try {
+      const requestData = {
+        id: selectedRowId,
+        status: "paid",
+        date: paymentDate,
+      };
+
+      await api.postFormDataWithToken(
+        `${bank}/cheques/status/change`,
+        requestData
+      );
+      await getAllCheques();
+      setIsPayModalOpen(false);
+      setPaymentDate("");
+      setSelectedRowId(null);
+    } catch (error) {
+      console.error("Error processing payment:", error);
+    }
+  };
+
+  const handleClosePayModal = () => {
+    setIsPayModalOpen(false);
+    setSelectedRowId(null);
+    setPaymentDate("");
+  };
+
+  // For Return action
+  const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
+  const [returnReason, setReturnReason] = useState("");
+
+  const handleReturnClick = (rowId) => {
+    setSelectedRowId(rowId);
+    setIsReturnModalOpen(true);
+  };
+
+  const handleReturnSubmit = async () => {
+    try {
+      const requestData = {
+        id: selectedRowId,
+        status: "returned",
+        deferred_reason: returnReason,
+      };
+
+      await api.postFormDataWithToken(
+        `${bank}/cheques/status/change`,
+        requestData
+      );
+      await getAllCheques();
+      setIsReturnModalOpen(false);
+      setReturnReason("");
+      setSelectedRowId(null);
+    } catch (error) {
+      console.error("Error returning cheque:", error);
+    }
+  };
+
+  const handleCloseReturnModal = () => {
+    setIsReturnModalOpen(false);
+    setSelectedRowId(null);
+    setReturnReason("");
+  };
+
   return (
     <div>
       <div className={tableStyles.tableContainer}>
@@ -259,18 +334,6 @@ const ListServiceTable = ({
                       style={{ width: "15%" }}
                       className="py-2 px-4 border-b border-gray-200 text-left"
                     >
-                      Name
-                    </th>
-                    <th
-                      style={{ width: "15%" }}
-                      className="py-2 px-4 border-b border-gray-200 text-left"
-                    >
-                      Bank Name
-                    </th>
-                    <th
-                      style={{ width: "15%" }}
-                      className="py-2 px-4 border-b border-gray-200 text-left"
-                    >
                       Cheque Date
                     </th>
                     <th
@@ -289,13 +352,25 @@ const ListServiceTable = ({
                       style={{ width: "10%" }}
                       className="py-2 px-4 border-b border-gray-200 text-left"
                     >
-                      To
+                      Reference Category
+                    </th>
+                    <th
+                      style={{ width: "10%" }}
+                      className="py-2 px-4 border-b border-gray-200 text-left"
+                    >
+                      Reference
                     </th>
                     <th
                       style={{ width: "15%" }}
                       className="py-2 px-4 border-b border-gray-200 text-left"
                     >
                       Cheque Amount
+                    </th>
+                    <th
+                      style={{ width: "15%" }}
+                      className="py-2 px-4 border-b border-gray-200 text-left"
+                    >
+                      Actions
                     </th>
                   </tr>
                 </thead>
@@ -315,7 +390,7 @@ const ListServiceTable = ({
                   {loadingDetails
                     ? Array.from({ length: 5 }).map((_, index) => (
                         <tr key={index} className="border-b border-gray-200">
-                          {Array.from({ length: 11 }).map((_, colIndex) => (
+                          {Array.from({ length: 7 }).map((_, colIndex) => (
                             <td key={colIndex} className="py-2 px-4">
                               <Skeleton
                                 variant="rectangular"
@@ -332,12 +407,6 @@ const ListServiceTable = ({
                             {index + 1}
                           </td>
                           <td style={{ width: "15%" }} className="py-2 px-4">
-                            {row?.personable?.name}
-                          </td>
-                          <td style={{ width: "15%" }} className="py-2 px-4">
-                            {row?.bank?.bank_name}
-                          </td>
-                          <td style={{ width: "15%" }} className="py-2 px-4">
                             {row?.cheque_date || "N/A"}
                           </td>
                           <td style={{ width: "10%" }} className="py-2 px-4">
@@ -349,13 +418,35 @@ const ListServiceTable = ({
                               : "N/A"}
                           </td>
                           <td style={{ width: "10%" }} className="py-2 px-4">
-                            {row.link_name === "supplier_ledger"
+                            {row.entry_type === "supplier_payment"
                               ? "Supplier"
-                              : row.link_name || "N/A"}
+                              : row.entry_type === "expense_payment"
+                              ? "Expense"
+                              : "other"}
+                          </td>
+                          <td style={{ width: "10%" }} className="py-2 px-4">
+                            {row.linkable?.supplier_name ||
+                              row.linkable?.expense_name}
                           </td>
 
                           <td style={{ width: "15%" }} className="py-2 px-4">
-                            {row?.cheque_amt || "N/A"}
+                            {row?.cheque_amount || "N/A"}
+                          </td>
+                          <td style={{ width: "15%" }} className="py-2 px-4">
+                            <div className="flex space-x-2">
+                              <button
+                                onClick={() => handlePayClick(row.id)}
+                                className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                              >
+                                Pay
+                              </button>
+                              <button
+                                onClick={() => handleReturnClick(row.id)}
+                                className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                              >
+                                Return
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
