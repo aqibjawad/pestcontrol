@@ -40,6 +40,7 @@ const Page = () => {
   const [amount, setAmount] = useState();
 
   const [cheque_date, setChequeDate] = useState();
+  const [cheque_no, setChequeNo] = useState();
   const [transection_id, setTransactionId] = useState();
 
   const [fetchingData, setFetchingData] = useState(false);
@@ -160,6 +161,7 @@ const Page = () => {
         bank_id: selectedBankId,
         amount,
         cheque_date,
+        cheque_no
       };
     } else if (activeTab === "online") {
       expenseObj = {
@@ -218,6 +220,11 @@ const Page = () => {
     setTotal(calculateTotal(value, vat));
   };
 
+  const handleChequeNo = (value) => {
+    setChequeNo(value);
+  };
+
+
   const handleVatChange = (value) => {
     setVat(value);
     setTotal(calculateTotal(amount, value));
@@ -226,6 +233,12 @@ const Page = () => {
   const handleDateChange = (name, value) => {
     setExpDate(value);
   };
+
+  const handleExpDateChange = (name, value) => {
+    setChequeDate(value)
+
+  };
+
 
   const expenseForm = () => {
     return (
@@ -321,7 +334,8 @@ const Page = () => {
                 title={"Cheque Date"}
                 type={"date"}
                 placeholder={"Cheque Date"}
-                onChange={setChequeDate}
+                onChange={handleExpDateChange}
+                value={cheque_date}
               />
             </div>
             <div className="mt-5">
@@ -331,6 +345,16 @@ const Page = () => {
                 placeholder={"Cheque Amount"}
                 onChange={handleAmountChange}
                 value={amount}
+              />
+            </div>
+
+            <div className="mt-5">
+              <InputWithTitle
+                title={"Cheque No"}
+                type={"text"}
+                placeholder={"Cheque No"}
+                onChange={handleChequeNo}
+                value={cheque_no}
               />
             </div>
 

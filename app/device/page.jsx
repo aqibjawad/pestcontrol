@@ -350,6 +350,22 @@ const Page = () => {
                           </td>
                         </tr>
                       ))}
+                      {/* Total Row */}
+                      <tr className="bg-gray-100 font-medium">
+                        <td
+                          colSpan={5}
+                          className="px-6 py-4 text-right text-sm text-gray-900"
+                        >
+                          Total Price:
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 font-medium">
+                          {allDevices?.reduce(
+                            (total, item) => total + (Number(item.price) || 0),
+                            0
+                          )}
+                        </td>
+                        <td></td>
+                      </tr>
                     </tbody>
                   </table>
                   <div>

@@ -9,6 +9,7 @@ import { AppHelpers } from "@/Helper/AppHelpers";
 import DateFilters2 from "@/components/generic/DateFilters2";
 import { startOfMonth, endOfMonth, format } from "date-fns";
 import InputWithTitle3 from "@/components/generic/InputWithTitle3";
+import InputWithTitle from "@/components/generic/InputWithTitle";
 
 const modalStyle = {
   position: "absolute",
@@ -111,73 +112,6 @@ const ListServiceTable = ({
     }));
   };
 
-  const downloadCSV = () => {
-    const data = generateExportData();
-    const headers = Object.keys(data[0]);
-    const csvContent = [
-      headers.join(","),
-      ...data.map((row) =>
-        headers.map((header) => `"${row[header]}"`).join(",")
-      ),
-    ].join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `invoices_${startDate}_${endDate}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-  };
-
-  const downloadExcel = () => {
-    const data = generateExportData();
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Invoices");
-    XLSX.writeFile(workbook, `invoices_${startDate}_${endDate}.xlsx`);
-  };
-
-  const downloadPDF = () => {
-    const img = new Image();
-    img.src = "/logo.jpeg";
-
-    img.onload = () => {
-      const doc = new jsPDF();
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const logoWidth = 50;
-      const logoHeight = (img.height * logoWidth) / img.width;
-      const xPosition = (pageWidth - logoWidth) / 2;
-
-      doc.addImage(img, "jpeg", xPosition, 10, logoWidth, logoHeight);
-      doc.setFontSize(12);
-      doc.text(`Invoices`, pageWidth / 2, logoHeight + 20, {
-        align: "center",
-      });
-      doc.text(
-        `Date Range: ${startDate || "All"} to ${endDate || "All"}`,
-        pageWidth / 2,
-        logoHeight + 30,
-        { align: "center" }
-      );
-
-      const data = generateExportData();
-      const headers = Object.keys(data[0]);
-      const rows = data.map((row) => Object.values(row));
-
-      doc.autoTable({
-        head: [headers],
-        body: rows,
-        startY: logoHeight + 40,
-        margin: { top: logoHeight + 40 },
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [50, 169, 46] },
-      });
-
-      doc.save(`transactions_${startDate || "all"}_${endDate || "all"}.pdf`);
-    };
-  };
-
   useEffect(() => {
     const total = filteredList?.reduce(
       (sum, item) => sum + (Number(item.cheque_amount) || 0),
@@ -192,10 +126,6 @@ const ListServiceTable = ({
   };
 
   const [cheque_date, setChequeDate] = useState("");
-
-  const handleChequeDateChange = (name, value) => {
-    setChequeDate(value);
-  };
 
   const handleCreateSubmit = async () => {
     try {
@@ -246,19 +176,30 @@ const ListServiceTable = ({
       const requestData = {
         id: selectedRowId,
         status: "paid",
-        date: paymentDate,
+        date: cheque_date,
+        deferred_reason: rejectReason,
       };
 
-      await api.postFormDataWithToken(
-        `${bank}/cheques/status/change`,
+      // Only append if rejectReason exists
+      if (rejectReason) {
+        requestData.append("deferred_reason", rejectReason);
+      }
+
+      const response = await api.postFormDataWithToken(
+        `${Cheques}/status/change`,
         requestData
       );
-      await getAllCheques();
+
+      console.log("Payment response:", response); // Add logging
+
+      await getAllCheques(); // Refresh the list
       setIsPayModalOpen(false);
-      setPaymentDate("");
+      setChequeDate("");
       setSelectedRowId(null);
+      setRejectReason("");
     } catch (error) {
-      console.error("Error processing payment:", error);
+      console.error("Error submitting payment:", error);
+      // You might want to show an error message to the user here
     }
   };
 
@@ -281,12 +222,13 @@ const ListServiceTable = ({
     try {
       const requestData = {
         id: selectedRowId,
-        status: "returned",
+        status: "deferred",
+        date: cheque_date,
         deferred_reason: returnReason,
       };
 
-      await api.postFormDataWithToken(
-        `${bank}/cheques/status/change`,
+      const response = await api.postFormDataWithToken(
+        `${Cheques}/status/change`,
         requestData
       );
       await getAllCheques();
@@ -302,6 +244,10 @@ const ListServiceTable = ({
     setIsReturnModalOpen(false);
     setSelectedRowId(null);
     setReturnReason("");
+  };
+
+  const handleChequeDateChange = (name, value) => {
+    setChequeDate(value);
   };
 
   return (
@@ -454,6 +400,84 @@ const ListServiceTable = ({
               </table>
             </div>
           </div>
+
+          <Modal
+            open={isPayModalOpen}
+            onClose={() => setIsPayModalOpen(false)}
+            aria-labelledby="pay-modal-title"
+          >
+            <Box sx={modalStyle}>
+              <h2 id="pay-modal-title" className="text-xl font-bold mb-4">
+                Process Payment
+              </h2>
+              <div className="mb-4">
+                <InputWithTitle3
+                  onChange={handleChequeDateChange}
+                  value={cheque_date}
+                  type="date"
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => setIsPayModalOpen(false)}
+                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handlePaySubmit}
+                  className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                >
+                  Confirm Payment
+                </button>
+              </div>
+            </Box>
+          </Modal>
+
+          {/* Return Modal */}
+          <Modal
+            open={isReturnModalOpen}
+            onClose={() => setIsReturnModalOpen(false)}
+            aria-labelledby="return-modal-title"
+          >
+            <Box sx={modalStyle}>
+              <h2 id="return-modal-title" className="text-xl font-bold mb-4">
+                Return Cheque
+              </h2>
+              <div className="mb-4">
+                <div className="mb-4">
+                  <InputWithTitle3
+                    onChange={handleChequeDateChange}
+                    value={cheque_date}
+                    type="date"
+                  />
+                </div>
+
+                <InputWithTitle
+                  title="Return Reason"
+                  type="text"
+                  value={returnReason}
+                  onChange={setReturnReason}
+                  required
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => setIsReturnModalOpen(false)}
+                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleReturnSubmit}
+                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                  disabled={!returnReason}
+                >
+                  Confirm Return
+                </button>
+              </div>
+            </Box>
+          </Modal>
         </div>
       </div>
 

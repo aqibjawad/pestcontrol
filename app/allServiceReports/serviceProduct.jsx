@@ -99,7 +99,9 @@ const ProductReport = () => {
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{row?.product?.product_name || "N/A"}</TableCell>
                   <TableCell>{row.qty || 0}</TableCell>
-                  <TableCell>{row.avg_price || 0}</TableCell>
+                  <TableCell>
+                    {row?.product?.latest_delivery_stock?.avg_price || 0}
+                  </TableCell>
                 </TableRow>
               ))
             )}

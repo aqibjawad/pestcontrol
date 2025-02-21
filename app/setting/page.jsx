@@ -378,13 +378,19 @@ const Page = () => {
 
               <Grid item xs={12} sm={6} md={4} lg={3}>
                 <div className={styles.addProd}>
-                  <Link href="/cheques"> Advance Cheques </Link>
+                  <Link href="/cheques"> Recieveable Cheques </Link>
                 </div>
               </Grid>
 
               <Grid item xs={12} sm={6} md={4} lg={3}>
                 <div className={styles.addProd}>
                   <Link href="/accountant/payablecheques"> Payable Cheques </Link>
+                </div>
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={4} lg={3}>
+                <div className={styles.addProd}>
+                  <Link href="/agreement"> Agreement </Link>
                 </div>
               </Grid>
             </Grid>

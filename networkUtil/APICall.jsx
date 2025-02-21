@@ -113,6 +113,11 @@ class APICall {
   async postDataWithTokn(url, data) {
     return this.makeRequest("post", url, data, true, false);
   }
+
+  async updateFormData(url, data) { 
+    return this.makeRequest("put", url, data, true, true);
+  }
+
 }
 
 export default APICall;
