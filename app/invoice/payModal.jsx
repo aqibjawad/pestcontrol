@@ -36,8 +36,10 @@ const style = {
   p: 4,
 };
 
-const PayModal = ({ open, onClose, invoiceId }) => {
+const PayModal = ({ open, onClose, invoiceId, invoiceData, onRefresh }) => {
 
+  console.log(invoiceData, "invoiceData");
+  
   const [fetchingData, setFetchingData] = useState(false);
 
   const api = new APICall();
@@ -225,6 +227,7 @@ const PayModal = ({ open, onClose, invoiceId }) => {
       });
 
       if (!result.isConfirmed) {
+        setButtonLoading(false);
         return; // Exit if user doesn't confirm
       }
     }
@@ -236,14 +239,28 @@ const PayModal = ({ open, onClose, invoiceId }) => {
       );
 
       if (response.status === "success") {
-        alert("Service Invoice Payment Added Successfully");
-        onClose();
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Service Invoice Payment Added Successfully",
+        }).then(() => {
+          onClose();
+          onRefresh(); // Call refresh function instead of reloading
+        });
       } else {
-        alert(`${response.error.message}`);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: `${response.error.message}`,
+        });
       }
     } catch (error) {
       console.error("Error submitting payment:", error);
-      alert("An error occurred while submitting the payment.");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "An error occurred while submitting the payment.",
+      });
     } finally {
       setButtonLoading(false);
     }
@@ -264,7 +281,7 @@ const PayModal = ({ open, onClose, invoiceId }) => {
           mb={2}
         >
           <Typography id="assignment-modal-title" variant="h6" component="h2">
-            Add Payment on Invoice Number {invoiceId}
+            Add Payment on Invoice Number {invoiceId} with an amount {invoiceData?.total_amt}
           </Typography>
           <IconButton onClick={onClose} size="small">
             <CloseIcon />

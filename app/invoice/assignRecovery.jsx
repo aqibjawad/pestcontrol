@@ -35,6 +35,7 @@ const AssignmentModal = ({
   invoiceId,
   salesManagers,
   onAssign,
+  onRefresh,
 }) => {
   const api = new APICall();
   const [selectedManager, setSelectedManager] = useState("");
@@ -62,7 +63,7 @@ const AssignmentModal = ({
           text: "Data has been added successfully!",
         }).then(() => {
           onClose(); // Close modal
-          window.location.reload(); // Reload page
+          onRefresh(); // Call a refresh function instead of window.location.reload()
         });
       } else {
         Swal.fire({

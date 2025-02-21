@@ -50,13 +50,16 @@ const ListServiceTable = ({
 
   const [selectedInvoiceId, setSelectedInvoiceId] = useState(null);
 
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
+
   const handleAssignClick = (invoiceId) => {
     setSelectedInvoiceId(invoiceId);
     setIsModalOpen(true);
   };
 
-  const handleClickPay = (invoiceId) => {
-    setSelectedInvoiceId(invoiceId);
+  const handleClickPay = (row) => {
+    setSelectedInvoiceId(row.id); // Keep this if you still need just the ID somewhere
+    setSelectedInvoice(row); // Add this line to store the complete invoice data
     setIsModalOpenPay(true);
   };
 
@@ -71,14 +74,15 @@ const ListServiceTable = ({
     }
   };
 
-  const handlePay = async (invoiceId) => {
+  const handlePay = async () => {
     try {
-      // Add your API call here
-      console.log(`Assigned invoice ${invoiceId}`);
+      console.log(`Processing invoice ${selectedInvoice.id}`);
+      console.log("Complete invoice data:", selectedInvoice);
+
       setIsModalOpenPay(false);
       await getAllQuotes();
     } catch (error) {
-      console.error("Error assigning invoice:", error);
+      console.error("Error processing invoice:", error);
     }
   };
 
@@ -274,6 +278,13 @@ const ListServiceTable = ({
   useEffect(() => {
     getAllQuotes();
   }, [startDate, endDate, statusFilter, selectedReference, searchQuery]);
+
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleRefresh = () => {
+    setRefreshKey((prevKey) => prevKey + 1);
+    getAllQuotes();
+  };
 
   return (
     <div>
@@ -505,7 +516,7 @@ const ListServiceTable = ({
                             </button>
 
                             <button
-                              onClick={() => handleClickPay(row.id)}
+                              onClick={() => handleClickPay(row)}
                               className={`text-blue-600 hover:text-blue-800 ${
                                 row.status.toLowerCase() === "paid"
                                   ? "opacity-50 cursor-not-allowed"
@@ -531,13 +542,16 @@ const ListServiceTable = ({
         invoiceId={selectedInvoiceId}
         salesManagers={salesManagers}
         onAssign={handleAssignment}
+        onRefresh={handleRefresh}
       />
 
       <PayModal
         open={isModalOpenPay}
         onClose={() => setIsModalOpenPay(false)}
         invoiceId={selectedInvoiceId}
+        invoiceData={selectedInvoice} // Add this line to pass complete data
         onAssign={handlePay}
+        onRefresh={handleRefresh}
       />
     </div>
   );

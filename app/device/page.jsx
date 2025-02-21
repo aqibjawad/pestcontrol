@@ -36,10 +36,13 @@ const Page = () => {
   const [deviceModel, setDeviceModel] = useState("");
   const [code, setCode] = useState("");
   const [desc, setDesc] = useState("");
+  const [price, setPrice] = useState("");
   const [sendingData, setSendingData] = useState(false);
   const [fetchingData, setFetchingData] = useState(false);
   const [updateDeviceID, setUpdateDeviceID] = useState("");
   const [allDevices, setAllDevices] = useState([]);
+
+  const [selectedIndex, setSelectedIndex] = useState([]);
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [selectedItem, setSelectedItem] = React.useState({});
@@ -51,7 +54,8 @@ const Page = () => {
 
   const handleMenu = (event, item, index) => {
     setAnchorEl(event.currentTarget);
-    setSelectedItem({ item, index });
+    setSelectedItem(item); // Ensure you store the correct item
+    setSelectedIndex(index); // Store index properly
   };
 
   const handleClose = () => {
@@ -105,6 +109,7 @@ const Page = () => {
         model: deviceModel,
         code_no: code,
         desc: desc,
+        price: price,
       };
       const url =
         updateDeviceID === ""
@@ -122,6 +127,7 @@ const Page = () => {
     setDeviceModel("");
     setCode("");
     setDesc("");
+    setPrice("");
     setUpdateDeviceID("");
     setSelectedEmployeeId("");
     setDeviceToAssign(false);
@@ -149,6 +155,7 @@ const Page = () => {
     setDeviceModel(allDevices[index].model);
     setCode(allDevices[index].code_no);
     setDesc(allDevices[index].desc);
+    setPrice(allDevices[index].price);
   };
 
   const handleDoc = (index) => {
@@ -221,11 +228,7 @@ const Page = () => {
             />
           </div>
           <div className="mt-5">
-            <InputWithTitle
-              value={desc}
-              title={"Price"}
-              onChange={setDesc}
-            />
+            <InputWithTitle value={price} title={"Price"} onChange={setPrice} />
           </div>
           <div className="mt-5">
             <GreenButton
@@ -269,6 +272,9 @@ const Page = () => {
                           Description
                         </th>
                         <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                          Price
+                        </th>
+                        <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                           Actions
                         </th>
                       </tr>
@@ -298,6 +304,9 @@ const Page = () => {
                           <td className="px-6 py-4 text-sm text-gray-900 font-['regular']">
                             {item.desc}
                           </td>
+                          <td className="px-6 py-4 text-sm text-gray-900 font-['regular']">
+                            {item.price || 0}
+                          </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm">
                             <div>
                               <MoreVertIcon
@@ -308,7 +317,7 @@ const Page = () => {
                                 onClick={(e) => handleMenu(e, item, index)}
                               />
                               <Menu
-                                id="basic-menu"
+                                id={`${selectedIndex}`}
                                 anchorEl={anchorEl}
                                 open={Boolean(anchorEl)}
                                 onClose={handleClose}
@@ -321,7 +330,9 @@ const Page = () => {
                                 <MenuItem onClick={() => handleDoc(index)}>
                                   View Document
                                 </MenuItem>
-                                <MenuItem onClick={() => handleUpdate(index)}>
+                                <MenuItem
+                                  onClick={() => handleUpdate(selectedIndex)}
+                                >
                                   Update
                                 </MenuItem>
                                 <MenuItem

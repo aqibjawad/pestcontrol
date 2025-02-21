@@ -40,7 +40,6 @@ const Page = () => {
   const [amount, setAmount] = useState();
 
   const [cheque_date, setChequeDate] = useState();
-  const [cheque_no, setChequeNo] = useState();
   const [transection_id, setTransactionId] = useState();
 
   const [fetchingData, setFetchingData] = useState(false);
@@ -161,7 +160,6 @@ const Page = () => {
         bank_id: selectedBankId,
         amount,
         cheque_date,
-        cheque_no
       };
     } else if (activeTab === "online") {
       expenseObj = {
@@ -310,13 +308,13 @@ const Page = () => {
 
         {activeTab === "cheque" && (
           <div>
-            {/* <div className="mt-5">
+            <div className="mt-5">
               <Dropdown
                 onChange={handleBankChange}
                 title={"Banks"}
                 options={allBankNameList}
               />
-            </div> */}
+            </div>
 
             <div className="mt-5">
               <InputWithTitle3
@@ -324,14 +322,6 @@ const Page = () => {
                 type={"date"}
                 placeholder={"Cheque Date"}
                 onChange={setChequeDate}
-              />
-            </div>
-            <div className="mt-5">
-              <InputWithTitle3
-                title={"Cheque No"}
-                type={"text"}
-                placeholder={"Cheque No"}
-                onChange={setChequeNo}
               />
             </div>
             <div className="mt-5">
@@ -368,13 +358,13 @@ const Page = () => {
 
         {activeTab === "online" && (
           <div>
-            {/* <div className="mt-5">
+            <div className="mt-5">
               <Dropdown
                 onChange={handleBankChange}
                 title={"Banks"}
                 options={allBankNameList}
               />
-            </div> */}
+            </div>
 
             <div className="mt-5">
               <InputWithTitle

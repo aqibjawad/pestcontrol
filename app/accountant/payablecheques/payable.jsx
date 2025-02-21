@@ -422,7 +422,7 @@ const ListServiceTable = ({
                               ? "Supplier"
                               : row.entry_type === "expense_payment"
                               ? "Expense"
-                              : "other"}
+                              : "Expense"}
                           </td>
                           <td style={{ width: "10%" }} className="py-2 px-4">
                             {row.linkable?.supplier_name ||
