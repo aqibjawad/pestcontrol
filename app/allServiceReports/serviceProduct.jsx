@@ -21,6 +21,8 @@ const ProductReport = () => {
 
   const [fetchingData, setFetchingData] = useState(false);
   const [productsList, setProductsList] = useState([]);
+  const [data, setData] = useState();
+  const [mappedContent, setMappedContent] = useState();
 
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -53,6 +55,8 @@ const ProductReport = () => {
         `${job}/service_report/all?${queryParams.join("&")}`
       );
 
+      setData(response.data);
+
       // Extract all used_products from all service reports
       const allProducts = [];
       if (response?.data && Array.isArray(response.data)) {
@@ -74,6 +78,36 @@ const ProductReport = () => {
     }
   };
 
+  useEffect(() => {
+    if (data) {
+      const productMap = new Map();
+      data.forEach((report) => {
+        report.used_products.forEach((usedProduct) => {
+          const {
+            product_id,
+            qty,
+            product: { product_name, per_item_qty, latest_delivery_stock },
+          } = usedProduct;
+
+          if (!productMap.has(product_id)) {
+            productMap.set(product_id, {
+              product_id,
+              product_name,
+              per_item_qty,
+              avg_price: latest_delivery_stock?.avg_price || 0,
+              total_qty: 0,
+            });
+          }
+
+          const product = productMap.get(product_id);
+          product.total_qty += qty;
+        });
+      });
+      const mappedData = Array.from(productMap.values());
+      setMappedContent(mappedData);
+    }
+  }, [data]);
+
   const listProductsTable = () => {
     return (
       <TableContainer component={Paper}>
@@ -82,8 +116,9 @@ const ProductReport = () => {
             <TableRow>
               <TableCell>Sr No</TableCell>
               <TableCell>Product Name</TableCell>
-              <TableCell>Quantity</TableCell>
+              <TableCell>Consumed Quantity</TableCell>
               <TableCell>Average Price</TableCell>
+              <TableCell>Consumed Amount</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -94,14 +129,13 @@ const ProductReport = () => {
                 </TableCell>
               </TableRow>
             ) : (
-              productsList?.map((row, index) => (
+              mappedContent?.map((row, index) => (
                 <TableRow key={index}>
                   <TableCell>{index + 1}</TableCell>
-                  <TableCell>{row?.product?.product_name || "N/A"}</TableCell>
-                  <TableCell>{row.qty || 0}</TableCell>
-                  <TableCell>
-                    {row?.product?.latest_delivery_stock?.avg_price || 0}
-                  </TableCell>
+                  <TableCell>{row?.product_name || "N/A"}</TableCell>
+                  <TableCell>{row.total_qty || 0}</TableCell>
+                  <TableCell>{row?.avg_price || 0}</TableCell>
+                  <TableCell>{calculateUsedPrice(row)}</TableCell>
                 </TableRow>
               ))
             )}
@@ -109,6 +143,16 @@ const ProductReport = () => {
         </Table>
       </TableContainer>
     );
+  };
+
+  const calculateUsedPrice = (item) => {
+    const perItemQty = parseFloat(item.per_item_qty) || 0;
+    const totalQty = parseFloat(item.total_qty) || 0;
+    const avgPrice = parseFloat(item.avg_price) || 0;
+    if (perItemQty === 0) return 0;
+    const usageRatio = totalQty / perItemQty;
+    const usedPrice = usageRatio * avgPrice;
+    return Number(usedPrice.toFixed(2));
   };
 
   return (
