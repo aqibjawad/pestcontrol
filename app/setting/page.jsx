@@ -372,7 +372,10 @@ const Page = () => {
 
               <Grid item xs={12} sm={6} md={4} lg={3}>
                 <div className={styles.addProd}>
-                  <Link href="/settelmentedInvoice"> Settelmented Invoices </Link>
+                  <Link href="/settelmentedInvoice">
+                    {" "}
+                    Settelmented Invoices{" "}
+                  </Link>
                 </div>
               </Grid>
 
@@ -384,13 +387,28 @@ const Page = () => {
 
               <Grid item xs={12} sm={6} md={4} lg={3}>
                 <div className={styles.addProd}>
-                  <Link href="/accountant/payablecheques"> Payable Cheques </Link>
+                  <Link href="/accountant/payablecheques">
+                    {" "}
+                    Payable Cheques{" "}
+                  </Link>
                 </div>
               </Grid>
 
               <Grid item xs={12} sm={6} md={4} lg={3}>
                 <div className={styles.addProd}>
                   <Link href="/agreement"> Agreement </Link>
+                </div>
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={4} lg={3}>
+                <div className={styles.addProd}>
+                  <Link href="/accountant/totalRecieves"> Total Recieves </Link>
+                </div>
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={4} lg={3}>
+                <div className={styles.addProd}>
+                  <Link href="/accountant/totalRecieves"> Total Payments </Link>
                 </div>
               </Grid>
             </Grid>

@@ -95,3 +95,5 @@ export const Cheques = apiPrefix + "/adv_cheques";
 export const leave = apiPrefix + "/leave-application";
 
 export const agreement = apiPrefix + "/renewable-items";
+
+export const company = apiPrefix + "/company";

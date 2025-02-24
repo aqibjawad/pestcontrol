@@ -262,7 +262,7 @@ const Page = () => {
             {suppliersList?.map((row, index) => {
               const stock = row.stocks[0] || {};
               const attachments = row.attachments || [];
-              const remainingQty = (stock.remaining_qty || 0) * (row.per_item_qty || 1);
+              const remainingQty = (stock.remaining_qty || 0);
               const avgPrice = stock.avg_price || 0;
               const totalPrice = calculateTotalPrice(remainingQty, avgPrice);
 

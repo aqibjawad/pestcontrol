@@ -55,11 +55,11 @@ const Agreement = () => {
   };
 
   const addAgreement = async () => {
-    if (deviceName === "") {
+    if (!deviceName) {
       alert.errorAlert("Please enter agreement name");
-    } else if (startDate === "") {
+    } else if (!startDate) {
       alert.errorAlert("Please enter start date");
-    } else if (expiryDate === "") {
+    } else if (!expiryDate) {
       alert.errorAlert("Please enter expiry date");
     } else {
       setSendingData(true);
@@ -72,27 +72,30 @@ const Agreement = () => {
         remarks: desc,
         notified: "1",
       };
+
       if (file) {
         obj.file = file;
       }
-      const url =
-        updateDeviceID === ""
-          ? `${agreement}/create`
-          : `${agreement}/${updateDeviceID}/update`;
 
-      if (updateDeviceID === undefined) {
-        console.log("abc");
+      const isUpdate = !!updateDeviceID; // Check if updateDeviceID has a valid value
+      const url = isUpdate
+        ? `${agreement}/${updateDeviceID}/update`
+        : `${agreement}/create`;
 
-        var response = await api.postFormDataWithToken(url, obj);
-      } else {
-        console.log("xyz");
+      try {
+        const response = isUpdate
+          ? await api.updateFormData(url, obj)
+          : await api.postFormDataWithToken(url, obj);
 
-        var response = await api.updateFormData(url, obj);
+        console.log(isUpdate ? "xyz" : "abc");
+
+        resetValues();
+        getDevices();
+      } catch (error) {
+        console.error("Error while submitting agreement:", error);
+      } finally {
+        setSendingData(false);
       }
-
-      resetValues();
-      setSendingData(false);
-      getDevices();
     }
   };
 
