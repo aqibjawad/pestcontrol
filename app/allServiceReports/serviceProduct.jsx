@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState, useEffect } from "react";
 import {
   Table,
@@ -12,6 +10,10 @@ import {
   CircularProgress,
   Button,
   Stack,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import { FileDownload as FileDownloadIcon } from "@mui/icons-material";
 import { utils, write } from "xlsx";
@@ -29,193 +31,95 @@ const ProductReport = () => {
   const [productsList, setProductsList] = useState([]);
   const [data, setData] = useState();
   const [mappedContent, setMappedContent] = useState();
+  const [filteredContent, setFilteredContent] = useState();
+  const [captains, setCaptains] = useState([]);
+  const [selectedCaptain, setSelectedCaptain] = useState("all");
 
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
-  // Export Utilities
-  const exportToExcel = (data, fileName = "product_report") => {
-    const worksheet = utils.json_to_sheet(data);
-    const workbook = utils.book_new();
-    utils.book_append_sheet(workbook, worksheet, "Products");
-    const excelBuffer = write(workbook, { bookType: "xlsx", type: "array" });
-
-    const blob = new Blob([excelBuffer], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${fileName}.xlsx`;
-    link.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const exportToPDF = (data, fileName = "product_report") => {
-    const doc = new jsPDF();
-
-    const logoUrl = "/logo.jpeg";
-    const logoWidth = 40;
-    const logoHeight = 20;
-
-    const generatePDF = () => {
-      try {
-        // Add logo
-        if (logoUrl) {
-          doc.addImage(logoUrl, "PNG", 15, 10, logoWidth, logoHeight);
-        }
-
-        // Add company name or report title
-        doc.setFontSize(16);
-        doc.text("Product Use Report", doc.internal.pageSize.width / 2, 20, {
-          align: "center",
-        });
-
-        // Add date range
-        doc.setFontSize(10);
-        const dateStr = new Date().toLocaleDateString();
-        const fromDate = startDate
-          ? format(new Date(startDate), "dd/MM/yyyy")
-          : dateStr;
-        const toDate = endDate
-          ? format(new Date(endDate), "dd/MM/yyyy")
-          : dateStr;
-        doc.text(`Date: ${dateStr}`, 15, 35);
-        doc.text(`Report Period: ${fromDate} to ${toDate}`, 15, 42);
-
-        // Updated table columns to match the UI table
-        doc.autoTable({
-          startY: 50,
-          head: [
-            [
-              "Sr No",
-              "Product Name",
-              "Consumed Quantity",
-              "Consumed Units",
-              "Average Price",
-              "Consumed Amount",
-            ],
-          ],
-          body: data.map((row, index) => [
-            index + 1,
-            row.product_name || "N/A",
-            row.total_qty || 0,
-            row.consumed_units.toFixed(2) || 0,
-            row.avg_price || 0,
-            calculateUsedPrice(row),
-          ]),
-          headStyles: {
-            fillColor: [41, 128, 185],
-            textColor: 255,
-          },
-          alternateRowStyles: {
-            fillColor: [245, 245, 245],
-          },
-          margin: { top: 50 },
-        });
-
-        // Calculate and add total at the bottom
-        const totalAmount = data.reduce(
-          (sum, row) => sum + calculateUsedPrice(row),
-          0
-        );
-        const finalY = doc.previousAutoTable.finalY || 150;
-
-        doc.setFontSize(10);
-        doc.setFont(undefined, "bold");
-        doc.text(
-          `Total Consumed Amount: ${totalAmount.toFixed(2)}`,
-          15,
-          finalY + 10
-        );
-
-        doc.save(`${fileName}.pdf`);
-      } catch (error) {
-        console.error("Error generating PDF:", error);
-        // Fallback to generate PDF without logo if there's an error
-        doc.autoTable({
-          head: [
-            [
-              "Sr No",
-              "Product Name",
-              "Consumed Quantity",
-              "Consumed Units",
-              "Average Price",
-              "Consumed Amount",
-            ],
-          ],
-          body: data.map((row, index) => [
-            index + 1,
-            row.product_name || "N/A",
-            row.total_qty || 0,
-            row.consumed_units.toFixed(2) || 0,
-            row.avg_price || 0,
-            calculateUsedPrice(row),
-          ]),
-        });
-        doc.save(`${fileName}.pdf`);
-      }
-    };
-
-    // Handle logo loading
-    if (logoUrl) {
-      const img = new Image();
-      img.crossOrigin = "Anonymous";
-      img.onload = () => {
-        generatePDF();
-      };
-      img.onerror = () => {
-        console.error("Error loading logo");
-        generatePDF();
-      };
-      img.src = logoUrl;
-    } else {
-      generatePDF();
-    }
-  };
-
-  const exportToCSV = (data, fileName = "product_report") => {
-    const headers = [
-      "Sr No,Product Name,Consumed Quantity,Average Price,Consumed Amount\n",
-    ];
-
-    const csvContent = data
-      .map(
-        (row, index) =>
-          `${index + 1},${row.product_name || "N/A"},${row.total_qty || 0},${
-            row.avg_price || 0
-          },${calculateUsedPrice(row)}`
-      )
-      .join("\n");
-
-    const blob = new Blob([headers + csvContent], {
-      type: "text/csv;charset=utf-8;",
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${fileName}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
+  const calculateTotalConsumedAmount = (data) => {
+    return data
+      .reduce((total, row) => total + calculateUsedPrice(row), 0)
+      .toFixed(2);
   };
 
   const handleExport = (type) => {
-    if (!mappedContent) return;
+    if (!filteredContent) return;
 
-    const fileName = `product_report_${format(new Date(), "yyyy-MM-dd")}`;
+    const exportData = filteredContent.map((row, index) => ({
+      "Sr No": index + 1,
+      "Product Name": row.product_name || "N/A",
+      "Captain Name": row.captain_name || "Unknown",
+      "Consumed Quantity": row.total_qty || 0,
+      "Consumed Units": row.consumed_units.toFixed(2) || 0,
+      "Average Price": row.avg_price || 0,
+      "Consumed Amount": calculateUsedPrice(row),
+    }));
 
-    switch (type) {
-      case "excel":
-        exportToExcel(mappedContent, fileName);
-        break;
-      case "pdf":
-        exportToPDF(mappedContent, fileName);
-        break;
-      case "csv":
-        exportToCSV(mappedContent, fileName);
-        break;
-      default:
-        break;
+    if (type === "pdf") {
+      const doc = new jsPDF();
+
+      const logoPath = "/logo.jpeg";
+      const logoWidth = 35;
+      const logoHeight = 20;
+
+      doc.addImage(
+        logoPath,
+        "PNG",
+        170,
+        10,
+        logoWidth,
+        logoHeight,
+        logoWidth * logoHeight
+      );
+
+      // Add title
+      doc.setFontSize(16);
+      doc.text("Stock Use Report", 14, 20);
+
+      // Add date range
+      doc.setFontSize(12);
+      const dateText =
+        startDate && endDate
+          ? `Date: ${format(new Date(startDate), "dd/MM/yyyy")} - ${format(
+              new Date(endDate),
+              "dd/MM/yyyy"
+            )}`
+          : `Date: ${format(new Date(), "dd/MM/yyyy")}`;
+      doc.text(dateText, 14, 30);
+
+      // Add selected captain
+      const captainText = `Captain: ${
+        selectedCaptain === "all" ? "All Captains" : selectedCaptain
+      }`;
+      doc.text(captainText, 14, 40);
+
+      // Add table
+      doc.autoTable({
+        head: [Object.keys(exportData[0])],
+        body: exportData.map(Object.values),
+        startY: 50,
+        theme: "grid",
+        styles: {
+          fontSize: 8,
+          cellPadding: 2,
+        },
+        headStyles: { fillColor: [22, 163, 74], textColor: 255 },
+        didDrawPage: function (data) {
+          // Calculate total
+          const totalConsumedAmount =
+            calculateTotalConsumedAmount(filteredContent);
+
+          // Add total row after the table
+          const finalY = data.cursor.y + 10;
+          doc.setFontSize(10);
+          doc.setFont(undefined, "bold");
+          doc.text(`Total Consumed Amount: ${totalConsumedAmount}`, 14, finalY);
+        },
+      });
+
+      doc.save("stock-report.pdf");
     }
   };
 
@@ -249,16 +153,28 @@ const ProductReport = () => {
 
       setData(response.data);
 
+      // Extract unique captains
+      const uniqueCaptains = new Set();
+      response.data.forEach((report) => {
+        if (report.job?.captain?.name) {
+          uniqueCaptains.add(report.job.captain.name);
+        }
+      });
+      setCaptains(Array.from(uniqueCaptains));
+
       // Extract all used_products from all service reports
       const allProducts = [];
       if (response?.data && Array.isArray(response.data)) {
         response.data.forEach((report) => {
           if (report.used_products && Array.isArray(report.used_products)) {
-            allProducts.push(...report.used_products);
+            // Add captain information to each product
+            const productsWithCaptain = report.used_products.map((product) => ({
+              ...product,
+              captain_name: report.job?.captain?.name || "Unknown",
+            }));
+            allProducts.push(...productsWithCaptain);
           }
         });
-      } else if (response?.data?.used_products) {
-        allProducts.push(...response.data.used_products);
       }
 
       setProductsList(allProducts);
@@ -273,6 +189,7 @@ const ProductReport = () => {
     if (data) {
       const productMap = new Map();
       data.forEach((report) => {
+        const captainName = report.job?.captain?.name || "Unknown";
         report.used_products.forEach((usedProduct) => {
           const {
             product_id,
@@ -280,28 +197,47 @@ const ProductReport = () => {
             product: { product_name, per_item_qty, latest_delivery_stock },
           } = usedProduct;
 
-          if (!productMap.has(product_id)) {
-            productMap.set(product_id, {
+          const mapKey = `${product_id}-${captainName}`;
+
+          if (!productMap.has(mapKey)) {
+            productMap.set(mapKey, {
               product_id,
               product_name,
               per_item_qty,
               avg_price: latest_delivery_stock?.avg_price || 0,
               total_qty: 0,
-              consumed_units: 0, // New field for consumed units
+              consumed_units: 0,
+              captain_name: captainName,
             });
           }
 
-          const product = productMap.get(product_id);
+          const product = productMap.get(mapKey);
           product.total_qty += qty;
-          // Calculate consumed units by dividing total quantity by per_item_qty
           product.consumed_units =
             product.total_qty / (product.per_item_qty || 1);
         });
       });
       const mappedData = Array.from(productMap.values());
       setMappedContent(mappedData);
+      setFilteredContent(mappedData);
     }
   }, [data]);
+
+  useEffect(() => {
+    if (mappedContent) {
+      const filtered =
+        selectedCaptain === "all"
+          ? mappedContent
+          : mappedContent.filter(
+              (item) => item.captain_name === selectedCaptain
+            );
+      setFilteredContent(filtered);
+    }
+  }, [selectedCaptain, mappedContent]);
+
+  const handleCaptainChange = (event) => {
+    setSelectedCaptain(event.target.value);
+  };
 
   const calculateUsedPrice = (item) => {
     const perItemQty = parseFloat(item.per_item_qty) || 0;
@@ -321,8 +257,8 @@ const ProductReport = () => {
             <TableRow>
               <TableCell>Sr No</TableCell>
               <TableCell>Product Name</TableCell>
+              <TableCell>Captain Name</TableCell>
               <TableCell>Consumed Quantity</TableCell>
-              {/* <TableCell>Per Item Quantity</TableCell> */}
               <TableCell>Consumed Units</TableCell>
               <TableCell>Average Price</TableCell>
               <TableCell>Consumed Amount</TableCell>
@@ -336,12 +272,12 @@ const ProductReport = () => {
                 </TableCell>
               </TableRow>
             ) : (
-              mappedContent?.map((row, index) => (
+              filteredContent?.map((row, index) => (
                 <TableRow key={index}>
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{row?.product_name || "N/A"}</TableCell>
+                  <TableCell>{row?.captain_name || "Unknown"}</TableCell>
                   <TableCell>{row.total_qty || 0}</TableCell>
-                  {/* <TableCell>{row.per_item_qty || 1}</TableCell> */}
                   <TableCell>{row.consumed_units.toFixed(2) || 0}</TableCell>
                   <TableCell>{row?.avg_price || 0}</TableCell>
                   <TableCell>{calculateUsedPrice(row)}</TableCell>
@@ -358,19 +294,35 @@ const ProductReport = () => {
     <div>
       <div style={{ padding: "30px", borderRadius: "10px" }}>
         <div
-          style={{ fontSize: "20px", fontWeight: "600", marginBottom: "-4rem" }}
+          style={{ fontSize: "20px", fontWeight: "600", marginBottom: "2rem" }}
         >
           Product Use Report
         </div>
         <div
           style={{
             display: "flex",
-            justifyContent: "flex-end",
-            marginTop: "2rem",
-            gap: "1rem",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "2rem",
           }}
         >
-          <Stack direction="row" spacing={2}>
+          <FormControl sx={{ minWidth: 200 }}>
+            <InputLabel>Filter by Captain</InputLabel>
+            <Select
+              value={selectedCaptain}
+              onChange={handleCaptainChange}
+              label="Filter by Captain"
+            >
+              <MenuItem value="all">All Captains</MenuItem>
+              {captains.map((captain) => (
+                <MenuItem key={captain} value={captain}>
+                  {captain}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <Stack direction="row" spacing={2} alignItems="center">
             <Button
               variant="contained"
               startIcon={<FileDownloadIcon />}
@@ -395,25 +347,21 @@ const ProductReport = () => {
             >
               CSV
             </Button>
+            <div
+              style={{
+                backgroundColor: "#32A92E",
+                color: "white",
+                fontWeight: "600",
+                fontSize: "16px",
+                height: "44px",
+                paddingLeft: "16px",
+                paddingRight: "16px",
+                borderRadius: "10px",
+              }}
+            >
+              <DateFilters onDateChange={handleDateChange} />
+            </div>
           </Stack>
-          <div
-            style={{
-              backgroundColor: "#32A92E",
-              color: "white",
-              fontWeight: "600",
-              fontSize: "16px",
-              height: "44px",
-              width: "202px",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              marginLeft: "1rem",
-              padding: "12px 16px",
-              borderRadius: "10px",
-            }}
-          >
-            <DateFilters onDateChange={handleDateChange} />
-          </div>
         </div>
       </div>
 
