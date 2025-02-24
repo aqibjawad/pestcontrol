@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
 import { company } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
@@ -8,22 +8,21 @@ import { Skeleton } from "@mui/material";
 import { AppHelpers } from "@/Helper/AppHelpers";
 import DateFilters2 from "@/components/generic/DateFilters2";
 import { startOfMonth, endOfMonth, format } from "date-fns";
+import { Download } from "lucide-react";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
-const ListServiceTable = ({
-  startDate,
-  endDate,
-  selectedReference,
-  setReferenceOptions,
-}) => {
+const ListServiceTable = ({ startDate, endDate, tableRef }) => {
   const api = new APICall();
   const [fetchingData, setFetchingData] = useState(false);
   const [invoiceList, setQuoteList] = useState([]);
   const [loadingDetails, setLoadingDetails] = useState(true);
-  const [filteredList, setFilteredList] = useState([]);
-  const [newChequeDate, setNewChequeDate] = useState("");
-  const [totalChequeAmount, setTotalChequeAmount] = useState(0);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [selectedRowId, setSelectedRowId] = useState(null);
+  const [totals, setTotals] = useState({
+    cashTotal: 0,
+    bankTotal: 0,
+    chequeTotal: 0,
+    grandTotal: 0,
+  });
 
   const getAllCheques = async () => {
     setFetchingData(true);
@@ -47,13 +46,7 @@ const ListServiceTable = ({
       );
 
       setQuoteList(response.data);
-
-      const allReferences = new Set();
-      response.data.forEach((banks) => {
-        const referenceBank = banks?.bank?.bank_name;
-        if (referenceBank) allReferences.add(referenceBank);
-      });
-      setReferenceOptions(Array.from(allReferences));
+      calculateTotals(response.data);
     } catch (error) {
       console.error("Error fetching quotes:", error);
     } finally {
@@ -62,100 +55,30 @@ const ListServiceTable = ({
     }
   };
 
-  useEffect(() => {
-    if (selectedReference === "all") {
-      setFilteredList(invoiceList);
-    } else {
-      const filtered = invoiceList.filter(
-        (item) => item?.bank?.bank_name === selectedReference
-      );
-      setFilteredList(filtered);
-    }
-  }, [selectedReference, invoiceList]);
+  const calculateTotals = (data) => {
+    const totals = data.reduce(
+      (acc, transaction) => {
+        return {
+          cashTotal: acc.cashTotal + parseFloat(transaction.cash_amt || 0),
+          bankTotal: acc.bankTotal + parseFloat(transaction.online_amt || 0),
+          chequeTotal:
+            acc.chequeTotal + parseFloat(transaction.cheque_amt || 0),
+          grandTotal:
+            acc.grandTotal +
+            (parseFloat(transaction.cash_amt || 0) +
+              parseFloat(transaction.online_amt || 0) +
+              parseFloat(transaction.cheque_amt || 0)),
+        };
+      },
+      { cashTotal: 0, bankTotal: 0, chequeTotal: 0, grandTotal: 0 }
+    );
+
+    setTotals(totals);
+  };
 
   useEffect(() => {
     getAllCheques();
   }, [startDate, endDate]);
-
-  const generateExportData = () => {
-    return invoiceList.map((row, index) => ({
-      "Sr.": index + 1,
-      "Invoice Issue Date": formatDate(row.issued_date),
-      Client: row?.user?.name || "N/A",
-      "Firm Name": row?.user?.client?.firm_name || "N/A",
-      Reference: row?.user?.client?.referencable?.name || "N/A",
-      "Paid Amount": row.paid_amt || 0,
-      "Total Amount": row.total_amt || 0,
-      Status: row.status,
-    }));
-  };
-
-  const downloadCSV = () => {
-    const data = generateExportData();
-    const headers = Object.keys(data[0]);
-    const csvContent = [
-      headers.join(","),
-      ...data.map((row) =>
-        headers.map((header) => `"${row[header]}"`).join(",")
-      ),
-    ].join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `invoices_${startDate}_${endDate}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-  };
-
-  const downloadExcel = () => {
-    const data = generateExportData();
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Invoices");
-    XLSX.writeFile(workbook, `invoices_${startDate}_${endDate}.xlsx`);
-  };
-
-  const downloadPDF = () => {
-    const img = new Image();
-    img.src = "/logo.jpeg";
-
-    img.onload = () => {
-      const doc = new jsPDF();
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const logoWidth = 50;
-      const logoHeight = (img.height * logoWidth) / img.width;
-      const xPosition = (pageWidth - logoWidth) / 2;
-
-      doc.addImage(img, "jpeg", xPosition, 10, logoWidth, logoHeight);
-      doc.setFontSize(12);
-      doc.text(`Invoices`, pageWidth / 2, logoHeight + 20, {
-        align: "center",
-      });
-      doc.text(
-        `Date Range: ${startDate || "All"} to ${endDate || "All"}`,
-        pageWidth / 2,
-        logoHeight + 30,
-        { align: "center" }
-      );
-
-      const data = generateExportData();
-      const headers = Object.keys(data[0]);
-      const rows = data.map((row) => Object.values(row));
-
-      doc.autoTable({
-        head: [headers],
-        body: rows,
-        startY: logoHeight + 40,
-        margin: { top: logoHeight + 40 },
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [50, 169, 46] },
-      });
-
-      doc.save(`transactions_${startDate || "all"}_${endDate || "all"}.pdf`);
-    };
-  };
 
   const formatAmount = (amount) => {
     return parseFloat(amount || 0).toLocaleString("en-IN", {
@@ -171,145 +94,126 @@ const ListServiceTable = ({
     return new Date(dateString).toLocaleDateString("en-IN");
   };
 
+  // Expose the table data and formatting functions through the ref
+  React.useImperativeHandle(tableRef, () => ({
+    getData: () => ({
+      invoiceList,
+      totals,
+      formatAmount,
+      formatDate,
+    }),
+  }));
+
   return (
-    <div>
-      <div className={tableStyles.tableContainer}>
-        <div
-          style={{
-            overflow: "hidden",
-            display: "flex",
-            flexDirection: "column",
-            maxHeight: "500px",
-          }}
-        >
-          <div className="relative">
-            <div className="overflow-x-auto">
-              <table className="w-full bg-white">
-                <thead className="bg-gray-100 sticky top-0 z-10">
-                  <tr>
-                    <th className="py-3 px-4 border-b border-gray-200 text-left font-semibold text-sm">
-                      Sr.
-                    </th>
-                    <th className="py-3 px-4 border-b border-gray-200 text-left font-semibold text-sm">
-                      Date
-                    </th>
-                    <th className="py-3 px-4 border-b border-gray-200 text-left font-semibold text-sm">
-                      Description
-                    </th>
-                    <th className="py-3 px-4 border-b border-gray-200 text-left font-semibold text-sm">
-                      Type
-                    </th>
-                    <th className="py-3 px-4 border-b border-gray-200 text-right font-semibold text-sm">
-                      Cash Amount
-                    </th>
-                    <th className="py-3 px-4 border-b border-gray-200 text-right font-semibold text-sm">
-                      Bank Amount
-                    </th>
-                    <th className="py-3 px-4 border-b border-gray-200 text-right font-semibold text-sm">
-                      Cheque Amount
-                    </th>
-                    <th className="py-3 px-4 border-b border-gray-200 text-right font-semibold text-sm">
-                      Total
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {invoiceList.map((transaction, index) => {
-                    const total =
-                      parseFloat(transaction.cash_amt || 0) +
-                      parseFloat(transaction.online_amt || 0) +
-                      parseFloat(transaction.cheque_amt || 0);
+    <div className={tableStyles.tableContainer}>
+      <div
+        className="overflow-auto"
+        style={{ maxHeight: "calc(100vh - 250px)" }}
+      >
+        <table className="w-full bg-white">
+          <thead className="bg-gray-100 sticky top-0 z-10">
+            <tr>
+              <th className="py-3 px-4 border-b border-gray-200 text-left font-semibold text-sm">
+                Sr.
+              </th>
+              <th className="py-3 px-4 border-b border-gray-200 text-left font-semibold text-sm">
+                Date
+              </th>
+              <th className="py-3 px-4 border-b border-gray-200 text-left font-semibold text-sm">
+                Description
+              </th>
+              <th className="py-3 px-4 border-b border-gray-200 text-left font-semibold text-sm">
+                Type
+              </th>
+              <th className="py-3 px-4 border-b border-gray-200 text-right font-semibold text-sm">
+                Cash Amount
+              </th>
+              <th className="py-3 px-4 border-b border-gray-200 text-right font-semibold text-sm">
+                Bank Amount
+              </th>
+              <th className="py-3 px-4 border-b border-gray-200 text-right font-semibold text-sm">
+                Cheque Amount
+              </th>
+              <th className="py-3 px-4 border-b border-gray-200 text-right font-semibold text-sm">
+                Total
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {invoiceList.map((transaction, index) => {
+              const total =
+                parseFloat(transaction.cash_amt || 0) +
+                parseFloat(transaction.online_amt || 0) +
+                parseFloat(transaction.cheque_amt || 0);
 
-                    return (
-                      <tr key={transaction.id} className="hover:bg-gray-50">
-                        <td className="py-3 px-4 text-sm">{index + 1}</td>
-                        <td className="py-3 px-4 text-sm">
-                          {formatDate(transaction.created_at)}
-                        </td>
-                        <td className="py-3 px-4 text-sm">
-                          {transaction.description}
-                        </td>
-                        <td className="py-3 px-4 text-sm">
-                          <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                              transaction.entry_type === "cr"
-                                ? "bg-green-100 text-green-800"
-                                : "bg-red-100 text-red-800"
-                            }`}
-                          >
-                            {transaction.entry_type === "cr"
-                              ? "Credit"
-                              : "Debit"}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-sm text-right">
-                          {transaction.cash_amt !== "0.00" &&
-                            formatAmount(transaction.cash_amt)}
-                        </td>
-                        <td className="py-3 px-4 text-sm text-right">
-                          {transaction.online_amt !== "0.00" &&
-                            formatAmount(transaction.online_amt)}
-                        </td>
-                        <td className="py-3 px-4 text-sm text-right">
-                          {transaction.cheque_amt !== "0.00" && (
-                            <div>
-                              {formatAmount(transaction.cheque_amt)}
-                              {transaction.cheque_no && (
-                                <div className="text-xs text-gray-500">
-                                  No: {transaction.cheque_no}
-                                  {transaction.cheque_date &&
-                                    ` | ${formatDate(transaction.cheque_date)}`}
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </td>
-                        <td className="py-3 px-4 text-sm font-medium text-right">
-                          {formatAmount(total)}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-                <tfoot className="bg-gray-50">
-                  <tr>
-                    <td
-                      colSpan="4"
-                      className="py-3 px-4 text-sm font-semibold text-right"
+              return (
+                <tr key={transaction.id} className="hover:bg-gray-50">
+                  <td className="py-3 px-4 text-sm">{index + 1}</td>
+                  <td className="py-3 px-4 text-sm">
+                    {formatDate(transaction.created_at)}
+                  </td>
+                  <td className="py-3 px-4 text-sm">
+                    {transaction.description}
+                  </td>
+                  <td className="py-3 px-4 text-sm">
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        transaction.entry_type === "cr"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
                     >
-                      Total Balances:
-                    </td>
-                    <td className="py-3 px-4 text-sm font-semibold text-right">
-                      {formatAmount(invoiceList[0]?.cash_balance)}
-                    </td>
-                    <td className="py-3 px-4 text-sm font-semibold text-right">
-                      {formatAmount(invoiceList[0]?.bank_balance)}
-                    </td>
-                    <td className="py-3 px-4 text-sm font-semibold text-right">
-                      {formatAmount(invoiceList[0]?.cheque_amt)}
-                    </td>
-                    <td className="py-3 px-4 text-sm font-semibold text-right">
-                      {formatAmount(
-                        parseFloat(invoiceList[0]?.cash_balance || 0) +
-                          parseFloat(invoiceList[0]?.bank_balance || 0) +
-                          parseFloat(invoiceList[0]?.cheque_amt || 0)
-                      )}
-                    </td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-        <div className="text-right">
-          <span className="font-semibold">Total Cheque Amount: </span>
-          <span className="text-green-600 font-bold">
-            {totalChequeAmount?.toLocaleString()}
-          </span>
-        </div>
+                      {transaction.entry_type === "cr" ? "Credit" : "Debit"}
+                    </span>
+                  </td>
+                  <td className="py-3 px-4 text-sm text-right">
+                    {transaction.cash_amt !== "0.00" &&
+                      formatAmount(transaction.cash_amt)}
+                  </td>
+                  <td className="py-3 px-4 text-sm text-right">
+                    {transaction.online_amt !== "0.00" &&
+                      formatAmount(transaction.online_amt)}
+                  </td>
+                  <td className="py-3 px-4 text-sm text-right">
+                    {transaction.cheque_amt !== "0.00" && (
+                      <div>
+                        {formatAmount(transaction.cheque_amt)}
+                        {transaction.cheque_no && (
+                          <div className="text-xs text-gray-500">
+                            No: {transaction.cheque_no}
+                            {transaction.cheque_date &&
+                              ` | ${formatDate(transaction.cheque_date)}`}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </td>
+                  <td className="py-3 px-4 text-sm font-medium text-right">
+                    {formatAmount(total)}
+                  </td>
+                </tr>
+              );
+            })}
+            {/* Total Row */}
+            <tr className="bg-gray-50 font-semibold">
+              <td colSpan="4" className="py-3 px-4 text-sm text-right">
+                Total
+              </td>
+              <td className="py-3 px-4 text-sm text-right">
+                {formatAmount(totals.cashTotal)}
+              </td>
+              <td className="py-3 px-4 text-sm text-right">
+                {formatAmount(totals.bankTotal)}
+              </td>
+              <td className="py-3 px-4 text-sm text-right">
+                {formatAmount(totals.chequeTotal)}
+              </td>
+              <td className="py-3 px-4 text-sm font-medium text-right">
+                {formatAmount(totals.grandTotal)}
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   );
@@ -330,6 +234,7 @@ const TotalRecieves = ({ isVisible }) => {
     getDateParamsFromUrl();
   const [startDate, setStartDate] = useState(urlStartDate);
   const [endDate, setEndDate] = useState(urlEndDate);
+  const tableRef = useRef(null);
 
   useEffect(() => {
     if (urlStartDate && urlEndDate) {
@@ -343,59 +248,106 @@ const TotalRecieves = ({ isVisible }) => {
     setEndDate(end);
   };
 
-  const [selectedReference, setSelectedReference] = useState("all");
-  const [referenceOptions, setReferenceOptions] = useState([]);
+  const downloadPDF = () => {
+    if (!tableRef.current) return;
+
+    const { invoiceList, totals, formatAmount, formatDate } =
+      tableRef.current.getData();
+
+    const doc = new jsPDF();
+
+    // Add title
+    doc.setFontSize(16);
+    doc.text("Total Receives Report", 14, 15);
+
+    // Add date range
+    doc.setFontSize(10);
+    doc.text(
+      `Date Range: ${startDate || "N/A"} to ${endDate || "N/A"}`,
+      14,
+      25
+    );
+
+    const tableColumns = [
+      "Sr.",
+      "Date",
+      "Description",
+      "Type",
+      "Cash Amount",
+      "Bank Amount",
+      "Cheque Amount",
+      "Total",
+    ];
+
+    const tableData = invoiceList.map((transaction, index) => {
+      const total =
+        parseFloat(transaction.cash_amt || 0) +
+        parseFloat(transaction.online_amt || 0) +
+        parseFloat(transaction.cheque_amt || 0);
+
+      return [
+        index + 1,
+        formatDate(transaction.created_at),
+        transaction.description,
+        transaction.entry_type === "cr" ? "Credit" : "Debit",
+        formatAmount(transaction.cash_amt),
+        formatAmount(transaction.online_amt),
+        formatAmount(transaction.cheque_amt),
+        formatAmount(total),
+      ];
+    });
+
+    // Add total row
+    tableData.push([
+      "",
+      "",
+      "Total",
+      "",
+      formatAmount(totals.cashTotal),
+      formatAmount(totals.bankTotal),
+      formatAmount(totals.chequeTotal),
+      formatAmount(totals.grandTotal),
+    ]);
+
+    doc.autoTable({
+      head: [tableColumns],
+      body: tableData,
+      startY: 35,
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [76, 175, 80] },
+      footStyles: { fillColor: [240, 240, 240] },
+    });
+
+    doc.save("total-receives-report.pdf");
+  };
 
   return (
-    <div>
-      <div style={{ padding: "30px", borderRadius: "10px" }}>
-        {/* Updated header with flex layout */}
-        <div className="flex justify-between items-center mb-6">
+    <div className="h-full">
+      <div className="px-6 py-4">
+        <div className="flex justify-between items-center mb-4">
+          <div className="text-xl font-semibold">Total Receives</div>
           <div className="flex items-center gap-4">
-            <div
-              style={{
-                fontSize: "20px",
-                fontFamily: "semibold",
-              }}
+            <button
+              onClick={downloadPDF}
+              className="bg-blue-600 text-white flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-blue-700"
             >
-              Total Recieves
-            </div>
-          </div>
-
-          {/* Date filter aligned to the right */}
-          <div className="flex items-center gap-4">
-            {/* Reference Dropdown */}
-            <select
-              value={selectedReference}
-              onChange={(e) => setSelectedReference(e.target.value)}
-              className="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="all">All Banks</option>
-              {referenceOptions.map((reference, index) => (
-                <option key={index} value={reference}>
-                  {reference}
-                </option>
-              ))}
-            </select>
-
-            {/* Date Filter Component */}
-            <div className="flex items-center bg-green-600 text-white font-semibold text-base h-11 px-4 py-3 rounded-lg">
+              <Download size={18} />
+              Download PDF
+            </button>
+            <div className="bg-green-600 text-white font-semibold text-base h-11 px-4 py-3 rounded-lg">
               <DateFilters2 onDateChange={handleDateChange} />
             </div>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-12 gap-4">
-        <div className="col-span-12">
-          <ListServiceTable
-            handleDateChange={handleDateChange}
-            startDate={startDate}
-            endDate={endDate}
-            selectedReference={selectedReference}
-            setReferenceOptions={setReferenceOptions}
-          />
-        </div>
+      <div className="px-6">
+        <ListServiceTable
+          handleDateChange={handleDateChange}
+          startDate={startDate}
+          endDate={endDate}
+          tableRef={tableRef}
+        />
       </div>
     </div>
   );

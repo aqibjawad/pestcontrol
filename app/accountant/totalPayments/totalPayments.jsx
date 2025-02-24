@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
 import { company } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
@@ -8,22 +8,42 @@ import { Skeleton } from "@mui/material";
 import { AppHelpers } from "@/Helper/AppHelpers";
 import DateFilters2 from "@/components/generic/DateFilters2";
 import { startOfMonth, endOfMonth, format } from "date-fns";
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
 
-const ListServiceTable = ({
-  startDate,
-  endDate,
-  selectedReference,
-  setReferenceOptions,
-}) => {
+const ListServiceTable = ({ startDate, endDate }) => {
   const api = new APICall();
   const [fetchingData, setFetchingData] = useState(false);
   const [invoiceList, setQuoteList] = useState([]);
   const [loadingDetails, setLoadingDetails] = useState(true);
-  const [filteredList, setFilteredList] = useState([]);
-  const [newChequeDate, setNewChequeDate] = useState("");
-  const [totalChequeAmount, setTotalChequeAmount] = useState(0);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [selectedRowId, setSelectedRowId] = useState(null);
+  const tableRef = useRef(null);
+
+  // Calculate totals for summary row
+  const calculateTotals = () => {
+    let totalCash = 0;
+    let totalBank = 0;
+    let totalCheque = 0;
+    let grandTotal = 0;
+
+    invoiceList.forEach((transaction) => {
+      totalCash += parseFloat(transaction.cash_amt || 0);
+      totalBank += parseFloat(transaction.online_amt || 0);
+      totalCheque += parseFloat(transaction.cheque_amt || 0);
+      grandTotal +=
+        parseFloat(transaction.cash_amt || 0) +
+        parseFloat(transaction.online_amt || 0) +
+        parseFloat(transaction.cheque_amt || 0);
+    });
+
+    return {
+      totalCash,
+      totalBank,
+      totalCheque,
+      grandTotal,
+    };
+  };
+
+  const totals = calculateTotals();
 
   const getAllCheques = async () => {
     setFetchingData(true);
@@ -41,19 +61,15 @@ const ListServiceTable = ({
       queryParams.push(`end_date=${format(endDate, "yyyy-MM-dd")}`);
     }
 
+    // Remove pagination limit to get all items
+    queryParams.push("limit=1000");
+
     try {
       const response = await api.getDataWithToken(
         `${company}/payments/get?${queryParams.join("&")}`
       );
 
       setQuoteList(response.data);
-
-      const allReferences = new Set();
-      response.data.forEach((banks) => {
-        const referenceBank = banks?.bank?.bank_name;
-        if (referenceBank) allReferences.add(referenceBank);
-      });
-      setReferenceOptions(Array.from(allReferences));
     } catch (error) {
       console.error("Error fetching quotes:", error);
     } finally {
@@ -63,99 +79,8 @@ const ListServiceTable = ({
   };
 
   useEffect(() => {
-    if (selectedReference === "all") {
-      setFilteredList(invoiceList);
-    } else {
-      const filtered = invoiceList.filter(
-        (item) => item?.bank?.bank_name === selectedReference
-      );
-      setFilteredList(filtered);
-    }
-  }, [selectedReference, invoiceList]);
-
-  useEffect(() => {
     getAllCheques();
   }, [startDate, endDate]);
-
-  const generateExportData = () => {
-    return invoiceList.map((row, index) => ({
-      "Sr.": index + 1,
-      "Invoice Issue Date": formatDate(row.issued_date),
-      Client: row?.user?.name || "N/A",
-      "Firm Name": row?.user?.client?.firm_name || "N/A",
-      Reference: row?.user?.client?.referencable?.name || "N/A",
-      "Paid Amount": row.paid_amt || 0,
-      "Total Amount": row.total_amt || 0,
-      Status: row.status,
-    }));
-  };
-
-  const downloadCSV = () => {
-    const data = generateExportData();
-    const headers = Object.keys(data[0]);
-    const csvContent = [
-      headers.join(","),
-      ...data.map((row) =>
-        headers.map((header) => `"${row[header]}"`).join(",")
-      ),
-    ].join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `invoices_${startDate}_${endDate}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-  };
-
-  const downloadExcel = () => {
-    const data = generateExportData();
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Invoices");
-    XLSX.writeFile(workbook, `invoices_${startDate}_${endDate}.xlsx`);
-  };
-
-  const downloadPDF = () => {
-    const img = new Image();
-    img.src = "/logo.jpeg";
-
-    img.onload = () => {
-      const doc = new jsPDF();
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const logoWidth = 50;
-      const logoHeight = (img.height * logoWidth) / img.width;
-      const xPosition = (pageWidth - logoWidth) / 2;
-
-      doc.addImage(img, "jpeg", xPosition, 10, logoWidth, logoHeight);
-      doc.setFontSize(12);
-      doc.text(`Invoices`, pageWidth / 2, logoHeight + 20, {
-        align: "center",
-      });
-      doc.text(
-        `Date Range: ${startDate || "All"} to ${endDate || "All"}`,
-        pageWidth / 2,
-        logoHeight + 30,
-        { align: "center" }
-      );
-
-      const data = generateExportData();
-      const headers = Object.keys(data[0]);
-      const rows = data.map((row) => Object.values(row));
-
-      doc.autoTable({
-        head: [headers],
-        body: rows,
-        startY: logoHeight + 40,
-        margin: { top: logoHeight + 40 },
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [50, 169, 46] },
-      });
-
-      doc.save(`transactions_${startDate || "all"}_${endDate || "all"}.pdf`);
-    };
-  };
 
   const formatAmount = (amount) => {
     return parseFloat(amount || 0).toLocaleString("en-IN", {
@@ -171,12 +96,124 @@ const ListServiceTable = ({
     return new Date(dateString).toLocaleDateString("en-IN");
   };
 
+  // Generate PDF from table data
+  const generatePDF = () => {
+    try {
+      const doc = new jsPDF();
+  
+      // Define logoData
+      const logoData = null; // Replace with your actual logo data source or pass it as a parameter
+      
+      // Add logo on the right side
+      if (logoData) {
+        doc.addImage(logoData, "PNG", 150, 10, 40, 15);
+      }
+  
+      // Add title
+      doc.setFontSize(16);
+      doc.text("Total Payments Report", 14, 15);
+  
+      // Add date range
+      doc.setFontSize(10);
+      const dateRangeText = `Date Range: ${formatDate(startDate)} to ${formatDate(
+        endDate
+      )}`;
+      doc.text(dateRangeText, 14, 25);
+  
+      // Create table data structure for PDF
+      const tableData = invoiceList.map((transaction, index) => {
+        const total =
+          parseFloat(transaction.cash_amt || 0) +
+          parseFloat(transaction.online_amt || 0) +
+          parseFloat(transaction.cheque_amt || 0);
+        return [
+          index + 1,
+          formatDate(transaction.created_at),
+          transaction.description,
+          transaction.entry_type === "cr" ? "Credit" : "Debit",
+          transaction.cash_amt !== "0.00"
+            ? formatAmount(transaction.cash_amt)
+            : "",
+          transaction.online_amt !== "0.00"
+            ? formatAmount(transaction.online_amt)
+            : "",
+          transaction.cheque_amt !== "0.00"
+            ? formatAmount(transaction.cheque_amt)
+            : "",
+          formatAmount(total),
+        ];
+      });
+  
+      // Add summary row
+      tableData.push([
+        "",
+        "",
+        "TOTAL",
+        "",
+        formatAmount(totals.totalCash),
+        formatAmount(totals.totalBank),
+        formatAmount(totals.totalCheque),
+        formatAmount(totals.grandTotal),
+      ]);
+  
+      // Generate the table in PDF
+      doc.autoTable({
+        head: [
+          [
+            "Sr.",
+            "Date",
+            "Description",
+            "Type",
+            "Cash Amount",
+            "Bank Amount",
+            "Cheque Amount",
+            "Total",
+          ],
+        ],
+        body: tableData,
+        startY: 30,
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [76, 175, 80] },
+        footStyles: { fillColor: [240, 240, 240] },
+        alternateRowStyles: { fillColor: [240, 240, 240] },
+      });
+      
+      doc.save("total_payments_report.pdf");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      // Handle the error appropriately (show user message, etc.)
+    }
+  };
+
   return (
     <div>
+      <div className="mb-4 flex justify-end">
+        <button
+          onClick={generatePDF}
+          className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded flex items-center"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5 mr-2"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+            />
+          </svg>
+          Download PDF
+        </button>
+      </div>
+
       <div className={tableStyles.tableContainer}>
         <div
           style={{
-            overflow: "hidden",
+            overflow: "auto",
             display: "flex",
             flexDirection: "column",
             maxHeight: "500px",
@@ -184,7 +221,7 @@ const ListServiceTable = ({
         >
           <div className="relative">
             <div className="overflow-x-auto">
-              <table className="w-full bg-white">
+              <table ref={tableRef} className="w-full bg-white">
                 <thead className="bg-gray-100 sticky top-0 z-10">
                   <tr>
                     <th className="py-3 px-4 border-b border-gray-200 text-left font-semibold text-sm">
@@ -195,6 +232,9 @@ const ListServiceTable = ({
                     </th>
                     <th className="py-3 px-4 border-b border-gray-200 text-left font-semibold text-sm">
                       Description
+                    </th>
+                    <th className="py-3 px-4 border-b border-gray-200 text-left font-semibold text-sm">
+                      Reference
                     </th>
                     <th className="py-3 px-4 border-b border-gray-200 text-left font-semibold text-sm">
                       Type
@@ -228,6 +268,12 @@ const ListServiceTable = ({
                         </td>
                         <td className="py-3 px-4 text-sm">
                           {transaction.description}
+                        </td>
+                        <td className="py-3 px-4 text-sm">
+                          {transaction?.referenceable?.expense_name ||
+                            transaction?.referenceable?.name ||
+                            transaction?.referenceable?.supplier_name ||
+                            "other Payments"}
                         </td>
                         <td className="py-3 px-4 text-sm">
                           <span
@@ -270,45 +316,29 @@ const ListServiceTable = ({
                       </tr>
                     );
                   })}
-                </tbody>
-                <tfoot className="bg-gray-50">
-                  <tr>
-                    <td
-                      colSpan="4"
-                      className="py-3 px-4 text-sm font-semibold text-right"
-                    >
-                      Total Balances:
+
+                  {/* Summary row */}
+                  <tr className="bg-gray-100 font-bold">
+                    <td colSpan="4" className="py-3 px-4 text-sm text-right">
+                      TOTAL
                     </td>
-                    <td className="py-3 px-4 text-sm font-semibold text-right">
-                      {formatAmount(invoiceList[0]?.cash_balance)}
+                    <td className="py-3 px-4 text-sm text-right">
+                      {formatAmount(totals.totalCash)}
                     </td>
-                    <td className="py-3 px-4 text-sm font-semibold text-right">
-                      {formatAmount(invoiceList[0]?.bank_balance)}
+                    <td className="py-3 px-4 text-sm text-right">
+                      {formatAmount(totals.totalBank)}
                     </td>
-                    <td className="py-3 px-4 text-sm font-semibold text-right">
-                      {formatAmount(invoiceList[0]?.cheque_amt)}
+                    <td className="py-3 px-4 text-sm text-right">
+                      {formatAmount(totals.totalCheque)}
                     </td>
-                    <td className="py-3 px-4 text-sm font-semibold text-right">
-                      {formatAmount(
-                        parseFloat(invoiceList[0]?.cash_balance || 0) +
-                          parseFloat(invoiceList[0]?.bank_balance || 0) +
-                          parseFloat(invoiceList[0]?.cheque_amt || 0)
-                      )}
+                    <td className="py-3 px-4 text-sm text-right">
+                      {formatAmount(totals.grandTotal)}
                     </td>
                   </tr>
-                </tfoot>
+                </tbody>
               </table>
             </div>
           </div>
-        </div>
-      </div>
-
-      <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-        <div className="text-right">
-          <span className="font-semibold">Total Cheque Amount: </span>
-          <span className="text-green-600 font-bold">
-            {totalChequeAmount?.toLocaleString()}
-          </span>
         </div>
       </div>
     </div>
@@ -343,9 +373,6 @@ const TotalPayments = ({ isVisible }) => {
     setEndDate(end);
   };
 
-  const [selectedReference, setSelectedReference] = useState("all");
-  const [referenceOptions, setReferenceOptions] = useState([]);
-
   return (
     <div>
       <div style={{ padding: "30px", borderRadius: "10px" }}>
@@ -364,20 +391,6 @@ const TotalPayments = ({ isVisible }) => {
 
           {/* Date filter aligned to the right */}
           <div className="flex items-center gap-4">
-            {/* Reference Dropdown */}
-            {/* <select
-              value={selectedReference}
-              onChange={(e) => setSelectedReference(e.target.value)}
-              className="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="all">All Banks</option>
-              {referenceOptions.map((reference, index) => (
-                <option key={index} value={reference}>
-                  {reference}
-                </option>
-              ))}
-            </select> */}
-
             {/* Date Filter Component */}
             <div className="flex items-center bg-green-600 text-white font-semibold text-base h-11 px-4 py-3 rounded-lg">
               <DateFilters2 onDateChange={handleDateChange} />
@@ -392,8 +405,6 @@ const TotalPayments = ({ isVisible }) => {
             handleDateChange={handleDateChange}
             startDate={startDate}
             endDate={endDate}
-            selectedReference={selectedReference}
-            setReferenceOptions={setReferenceOptions}
           />
         </div>
       </div>
