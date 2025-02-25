@@ -104,6 +104,35 @@ const ListServiceTable = ({ startDate, endDate, tableRef }) => {
     }),
   }));
 
+  const SkeletonRow = () => (
+    <tr>
+      <td className="py-3 px-4">
+        <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+      </td>
+      <td className="py-3 px-4">
+        <div className="h-4 bg-gray-200 rounded animate-pulse w-24"></div>
+      </td>
+      <td className="py-3 px-4">
+        <div className="h-4 bg-gray-200 rounded animate-pulse w-40"></div>
+      </td>
+      <td className="py-3 px-4">
+        <div className="h-4 bg-gray-200 rounded animate-pulse w-16"></div>
+      </td>
+      <td className="py-3 px-4">
+        <div className="h-4 bg-gray-200 rounded animate-pulse w-16 ml-auto"></div>
+      </td>
+      <td className="py-3 px-4">
+        <div className="h-4 bg-gray-200 rounded animate-pulse w-16 ml-auto"></div>
+      </td>
+      <td className="py-3 px-4">
+        <div className="h-4 bg-gray-200 rounded animate-pulse w-16 ml-auto"></div>
+      </td>
+      <td className="py-3 px-4">
+        <div className="h-4 bg-gray-200 rounded animate-pulse w-20 ml-auto"></div>
+      </td>
+    </tr>
+  );
+
   return (
     <div className={tableStyles.tableContainer}>
       <div
@@ -123,6 +152,9 @@ const ListServiceTable = ({ startDate, endDate, tableRef }) => {
                 Description
               </th>
               <th className="py-3 px-4 border-b border-gray-200 text-left font-semibold text-sm">
+                Reference
+              </th>
+              <th className="py-3 px-4 border-b border-gray-200 text-left font-semibold text-sm">
                 Type
               </th>
               <th className="py-3 px-4 border-b border-gray-200 text-right font-semibold text-sm">
@@ -140,76 +172,108 @@ const ListServiceTable = ({ startDate, endDate, tableRef }) => {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {invoiceList.map((transaction, index) => {
-              const total =
-                parseFloat(transaction.cash_amt || 0) +
-                parseFloat(transaction.online_amt || 0) +
-                parseFloat(transaction.cheque_amt || 0);
+            {loadingDetails ? (
+              // Skeleton loader rows while loading
+              <>
+                <SkeletonRow />
+                <SkeletonRow />
+                <SkeletonRow />
+                <SkeletonRow />
+                <SkeletonRow />
+              </>
+            ) : (
+              // Actual data rows when loaded
+              invoiceList.map((transaction, index) => {
+                const total =
+                  parseFloat(transaction.cash_amt || 0) +
+                  parseFloat(transaction.online_amt || 0) +
+                  parseFloat(transaction.cheque_amt || 0);
 
-              return (
-                <tr key={transaction.id} className="hover:bg-gray-50">
-                  <td className="py-3 px-4 text-sm">{index + 1}</td>
-                  <td className="py-3 px-4 text-sm">
-                    {formatDate(transaction.created_at)}
-                  </td>
-                  <td className="py-3 px-4 text-sm">
-                    {transaction.description}
-                  </td>
-                  <td className="py-3 px-4 text-sm">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        transaction.entry_type === "cr"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {transaction.entry_type === "cr" ? "Credit" : "Debit"}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4 text-sm text-right">
-                    {transaction.cash_amt !== "0.00" &&
-                      formatAmount(transaction.cash_amt)}
-                  </td>
-                  <td className="py-3 px-4 text-sm text-right">
-                    {transaction.online_amt !== "0.00" &&
-                      formatAmount(transaction.online_amt)}
-                  </td>
-                  <td className="py-3 px-4 text-sm text-right">
-                    {transaction.cheque_amt !== "0.00" && (
-                      <div>
-                        {formatAmount(transaction.cheque_amt)}
-                        {transaction.cheque_no && (
-                          <div className="text-xs text-gray-500">
-                            No: {transaction.cheque_no}
-                            {transaction.cheque_date &&
-                              ` | ${formatDate(transaction.cheque_date)}`}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </td>
-                  <td className="py-3 px-4 text-sm font-medium text-right">
-                    {formatAmount(total)}
-                  </td>
-                </tr>
-              );
-            })}
-            {/* Total Row */}
+                return (
+                  <tr key={transaction.id} className="hover:bg-gray-50">
+                    <td className="py-3 px-4 text-sm">{index + 1}</td>
+                    <td className="py-3 px-4 text-sm">
+                      {formatDate(transaction.created_at)}
+                    </td>
+                    <td className="py-3 px-4 text-sm">
+                      {transaction.description}
+                    </td>
+                    <td className="py-3 px-4 text-sm">
+                      {transaction?.referenceable?.name || "Other Transactions"}
+                    </td>
+                    <td className="py-3 px-4 text-sm">
+                      <span
+                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                          transaction.entry_type === "cr"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {transaction.entry_type === "cr" ? "Credit" : "Debit"}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-sm text-right">
+                      {transaction.cash_amt !== "0.00" &&
+                        formatAmount(transaction.cash_amt)}
+                    </td>
+                    <td className="py-3 px-4 text-sm text-right">
+                      {transaction.online_amt !== "0.00" &&
+                        formatAmount(transaction.online_amt)}
+                    </td>
+                    <td className="py-3 px-4 text-sm text-right">
+                      {transaction.cheque_amt !== "0.00" && (
+                        <div>
+                          {formatAmount(transaction.cheque_amt)}
+                          {transaction.cheque_no && (
+                            <div className="text-xs text-gray-500">
+                              No: {transaction.cheque_no}
+                              {transaction.cheque_date &&
+                                ` | ${formatDate(transaction.cheque_date)}`}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </td>
+                    <td className="py-3 px-4 text-sm font-medium text-right">
+                      {formatAmount(total)}
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+
+            {/* Totals row with skeleton loading state */}
             <tr className="bg-gray-50 font-semibold">
               <td colSpan="4" className="py-3 px-4 text-sm text-right">
                 Total
               </td>
               <td className="py-3 px-4 text-sm text-right">
-                {formatAmount(totals.cashTotal)}
+                {loadingDetails ? (
+                  <div className="h-4 bg-gray-200 rounded animate-pulse w-24 ml-auto"></div>
+                ) : (
+                  <>Cash: {formatAmount(totals.cashTotal)}</>
+                )}
               </td>
               <td className="py-3 px-4 text-sm text-right">
-                {formatAmount(totals.bankTotal)}
+                {loadingDetails ? (
+                  <div className="h-4 bg-gray-200 rounded animate-pulse w-24 ml-auto"></div>
+                ) : (
+                  <>Bank: {formatAmount(totals.bankTotal)}</>
+                )}
               </td>
               <td className="py-3 px-4 text-sm text-right">
-                {formatAmount(totals.chequeTotal)}
+                {loadingDetails ? (
+                  <div className="h-4 bg-gray-200 rounded animate-pulse w-24 ml-auto"></div>
+                ) : (
+                  <>Cheque: {formatAmount(totals.chequeTotal)}</>
+                )}
               </td>
               <td className="py-3 px-4 text-sm font-medium text-right">
-                {formatAmount(totals.grandTotal)}
+                {loadingDetails ? (
+                  <div className="h-4 bg-gray-200 rounded animate-pulse w-32 ml-auto"></div>
+                ) : (
+                  <>Grand Total: {formatAmount(totals.grandTotal)}</>
+                )}
               </td>
             </tr>
           </tbody>

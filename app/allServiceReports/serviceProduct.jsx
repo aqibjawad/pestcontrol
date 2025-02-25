@@ -35,6 +35,9 @@ const ProductReport = () => {
   const [captains, setCaptains] = useState([]);
   const [selectedCaptain, setSelectedCaptain] = useState("all");
 
+  const [firms, setFirms] = useState([]);
+  const [selectedFirm, setSelectedFirm] = useState("all");
+
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
@@ -47,15 +50,26 @@ const ProductReport = () => {
   const handleExport = (type) => {
     if (!filteredContent) return;
 
-    const exportData = filteredContent.map((row, index) => ({
-      "Sr No": index + 1,
-      "Product Name": row.product_name || "N/A",
-      "Captain Name": row.captain_name || "Unknown",
-      "Consumed Quantity": row.total_qty || 0,
-      "Consumed Units": row.consumed_units.toFixed(2) || 0,
-      "Average Price": row.avg_price || 0,
-      "Consumed Amount": calculateUsedPrice(row),
-    }));
+    const exportData = filteredContent.map((row, index) => {
+      const baseData = {
+        "Sr No": index + 1,
+        "Product Name": row.product_name || "N/A",
+        "Captain Name": row.captain_name || "Unknown",
+        "Consumed Quantity": row.total_qty || 0,
+        "Consumed Units": row.consumed_units.toFixed(2) || 0,
+      };
+
+      // Only include price columns if firm is not selected
+      if (selectedFirm === "all") {
+        return {
+          ...baseData,
+          "Average Price": row.avg_price || 0,
+          "Consumed Amount": calculateUsedPrice(row),
+        };
+      }
+
+      return baseData;
+    });
 
     if (type === "pdf") {
       const doc = new jsPDF();
@@ -89,15 +103,27 @@ const ProductReport = () => {
           : `Date: ${format(new Date(), "dd/MM/yyyy")}`;
       doc.text(dateText, 14, 30);
 
-      // Add selected captain
-      const captainText = `Captain: ${
-        selectedCaptain === "all" ? "All Captains" : selectedCaptain
-      }`;
-      doc.text(captainText, 14, 40);
+      // Add selected filters
+      let filterText = "";
+      if (selectedCaptain !== "all") {
+        filterText += `Captain: ${selectedCaptain}`;
+      }
+      if (selectedFirm !== "all") {
+        filterText += filterText
+          ? `, Firm: ${selectedFirm}`
+          : `Firm: ${selectedFirm}`;
+      }
+      if (!filterText) {
+        filterText = "All Data";
+      }
+      doc.text(filterText, 14, 40);
+
+      // Get headers dynamically based on selected firm
+      const headers = Object.keys(exportData[0]);
 
       // Add table
       doc.autoTable({
-        head: [Object.keys(exportData[0])],
+        head: [headers],
         body: exportData.map(Object.values),
         startY: 50,
         theme: "grid",
@@ -107,19 +133,39 @@ const ProductReport = () => {
         },
         headStyles: { fillColor: [22, 163, 74], textColor: 255 },
         didDrawPage: function (data) {
-          // Calculate total
-          const totalConsumedAmount =
-            calculateTotalConsumedAmount(filteredContent);
+          // Only show total if firm is not selected
+          if (selectedFirm === "all") {
+            // Calculate total
+            const totalConsumedAmount =
+              calculateTotalConsumedAmount(filteredContent);
 
-          // Add total row after the table
-          const finalY = data.cursor.y + 10;
-          doc.setFontSize(10);
-          doc.setFont(undefined, "bold");
-          doc.text(`Total Consumed Amount: ${totalConsumedAmount}`, 14, finalY);
+            // Add total row after the table
+            const finalY = data.cursor.y + 10;
+            doc.setFontSize(10);
+            doc.setFont(undefined, "bold");
+            doc.text(
+              `Total Consumed Amount: ${totalConsumedAmount}`,
+              14,
+              finalY
+            );
+          }
         },
       });
 
       doc.save("stock-report.pdf");
+    } else if (type === "excel" || type === "csv") {
+      // Create workbook with filtered data
+      const wb = utils.book_new();
+      const ws = utils.json_to_sheet(exportData);
+      utils.book_append_sheet(wb, ws, "Stock Report");
+
+      // For Excel format
+      if (type === "excel") {
+        write(wb, "stock-report.xlsx");
+      } else {
+        // For CSV format
+        write(wb, "stock-report.csv");
+      }
     }
   };
 
@@ -162,17 +208,26 @@ const ProductReport = () => {
       });
       setCaptains(Array.from(uniqueCaptains));
 
+      const uniqueFirms = new Set();
+      response.data.forEach((report) => {
+        if (report.job?.user?.client?.firm_name) {
+          uniqueFirms.add(report.job.user.client.firm_name);
+        }
+      });
+      setFirms(Array.from(uniqueFirms));
+
       // Extract all used_products from all service reports
       const allProducts = [];
       if (response?.data && Array.isArray(response.data)) {
         response.data.forEach((report) => {
           if (report.used_products && Array.isArray(report.used_products)) {
-            // Add captain information to each product
-            const productsWithCaptain = report.used_products.map((product) => ({
+            // Add captain and firm information to each product
+            const productsWithInfo = report.used_products.map((product) => ({
               ...product,
               captain_name: report.job?.captain?.name || "Unknown",
+              firm_name: report.job?.user?.client?.firm_name || "Unknown",
             }));
-            allProducts.push(...productsWithCaptain);
+            allProducts.push(...productsWithInfo);
           }
         });
       }
@@ -190,6 +245,8 @@ const ProductReport = () => {
       const productMap = new Map();
       data.forEach((report) => {
         const captainName = report.job?.captain?.name || "Unknown";
+        const firmName = report.job?.user?.client?.firm_name || "Unknown";
+
         report.used_products.forEach((usedProduct) => {
           const {
             product_id,
@@ -208,6 +265,7 @@ const ProductReport = () => {
               total_qty: 0,
               consumed_units: 0,
               captain_name: captainName,
+              firm_name: firmName,
             });
           }
 
@@ -225,18 +283,30 @@ const ProductReport = () => {
 
   useEffect(() => {
     if (mappedContent) {
-      const filtered =
-        selectedCaptain === "all"
-          ? mappedContent
-          : mappedContent.filter(
-              (item) => item.captain_name === selectedCaptain
-            );
+      let filtered = mappedContent;
+
+      // Filter by captain if selected
+      if (selectedCaptain !== "all") {
+        filtered = filtered.filter(
+          (item) => item.captain_name === selectedCaptain
+        );
+      }
+
+      // Filter by firm if selected
+      if (selectedFirm !== "all") {
+        filtered = filtered.filter((item) => item.firm_name === selectedFirm);
+      }
+
       setFilteredContent(filtered);
     }
-  }, [selectedCaptain, mappedContent]);
+  }, [selectedCaptain, selectedFirm, mappedContent]);
 
   const handleCaptainChange = (event) => {
     setSelectedCaptain(event.target.value);
+  };
+
+  const handleFirmChange = (event) => {
+    setSelectedFirm(event.target.value);
   };
 
   const calculateUsedPrice = (item) => {
@@ -260,14 +330,21 @@ const ProductReport = () => {
               <TableCell>Captain Name</TableCell>
               <TableCell>Consumed Quantity</TableCell>
               <TableCell>Consumed Units</TableCell>
-              <TableCell>Average Price</TableCell>
-              <TableCell>Consumed Amount</TableCell>
+              {selectedFirm === "all" && (
+                <>
+                  <TableCell>Average Price</TableCell>
+                  <TableCell>Consumed Amount</TableCell>
+                </>
+              )}
             </TableRow>
           </TableHead>
           <TableBody>
             {fetchingData ? (
               <TableRow>
-                <TableCell colSpan={7} style={{ textAlign: "center" }}>
+                <TableCell
+                  colSpan={selectedFirm === "all" ? 7 : 5}
+                  style={{ textAlign: "center" }}
+                >
                   <CircularProgress />
                 </TableCell>
               </TableRow>
@@ -279,10 +356,28 @@ const ProductReport = () => {
                   <TableCell>{row?.captain_name || "Unknown"}</TableCell>
                   <TableCell>{row.total_qty || 0}</TableCell>
                   <TableCell>{row.consumed_units.toFixed(2) || 0}</TableCell>
-                  <TableCell>{row?.avg_price || 0}</TableCell>
-                  <TableCell>{calculateUsedPrice(row)}</TableCell>
+                  {selectedFirm === "all" && (
+                    <>
+                      <TableCell>{row?.avg_price || 0}</TableCell>
+                      <TableCell>{calculateUsedPrice(row)}</TableCell>
+                    </>
+                  )}
                 </TableRow>
               ))
+            )}
+            {selectedFirm === "all" && filteredContent?.length > 0 && (
+              <TableRow>
+                <TableCell
+                  colSpan={5}
+                  align="right"
+                  style={{ fontWeight: "bold" }}
+                >
+                  Total Consumed Amount:
+                </TableCell>
+                <TableCell colSpan={2} style={{ fontWeight: "bold" }}>
+                  {calculateTotalConsumedAmount(filteredContent)}
+                </TableCell>
+              </TableRow>
             )}
           </TableBody>
         </Table>
@@ -317,6 +412,22 @@ const ProductReport = () => {
               {captains.map((captain) => (
                 <MenuItem key={captain} value={captain}>
                   {captain}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControl sx={{ minWidth: 200 }}>
+            <InputLabel>Filter by Firm</InputLabel>
+            <Select
+              value={selectedFirm}
+              onChange={handleFirmChange}
+              label="Filter by Firm"
+            >
+              <MenuItem value="all">All Firms</MenuItem>
+              {firms.map((firm) => (
+                <MenuItem key={firm} value={firm}>
+                  {firm}
                 </MenuItem>
               ))}
             </Select>
@@ -357,6 +468,8 @@ const ProductReport = () => {
                 paddingLeft: "16px",
                 paddingRight: "16px",
                 borderRadius: "10px",
+                display: "flex",
+                alignItems: "center",
               }}
             >
               <DateFilters onDateChange={handleDateChange} />

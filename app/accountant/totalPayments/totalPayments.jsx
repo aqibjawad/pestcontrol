@@ -6,7 +6,7 @@ import { company } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
 import { Skeleton } from "@mui/material";
 import { AppHelpers } from "@/Helper/AppHelpers";
-import DateFilters2 from "@/components/generic/DateFilters2";
+import DateFilters from "@/components/generic/DateFilters";
 import { startOfMonth, endOfMonth, format } from "date-fns";
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
@@ -54,11 +54,13 @@ const ListServiceTable = ({ startDate, endDate }) => {
       queryParams.push(`start_date=${startDate}`);
       queryParams.push(`end_date=${endDate}`);
     } else {
-      const currentDate = new Date();
-      const startDate = startOfMonth(currentDate);
-      const endDate = endOfMonth(currentDate);
-      queryParams.push(`start_date=${format(startDate, "yyyy-MM-dd")}`);
-      queryParams.push(`end_date=${format(endDate, "yyyy-MM-dd")}`);
+      // Instead of using startOfMonth and endOfMonth
+      const today = new Date();
+      const formattedToday = format(today, "yyyy-MM-dd");
+
+      // Set both start and end dates to today
+      queryParams.push(`start_date=${formattedToday}`);
+      queryParams.push(`end_date=${formattedToday}`);
     }
 
     // Remove pagination limit to get all items
@@ -98,28 +100,52 @@ const ListServiceTable = ({ startDate, endDate }) => {
 
   // Generate PDF from table data
   const generatePDF = () => {
+    if (!invoiceList) return;
+
     try {
       const doc = new jsPDF();
-  
-      // Define logoData
-      const logoData = null; // Replace with your actual logo data source or pass it as a parameter
-      
-      // Add logo on the right side
-      if (logoData) {
-        doc.addImage(logoData, "PNG", 150, 10, 40, 15);
+
+      // Add logo
+      const logoWidth = 45;
+      const logoHeight = 30;
+      const logoX = 15;
+      const logoY = 15;
+      doc.addImage("/logo.jpeg", "PNG", logoX, logoY, logoWidth, logoHeight);
+
+      // Page width calculation
+      const pageWidth = doc.internal.pageSize.width;
+
+      // Add details on the right
+      const detailsX = pageWidth - 80;
+      const detailsY = logoY + 5;
+      const lineHeight = 6;
+
+      // Add title and details on right side
+      doc.setFontSize(13);
+      doc.text("Total Payments Report", detailsX, detailsY, { align: "left" });
+
+      doc.setFontSize(11);
+      // You can add more details here if needed
+      doc.text(
+        `Generated: ${formatDate(new Date())}`,
+        detailsX,
+        detailsY + lineHeight,
+        { align: "left" }
+      );
+
+      // Add date range if present
+      if (startDate && endDate) {
+        doc.text(
+          `Date Range: ${formatDate(startDate)} - ${formatDate(endDate)}`,
+          15,
+          60
+        );
       }
-  
-      // Add title
-      doc.setFontSize(16);
-      doc.text("Total Payments Report", 14, 15);
-  
-      // Add date range
-      doc.setFontSize(10);
-      const dateRangeText = `Date Range: ${formatDate(startDate)} to ${formatDate(
-        endDate
-      )}`;
-      doc.text(dateRangeText, 14, 25);
-  
+
+      // Add main title
+      doc.setFontSize(18);
+      doc.text("Total Payments Report", 15, 70);
+
       // Create table data structure for PDF
       const tableData = invoiceList.map((transaction, index) => {
         const total =
@@ -143,7 +169,7 @@ const ListServiceTable = ({ startDate, endDate }) => {
           formatAmount(total),
         ];
       });
-  
+
       // Add summary row
       tableData.push([
         "",
@@ -155,8 +181,8 @@ const ListServiceTable = ({ startDate, endDate }) => {
         formatAmount(totals.totalCheque),
         formatAmount(totals.grandTotal),
       ]);
-  
-      // Generate the table in PDF
+
+      // Generate table
       doc.autoTable({
         head: [
           [
@@ -171,17 +197,17 @@ const ListServiceTable = ({ startDate, endDate }) => {
           ],
         ],
         body: tableData,
-        startY: 30,
+        startY: 80,
         styles: { fontSize: 8 },
-        headStyles: { fillColor: [76, 175, 80] },
+        headStyles: { fillColor: [22, 163, 74], textColor: 255 },
         footStyles: { fillColor: [240, 240, 240] },
-        alternateRowStyles: { fillColor: [240, 240, 240] },
+        alternateRowStyles: { fillColor: [245, 245, 245] },
       });
-      
+
       doc.save("total_payments_report.pdf");
     } catch (error) {
       console.error("Error generating PDF:", error);
-      // Handle the error appropriately (show user message, etc.)
+      // You could add error handling here, such as displaying a notification
     }
   };
 
@@ -221,122 +247,131 @@ const ListServiceTable = ({ startDate, endDate }) => {
         >
           <div className="relative">
             <div className="overflow-x-auto">
-              <table ref={tableRef} className="w-full bg-white">
-                <thead className="bg-gray-100 sticky top-0 z-10">
-                  <tr>
-                    <th className="py-3 px-4 border-b border-gray-200 text-left font-semibold text-sm">
-                      Sr.
-                    </th>
-                    <th className="py-3 px-4 border-b border-gray-200 text-left font-semibold text-sm">
-                      Date
-                    </th>
-                    <th className="py-3 px-4 border-b border-gray-200 text-left font-semibold text-sm">
-                      Description
-                    </th>
-                    <th className="py-3 px-4 border-b border-gray-200 text-left font-semibold text-sm">
-                      Reference
-                    </th>
-                    <th className="py-3 px-4 border-b border-gray-200 text-left font-semibold text-sm">
-                      Type
-                    </th>
-                    <th className="py-3 px-4 border-b border-gray-200 text-right font-semibold text-sm">
-                      Cash Amount
-                    </th>
-                    <th className="py-3 px-4 border-b border-gray-200 text-right font-semibold text-sm">
-                      Bank Amount
-                    </th>
-                    <th className="py-3 px-4 border-b border-gray-200 text-right font-semibold text-sm">
-                      Cheque Amount
-                    </th>
-                    <th className="py-3 px-4 border-b border-gray-200 text-right font-semibold text-sm">
-                      Total
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {invoiceList.map((transaction, index) => {
-                    const total =
-                      parseFloat(transaction.cash_amt || 0) +
-                      parseFloat(transaction.online_amt || 0) +
-                      parseFloat(transaction.cheque_amt || 0);
+              {loadingDetails ? (
+                <div className="flex justify-center items-center h-64">
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                  <span className="ml-3 text-gray-600">Loading data...</span>
+                </div>
+              ) : (
+                <table ref={tableRef} className="w-full bg-white">
+                  <thead className="bg-gray-100 sticky top-0 z-10">
+                    <tr>
+                      <th className="py-3 px-4 border-b border-gray-200 text-left font-semibold text-sm">
+                        Sr.
+                      </th>
+                      <th className="py-3 px-4 border-b border-gray-200 text-left font-semibold text-sm">
+                        Date
+                      </th>
+                      <th className="py-3 px-4 border-b border-gray-200 text-left font-semibold text-sm">
+                        Description
+                      </th>
+                      <th className="py-3 px-4 border-b border-gray-200 text-left font-semibold text-sm">
+                        Reference
+                      </th>
+                      <th className="py-3 px-4 border-b border-gray-200 text-left font-semibold text-sm">
+                        Type
+                      </th>
+                      <th className="py-3 px-4 border-b border-gray-200 text-right font-semibold text-sm">
+                        Cash Amount
+                      </th>
+                      <th className="py-3 px-4 border-b border-gray-200 text-right font-semibold text-sm">
+                        Bank Amount
+                      </th>
+                      <th className="py-3 px-4 border-b border-gray-200 text-right font-semibold text-sm">
+                        Cheque Amount
+                      </th>
+                      <th className="py-3 px-4 border-b border-gray-200 text-right font-semibold text-sm">
+                        Total
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {invoiceList.map((transaction, index) => {
+                      const total =
+                        parseFloat(transaction.cash_amt || 0) +
+                        parseFloat(transaction.online_amt || 0) +
+                        parseFloat(transaction.cheque_amt || 0);
 
-                    return (
-                      <tr key={transaction.id} className="hover:bg-gray-50">
-                        <td className="py-3 px-4 text-sm">{index + 1}</td>
-                        <td className="py-3 px-4 text-sm">
-                          {formatDate(transaction.created_at)}
-                        </td>
-                        <td className="py-3 px-4 text-sm">
-                          {transaction.description}
-                        </td>
-                        <td className="py-3 px-4 text-sm">
-                          {transaction?.referenceable?.expense_name ||
-                            transaction?.referenceable?.name ||
-                            transaction?.referenceable?.supplier_name ||
-                            "other Payments"}
-                        </td>
-                        <td className="py-3 px-4 text-sm">
-                          <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                              transaction.entry_type === "cr"
-                                ? "bg-green-100 text-green-800"
-                                : "bg-red-100 text-red-800"
-                            }`}
-                          >
-                            {transaction.entry_type === "cr"
-                              ? "Credit"
-                              : "Debit"}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-sm text-right">
-                          {transaction.cash_amt !== "0.00" &&
-                            formatAmount(transaction.cash_amt)}
-                        </td>
-                        <td className="py-3 px-4 text-sm text-right">
-                          {transaction.online_amt !== "0.00" &&
-                            formatAmount(transaction.online_amt)}
-                        </td>
-                        <td className="py-3 px-4 text-sm text-right">
-                          {transaction.cheque_amt !== "0.00" && (
-                            <div>
-                              {formatAmount(transaction.cheque_amt)}
-                              {transaction.cheque_no && (
-                                <div className="text-xs text-gray-500">
-                                  No: {transaction.cheque_no}
-                                  {transaction.cheque_date &&
-                                    ` | ${formatDate(transaction.cheque_date)}`}
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </td>
-                        <td className="py-3 px-4 text-sm font-medium text-right">
-                          {formatAmount(total)}
-                        </td>
-                      </tr>
-                    );
-                  })}
+                      return (
+                        <tr key={transaction.id} className="hover:bg-gray-50">
+                          <td className="py-3 px-4 text-sm">{index + 1}</td>
+                          <td className="py-3 px-4 text-sm">
+                            {formatDate(transaction.created_at)}
+                          </td>
+                          <td className="py-3 px-4 text-sm">
+                            {transaction.description}
+                          </td>
+                          <td className="py-3 px-4 text-sm">
+                            {transaction?.referenceable?.expense_name ||
+                              transaction?.referenceable?.name ||
+                              transaction?.referenceable?.supplier_name ||
+                              "other Payments"}
+                          </td>
+                          <td className="py-3 px-4 text-sm">
+                            <span
+                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                transaction.entry_type === "cr"
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-red-100 text-red-800"
+                              }`}
+                            >
+                              {transaction.entry_type === "cr"
+                                ? "Credit"
+                                : "Debit"}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-sm text-right">
+                            {transaction.cash_amt !== "0.00" &&
+                              formatAmount(transaction.cash_amt)}
+                          </td>
+                          <td className="py-3 px-4 text-sm text-right">
+                            {transaction.online_amt !== "0.00" &&
+                              formatAmount(transaction.online_amt)}
+                          </td>
+                          <td className="py-3 px-4 text-sm text-right">
+                            {transaction.cheque_amt !== "0.00" && (
+                              <div>
+                                {formatAmount(transaction.cheque_amt)}
+                                {transaction.cheque_no && (
+                                  <div className="text-xs text-gray-500">
+                                    No: {transaction.cheque_no}
+                                    {transaction.cheque_date &&
+                                      ` | ${formatDate(
+                                        transaction.cheque_date
+                                      )}`}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </td>
+                          <td className="py-3 px-4 text-sm font-medium text-right">
+                            {formatAmount(total)}
+                          </td>
+                        </tr>
+                      );
+                    })}
 
-                  {/* Summary row */}
-                  <tr className="bg-gray-100 font-bold">
-                    <td colSpan="4" className="py-3 px-4 text-sm text-right">
-                      TOTAL
-                    </td>
-                    <td className="py-3 px-4 text-sm text-right">
-                      {formatAmount(totals.totalCash)}
-                    </td>
-                    <td className="py-3 px-4 text-sm text-right">
-                      {formatAmount(totals.totalBank)}
-                    </td>
-                    <td className="py-3 px-4 text-sm text-right">
-                      {formatAmount(totals.totalCheque)}
-                    </td>
-                    <td className="py-3 px-4 text-sm text-right">
-                      {formatAmount(totals.grandTotal)}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                    {/* Summary row */}
+                    <tr className="bg-gray-100 font-bold">
+                      <td colSpan="4" className="py-3 px-4 text-sm text-right">
+                        TOTAL
+                      </td>
+                      <td className="py-3 px-4 text-sm text-right">
+                        Cash: {formatAmount(totals.totalCash)}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-right">
+                        Bank: {formatAmount(totals.totalBank)}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-right">
+                        Cheque: {formatAmount(totals.totalCheque)}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-right">
+                        Grand Total: {formatAmount(totals.grandTotal)}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              )}
             </div>
           </div>
         </div>
@@ -393,7 +428,7 @@ const TotalPayments = ({ isVisible }) => {
           <div className="flex items-center gap-4">
             {/* Date Filter Component */}
             <div className="flex items-center bg-green-600 text-white font-semibold text-base h-11 px-4 py-3 rounded-lg">
-              <DateFilters2 onDateChange={handleDateChange} />
+              <DateFilters onDateChange={handleDateChange} />
             </div>
           </div>
         </div>
