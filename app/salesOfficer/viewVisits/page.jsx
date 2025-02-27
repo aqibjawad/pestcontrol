@@ -27,6 +27,7 @@ import DateFilters from "@/components/generic/DateFilters";
 import { format } from "date-fns";
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
+import MapIcon from "@mui/icons-material/Map";
 
 const Page = () => {
   const api = new APICall();
@@ -202,6 +203,26 @@ const Page = () => {
     );
   };
 
+  // Function to open map in new tab
+  const openMapInNewTab = (item) => {
+    // Check if the item has valid latitude and longitude
+    const hasValidCoordinates =
+      item.latitude !== "null" &&
+      item.longitude !== "null" &&
+      item.latitude !== null &&
+      item.longitude !== null;
+
+    if (hasValidCoordinates) {
+      // Create Google Maps URL with the coordinates
+      const mapUrl = `https://www.google.com/maps?q=${item.latitude},${item.longitude}`;
+      // Open the URL in a new tab
+      window.open(mapUrl, "_blank");
+    } else {
+      // Alert if coordinates are not available
+      alert("Location coordinates are not available for this visit.");
+    }
+  };
+
   return (
     <div className="p-4">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
@@ -253,6 +274,9 @@ const Page = () => {
                   <b>Contract End Date</b>
                 </TableCell>
                 <TableCell style={{ color: "white" }}>
+                  <b>Location</b>
+                </TableCell>
+                <TableCell style={{ color: "white" }}>
                   <b>Image</b>
                 </TableCell>
               </TableRow>
@@ -273,6 +297,12 @@ const Page = () => {
                     </TableCell>
                     <TableCell>
                       {item.current_contract_end_date || "N/A"}
+                    </TableCell>
+                    <TableCell>
+                      <MapIcon
+                        className="cursor-pointer text-blue-600"
+                        onClick={() => openMapInNewTab(item)}
+                      />
                     </TableCell>
                     <TableCell>
                       {item.images?.length > 0 ? (
@@ -301,7 +331,7 @@ const Page = () => {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={8} align="center">
+                  <TableCell colSpan={9} align="center">
                     No Data Available
                   </TableCell>
                 </TableRow>

@@ -9,6 +9,7 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Skeleton,
 } from "@mui/material";
 
 import MonthPicker from "../../hr/monthPicker";
@@ -22,7 +23,7 @@ const Sales = () => {
   const api = new APICall();
 
   const [salesData, setSalesData] = useState([]);
-  const [fetchingData, setFetchingData] = useState(false);
+  const [fetchingData, setFetchingData] = useState(true);
 
   const getAllEmployees = async () => {
     setFetchingData(true);
@@ -45,47 +46,86 @@ const Sales = () => {
     getAllEmployees();
   }, []);
 
+  // Skeleton loader rows
+  const renderSkeletonRows = () => {
+    return Array(5)
+      .fill(0)
+      .map((_, index) => (
+        <TableRow key={`skeleton-${index}`}>
+          <TableCell>
+            <Skeleton animation="wave" />
+          </TableCell>
+          <TableCell>
+            <Skeleton animation="wave" />
+          </TableCell>
+          <TableCell>
+            <Skeleton animation="wave" />
+          </TableCell>
+          <TableCell>
+            <Skeleton animation="wave" />
+          </TableCell>
+          <TableCell>
+            <Skeleton animation="wave" />
+          </TableCell>
+          <TableCell>
+            <Skeleton animation="wave" width={80} />
+          </TableCell>
+        </TableRow>
+      ));
+  };
+
   return (
     <div>
       <div className="pageTitle">Sales Man Target</div>
       {/* <MonthPicker onDateChange={handleDateChange} /> */}
-      <TableContainer component={Paper}>
+      <TableContainer className="mt-5" component={Paper}>
         <Table>
-          <TableHead>
+          <TableHead style={{ backgroundColor: "#4CAF50" }}>
             <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Salesman Name</TableCell>
-              <TableCell>Target</TableCell>
-              <TableCell>Achieved Target</TableCell>
-              <TableCell>Remaining Target</TableCell>
-              <TableCell>View Visits</TableCell>
+              <TableCell style={{ color: "white" }}>ID</TableCell>
+              <TableCell style={{ color: "white" }}>Salesman Name</TableCell>
+              <TableCell style={{ color: "white" }}>Target</TableCell>
+              <TableCell style={{ color: "white" }}>Achieved Target</TableCell>
+              <TableCell style={{ color: "white" }}> Target % </TableCell>
+              <TableCell style={{ color: "white" }}>Remaining Target</TableCell>
+              <TableCell style={{ color: "white" }}>View Visits</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {salesData.map((row, index) => (
-              <TableRow key={index}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>{row.name}</TableCell>
-                <TableCell>
-                  {row?.emp_contract_targets[0]?.base_target}
-                </TableCell>
-                <TableCell>
-                  {row?.emp_contract_targets[0]?.achieved_target}
-                </TableCell>
-                <TableCell>
-                  {row?.emp_contract_targets[0]?.remaining_target}
-                </TableCell>
-                <TableCell>
-                  <Link
-                    href={`/salesOfficer/viewVisits?id=${
-                      row?.id
-                    }&name=${encodeURIComponent(row?.name)}`}
-                  >
-                    View Visits
-                  </Link>
-                </TableCell>
-              </TableRow>
-            ))}
+            {fetchingData
+              ? renderSkeletonRows()
+              : salesData.map((row, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>{row.name}</TableCell>
+                    <TableCell>
+                      {row?.emp_contract_targets[0]?.base_target}
+                    </TableCell>
+                    <TableCell>
+                      {row?.emp_contract_targets[0]?.achieved_target}
+                    </TableCell>
+                    <TableCell>
+                      {(
+                        (row?.emp_contract_targets[0]?.achieved_target /
+                          row?.emp_contract_targets[0]?.base_target) *
+                        100
+                      )?.toFixed(2)}
+                    </TableCell>
+
+                    <TableCell>
+                      {row?.emp_contract_targets[0]?.remaining_target}
+                    </TableCell>
+                    <TableCell>
+                      <Link
+                        href={`/salesOfficer/viewVisits?id=${
+                          row?.id
+                        }&name=${encodeURIComponent(row?.name)}`}
+                      >
+                        View Visits
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                ))}
           </TableBody>
         </Table>
       </TableContainer>

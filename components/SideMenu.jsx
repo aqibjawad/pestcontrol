@@ -90,6 +90,7 @@ export default function SideMenu({ children }) {
     { name: "Recoveries", url: "recovery/details/", icon: <MdOutlineQueryStats /> },
     { name: "Invoice Promises", url: "recovery/promises/", icon: <MdOutlineQueryStats /> },
     { name: "HR", url: "hr/hr", icon: "/hr.png" },
+    { name: "Sales Officer", url: "salesOfficer/dashboard", icon: "/hr.png" },
     { name: "Employee Ledger", url: "hr/employeeLedger", icon: "/hr.png" },
     {
       name: "Financial Report",
