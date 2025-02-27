@@ -29,8 +29,9 @@ const PersonalInformation = ({
 
   const roles = [
     { label: "HR-Manager", value: 2 },
-    { label: "Sales-Manager", value: 3 },
-    { label: "Office Staff", value: 8 },
+    { label: "Sales-Manager", value: 8 },
+    { label: "Sales-Officer", value: 9 },
+    // { label: "Office Staff", value: 8 },
     { label: "Operations", value: 4 },
     { label: "Accountant", value: 6 },
     { label: "Recovey Officer", value: 7 },
@@ -147,15 +148,29 @@ const PersonalInformation = ({
               onChange={(name, value) => onChange("email", value)}
             />
           </Grid>
-          {data.role_id === "4" && (
+          {data.role_id === "4" ||
+            (data.role_id === "9" && (
+              <Grid item lg={6} xs={12} md={6}>
+                <InputWithTitle2
+                  title="Sales Target"
+                  type="text"
+                  placeholder="Target"
+                  name="target"
+                  value={data.target}
+                  onChange={(name, value) => onChange("target", value)}
+                />
+              </Grid>
+            ))}
+
+          {data.role_id === "9" && (
             <Grid item lg={6} xs={12} md={6}>
               <InputWithTitle2
-                title="Sales Target"
+                title="Contract Target"
                 type="text"
-                placeholder="Target"
+                placeholder="Contract Target"
                 name="target"
-                value={data.target}
-                onChange={(name, value) => onChange("target", value)}
+                value={data.contract_target}
+                onChange={(name, value) => onChange("contract_target", value)}
               />
             </Grid>
           )}

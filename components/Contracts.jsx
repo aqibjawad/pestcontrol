@@ -135,6 +135,8 @@ const Contracts = () => {
                   Customer
                 </TableSortLabel>
               </TableCell>
+              <TableCell>Total Jobs</TableCell>
+              <TableCell>Completed Jobs</TableCell>
               <TableCell>Billing Method</TableCell>
               <TableCell>Quote Title</TableCell>
               <TableCell>Treatment Method Name</TableCell>
@@ -174,6 +176,8 @@ const Contracts = () => {
                 <TableRow key={row.id || index} hover>
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{row?.user?.name}</TableCell>
+                  <TableCell>{row?.jobs[0]?.total_jobs}</TableCell>
+                  <TableCell>{row?.jobs?.length}</TableCell>
                   <TableCell>{row.billing_method}</TableCell>
                   <TableCell>{row.quote_title}</TableCell>
                   <TableCell>

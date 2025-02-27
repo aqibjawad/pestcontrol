@@ -427,7 +427,7 @@ const TotalPayments = ({ isVisible }) => {
           {/* Date filter aligned to the right */}
           <div className="flex items-center gap-4">
             {/* Date Filter Component */}
-            <div className="flex items-center bg-green-600 text-white font-semibold text-base h-11 px-4 py-3 rounded-lg">
+            <div className="bg-green-600 text-white font-semibold text-base h-11 px-4 flex items-center rounded-lg">
               <DateFilters onDateChange={handleDateChange} />
             </div>
           </div>

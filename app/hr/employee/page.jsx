@@ -46,7 +46,8 @@ const Page = () => {
     country: "",
     branch_id: "",
     joining_date:"",
-    remaining_off_days: ""
+    remaining_off_days: "",
+    contract_target: "",
   });
 
   const [errors, setErrors] = useState({

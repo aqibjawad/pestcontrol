@@ -251,7 +251,7 @@ const IpmPdf = () => {
               sx={{ textAlign: "center", maxWidth: "600px" }}
             >
               Thank you for choosing Accurate Pest Control. We appreciate your
-              trust in our services. For any queries or assistance, please don't
+              trust in our services. For any queries or assistance, please dont
               hesitate to contact us.
             </Typography>
             <img

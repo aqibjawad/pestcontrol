@@ -4,9 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
 import { company } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
-import { Skeleton } from "@mui/material";
-import { AppHelpers } from "@/Helper/AppHelpers";
-import DateFilters2 from "@/components/generic/DateFilters2";
+import DateFilters from "@/components/generic/DateFilters";
 import { startOfMonth, endOfMonth, format } from "date-fns";
 import { Download } from "lucide-react";
 import jsPDF from "jspdf";
@@ -24,6 +22,37 @@ const ListServiceTable = ({ startDate, endDate, tableRef }) => {
     grandTotal: 0,
   });
 
+  // const getAllCheques = async () => {
+  //   setFetchingData(true);
+  //   setLoadingDetails(true);
+
+  //   const queryParams = [];
+  //   if (startDate && endDate) {
+  //     queryParams.push(`start_date=${startDate}`);
+  //     queryParams.push(`end_date=${endDate}`);
+  //   } else {
+  //     const currentDate = new Date();
+  //     const startDate = startOfMonth(currentDate);
+  //     const endDate = endOfMonth(currentDate);
+  //     queryParams.push(`start_date=${format(startDate, "yyyy-MM-dd")}`);
+  //     queryParams.push(`end_date=${format(endDate, "yyyy-MM-dd")}`);
+  //   }
+
+  //   try {
+  //     const response = await api.getDataWithToken(
+  //       `${company}/receives/get?${queryParams.join("&")}`
+  //     );
+
+  //     setQuoteList(response.data);
+  //     calculateTotals(response.data);
+  //   } catch (error) {
+  //     console.error("Error fetching quotes:", error);
+  //   } finally {
+  //     setFetchingData(false);
+  //     setLoadingDetails(false);
+  //   }
+  // };
+
   const getAllCheques = async () => {
     setFetchingData(true);
     setLoadingDetails(true);
@@ -33,12 +62,17 @@ const ListServiceTable = ({ startDate, endDate, tableRef }) => {
       queryParams.push(`start_date=${startDate}`);
       queryParams.push(`end_date=${endDate}`);
     } else {
-      const currentDate = new Date();
-      const startDate = startOfMonth(currentDate);
-      const endDate = endOfMonth(currentDate);
-      queryParams.push(`start_date=${format(startDate, "yyyy-MM-dd")}`);
-      queryParams.push(`end_date=${format(endDate, "yyyy-MM-dd")}`);
+      // Instead of using startOfMonth and endOfMonth
+      const today = new Date();
+      const formattedToday = format(today, "yyyy-MM-dd");
+
+      // Set both start and end dates to today
+      queryParams.push(`start_date=${formattedToday}`);
+      queryParams.push(`end_date=${formattedToday}`);
     }
+
+    // Remove pagination limit to get all items
+    queryParams.push("limit=1000");
 
     try {
       const response = await api.getDataWithToken(
@@ -46,7 +80,6 @@ const ListServiceTable = ({ startDate, endDate, tableRef }) => {
       );
 
       setQuoteList(response.data);
-      calculateTotals(response.data);
     } catch (error) {
       console.error("Error fetching quotes:", error);
     } finally {
@@ -94,7 +127,6 @@ const ListServiceTable = ({ startDate, endDate, tableRef }) => {
     return new Date(dateString).toLocaleDateString("en-IN");
   };
 
-  // Expose the table data and formatting functions through the ref
   React.useImperativeHandle(tableRef, () => ({
     getData: () => ({
       invoiceList,
@@ -244,7 +276,7 @@ const ListServiceTable = ({ startDate, endDate, tableRef }) => {
 
             {/* Totals row with skeleton loading state */}
             <tr className="bg-gray-50 font-semibold">
-              <td colSpan="4" className="py-3 px-4 text-sm text-right">
+              <td colSpan="5" className="py-3 px-4 text-sm text-right">
                 Total
               </td>
               <td className="py-3 px-4 text-sm text-right">
@@ -312,77 +344,125 @@ const TotalRecieves = ({ isVisible }) => {
     setEndDate(end);
   };
 
+  // Generate PDF from table data
   const downloadPDF = () => {
+    // Get data from table component using ref
     if (!tableRef.current) return;
 
     const { invoiceList, totals, formatAmount, formatDate } =
       tableRef.current.getData();
 
-    const doc = new jsPDF();
+    if (!invoiceList || invoiceList.length === 0) {
+      console.warn("No data available to generate PDF");
+      return;
+    }
 
-    // Add title
-    doc.setFontSize(16);
-    doc.text("Total Receives Report", 14, 15);
+    try {
+      const doc = new jsPDF();
 
-    // Add date range
-    doc.setFontSize(10);
-    doc.text(
-      `Date Range: ${startDate || "N/A"} to ${endDate || "N/A"}`,
-      14,
-      25
-    );
+      // Add logo
+      const logoWidth = 45;
+      const logoHeight = 30;
+      const logoX = 15;
+      const logoY = 15;
+      doc.addImage("/logo.jpeg", "PNG", logoX, logoY, logoWidth, logoHeight);
 
-    const tableColumns = [
-      "Sr.",
-      "Date",
-      "Description",
-      "Type",
-      "Cash Amount",
-      "Bank Amount",
-      "Cheque Amount",
-      "Total",
-    ];
+      // Page width calculation
+      const pageWidth = doc.internal.pageSize.width;
 
-    const tableData = invoiceList.map((transaction, index) => {
-      const total =
-        parseFloat(transaction.cash_amt || 0) +
-        parseFloat(transaction.online_amt || 0) +
-        parseFloat(transaction.cheque_amt || 0);
+      // Add details on the right
+      const detailsX = pageWidth - 80;
+      const detailsY = logoY + 5;
+      const lineHeight = 6;
 
-      return [
-        index + 1,
-        formatDate(transaction.created_at),
-        transaction.description,
-        transaction.entry_type === "cr" ? "Credit" : "Debit",
-        formatAmount(transaction.cash_amt),
-        formatAmount(transaction.online_amt),
-        formatAmount(transaction.cheque_amt),
-        formatAmount(total),
-      ];
-    });
+      // Add title and details on right side
+      doc.setFontSize(13);
+      doc.text("Total Receives Report", detailsX, detailsY, { align: "left" });
 
-    // Add total row
-    tableData.push([
-      "",
-      "",
-      "Total",
-      "",
-      formatAmount(totals.cashTotal),
-      formatAmount(totals.bankTotal),
-      formatAmount(totals.chequeTotal),
-      formatAmount(totals.grandTotal),
-    ]);
+      doc.setFontSize(11);
+      doc.text(
+        `Generated: ${formatDate(new Date())}`,
+        detailsX,
+        detailsY + lineHeight,
+        { align: "left" }
+      );
 
-    doc.autoTable({
-      head: [tableColumns],
-      body: tableData,
-      startY: 35,
-      styles: { fontSize: 8 },
-      headStyles: { fillColor: [76, 175, 80] },
-      footStyles: { fillColor: [240, 240, 240] },
-    });
+      // Add date range if present
+      if (startDate && endDate) {
+        doc.text(
+          `Date Range: ${formatDate(startDate)} - ${formatDate(endDate)}`,
+          15,
+          60
+        );
+      }
 
-    doc.save("total-receives-report.pdf");
+      // Add main title
+      doc.setFontSize(18);
+      doc.text("Total Receives Report", 15, 70);
+
+      // Create table data structure for PDF
+      const tableData = invoiceList.map((transaction, index) => {
+        const total =
+          parseFloat(transaction.cash_amt || 0) +
+          parseFloat(transaction.online_amt || 0) +
+          parseFloat(transaction.cheque_amt || 0);
+        return [
+          index + 1,
+          formatDate(transaction.created_at),
+          transaction.description,
+          transaction.entry_type === "cr" ? "Credit" : "Debit",
+          transaction.cash_amt !== "0.00"
+            ? formatAmount(transaction.cash_amt)
+            : "",
+          transaction.online_amt !== "0.00"
+            ? formatAmount(transaction.online_amt)
+            : "",
+          transaction.cheque_amt !== "0.00"
+            ? formatAmount(transaction.cheque_amt)
+            : "",
+          formatAmount(total),
+        ];
+      });
+
+      // Add summary row
+      tableData.push([
+        "",
+        "",
+        "TOTAL",
+        "",
+        formatAmount(totals.cashTotal),
+        formatAmount(totals.bankTotal),
+        formatAmount(totals.chequeTotal),
+        formatAmount(totals.grandTotal),
+      ]);
+
+      // Generate table
+      doc.autoTable({
+        head: [
+          [
+            "Sr.",
+            "Date",
+            "Description",
+            "Type",
+            "Cash Amount",
+            "Bank Amount",
+            "Cheque Amount",
+            "Total",
+          ],
+        ],
+        body: tableData,
+        startY: 80,
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [22, 163, 74], textColor: 255 },
+        footStyles: { fillColor: [240, 240, 240] },
+        alternateRowStyles: { fillColor: [245, 245, 245] },
+      });
+
+      doc.save("total_receives_report.pdf");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      // You could add error handling here, such as displaying a notification
+    }
   };
 
   return (
@@ -398,8 +478,8 @@ const TotalRecieves = ({ isVisible }) => {
               <Download size={18} />
               Download PDF
             </button>
-            <div className="bg-green-600 text-white font-semibold text-base h-11 px-4 py-3 rounded-lg">
-              <DateFilters2 onDateChange={handleDateChange} />
+            <div className="bg-green-600 text-white font-semibold text-base h-11 px-4 flex items-center rounded-lg">
+              <DateFilters onDateChange={handleDateChange} />
             </div>
           </div>
         </div>
