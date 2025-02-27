@@ -105,16 +105,23 @@ const Page = () => {
 
     // Add company logo
     if (companyLogo) {
-      // In a real implementation, you would use your actual logo path
-      // For this example, we're using a placeholder reference
-      doc.addImage(companyLogo, "JPEG", 15, 10, 50, 20);
+      const imgProps = doc.getImageProperties(companyLogo);
+      const originalWidth = imgProps.width;
+      const originalHeight = imgProps.height;
+
+      const desiredWidth = 40;
+      const scaledHeight = (originalHeight * desiredWidth) / originalWidth;
+
+      // Place the image with proper aspect ratio
+      doc.addImage(companyLogo, "JPEG", 15, 10, desiredWidth, scaledHeight);
     }
 
     // Add title
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
     doc.setTextColor(0, 128, 0); // Green header color
-    doc.text("Visit Details", 105, 40, { align: "center" });
+    doc.text("Visit Details", 105, 30, { align: "center" });
+    doc.text(`${name}`, 105, 40, { align: "center" });
 
     // Add date filter information
     doc.setFontSize(12);

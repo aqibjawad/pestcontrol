@@ -25,15 +25,25 @@ const Sales = () => {
   const [salesData, setSalesData] = useState([]);
   const [fetchingData, setFetchingData] = useState(true);
 
+  const [selectedMonth, setSelectedMonth] = useState(
+    new Date().toISOString().slice(0, 7)
+  );
+
+  const handleDateChange = (dates) => {
+    if (!dates || !dates.startDate) return;
+    const monthStr = dates.startDate.slice(0, 7);
+    setSelectedMonth(monthStr);
+  };
+
   const getAllEmployees = async () => {
     setFetchingData(true);
     try {
-      //   const response = await api.getDataWithToken(
-      //     `${getAllEmpoyesUrl}/salary/get?salary_month=${selectedMonth}`
-      //   );
       const response = await api.getDataWithToken(
-        `${getAllEmpoyesUrl}/sales_man/get`
+        `${getAllEmpoyesUrl}/sales_man/get/${selectedMonth}`
       );
+      // const response = await api.getDataWithToken(
+      //   `${getAllEmpoyesUrl}/sales_man/get`
+      // );
       setSalesData(response?.data);
     } catch (error) {
       console.error("Error fetching employees:", error);
@@ -44,7 +54,7 @@ const Sales = () => {
 
   useEffect(() => {
     getAllEmployees();
-  }, []);
+  }, [selectedMonth]);
 
   // Skeleton loader rows
   const renderSkeletonRows = () => {
@@ -77,7 +87,7 @@ const Sales = () => {
   return (
     <div>
       <div className="pageTitle">Sales Man Target</div>
-      {/* <MonthPicker onDateChange={handleDateChange} /> */}
+      <MonthPicker onDateChange={handleDateChange} />
       <TableContainer className="mt-5" component={Paper}>
         <Table>
           <TableHead style={{ backgroundColor: "#4CAF50" }}>
@@ -94,7 +104,7 @@ const Sales = () => {
           <TableBody>
             {fetchingData
               ? renderSkeletonRows()
-              : salesData.map((row, index) => (
+              : salesData?.map((row, index) => (
                   <TableRow key={index}>
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>{row.name}</TableCell>
