@@ -97,3 +97,5 @@ export const leave = apiPrefix + "/leave-application";
 export const agreement = apiPrefix + "/renewable-items";
 
 export const company = apiPrefix + "/company";
+
+export const visit = apiPrefix + "/visit";

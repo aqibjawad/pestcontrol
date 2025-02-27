@@ -256,6 +256,19 @@ export default function SideMenu({ children }) {
           icon: "/clients.png",
         },
       ];
+    } else if (userRoleId === 9) {
+      userPermissions = [
+        {
+          name: "Dashboard",
+          url: `salesOfficer/dashboard?id=${userId}`,
+          icon: "/home.png",
+        },
+        {
+          name: "Profile",
+          url: `hr/employeeDetails?id=${userId}`,
+          icon: "/clients.png",
+        },
+      ];
     }
 
     userPermissions.push({

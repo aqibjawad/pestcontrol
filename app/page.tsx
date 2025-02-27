@@ -61,6 +61,10 @@ export default function Login() {
         const storedUserIdRecovery = User.getUserId();
         router.replace(`/recovery/dashboard/?id=${storedUserIdRecovery}`);
         break;
+        case 9:
+          const storedUserIdSaleOfficer = User.getUserId();
+          router.replace(`/salesOfficer/dashboard/?id=${storedUserIdSaleOfficer}`);
+          break;
       default:
         router.replace("/accountant");
     }

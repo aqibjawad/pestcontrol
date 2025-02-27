@@ -29,8 +29,8 @@ const PersonalInformation = ({
 
   const roles = [
     { label: "HR-Manager", value: 2 },
-    { label: "Sales-Manager", value: 8 },
-    { label: "Sales-Officer", value: 9 },
+    { label: "Sales-Man", value: 9 },
+    { label: "Sales-Officer", value: 8 },
     // { label: "Office Staff", value: 8 },
     { label: "Operations", value: 4 },
     { label: "Accountant", value: 6 },
@@ -71,7 +71,7 @@ const PersonalInformation = ({
     "Accountant",
     "Operation Manager",
     "Agriculture Engineer",
-    "Sales Manager",
+    "Sales Man",
     "Pesticides Technician",
     "Sales Officer",
     "Receptionist",
@@ -148,32 +148,34 @@ const PersonalInformation = ({
               onChange={(name, value) => onChange("email", value)}
             />
           </Grid>
-          {data.role_id === "4" ||
-            (data.role_id === "9" && (
-              <Grid item lg={6} xs={12} md={6}>
-                <InputWithTitle2
-                  title="Sales Target"
-                  type="text"
-                  placeholder="Target"
-                  name="target"
-                  value={data.target}
-                  onChange={(name, value) => onChange("target", value)}
-                />
-              </Grid>
-            ))}
+          {(data.role_id === "4" ||
+            data.role_id === "9" ||
+            data.role_id === "8") && (
+            <Grid item lg={6} xs={12} md={6}>
+              <InputWithTitle2
+                title="Sales Target"
+                type="text"
+                placeholder="Target"
+                name="target"
+                value={data.target}
+                onChange={(name, value) => onChange("target", value)}
+              />
+            </Grid>
+          )}
 
-          {data.role_id === "9" && (
+          {(data.role_id === "9" || data.role_id === "8") && (
             <Grid item lg={6} xs={12} md={6}>
               <InputWithTitle2
                 title="Contract Target"
                 type="text"
                 placeholder="Contract Target"
-                name="target"
+                name="contract_target"
                 value={data.contract_target}
                 onChange={(name, value) => onChange("contract_target", value)}
               />
             </Grid>
           )}
+
           <Grid item lg={6} xs={12} md={6}>
             <Dropdown
               onChange={handleProfessionChange}
