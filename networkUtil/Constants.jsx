@@ -99,3 +99,5 @@ export const agreement = apiPrefix + "/renewable-items";
 export const company = apiPrefix + "/company";
 
 export const visit = apiPrefix + "/visit";
+
+export const cashLedger = apiPrefix + "/admin/ledger";

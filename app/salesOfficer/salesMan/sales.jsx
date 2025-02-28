@@ -115,11 +115,14 @@ const Sales = () => {
                       {row?.emp_contract_targets[0]?.achieved_target}
                     </TableCell>
                     <TableCell>
-                      {(
-                        (row?.emp_contract_targets[0]?.achieved_target /
-                          row?.emp_contract_targets[0]?.base_target) *
-                        100
-                      )?.toFixed(2)}
+                      {row?.emp_contract_targets?.[0]?.achieved_target &&
+                      row?.emp_contract_targets?.[0]?.base_target
+                        ? (
+                            (row.emp_contract_targets[0].achieved_target /
+                              row.emp_contract_targets[0].base_target) *
+                            100
+                          ).toFixed(2)
+                        : "0"}
                     </TableCell>
 
                     <TableCell>

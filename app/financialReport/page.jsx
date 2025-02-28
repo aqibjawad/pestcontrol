@@ -266,10 +266,13 @@ const FinancialDashboard = () => {
   };
 
   const detailData = [
-    { category: "Cash", amount: cashList?.total_cash },
+    { category: "Cash", amount: cashList?.total_cash, path: "/cashLedger" },
     { category: "POS", amount: posList?.total_pos },
     { category: "Bank", amount: bankList?.total_cheque_transfer },
-    { category: "Unapproved Payments", amount: paymentList },
+    {
+      category: "Unapproved Payments",
+      amount: paymentList,
+    },
   ];
 
   const calculateDetailTotal = () => {
@@ -303,6 +306,7 @@ const FinancialDashboard = () => {
     <div
       onClick={() => (path ? onClick(path) : null)}
       className="flex justify-between py-2 border-b border-gray-100"
+      style={{ cursor: "pointer" }}
     >
       <span className="text-gray-700">{category}</span>
       <span className="font-medium">
@@ -378,6 +382,8 @@ const FinancialDashboard = () => {
                   key={index}
                   category={item.category}
                   amount={item.amount}
+                  path={item.path}
+                  onClick={handleClick}
                 />
               ))}
               <TotalRow amount={calculateDetailTotal()} />
