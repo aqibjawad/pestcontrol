@@ -123,6 +123,9 @@ const Page = () => {
                 Sr No
               </th>
               <th className="py-5 px-4 border-b border-gray-200 text-left">
+                Job Id
+              </th>
+              <th className="py-5 px-4 border-b border-gray-200 text-left">
                 Client Name
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
@@ -138,7 +141,7 @@ const Page = () => {
                 Assign Job
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
-                View Details
+                View Report
               </th>
             </tr>
           </thead>
@@ -170,6 +173,9 @@ const Page = () => {
                 ))
               : filteredJobs?.map((row, index) => (
                   <tr key={index} className="border-b border-gray-200">
+                    <td>
+                      <div className={styles.clientName}>{index + 1}</div>
+                    </td>
                     <td>
                       <div className={styles.clientName}>{row.id}</div>
                     </td>
@@ -227,12 +233,7 @@ const Page = () => {
                             </Link>
                           )
                         ) : (
-                          <Link href={`/viewJob?id=${row.id}`}>
-                            <GreenButton
-                              onClick={assignedJob}
-                              title="View Details"
-                            />
-                          </Link>
+                          "Not Started Yet"
                         )}
                       </div>
                     </td>
@@ -250,7 +251,7 @@ const Page = () => {
         <div className="flex justify-between items-center mb-4">
           {!isDashboard && (
             <div className="flex-grow">
-              <div className="pageTitle">Upcoming Jobs</div>
+              <div className="pageTitle">All Jobs</div>
             </div>
           )}
           <div className="flex">
