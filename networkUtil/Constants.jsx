@@ -101,3 +101,7 @@ export const company = apiPrefix + "/company";
 export const visit = apiPrefix + "/visit";
 
 export const cashLedger = apiPrefix + "/admin/ledger";
+
+export const stock = apiPrefix + "/stock-report";
+
+export const visitFollowUps = apiPrefix + "/visit/filter/get";
