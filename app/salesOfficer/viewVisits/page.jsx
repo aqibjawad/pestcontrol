@@ -14,6 +14,10 @@ import {
   Modal,
   Box,
   IconButton,
+  Grid,
+  Card,
+  CardContent,
+  Typography,
 } from "@mui/material";
 import {
   DownloadOutlined,
@@ -45,6 +49,14 @@ const Page = () => {
   const [currentImages, setCurrentImages] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
+  // State for status summary
+  const [statusSummary, setStatusSummary] = useState({
+    Contracted: 0,
+    Quote: 0,
+    Interested: 0,
+    Total: 0,
+  });
+
   const handleDateChange = (start, end) => {
     setStartDate(start);
     setEndDate(end);
@@ -73,6 +85,33 @@ const Page = () => {
       getAllEmployees();
     }
   }, [id, startDate, endDate]);
+
+  // Calculate status summary whenever salesData changes
+  useEffect(() => {
+    calculateStatusSummary();
+  }, [salesData]);
+
+  const calculateStatusSummary = () => {
+    const summary = {
+      Contracted: 0,
+      Quote: 0,
+      Interested: 0,
+      Total: salesData.length,
+    };
+
+    salesData.forEach((item) => {
+      const status = item.status?.toLowerCase() || "";
+      if (status.includes("contracted")) {
+        summary.Contracted++;
+      } else if (status.includes("quote")) {
+        summary.Quote++;
+      } else if (status.includes("interested")) {
+        summary.Interested++;
+      }
+    });
+
+    setStatusSummary(summary);
+  };
 
   const getAllEmployees = async () => {
     setFetchingData(true);
@@ -170,6 +209,32 @@ const Page = () => {
       margin: { top: 70 },
     });
 
+    // Add status summary
+    const summaryY = doc.lastAutoTable.finalY + 20;
+    doc.setFontSize(14);
+    doc.setTextColor(0, 128, 0);
+    doc.text("Status Summary", 105, summaryY, { align: "center" });
+
+    // Draw summary table
+    const summaryColumns = ["Status Type", "Count"];
+    const summaryRows = [
+      ["Contracted", statusSummary.Contracted.toString()],
+      ["Quote", statusSummary.Quote.toString()],
+      ["Interested", statusSummary.Interested.toString()],
+      ["Total", statusSummary.Total.toString()],
+    ];
+
+    doc.autoTable({
+      head: [summaryColumns],
+      body: summaryRows,
+      startY: summaryY + 10,
+      theme: "grid",
+      headStyles: { fillColor: [0, 128, 0], textColor: [255, 255, 255] },
+      styles: { halign: "center" },
+      margin: { left: 70, right: 70 },
+      tableWidth: 100,
+    });
+
     // Add date and time of generation
     const date = new Date();
     doc.setFontSize(10);
@@ -255,97 +320,170 @@ const Page = () => {
           <CircularProgress />
         </div>
       ) : (
-        <TableContainer className="mt-5" component={Paper} ref={tableRef}>
-          <Table>
-            <TableHead style={{ backgroundColor: "#4CAF50" }}>
-              <TableRow>
-                <TableCell style={{ color: "white" }}>
-                  <b>Sr No</b>
-                </TableCell>
-                <TableCell style={{ color: "white" }}>
-                  <b>Client Name</b>
-                </TableCell>
-                <TableCell style={{ color: "white" }}>
-                  <b>Description</b>
-                </TableCell>
-                <TableCell style={{ color: "white" }}>
-                  <b>Status</b>
-                </TableCell>
-                <TableCell style={{ color: "white" }}>
-                  <b>Visit Date</b>
-                </TableCell>
-                <TableCell style={{ color: "white" }}>
-                  <b>Follow-up Date</b>
-                </TableCell>
-                <TableCell style={{ color: "white" }}>
-                  <b>Contract End Date</b>
-                </TableCell>
-                <TableCell style={{ color: "white" }}>
-                  <b>Location</b>
-                </TableCell>
-                <TableCell style={{ color: "white" }}>
-                  <b>Image</b>
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {salesData.length > 0 ? (
-                salesData.map((item, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>{item.user_client?.name || "N/A"}</TableCell>
-                    <TableCell>{item.description || "N/A"}</TableCell>
-                    <TableCell>{item.status || "N/A"}</TableCell>
-                    <TableCell>
-                      {item.visit_date?.split(" ")[0] || "N/A"}
-                    </TableCell>
-                    <TableCell>
-                      {item.follow_up_date?.split(" ")[0] || "N/A"}
-                    </TableCell>
-                    <TableCell>
-                      {item.current_contract_end_date || "N/A"}
-                    </TableCell>
-                    <TableCell>
-                      <MapIcon
-                        className="cursor-pointer text-blue-600"
-                        onClick={() => openMapInNewTab(item)}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      {item.images?.length > 0 ? (
-                        <div
-                          className="cursor-pointer"
-                          onClick={() => handleOpenImageModal(item.images)}
-                        >
-                          <img
-                            src={item.images[0]}
-                            alt="Visit"
-                            width="50"
-                            height="50"
-                            style={{ borderRadius: "5px" }}
-                          />
-                          {item.images.length > 1 && (
-                            <div className="text-xs text-blue-600 mt-1">
-                              +{item.images.length - 1} more
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        "No Image"
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
+        <>
+          {/* Status Summary Section */}
+          {salesData.length > 0 && (
+            <div className="mt-8">
+              <h3 className="text-lg font-semibold mb-4 text-green-700">
+                Status Summary
+              </h3>
+              <Grid container spacing={3}>
+                <Grid item xs={6} sm={3}>
+                  <Card sx={{ bgcolor: "#E8F5E9", boxShadow: 2 }}>
+                    <CardContent>
+                      <Typography variant="h6" sx={{ color: "#2E7D32" }}>
+                        Contracted
+                      </Typography>
+                      <Typography
+                        variant="h4"
+                        sx={{ mt: 2, fontWeight: "bold" }}
+                      >
+                        {statusSummary.Contracted}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+                <Grid item xs={6} sm={3}>
+                  <Card sx={{ bgcolor: "#E3F2FD", boxShadow: 2 }}>
+                    <CardContent>
+                      <Typography variant="h6" sx={{ color: "#1565C0" }}>
+                        Quote
+                      </Typography>
+                      <Typography
+                        variant="h4"
+                        sx={{ mt: 2, fontWeight: "bold" }}
+                      >
+                        {statusSummary.Quote}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+                <Grid item xs={6} sm={3}>
+                  <Card sx={{ bgcolor: "#FFF8E1", boxShadow: 2 }}>
+                    <CardContent>
+                      <Typography variant="h6" sx={{ color: "#F57F17" }}>
+                        Interested
+                      </Typography>
+                      <Typography
+                        variant="h4"
+                        sx={{ mt: 2, fontWeight: "bold" }}
+                      >
+                        {statusSummary.Interested}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+                <Grid item xs={6} sm={3}>
+                  <Card sx={{ bgcolor: "#EFEBE9", boxShadow: 2 }}>
+                    <CardContent>
+                      <Typography variant="h6" sx={{ color: "#5D4037" }}>
+                        Total
+                      </Typography>
+                      <Typography
+                        variant="h4"
+                        sx={{ mt: 2, fontWeight: "bold" }}
+                      >
+                        {statusSummary.Total}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
+            </div>
+          )}
+
+          <TableContainer className="mt-5" component={Paper} ref={tableRef}>
+            <Table>
+              <TableHead style={{ backgroundColor: "#4CAF50" }}>
                 <TableRow>
-                  <TableCell colSpan={9} align="center">
-                    No Data Available
+                  <TableCell style={{ color: "white" }}>
+                    <b>Sr No</b>
+                  </TableCell>
+                  <TableCell style={{ color: "white" }}>
+                    <b>Client Name</b>
+                  </TableCell>
+                  <TableCell style={{ color: "white" }}>
+                    <b>Description</b>
+                  </TableCell>
+                  <TableCell style={{ color: "white" }}>
+                    <b>Status</b>
+                  </TableCell>
+                  <TableCell style={{ color: "white" }}>
+                    <b>Visit Date</b>
+                  </TableCell>
+                  <TableCell style={{ color: "white" }}>
+                    <b>Follow-up Date</b>
+                  </TableCell>
+                  <TableCell style={{ color: "white" }}>
+                    <b>Contract End Date</b>
+                  </TableCell>
+                  <TableCell style={{ color: "white" }}>
+                    <b>Location</b>
+                  </TableCell>
+                  <TableCell style={{ color: "white" }}>
+                    <b>Image</b>
                   </TableCell>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+              </TableHead>
+              <TableBody>
+                {salesData.length > 0 ? (
+                  salesData.map((item, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>{item.user_client?.name || "N/A"}</TableCell>
+                      <TableCell>{item.description || "N/A"}</TableCell>
+                      <TableCell>{item.status || "N/A"}</TableCell>
+                      <TableCell>
+                        {item.visit_date?.split(" ")[0] || "N/A"}
+                      </TableCell>
+                      <TableCell>
+                        {item.follow_up_date?.split(" ")[0] || "N/A"}
+                      </TableCell>
+                      <TableCell>
+                        {item.current_contract_end_date || "N/A"}
+                      </TableCell>
+                      <TableCell>
+                        <MapIcon
+                          className="cursor-pointer text-blue-600"
+                          onClick={() => openMapInNewTab(item)}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        {item.images?.length > 0 ? (
+                          <div
+                            className="cursor-pointer"
+                            onClick={() => handleOpenImageModal(item.images)}
+                          >
+                            <img
+                              src={item.images[0]}
+                              alt="Visit"
+                              width="50"
+                              height="50"
+                              style={{ borderRadius: "5px" }}
+                            />
+                            {item.images.length > 1 && (
+                              <div className="text-xs text-blue-600 mt-1">
+                                +{item.images.length - 1} more
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          "No Image"
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={9} align="center">
+                      No Data Available
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </>
       )}
 
       {/* Image Gallery Modal */}

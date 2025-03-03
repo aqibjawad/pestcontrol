@@ -94,11 +94,12 @@ const Sales = () => {
             <TableRow>
               <TableCell style={{ color: "white" }}>ID</TableCell>
               <TableCell style={{ color: "white" }}>Salesman Name</TableCell>
-              <TableCell style={{ color: "white" }}>Target</TableCell>
+              <TableCell style={{ color: "white" }}>Base Target</TableCell>
+              <TableCell style={{ color: "white" }}>Remaining Target</TableCell>
               <TableCell style={{ color: "white" }}>Achieved Target</TableCell>
               <TableCell style={{ color: "white" }}> Target % </TableCell>
-              <TableCell style={{ color: "white" }}>Remaining Target</TableCell>
               <TableCell style={{ color: "white" }}>View Visits</TableCell>
+              <TableCell style={{ color: "white" }}>View Jobs</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -135,6 +136,11 @@ const Sales = () => {
                         }&name=${encodeURIComponent(row?.name)}`}
                       >
                         View Visits
+                      </Link>
+                    </TableCell>
+                    <TableCell>
+                      <Link href={`/salesOfficer/viewJobs?id=${row?.id}`}>
+                        View Jobs
                       </Link>
                     </TableCell>
                   </TableRow>

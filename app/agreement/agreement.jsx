@@ -84,10 +84,8 @@ const Agreement = () => {
 
       try {
         const response = isUpdate
-          ? await api.updateFormData(url, obj)
+          ? await api.postFormDataWithToken(url, obj)
           : await api.postFormDataWithToken(url, obj);
-
-        console.log(isUpdate ? "xyz" : "abc");
 
         resetValues();
         getDevices();
