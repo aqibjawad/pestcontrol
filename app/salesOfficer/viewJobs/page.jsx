@@ -20,6 +20,7 @@ const Page = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("all");
 
   const [id, setId] = useState(null);
   const [salesData, setSalesData] = useState([]);
@@ -27,10 +28,16 @@ const Page = () => {
   const [endDate, setEndDate] = useState(null);
 
   // Add missing states
-  const [employeeCompany, setEmployeeCompany] = useState([]); // Add this state
-  const [isLoading, setIsLoading] = useState(false); // Add this state
-  const [fetchingData, setFetchingData] = useState(false); // Add this state
-  const [isDashboard, setIsDashboard] = useState(false); // Add this for dashboard view
+  const [employeeCompany, setEmployeeCompany] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [fetchingData, setFetchingData] = useState(false);
+  const [isDashboard, setIsDashboard] = useState(false);
+  
+  // Add stats for tabs
+  const [completedJobsCount, setCompletedJobsCount] = useState(0);
+  const [pendingJobsCount, setPendingJobsCount] = useState(0);
+  const [completedJobsTotal, setCompletedJobsTotal] = useState(0);
+  const [pendingJobsTotal, setPendingJobsTotal] = useState(0);
 
   const getQueryParam = (url, param) => {
     const searchParams = new URLSearchParams(new URL(url).search);
@@ -74,7 +81,26 @@ const Page = () => {
         `${getAllEmpoyesUrl}/reference/jobs/get/${id}?${queryParams.join("&")}`
       );
       setSalesData(response?.data || []);
-      setEmployeeCompany(response?.data || []); // Set employeeCompany from API response
+      setEmployeeCompany(response?.data || []);
+      
+      // Calculate stats for tabs
+      if (response?.data && response.data.length > 0) {
+        const completedJobs = response.data.filter(job => job.is_completed === 1);
+        const pendingJobs = response.data.filter(job => job.is_completed !== 1);
+        
+        setCompletedJobsCount(completedJobs.length);
+        setPendingJobsCount(pendingJobs.length);
+        
+        // Calculate sum of grand_total for completed jobs
+        const completedTotal = completedJobs.reduce((sum, job) => 
+          sum + parseFloat(job.grand_total || 0), 0);
+        setCompletedJobsTotal(completedTotal);
+        
+        // Calculate sum of grand_total for pending jobs
+        const pendingTotal = pendingJobs.reduce((sum, job) => 
+          sum + parseFloat(job.grand_total || 0), 0);
+        setPendingJobsTotal(pendingTotal);
+      }
     } catch (error) {
       console.error("Error fetching employees:", error);
     } finally {
@@ -84,17 +110,28 @@ const Page = () => {
   };
 
   useEffect(() => {
-    const filtered = employeeCompany?.filter((job) =>
+    // First filter by search term
+    const searchFiltered = employeeCompany?.filter((job) =>
       job?.user?.name?.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    const limitedJobs = isDashboard ? filtered?.slice(0, 10) : filtered;
+    
+    // Then filter by tab selection
+    let tabFiltered = searchFiltered;
+    if (activeTab === "completed") {
+      tabFiltered = searchFiltered.filter(job => job.is_completed === 1);
+    } else if (activeTab === "pending") {
+      tabFiltered = searchFiltered.filter(job => job.is_completed !== 1);
+    }
+    
+    // Apply dashboard limit if needed
+    const limitedJobs = isDashboard ? tabFiltered?.slice(0, 10) : tabFiltered;
     setFilteredJobs(limitedJobs);
 
     // Short timeout to prevent flash of content
     setTimeout(() => {
       setLoading(false);
     }, 300);
-  }, [searchTerm, employeeCompany, isDashboard]);
+  }, [searchTerm, employeeCompany, isDashboard, activeTab]);
 
   // Show loading state if either internal loading or API loading is true
   const showLoading = loading || isLoading;
@@ -107,10 +144,23 @@ const Page = () => {
     setSearchTerm(value);
   };
 
-  // Add the missing handleDateChange function
   const handleDateChange = (startDate, endDate) => {
     setStartDate(startDate);
     setEndDate(endDate);
+  };
+
+  // Tab selection handler
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+  };
+  
+  // Format currency
+  const formatCurrency = (amount) => {
+    return parseFloat(amount).toLocaleString('en-US', {
+      style: 'currency',
+      currency: 'AED',
+      minimumFractionDigits: 2
+    });
   };
 
   const jobTable = () => {
@@ -130,6 +180,9 @@ const Page = () => {
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Job Name
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Amount
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Status
@@ -176,9 +229,11 @@ const Page = () => {
                     <td>
                       <div className={styles.clientName}>{index + 1}</div>
                     </td>
+
                     <td>
                       <div className={styles.clientName}>{row.id}</div>
                     </td>
+
                     <td className="py-5 px-4">
                       <div className={styles.clientName}>{row?.user?.name}</div>
                       <div className={styles.clientEmail}>
@@ -192,7 +247,10 @@ const Page = () => {
                         {row?.user?.client?.phone_number}
                       </div>
                     </td>
+
                     <td className="py-2 px-4">{row.job_title}</td>
+                    <td className="py-2 px-4">{row.grand_total}</td>
+
                     <td className="py-2 px-4">
                       <div className={styles.statusContainer}>
                         {row.is_completed === 0 && "Not Started"}
@@ -278,6 +336,60 @@ const Page = () => {
             </div>
           </div>
         </div>
+
+        {/* Tab Navigation with Counts and Totals */}
+        <div className="flex border-b mb-4">
+          <button
+            className={`px-4 py-2 mr-2 ${
+              activeTab === "all"
+                ? "border-b-2 border-green-500 font-semibold"
+                : "text-gray-500"
+            }`}
+            onClick={() => handleTabChange("all")}
+          >
+            All Jobs ({completedJobsCount + pendingJobsCount})
+          </button>
+          <button
+            className={`px-4 py-2 mr-2 ${
+              activeTab === "completed"
+                ? "border-b-2 border-green-500 font-semibold"
+                : "text-gray-500"
+            }`}
+            onClick={() => handleTabChange("completed")}
+          >
+            Completed ({completedJobsCount})
+          </button>
+          <button
+            className={`px-4 py-2 ${
+              activeTab === "pending"
+                ? "border-b-2 border-green-500 font-semibold"
+                : "text-gray-500"
+            }`}
+            onClick={() => handleTabChange("pending")}
+          >
+            Pending ({pendingJobsCount})
+          </button>
+        </div>
+
+        {/* Total Amount Display */}
+        <div className="mb-4 p-3 bg-gray-50 rounded-md">
+          {activeTab === "completed" && (
+            <div className="text-lg font-medium text-green-600">
+              Total Amount: {formatCurrency(completedJobsTotal)}
+            </div>
+          )}
+          {activeTab === "pending" && (
+            <div className="text-lg font-medium text-yellow-600">
+              Total Amount: {formatCurrency(pendingJobsTotal)}
+            </div>
+          )}
+          {activeTab === "all" && (
+            <div className="text-lg font-medium text-blue-600">
+              Total Amount: {formatCurrency(completedJobsTotal + pendingJobsTotal)}
+            </div>
+          )}
+        </div>
+
         {jobTable()}
       </div>
     </div>

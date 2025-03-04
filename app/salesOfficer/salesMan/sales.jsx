@@ -100,6 +100,7 @@ const Sales = () => {
               <TableCell style={{ color: "white" }}> Target % </TableCell>
               <TableCell style={{ color: "white" }}>View Visits</TableCell>
               <TableCell style={{ color: "white" }}>View Jobs</TableCell>
+              <TableCell style={{ color: "white" }}>View Incomes</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -141,6 +142,11 @@ const Sales = () => {
                     <TableCell>
                       <Link href={`/salesOfficer/viewJobs?id=${row?.id}`}>
                         View Jobs
+                      </Link>
+                    </TableCell>
+                    <TableCell>
+                      <Link href={`/salesOfficer/viewIncoms?id=${row?.id}`}>
+                        View Incomes
                       </Link>
                     </TableCell>
                   </TableRow>
