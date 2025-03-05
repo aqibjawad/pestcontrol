@@ -41,9 +41,6 @@ const Sales = () => {
       const response = await api.getDataWithToken(
         `${getAllEmpoyesUrl}/sales_man/get/${selectedMonth}`
       );
-      // const response = await api.getDataWithToken(
-      //   `${getAllEmpoyesUrl}/sales_man/get`
-      // );
       setSalesData(response?.data);
     } catch (error) {
       console.error("Error fetching employees:", error);
@@ -56,7 +53,6 @@ const Sales = () => {
     getAllEmployees();
   }, [selectedMonth]);
 
-  // Skeleton loader rows
   const renderSkeletonRows = () => {
     return Array(5)
       .fill(0)
@@ -103,6 +99,11 @@ const Sales = () => {
                 {" "}
                 Reamaining Target{" "}
               </TableCell>
+              <TableCell style={{ color: "white" }}> Income Target </TableCell>
+              <TableCell style={{ color: "white" }}>
+                {" "}
+                Receieved Target{" "}
+              </TableCell>
               <TableCell style={{ color: "white" }}>View Visits</TableCell>
               <TableCell style={{ color: "white" }}>View Jobs</TableCell>
               <TableCell style={{ color: "white" }}>View Incomes</TableCell>
@@ -135,6 +136,10 @@ const Sales = () => {
                     <TableCell>
                       {row?.emp_contract_targets[0]?.remaining_target}
                     </TableCell>
+                    <TableCell>
+                      {row?.employee_commissions[0]?.target}
+                    </TableCell>
+                    <TableCell>{row?.employee_commissions[0]?.sale}</TableCell>
                     <TableCell>
                       <Link
                         href={`/salesOfficer/viewVisits?id=${

@@ -5,21 +5,36 @@ import tableStyles from "../../styles/upcomingJobsStyles.module.css";
 import { purchaeOrder } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
 import { useRouter } from "next/navigation";
-import { Skeleton } from "@mui/material";
+import {
+  Skeleton,
+  Modal,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  CircularProgress,
+} from "@mui/material";
 import { format } from "date-fns";
-import DateFilters from "../../components/generic/DateFilters";
 import withAuth from "@/utils/withAuth";
 
 const Page = () => {
-  const apiCall = new APICall();
+  const api = new APICall();
   const [id, setID] = useState();
-  console.log(id);
-
   const router = new useRouter();
   const [fetchingData, setFetchingData] = useState(true);
   const [purchaseOrderDetails, setPurchaseOrderDetails] = useState(null);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
+
+  // Modal state
+  const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+  const [selectedDetailId, setSelectedDetailId] = useState(null);
+  const [approvalQuantity, setApprovalQuantity] = useState("");
+
+  // Loading states for buttons
+  const [isApprovingDetail, setIsApprovingDetail] = useState(false);
+  const [isRejectingDetail, setIsRejectingDetail] = useState(false);
 
   useEffect(() => {
     const currentUrl = window.location.href;
@@ -27,13 +42,13 @@ const Page = () => {
 
     if (urlId) {
       setID(urlId);
-      getPurchase(urlId); 
+      getPurchase(urlId);
     }
   }, []);
 
   useEffect(() => {
     if (id) {
-      getPurchase(id); // Always pass the ID
+      getPurchase(id);
     }
   }, [startDate, endDate, id]);
 
@@ -43,7 +58,7 @@ const Page = () => {
   };
 
   const getPurchase = async (currentId) => {
-    if (!currentId) return; // Guard clause to prevent API call without ID
+    if (!currentId) return;
 
     setFetchingData(true);
     const queryParams = [];
@@ -58,8 +73,8 @@ const Page = () => {
     }
 
     try {
-      const response = await apiCall.getDataWithToken(
-        `${purchaeOrder}/get/${currentId}` // Corrected typo and use passed ID
+      const response = await api.getDataWithToken(
+        `${purchaeOrder}/get/${currentId}`
       );
       setPurchaseOrderDetails(response.data);
     } catch (error) {
@@ -69,6 +84,147 @@ const Page = () => {
     }
   };
 
+  const handleApprove = async () => {
+    setIsApprovingDetail(true);
+    try {
+      await api.postFormDataWithToken(`${purchaeOrder}/update/${id}`, {
+        approve_order_detail_id: selectedDetailId,
+        qty: approvalQuantity,
+      });
+
+      // Refresh the purchase order details
+      getPurchase(id);
+
+      // Close the modal
+      setIsApproveModalOpen(false);
+    } catch (error) {
+      console.error("Error approving purchase order:", error);
+    } finally {
+      setIsApprovingDetail(false);
+    }
+  };
+
+  const handleReject = async () => {
+    setIsRejectingDetail(true);
+    try {
+      await api.postFormDataWithToken(`${purchaeOrder}/update/${id}`, {
+        approve_order_detail_id: selectedDetailId,
+      });
+
+      // Refresh the purchase order details
+      getPurchase(id);
+
+      // Close the modal
+      setIsRejectModalOpen(false);
+    } catch (error) {
+      console.error("Error rejecting purchase order:", error);
+    } finally {
+      setIsRejectingDetail(false);
+    }
+  };
+
+  const ApproveModal = () => (
+    <Modal
+      open={isApproveModalOpen}
+      onClose={() => setIsApproveModalOpen(false)}
+      aria-labelledby="approve-modal-title"
+      aria-describedby="approve-modal-description"
+    >
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: 400,
+          bgcolor: "background.paper",
+          border: "2px solid #000",
+          boxShadow: 24,
+          p: 4,
+        }}
+      >
+        <Typography id="approve-modal-title" variant="h6" component="h2">
+          Approve Purchase Order
+        </Typography>
+        <TextField
+          fullWidth
+          margin="normal"
+          label="Quantity"
+          type="number"
+          value={approvalQuantity}
+          onChange={(e) => setApprovalQuantity(e.target.value)}
+          variant="outlined"
+        />
+        <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
+          <Button 
+            variant="contained" 
+            color="primary" 
+            onClick={handleApprove}
+            disabled={isApprovingDetail}
+          >
+            {isApprovingDetail ? <CircularProgress size={24} /> : "Confirm Approval"}
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => setIsApproveModalOpen(false)}
+            disabled={isApprovingDetail}
+          >
+            Cancel
+          </Button>
+        </Box>
+      </Box>
+    </Modal>
+  );
+
+  const RejectModal = () => (
+    <Modal
+      open={isRejectModalOpen}
+      onClose={() => setIsRejectModalOpen(false)}
+      aria-labelledby="reject-modal-title"
+      aria-describedby="reject-modal-description"
+    >
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: 400,
+          bgcolor: "background.paper",
+          border: "2px solid #000",
+          boxShadow: 24,
+          p: 4,
+        }}
+      >
+        <Typography id="reject-modal-title" variant="h6" component="h2">
+          Reject Purchase Order
+        </Typography>
+        <Typography id="reject-modal-description" sx={{ mt: 2 }}>
+          Are you sure you want to reject this purchase order?
+        </Typography>
+        <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
+          <Button 
+            variant="contained" 
+            color="error" 
+            onClick={handleReject}
+            disabled={isRejectingDetail}
+          >
+            {isRejectingDetail ? <CircularProgress size={24} /> : "Confirm Rejection"}
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => setIsRejectModalOpen(false)}
+            disabled={isRejectingDetail}
+          >
+            Cancel
+          </Button>
+        </Box>
+      </Box>
+    </Modal>
+  );
+
   const ListTable = () => {
     if (!purchaseOrderDetails || !purchaseOrderDetails.details) return null;
 
@@ -76,7 +232,7 @@ const Page = () => {
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white">
           <thead>
-            <tr>
+          <tr>
               <th className="py-5 px-4 border-b border-gray-200 text-left">
                 Sr No
               </th>
@@ -107,6 +263,9 @@ const Page = () => {
               <th className="py-5 px-4 border-b border-gray-200 text-left">
                 Status
               </th>
+              <th className="py-5 px-4 border-b border-gray-200 text-left">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -124,10 +283,42 @@ const Page = () => {
                 <td className="py-5 px-4">{detail.vat_amt}</td>
                 <td className="py-5 px-4">{detail.grand_total}</td>
                 <td className="py-5 px-4">{detail.status}</td>
+                <td className="py-5 px-4">
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      size="small"
+                      disabled={detail.status !== 'pending'}
+                      onClick={() => {
+                        setSelectedDetailId(detail.id);
+                        setIsApproveModalOpen(true);
+                      }}
+                    >
+                      Approve
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="error"
+                      size="small"
+                      disabled={detail.status !== 'pending'}
+                      onClick={() => {
+                        setSelectedDetailId(detail.id);
+                        setIsRejectModalOpen(true);
+                      }}
+                    >
+                      Reject
+                    </Button>
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
+
+        {/* Modals */}
+        <ApproveModal />
+        <RejectModal />
       </div>
     );
   };
