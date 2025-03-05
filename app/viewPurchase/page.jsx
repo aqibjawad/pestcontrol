@@ -12,6 +12,22 @@ import withAuth from "@/utils/withAuth";
 
 import Link from "next/link";
 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+  Modal,
+  Box,
+  Typography,
+} from "@mui/material";
+
+import { FaTrash } from "react-icons/fa";
+
 // Import export libraries
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
@@ -26,6 +42,22 @@ const Page = () => {
   const [endDate, setEndDate] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+
+  const [open, setOpen] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
+
+  const modalStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: 400,
+    bgcolor: "background.paper",
+    border: "2px solid #000",
+    boxShadow: 24,
+    p: 4,
+    textAlign: "center",
+  };
 
   useEffect(() => {
     getPurchase();
@@ -212,6 +244,44 @@ const Page = () => {
     link.click();
   };
 
+  const handleOpenModal = (orderId) => {
+    setSelectedOrderId(orderId);
+    setOpen(true);
+  };
+
+  // Handle closing modal
+  const handleClose = () => {
+    setOpen(false);
+    setSelectedOrderId(null);
+  };
+
+  const onDeletePurchaseOrder = async (orderId) => {
+    try {
+      // Make API call to delete the purchase order
+      await apiCall.getDataWithToken(`${purchaeOrder}/delete/${orderId}`);
+
+      // Remove the deleted order from the list
+      setSuppliersList((prevList) =>
+        prevList.filter((order) => order.id !== orderId)
+      );
+
+      // Optional: Show success message
+      alert("Purchase order deleted successfully");
+    } catch (error) {
+      console.error("Error deleting purchase order:", error);
+      // Optional: Show error message
+      alert("Failed to delete purchase order");
+    }
+  };
+
+  // Confirm delete action
+  const handleConfirmDelete = () => {
+    if (selectedOrderId) {
+      onDeletePurchaseOrder(selectedOrderId);
+      handleClose();
+    }
+  };
+
   const ListTable = () => {
     return (
       <div className="overflow-x-auto">
@@ -239,6 +309,9 @@ const Page = () => {
               <th className="py-5 px-4 border-b border-gray-200 text-left">
                 View Details
               </th>
+              <th className="py-5 px-4 border-b border-gray-200 text-left">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -249,7 +322,7 @@ const Page = () => {
                   (sum, detail) => sum + parseFloat(detail.grand_total),
                   0
                 )
-                .toFixed(2); 
+                .toFixed(2);
 
               // Combine product details into a single string
               const productDetails = order.details
@@ -274,11 +347,54 @@ const Page = () => {
                       </span>
                     </Link>
                   </td>
+                  <td className="py-2 px-4">
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      startIcon={<FaTrash />}
+                      onClick={() => handleOpenModal(order.id)}
+                    >
+                      Delete
+                    </Button>
+                  </td>
                 </tr>
               );
             })}
           </tbody>
         </table>
+        <Modal
+          open={open}
+          onClose={handleClose}
+          aria-labelledby="delete-modal-title"
+          aria-describedby="delete-modal-description"
+        >
+          <Box sx={modalStyle}>
+            <Typography id="delete-modal-title" variant="h6" component="h2">
+              Confirm Deletion
+            </Typography>
+            <Typography id="delete-modal-description" sx={{ mt: 2 }}>
+              Are you sure you want to delete this purchase order?
+            </Typography>
+            <Box
+              sx={{ mt: 3, display: "flex", justifyContent: "center", gap: 2 }}
+            >
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={handleClose}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                color="error"
+                onClick={handleConfirmDelete}
+              >
+                Delete
+              </Button>
+            </Box>
+          </Box>
+        </Modal>
       </div>
     );
   };
