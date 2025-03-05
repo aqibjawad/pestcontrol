@@ -324,21 +324,48 @@ const Page = () => {
                 )
                 .toFixed(2);
 
-              // Combine product details into a single string
-              const productDetails = order.details
-                .map(
-                  (detail) =>
-                    `${detail.product.product_name} (Qty: ${detail.qty}, Supplier: ${detail.supplier.supplier_name})`
-                )
-                .join(", ");
-
               return (
                 <tr className="border-b border-gray-200" key={index}>
                   <td className="py-5 px-4">{index + 1}</td>
                   <td className="py-5 px-4">{order.po_id}</td>
                   <td className="py-5 px-4">{order.description}</td>
                   <td className="py-5 px-4">{order.status}</td>
-                  <td className="py-5 px-4">{productDetails}</td>
+                  <td className="py-5 px-4">
+                    <table className="w-full border-collapse">
+                      <thead className="bg-gray-100">
+                        <tr>
+                          <th className="border px-2 py-1 text-left">
+                            Product
+                          </th>
+                          <th className="border px-2 py-1 text-left">
+                            Quantity
+                          </th>
+                          <th className="border px-2 py-1 text-left">
+                            Supplier
+                          </th>
+                          <th className="border px-2 py-1 text-left">
+                            Grand Total
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {order.details.map((detail, detailIndex) => (
+                          <tr key={detailIndex}>
+                            <td className="border px-2 py-1">
+                              {detail.product.product_name}
+                            </td>
+                            <td className="border px-2 py-1">{detail.qty}</td>
+                            <td className="border px-2 py-1">
+                              {detail.supplier.supplier_name}
+                            </td>
+                            <td className="border px-2 py-1">
+                              {parseFloat(detail.grand_total).toFixed(2)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </td>
                   <td className="py-5 px-4">{totalGrandTotal}</td>
                   <td className="py-2 px-4">
                     <Link href={`/purchaseDetails/?id=${order.id}`}>
