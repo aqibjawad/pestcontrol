@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Grid, IconButton } from "@mui/material";
+import { Grid, IconButton, Typography } from "@mui/material";
 import Dropdown from "@/components/generic/Dropdown";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 
@@ -27,7 +27,14 @@ const Page = () => {
   const [allProducts, setAllProducts] = useState([]);
 
   const [rows, setRows] = useState([
-    { supplier_id: "", product_id: "", vat_per: "", qty: "", price: "" },
+    {
+      supplier_id: "",
+      product_id: "",
+      vat_per: "",
+      qty: "",
+      price: "",
+      total: 0,
+    },
   ]);
 
   const [loadingSubmit, setLoadingSubmit] = useState(false);
@@ -76,9 +83,25 @@ const Page = () => {
     }
   };
 
+  const calculateTotal = (qty, price, vatPer) => {
+    const baseTotal = parseFloat(qty || 0) * parseFloat(price || 0);
+    const vatAmount = baseTotal * (parseFloat(vatPer || 0) / 100);
+    return baseTotal + vatAmount;
+  };
+
   const handleInputChange = (value, index, field) => {
     const newRows = [...rows];
     newRows[index][field] = value;
+
+    // Recalculate total when qty, price, or vat_per changes
+    if (field === "qty" || field === "price" || field === "vat_per") {
+      newRows[index].total = calculateTotal(
+        field === "qty" ? value : newRows[index].qty,
+        field === "price" ? value : newRows[index].price,
+        field === "vat_per" ? value : newRows[index].vat_per
+      );
+    }
+
     setRows(newRows);
   };
 
@@ -103,7 +126,14 @@ const Page = () => {
   const addRow = () => {
     setRows([
       ...rows,
-      { supplier_id: "", product_id: "", vat_per: "", qty: "", price: "" },
+      {
+        supplier_id: "",
+        product_id: "",
+        vat_per: "",
+        qty: "",
+        price: "",
+        total: 0,
+      },
     ]);
   };
 
@@ -120,11 +150,7 @@ const Page = () => {
     // Validate that all required fields are filled
     const isValid = rows.every(
       (row) =>
-        row.supplier_id &&
-        row.product_id &&
-        row.vat_per &&
-        row.qty &&
-        row.price
+        row.supplier_id && row.product_id && row.vat_per && row.qty && row.price
     );
 
     if (!isValid) {
@@ -157,6 +183,7 @@ const Page = () => {
           title: "Success",
           text: "Purchase order added successfully.",
         });
+        // router.push("/viewPurchase");
         setRows([
           {
             supplier_id: "",
@@ -164,6 +191,7 @@ const Page = () => {
             vat_per: "",
             qty: "",
             price: "",
+            total: 0,
           },
         ]);
       } else {
@@ -188,10 +216,17 @@ const Page = () => {
     <div>
       <Grid container spacing={2} padding={2}>
         {rows.map((row, index) => (
-          <Grid container spacing={2} key={index} sx={{ marginBottom: 2 }}>
+          <Grid
+            container
+            spacing={2}
+            key={index}
+            sx={{ marginBottom: 2, alignItems: "center" }}
+          >
             <Grid item lg={3} xs={12} sm={6} md={4}>
               <Dropdown
-                onChange={(supplierName) => handleSupplierChange(supplierName, index)}
+                onChange={(supplierName) =>
+                  handleSupplierChange(supplierName, index)
+                }
                 options={suppliers}
                 title="Company"
                 value={
@@ -203,7 +238,9 @@ const Page = () => {
 
             <Grid item lg={3} xs={12} sm={6} md={4}>
               <Dropdown
-                onChange={(productName) => handleProductChange(productName, index)}
+                onChange={(productName) =>
+                  handleProductChange(productName, index)
+                }
                 options={products}
                 title="Products"
                 value={
@@ -213,7 +250,7 @@ const Page = () => {
               />
             </Grid>
 
-            <Grid item lg={2} xs={12} sm={6} md={4}>
+            <Grid item lg={1} xs={12} sm={6} md={4}>
               <InputWithTitle
                 title="VAT %"
                 type="number"
@@ -221,7 +258,7 @@ const Page = () => {
                 onChange={(value) => handleInputChange(value, index, "vat_per")}
               />
             </Grid>
-            <Grid item lg={2} xs={12} sm={6} md={4}>
+            <Grid item lg={1} xs={12} sm={6} md={4}>
               <InputWithTitle
                 title="Quantity"
                 type="number"
@@ -230,7 +267,7 @@ const Page = () => {
               />
             </Grid>
 
-            <Grid item lg={2} xs={12} sm={6} md={4}>
+            <Grid item lg={1} xs={12} sm={6} md={4}>
               <InputWithTitle
                 title="Price"
                 type="number"
@@ -238,6 +275,13 @@ const Page = () => {
                 onChange={(value) => handleInputChange(value, index, "price")}
               />
             </Grid>
+
+            <Grid item lg={2} xs={12} sm={6} md={4}>
+              <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                Total: {row.total ? row.total.toFixed(2) : "0.00"}
+              </Typography>
+            </Grid>
+
             <Grid
               item
               lg={1}
@@ -247,9 +291,9 @@ const Page = () => {
               display="flex"
               alignItems="center"
             >
-              <IconButton 
-                onClick={() => removeRow(index)} 
-                color="error" 
+              <IconButton
+                onClick={() => removeRow(index)}
+                color="error"
                 disabled={rows.length <= 1}
               >
                 <MdDelete />

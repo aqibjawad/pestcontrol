@@ -94,10 +94,15 @@ const Sales = () => {
             <TableRow>
               <TableCell style={{ color: "white" }}>ID</TableCell>
               <TableCell style={{ color: "white" }}>Salesman Name</TableCell>
-              <TableCell style={{ color: "white" }}>Base Target</TableCell>
-              <TableCell style={{ color: "white" }}>Remaining Target</TableCell>
+              <TableCell style={{ color: "white" }}>Contract Target</TableCell>
               <TableCell style={{ color: "white" }}>Achieved Target</TableCell>
-              <TableCell style={{ color: "white" }}> Target % </TableCell>
+              <TableCell style={{ color: "white" }}>
+                Achieved Target %{" "}
+              </TableCell>
+              <TableCell style={{ color: "white" }}>
+                {" "}
+                Reamaining Target{" "}
+              </TableCell>
               <TableCell style={{ color: "white" }}>View Visits</TableCell>
               <TableCell style={{ color: "white" }}>View Jobs</TableCell>
               <TableCell style={{ color: "white" }}>View Incomes</TableCell>
@@ -111,7 +116,7 @@ const Sales = () => {
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>{row.name}</TableCell>
                     <TableCell>
-                      {row?.emp_contract_targets[0]?.base_target}
+                      {row?.emp_contract_targets[0]?.contract_target}
                     </TableCell>
                     <TableCell>
                       {row?.emp_contract_targets[0]?.achieved_target}
