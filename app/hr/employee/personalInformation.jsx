@@ -166,12 +166,38 @@ const PersonalInformation = ({
           {(data.role_id === "9" || data.role_id === "8") && (
             <Grid item lg={6} xs={12} md={6}>
               <InputWithTitle2
-                title="Contract Target"
+                title="Base Target"
                 type="text"
-                placeholder="Contract Target"
+                placeholder="Base Target"
+                name="base_target"
+                value={data.base_target}
+                onChange={(name, value) => onChange("base_target", value)}
+              />
+            </Grid>
+          )}
+
+          {(data.role_id === "9" || data.role_id === "8") && (
+            <Grid item lg={6} xs={12} md={6}>
+              <InputWithTitle2
+                title="Current Month Contract Target"
+                type="text"
+                placeholder="Current Month Contract Target"
                 name="contract_target"
                 value={data.contract_target}
                 onChange={(name, value) => onChange("contract_target", value)}
+              />
+            </Grid>
+          )}
+
+          {(data.role_id === "9" || data.role_id === "8") && (
+            <Grid item lg={6} xs={12} md={6}>
+              <InputWithTitle2
+                title="Current Month Achieved Target"
+                type="text"
+                placeholder="Current Month Achieved Target"
+                name="achieved_target"
+                value={data.achieved_target}
+                onChange={(name, value) => onChange("achieved_target", value)}
               />
             </Grid>
           )}

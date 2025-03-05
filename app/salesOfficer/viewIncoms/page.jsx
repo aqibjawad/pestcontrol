@@ -313,6 +313,14 @@ const Page = () => {
                   .reduce((sum, item) => sum + Number(item?.paid_amt || 0), 0)
                   .toFixed(2)}
               </Typography>
+{/* 
+              <Typography>
+                <b>Total Unpaid Amount:</b>{" "}
+                {salesData
+                  .reduce((sum, item) => sum + Number(item?._amt || 0), 0)
+                  .toFixed(2)}
+              </Typography> */}
+
               <Typography>
                 <b>Total Amount:</b>{" "}
                 {salesData

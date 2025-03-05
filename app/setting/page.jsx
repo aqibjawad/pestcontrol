@@ -78,6 +78,14 @@ const Page = () => {
                   <Link href="/account/viewSuppliers">View Suppliers</Link>
                 </div>
               </Grid>
+
+              <Grid className="" item xs={12} sm={6} md={4} lg={3}>
+                <div className={styles.addProd}>
+                  <Link href="/addPurchase">Add Purchase Order</Link>
+                </div>
+              </Grid>
+
+
             </Grid>
           </div>
         </Grid>

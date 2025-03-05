@@ -105,3 +105,5 @@ export const cashLedger = apiPrefix + "/admin/ledger";
 export const stock = apiPrefix + "/stock-report";
 
 export const visitFollowUps = apiPrefix + "/visit/filter/get";
+
+export const purchaeOrder = apiPrefix + "/purchase_order";
