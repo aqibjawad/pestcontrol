@@ -10,6 +10,8 @@ import { format } from "date-fns";
 import DateFilters from "../../components/generic/DateFilters";
 import withAuth from "@/utils/withAuth";
 
+import Link from "next/link";
+
 // Import export libraries
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
@@ -232,7 +234,10 @@ const Page = () => {
                 Products
               </th>
               <th className="py-5 px-4 border-b border-gray-200 text-left">
-                Total Grand Total
+                Total
+              </th>
+              <th className="py-5 px-4 border-b border-gray-200 text-left">
+                View Details
               </th>
             </tr>
           </thead>
@@ -244,7 +249,7 @@ const Page = () => {
                   (sum, detail) => sum + parseFloat(detail.grand_total),
                   0
                 )
-                .toFixed(2);
+                .toFixed(2); 
 
               // Combine product details into a single string
               const productDetails = order.details
@@ -262,6 +267,13 @@ const Page = () => {
                   <td className="py-5 px-4">{order.status}</td>
                   <td className="py-5 px-4">{productDetails}</td>
                   <td className="py-5 px-4">{totalGrandTotal}</td>
+                  <td className="py-2 px-4">
+                    <Link href={`/purchaseDetails/?id=${order.id}`}>
+                      <span className="text-blue-600 hover:text-blue-800">
+                        View Details
+                      </span>
+                    </Link>
+                  </td>
                 </tr>
               );
             })}
