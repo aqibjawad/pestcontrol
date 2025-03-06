@@ -22,37 +22,6 @@ const ListServiceTable = ({ startDate, endDate, tableRef }) => {
     grandTotal: 0,
   });
 
-  // const getAllCheques = async () => {
-  //   setFetchingData(true);
-  //   setLoadingDetails(true);
-
-  //   const queryParams = [];
-  //   if (startDate && endDate) {
-  //     queryParams.push(`start_date=${startDate}`);
-  //     queryParams.push(`end_date=${endDate}`);
-  //   } else {
-  //     const currentDate = new Date();
-  //     const startDate = startOfMonth(currentDate);
-  //     const endDate = endOfMonth(currentDate);
-  //     queryParams.push(`start_date=${format(startDate, "yyyy-MM-dd")}`);
-  //     queryParams.push(`end_date=${format(endDate, "yyyy-MM-dd")}`);
-  //   }
-
-  //   try {
-  //     const response = await api.getDataWithToken(
-  //       `${company}/receives/get?${queryParams.join("&")}`
-  //     );
-
-  //     setQuoteList(response.data);
-  //     calculateTotals(response.data);
-  //   } catch (error) {
-  //     console.error("Error fetching quotes:", error);
-  //   } finally {
-  //     setFetchingData(false);
-  //     setLoadingDetails(false);
-  //   }
-  // };
-
   const getAllCheques = async () => {
     setFetchingData(true);
     setLoadingDetails(true);
@@ -80,6 +49,8 @@ const ListServiceTable = ({ startDate, endDate, tableRef }) => {
       );
 
       setQuoteList(response.data);
+      // Add this line to calculate totals
+      calculateTotals(response.data);
     } catch (error) {
       console.error("Error fetching quotes:", error);
     } finally {

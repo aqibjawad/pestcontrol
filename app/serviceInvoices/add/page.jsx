@@ -476,6 +476,19 @@ const Page = () => {
                         onChange={(value) => setChequeDate(value)}
                       />
                     </Grid>
+
+                    <Grid item lg={4} xs={12} md={6}>
+                      <div className="flex items-center gap-2 mt-10">
+                        <input
+                          type="checkbox"
+                          id="settlement"
+                          checked={settlement}
+                          onChange={handleSettlementChange}
+                          className="w-4 h-4"
+                        />
+                        <label htmlFor="settlement">Settlement</label>
+                      </div>
+                    </Grid>
                     <Grid item xs={12} sm={6} md={4}>
                       <InputWithTitle
                         title="Cheque Number"
@@ -496,14 +509,28 @@ const Page = () => {
                 )}
 
                 {activeTab === "online" && (
-                  <Grid item xs={12} sm={6}>
-                    <InputWithTitle
-                      title="Transaction ID"
-                      type="text"
-                      value={transection_id}
-                      onChange={(value) => setTransactionId(value)}
-                    />
-                  </Grid>
+                  <>
+                    <Grid item xs={12} sm={6}>
+                      <InputWithTitle
+                        title="Transaction ID"
+                        type="text"
+                        value={transection_id}
+                        onChange={(value) => setTransactionId(value)}
+                      />
+                    </Grid>
+                    <Grid item lg={4} xs={12} md={6}>
+                      <div className="flex items-center gap-2 mt-10">
+                        <input
+                          type="checkbox"
+                          id="settlement"
+                          checked={settlement}
+                          onChange={handleSettlementChange}
+                          className="w-4 h-4"
+                        />
+                        <label htmlFor="settlement">Settlement</label>
+                      </div>
+                    </Grid>
+                  </>
                 )}
               </Grid>
             )}
@@ -519,7 +546,7 @@ const Page = () => {
                   "Submit"
                 )
               }
-              disabled={buttonLoading}
+              disabled={buttonLoading} // Disable the button when loading
             />
           </div>
         </Grid>

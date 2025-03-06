@@ -17,7 +17,7 @@ import {
   Typography,
   Card,
   CardContent,
-  Grid
+  Grid,
 } from "@mui/material";
 
 import { Cheques } from "@/networkUtil/Constants";
@@ -61,7 +61,21 @@ const Page = () => {
         `${Cheques}/receive/pending?${queryParams.join("&")}`
       );
 
-      setAdvanceList(response.data);
+      // Sort the cheques by date - closer dates first
+      const sortedCheques = [...response.data].sort((a, b) => {
+        const dateA = dayjs(a.cheque_date);
+        const dateB = dayjs(b.cheque_date);
+        const currentDate = dayjs();
+
+        // Calculate absolute difference from current date
+        const diffA = Math.abs(dateA.diff(currentDate, "day"));
+        const diffB = Math.abs(dateB.diff(currentDate, "day"));
+
+        // Return smaller difference first (closer to current date)
+        return diffA - diffB;
+      });
+
+      setAdvanceList(sortedCheques);
     } catch (error) {
       console.error("Error fetching quotes:", error);
     } finally {
@@ -90,7 +104,7 @@ const Page = () => {
         <All />
         <Pending />
         <Transactions />
-        <TotalRecieves/>
+        <TotalRecieves />
         <TotalPayments />
         <Invoices />
         <CommissionCal />
@@ -166,7 +180,7 @@ const Page = () => {
                             </Typography>
                           </Grid>
 
-                          <Grid item xs={3}>
+                          <Grid item xs={4}>
                             <Typography
                               variant="body1"
                               sx={{ fontWeight: "medium" }}
@@ -178,7 +192,7 @@ const Page = () => {
                             </Typography>
                           </Grid>
 
-                          <Grid item xs={3}>
+                          <Grid item xs={5}>
                             <Typography
                               variant="body1"
                               sx={{ fontWeight: "medium" }}
@@ -192,8 +206,10 @@ const Page = () => {
                               {vehicle?.bank?.bank_name}
                             </Typography>
                           </Grid>
+                        </Grid>
 
-                          <Grid item xs={3}>
+                        <Grid className="mt-2" container spacing={2} alignItems="center">
+                          <Grid item xs={12}>
                             <Typography
                               variant="body1"
                               sx={{ fontWeight: "medium" }}

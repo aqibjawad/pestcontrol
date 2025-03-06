@@ -35,7 +35,10 @@ const ListServiceTable = ({
   statusFilter,
   selectedReference,
   setReferenceOptions,
+  referenceOptions,
   searchQuery,
+  setSearchQuery,
+  setSelectedReference,
 }) => {
   const api = new APICall();
   const [fetchingData, setFetchingData] = useState(false);
@@ -58,8 +61,8 @@ const ListServiceTable = ({
   };
 
   const handleClickPay = (row) => {
-    setSelectedInvoiceId(row.id); // Keep this if you still need just the ID somewhere
-    setSelectedInvoice(row); // Add this line to store the complete invoice data
+    setSelectedInvoiceId(row.id);
+    setSelectedInvoice(row);
     setIsModalOpenPay(true);
   };
 
@@ -288,28 +291,55 @@ const ListServiceTable = ({
 
   return (
     <div>
-      <div className="flex gap-2 mb-4 justify-end">
-        <button
-          onClick={downloadPDF}
-          className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-        >
-          <Download size={16} />
-          PDF
-        </button>
-        <button
-          onClick={downloadExcel}
-          className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-        >
-          <Download size={16} />
-          Excel
-        </button>
-        <button
-          onClick={downloadCSV}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          <Download size={16} />
-          CSV
-        </button>
+      <div className="flex flex-wrap gap-2 mb-4 items-center">
+        {/* Left side with filter elements */}
+        <div className="flex-grow flex items-center gap-2">
+          <select
+            value={selectedReference}
+            onChange={(e) => setSelectedReference(e.target.value)}
+            className="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="all">All References</option>
+            {referenceOptions.map((reference, index) => (
+              <option key={index} value={reference}>
+                {reference}
+              </option>
+            ))}
+          </select>
+
+          <input
+            type="text"
+            placeholder="Search by area, firm or client name..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
+          />
+        </div>
+
+        {/* Right side with export buttons */}
+        <div className="flex gap-2">
+          <button
+            onClick={downloadPDF}
+            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            <Download size={16} />
+            PDF
+          </button>
+          <button
+            onClick={downloadExcel}
+            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+          >
+            <Download size={16} />
+            Excel
+          </button>
+          <button
+            onClick={downloadCSV}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            <Download size={16} />
+            CSV
+          </button>
+        </div>
       </div>
 
       <div className={tableStyles.tableContainer}>
@@ -549,7 +579,7 @@ const ListServiceTable = ({
         open={isModalOpenPay}
         onClose={() => setIsModalOpenPay(false)}
         invoiceId={selectedInvoiceId}
-        invoiceData={selectedInvoice} // Add this line to pass complete data
+        invoiceData={selectedInvoice}
         onAssign={handlePay}
         onRefresh={handleRefresh}
       />
@@ -650,31 +680,6 @@ const Invoices = ({ isVisible }) => {
             </button>
           </div>
           <div className="flex gap-4">
-            <div className="flex items-center gap-2">
-              <select
-                value={selectedReference}
-                onChange={(e) => setSelectedReference(e.target.value)}
-                className="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="all">All References</option>
-                {referenceOptions.map((reference, index) => (
-                  <option key={index} value={reference}>
-                    {reference}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                placeholder="Search by area, firm or client name..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
-              />
-            </div>
-
             {urlStartDate ? (
               <div>
                 <p>Start Date: {urlStartDate}</p>
@@ -698,9 +703,12 @@ const Invoices = ({ isVisible }) => {
             updateTotalAmount={updateTotalAmount}
             statusFilter={statusFilter}
             selectedReference={selectedReference}
+            setSelectedReference={setSelectedReference}
             isVisible={isVisible}
             setReferenceOptions={setReferenceOptions}
+            referenceOptions={referenceOptions}
             searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
           />
         </div>
       </div>

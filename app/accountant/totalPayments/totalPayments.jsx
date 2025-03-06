@@ -303,6 +303,7 @@ const ListServiceTable = ({ startDate, endDate }) => {
                             {transaction?.referenceable?.expense_name ||
                               transaction?.referenceable?.name ||
                               transaction?.referenceable?.supplier_name ||
+                              transaction?.referenceable?.vehicle_number ||
                               "other Payments"}
                           </td>
                           <td className="py-3 px-4 text-sm">

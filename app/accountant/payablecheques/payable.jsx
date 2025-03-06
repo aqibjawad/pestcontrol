@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import tableStyles from "../../../styles/invoiceDetails.module.css";
 import { Cheques } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
-import { Skeleton, Modal, Box, Select, MenuItem } from "@mui/material";
+import { Skeleton, Modal, Box, Select, MenuItem, CircularProgress } from "@mui/material";
 import { AppHelpers } from "@/Helper/AppHelpers";
 import DateFilters2 from "@/components/generic/DateFilters2";
 import { startOfMonth, endOfMonth, format } from "date-fns";
@@ -38,6 +38,9 @@ const ListServiceTable = ({
   const [totalChequeAmount, setTotalChequeAmount] = useState(0);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState(null);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [returnLoading, setReturnLoading] = useState(false);
+
   const formatDate = (dateString) => {
     try {
       return AppHelpers.convertDate(dateString);
@@ -173,6 +176,7 @@ const ListServiceTable = ({
 
   const handlePaySubmit = async () => {
     try {
+      setPaymentLoading(true);
       const requestData = {
         id: selectedRowId,
         status: "paid",
@@ -200,6 +204,8 @@ const ListServiceTable = ({
     } catch (error) {
       console.error("Error submitting payment:", error);
       // You might want to show an error message to the user here
+    } finally {
+      setPaymentLoading(false);
     }
   };
 
@@ -220,6 +226,7 @@ const ListServiceTable = ({
 
   const handleReturnSubmit = async () => {
     try {
+      setReturnLoading(true);
       const requestData = {
         id: selectedRowId,
         status: "deferred",
@@ -237,6 +244,8 @@ const ListServiceTable = ({
       setSelectedRowId(null);
     } catch (error) {
       console.error("Error returning cheque:", error);
+    } finally {
+      setReturnLoading(false);
     }
   };
 
@@ -401,6 +410,7 @@ const ListServiceTable = ({
             </div>
           </div>
 
+          {/* Pay Modal with CircularProgress */}
           <Modal
             open={isPayModalOpen}
             onClose={() => setIsPayModalOpen(false)}
@@ -421,20 +431,33 @@ const ListServiceTable = ({
                 <button
                   onClick={() => setIsPayModalOpen(false)}
                   className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+                  disabled={paymentLoading}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handlePaySubmit}
-                  className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                  className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 relative"
+                  disabled={paymentLoading}
                 >
-                  Confirm Payment
+                  {paymentLoading ? (
+                    <>
+                      <span className="opacity-0">Confirm Payment</span>
+                      <CircularProgress 
+                        size={24} 
+                        className="absolute left-1/2 top-1/2 -ml-3 -mt-3" 
+                        color="inherit" 
+                      />
+                    </>
+                  ) : (
+                    "Confirm Payment"
+                  )}
                 </button>
               </div>
             </Box>
           </Modal>
 
-          {/* Return Modal */}
+          {/* Return Modal with CircularProgress */}
           <Modal
             open={isReturnModalOpen}
             onClose={() => setIsReturnModalOpen(false)}
@@ -465,15 +488,27 @@ const ListServiceTable = ({
                 <button
                   onClick={() => setIsReturnModalOpen(false)}
                   className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+                  disabled={returnLoading}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleReturnSubmit}
-                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                  disabled={!returnReason}
+                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 relative"
+                  disabled={returnLoading || !returnReason}
                 >
-                  Confirm Return
+                  {returnLoading ? (
+                    <>
+                      <span className="opacity-0">Confirm Return</span>
+                      <CircularProgress 
+                        size={24} 
+                        className="absolute left-1/2 top-1/2 -ml-3 -mt-3" 
+                        color="inherit" 
+                      />
+                    </>
+                  ) : (
+                    "Confirm Return"
+                  )}
                 </button>
               </div>
             </Box>
@@ -542,20 +577,6 @@ const PayableCheques = ({ isVisible }) => {
 
           {/* Date filter aligned to the right */}
           <div className="flex items-center gap-4">
-            {/* Reference Dropdown */}
-            {/* <select
-              value={selectedReference}
-              onChange={(e) => setSelectedReference(e.target.value)}
-              className="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="all">All Banks</option>
-              {referenceOptions.map((reference, index) => (
-                <option key={index} value={reference}>
-                  {reference}
-                </option>
-              ))}
-            </select> */}
-
             {/* Date Filter Component */}
             <div className="flex items-center bg-green-600 text-white font-semibold text-base h-11 px-4 py-3 rounded-lg">
               <DateFilters2 onDateChange={handleDateChange} />

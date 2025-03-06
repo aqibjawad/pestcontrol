@@ -4,7 +4,14 @@ import React, { useState, useEffect } from "react";
 import tableStyles from "../../styles/upcomingJobsStyles.module.css";
 import { Cheques } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
-import { Skeleton, Modal, Box, Select, MenuItem } from "@mui/material";
+import {
+  Skeleton,
+  Modal,
+  Box,
+  Select,
+  MenuItem,
+  CircularProgress,
+} from "@mui/material";
 import { AppHelpers } from "@/Helper/AppHelpers";
 import DateFilters2 from "@/components/generic/DateFilters2";
 import { startOfMonth, endOfMonth, format } from "date-fns";
@@ -37,6 +44,7 @@ const ListServiceTable = ({
   const [totalChequeAmount, setTotalChequeAmount] = useState(0);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const formatDate = (dateString) => {
     try {
       return AppHelpers.convertDate(dateString);
@@ -198,6 +206,7 @@ const ListServiceTable = ({
   };
 
   const handleCreateSubmit = async () => {
+    setIsSubmitting(true);
     try {
       const requestData = {
         id: selectedRowId,
@@ -213,8 +222,11 @@ const ListServiceTable = ({
       setNewChequeDate("");
       setSelectedRowId(null);
       setSelectedStatus("");
+      setRejectReason("");
     } catch (error) {
       console.error("Error updating cheque:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -222,6 +234,8 @@ const ListServiceTable = ({
     setIsCreateModalOpen(false);
     setSelectedRowId(null);
     setNewChequeDate("");
+    setSelectedStatus("");
+    setRejectReason("");
   };
 
   const [selectedStatus, setSelectedStatus] = useState("");
@@ -447,14 +461,27 @@ const ListServiceTable = ({
             <button
               onClick={handleCloseModal}
               className="px-4 py-2 border rounded-lg"
+              disabled={isSubmitting}
             >
               Cancel
             </button>
             <button
               onClick={handleCreateSubmit}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center justify-center"
+              disabled={isSubmitting}
             >
-              Submit
+              {isSubmitting ? (
+                <>
+                  <CircularProgress
+                    size={20}
+                    color="inherit"
+                    className="mr-2"
+                  />
+                  Submitting...
+                </>
+              ) : (
+                "Submit"
+              )}
             </button>
           </div>
         </Box>

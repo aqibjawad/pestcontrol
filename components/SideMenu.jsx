@@ -172,6 +172,16 @@ export default function SideMenu({ children }) {
           icon: "/quotes.png",
         },
         {
+          name: "Receivable cheques",
+          url: "cheques",
+          icon: "/quotes.png",
+        },
+        {
+          name: "Payable cheques",
+          url: "accountant/payablecheques/",
+          icon: "/quotes.png",
+        },
+        {
           name: "Outstandings",
           url: "badTransac",
           icon: <MdOutlineQueryStats />,
