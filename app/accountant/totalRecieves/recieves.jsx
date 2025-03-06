@@ -215,7 +215,7 @@ const ListServiceTable = ({ startDate, endDate, tableRef }) => {
               </>
             ) : (
               // Actual data rows when loaded
-              invoiceList.map((transaction, index) => {
+              invoiceList?.map((transaction, index) => {
                 const total =
                   parseFloat(transaction.cash_amt || 0) +
                   parseFloat(transaction.online_amt || 0) +
@@ -466,7 +466,7 @@ const TotalRecieves = ({ isVisible }) => {
   };
 
   return (
-    <div className="h-full">
+    <div className="">
       <div className="px-6 py-4">
         <div className="flex justify-between items-center mb-4">
           <div className="text-xl font-semibold">Total Receives</div>

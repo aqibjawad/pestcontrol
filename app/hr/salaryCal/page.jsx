@@ -22,9 +22,20 @@ import Tabs from "./tabs";
 
 import Dropdown2 from "@/components/generic/DropDown2";
 
-import SalaryPDFGenerator from "./salarypdf";
+// Remove the static import of SalaryPDFGenerator
+// import SalaryPDFGenerator from "./salarypdf";
+
+// Instead, use dynamic import only when needed
+import dynamic from "next/dynamic";
 
 const SalaryCal = () => {
+  // Properly implement dynamic import with ssr: false to prevent server-side rendering
+  // This is crucial because React-PDF uses browser-only APIs
+  const SalaryPDFGenerator = dynamic(() => import("./salarypdf"), {
+    ssr: false,
+    loading: () => <p>Loading PDF generator...</p>,
+  });
+
   const api = new APICall();
   const router = useRouter();
 
@@ -479,6 +490,7 @@ const SalaryCal = () => {
         title="Generate PDF Report"
       />
 
+      {/* Only render PDF component when showPDF is true */}
       {showPDF && (
         <Modal
           open={showPDF}

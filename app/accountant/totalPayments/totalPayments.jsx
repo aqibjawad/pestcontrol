@@ -4,10 +4,8 @@ import React, { useState, useEffect, useRef } from "react";
 import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
 import { company } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
-import { Skeleton } from "@mui/material";
-import { AppHelpers } from "@/Helper/AppHelpers";
 import DateFilters from "@/components/generic/DateFilters";
-import { startOfMonth, endOfMonth, format } from "date-fns";
+import { format } from "date-fns";
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
 
@@ -25,7 +23,7 @@ const ListServiceTable = ({ startDate, endDate }) => {
     let totalCheque = 0;
     let grandTotal = 0;
 
-    invoiceList.forEach((transaction) => {
+    invoiceList?.forEach((transaction) => {
       totalCash += parseFloat(transaction.cash_amt || 0);
       totalBank += parseFloat(transaction.online_amt || 0);
       totalCheque += parseFloat(transaction.cheque_amt || 0);
@@ -286,7 +284,7 @@ const ListServiceTable = ({ startDate, endDate }) => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {invoiceList.map((transaction, index) => {
+                    {invoiceList?.map((transaction, index) => {
                       const total =
                         parseFloat(transaction.cash_amt || 0) +
                         parseFloat(transaction.online_amt || 0) +

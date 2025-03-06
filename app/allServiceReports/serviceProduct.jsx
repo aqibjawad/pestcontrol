@@ -578,7 +578,7 @@ const ProductReport = () => {
     <div>
       <div style={{ padding: "30px", borderRadius: "10px" }}>
         <Typography variant="h5" fontWeight={600} mb={4}>
-          Product Use Report
+          Product Use Report By Firm and Client
         </Typography>
 
         <Box
@@ -626,7 +626,7 @@ const ProductReport = () => {
             spacing={2}
             alignItems="center"
           >
-            <Button
+            {/* <Button
               variant="contained"
               startIcon={<FileDownloadIcon />}
               onClick={() => handleExport("excel")}
@@ -634,7 +634,7 @@ const ProductReport = () => {
               disabled={filteredContent?.length === 0}
             >
               Excel
-            </Button>
+            </Button> */}
             <Button
               variant="contained"
               startIcon={<FileDownloadIcon />}
@@ -644,7 +644,7 @@ const ProductReport = () => {
             >
               PDF
             </Button>
-            <Button
+            {/* <Button
               variant="contained"
               startIcon={<FileDownloadIcon />}
               onClick={() => handleExport("csv")}
@@ -652,7 +652,7 @@ const ProductReport = () => {
               disabled={filteredContent?.length === 0}
             >
               CSV
-            </Button>
+            </Button> */}
             <div
               style={{
                 backgroundColor: "#32A92E",

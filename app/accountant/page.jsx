@@ -7,6 +7,8 @@ import Invoices from "../invoice/invoices";
 import Vehicles from "../account/viewVehicles/vehciles";
 import Pending from "./payments/pending";
 import CommissionCal from "../hr/comCal/page";
+import TotalRecieves from "./totalRecieves/recieves";
+import TotalPayments from "./totalPayments/totalPayments";
 
 import {
   Tabs,
@@ -15,12 +17,14 @@ import {
   Typography,
   Card,
   CardContent,
-  Stack,
-  Avatar,
+  Grid
 } from "@mui/material";
 
 import { Cheques } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
+
+import PaymentsTotal from "./totalPayments";
+import Agreement from "./agreements";
 
 import { startOfMonth, endOfMonth, format } from "date-fns";
 import dayjs from "dayjs";
@@ -54,7 +58,7 @@ const Page = () => {
 
     try {
       const response = await api.getDataWithToken(
-        `${Cheques}/pending?${queryParams.join("&")}`
+        `${Cheques}/receive/pending?${queryParams.join("&")}`
       );
 
       setAdvanceList(response.data);
@@ -80,18 +84,20 @@ const Page = () => {
   };
 
   return (
-    <div className="grid grid-cols-3 gap-4 p-4">
-      {/* Left Grid Section */}
-      <div className="col-span-2 space-y-4">
+    <div className="grid grid-cols-4 gap-4 p-4">
+      {/* Left Grid Section - Now wider (3 columns instead of 2) */}
+      <div className="col-span-3 space-y-4">
         <All />
         <Pending />
         <Transactions />
+        <TotalRecieves/>
+        <TotalPayments />
         <Invoices />
         <CommissionCal />
         <Vehicles />
       </div>
 
-      {/* Right Grid Section (Tabs) */}
+      {/* Right Grid Section (Tabs) - Now narrower (1 column out of 4 instead of 1 out of 3) */}
       <div className="col-span-1 p-2 border rounded-lg bg-gray-100">
         {/* Tabs Section */}
         <Tabs
@@ -102,6 +108,7 @@ const Page = () => {
         >
           <Tab label="Advance Recieveable" />
           <Tab label="Advance Payments" />
+          <Tab label="Renewable Agreements" />
         </Tabs>
 
         {/* Tab Panels */}
@@ -131,10 +138,10 @@ const Page = () => {
                       boxShadow: 1,
                       "&:hover": { boxShadow: 3 },
                       transition: "box-shadow 0.3s",
-                      marginTop:"1rem"
+                      marginTop: "1rem",
                     }}
                   >
-                    <CardContent>
+                    <CardContent sx={{ p: 1 }}>
                       <Box
                         sx={{
                           p: 2,
@@ -143,12 +150,8 @@ const Page = () => {
                           color: "black",
                         }}
                       >
-                        <Stack
-                          direction="row"
-                          justifyContent="space-between"
-                          alignItems="center"
-                        >
-                          <Box sx={{ textAlign: "right" }}>
+                        <Grid container spacing={2} alignItems="center">
+                          <Grid item xs={3}>
                             <Typography
                               variant="body1"
                               sx={{ fontWeight: "medium" }}
@@ -157,53 +160,54 @@ const Page = () => {
                             </Typography>
                             <Typography
                               variant="body2"
-                              sx={{ fontWeight: "medium", textAlign: "center" }}
+                              sx={{ fontWeight: "medium" }}
                             >
                               {vehicle.cheque_amount}
                             </Typography>
-                          </Box>
+                          </Grid>
 
-                          <Box sx={{ textAlign: "right" }}>
+                          <Grid item xs={3}>
                             <Typography
                               variant="body1"
-                              sx={{ fontWeight: "medium", textAlign: "center" }}
+                              sx={{ fontWeight: "medium" }}
                             >
                               Date
                             </Typography>
                             <Typography variant="body2">
                               {vehicle.cheque_date}
                             </Typography>
-                          </Box>
-                          <Box sx={{ textAlign: "right" }}>
+                          </Grid>
+
+                          <Grid item xs={3}>
                             <Typography
                               variant="body1"
-                              sx={{ fontWeight: "medium", textAlign: "center" }}
+                              sx={{ fontWeight: "medium" }}
                             >
                               Bank Name
                             </Typography>
                             <Typography
                               variant="body2"
-                              sx={{ fontWeight: "medium", textAlign: "center" }}
+                              sx={{ fontWeight: "medium" }}
                             >
                               {vehicle?.bank?.bank_name}
                             </Typography>
-                          </Box>
+                          </Grid>
 
-                          <Box sx={{ textAlign: "right" }}>
+                          <Grid item xs={3}>
                             <Typography
                               variant="body1"
-                              sx={{ fontWeight: "medium", textAlign: "center" }}
+                              sx={{ fontWeight: "medium" }}
                             >
                               Client Name
                             </Typography>
                             <Typography
                               variant="body2"
-                              sx={{ fontWeight: "medium", textAlign: "center" }}
+                              sx={{ fontWeight: "medium" }}
                             >
                               {vehicle?.user?.name}
                             </Typography>
-                          </Box>
-                        </Stack>
+                          </Grid>
+                        </Grid>
                       </Box>
                     </CardContent>
                   </Card>
@@ -214,7 +218,13 @@ const Page = () => {
 
           {selectedIndexTabs === 1 && (
             <Box sx={{ p: 2 }}>
-              <Typography variant="h6">Remaining Content</Typography>
+              <PaymentsTotal />
+            </Box>
+          )}
+
+          {selectedIndexTabs === 2 && (
+            <Box sx={{ p: 2 }}>
+              <Agreement />
             </Box>
           )}
         </Box>

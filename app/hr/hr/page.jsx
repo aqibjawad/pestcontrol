@@ -2,13 +2,26 @@
 
 import React, { useState } from "react";
 import styles from "../../../styles/tabs.module.css";
-import AllEmployees from "@/app/operations/viewEmployees/allEmployees";
-import SalarCal from "../salaryCal/page";
-import CommissionCal from "../comCal/page";
-import SalaryTotal from "../salaryTotal/page";
-import Ledger from "../employeeLedger/ledger";
+import dynamic from "next/dynamic";
 import withAuth from "@/utils/withAuth";
-import EmpLeaves from "../empLeaves/empLeaves";
+
+// Dynamically import components that might use @react-pdf/renderer
+// This prevents the ESM/CommonJS conflict during server-side rendering
+const AllEmployees = dynamic(
+  () => import("@/app/operations/viewEmployees/allEmployees"),
+  { ssr: false }
+);
+const SalarCal = dynamic(() => import("../salaryCal/page"), { ssr: false });
+const CommissionCal = dynamic(() => import("../comCal/page"), { ssr: false });
+const SalaryTotal = dynamic(() => import("../salaryTotal/page"), {
+  ssr: false,
+});
+const Ledger = dynamic(() => import("../employeeLedger/ledger"), {
+  ssr: false,
+});
+const EmpLeaves = dynamic(() => import("../empLeaves/empLeaves"), {
+  ssr: false,
+});
 
 const TabPanel = (props) => {
   const { children, value, index, ...other } = props;
@@ -77,7 +90,6 @@ const Page = () => {
           >
             Employee Ledger
           </div>
-
           <div
             className={`${styles.tabPaymentButton} ${
               activeTab === 5 ? styles.active : ""

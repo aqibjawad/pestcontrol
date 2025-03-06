@@ -324,7 +324,7 @@ const ListServiceTable = ({ startDate, endDate, updateTotalAmount }) => {
   );
 };
 
-const Invoices = ({ isVisible }) => {
+const Invoices = () => {
   const getDateParamsFromUrl = () => {
     if (typeof window !== "undefined") {
       const searchParams = new URL(window.location.href).searchParams;
@@ -404,7 +404,6 @@ const Invoices = ({ isVisible }) => {
             startDate={startDate}
             endDate={endDate}
             updateTotalAmount={updateTotalAmount}
-            isVisible={isVisible}
           />
         </div>
       </div>
