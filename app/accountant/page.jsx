@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import All from "./all/all";
-import Transactions from "./viewTransactions/transactions";
+// import Transactions from "./viewTransactions/transactions";
 import Invoices from "../invoice/invoices";
 import Vehicles from "../account/viewVehicles/vehciles";
 import Pending from "./payments/pending";
@@ -103,7 +103,7 @@ const Page = () => {
       <div className="col-span-3 space-y-4">
         <All />
         <Pending />
-        <Transactions />
+        {/* <Transactions /> */}
         <TotalRecieves />
         <TotalPayments />
         <Invoices />

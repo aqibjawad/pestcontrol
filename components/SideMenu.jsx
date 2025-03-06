@@ -172,6 +172,11 @@ export default function SideMenu({ children }) {
           icon: "/quotes.png",
         },
         {
+          name: "Sales Report",
+          url: "accountant/salesReport",
+          icon: "/quotes.png",
+        },
+        {
           name: "Receivable cheques",
           url: "cheques",
           icon: "/quotes.png",
