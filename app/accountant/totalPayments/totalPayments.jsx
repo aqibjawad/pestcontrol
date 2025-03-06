@@ -9,7 +9,7 @@ import { format } from "date-fns";
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
 
-const ListServiceTable = ({ startDate, endDate }) => {
+const ListServiceTable = ({ startDate, endDate, onDataLoaded }) => {
   const api = new APICall();
   const [fetchingData, setFetchingData] = useState(false);
   const [invoiceList, setQuoteList] = useState([]);
@@ -70,6 +70,11 @@ const ListServiceTable = ({ startDate, endDate }) => {
       );
 
       setQuoteList(response.data);
+
+      // Pass data to parent component
+      if (onDataLoaded) {
+        onDataLoaded(response.data);
+      }
     } catch (error) {
       console.error("Error fetching quotes:", error);
     } finally {
@@ -96,143 +101,9 @@ const ListServiceTable = ({ startDate, endDate }) => {
     return new Date(dateString).toLocaleDateString("en-IN");
   };
 
-  // Generate PDF from table data
-  const generatePDF = () => {
-    if (!invoiceList) return;
-
-    try {
-      const doc = new jsPDF();
-
-      // Add logo
-      const logoWidth = 45;
-      const logoHeight = 30;
-      const logoX = 15;
-      const logoY = 15;
-      doc.addImage("/logo.jpeg", "PNG", logoX, logoY, logoWidth, logoHeight);
-
-      // Page width calculation
-      const pageWidth = doc.internal.pageSize.width;
-
-      // Add details on the right
-      const detailsX = pageWidth - 80;
-      const detailsY = logoY + 5;
-      const lineHeight = 6;
-
-      // Add title and details on right side
-      doc.setFontSize(13);
-      doc.text("Total Payments Report", detailsX, detailsY, { align: "left" });
-
-      doc.setFontSize(11);
-      // You can add more details here if needed
-      doc.text(
-        `Generated: ${formatDate(new Date())}`,
-        detailsX,
-        detailsY + lineHeight,
-        { align: "left" }
-      );
-
-      // Add date range if present
-      if (startDate && endDate) {
-        doc.text(
-          `Date Range: ${formatDate(startDate)} - ${formatDate(endDate)}`,
-          15,
-          60
-        );
-      }
-
-      // Add main title
-      doc.setFontSize(18);
-      doc.text("Total Payments Report", 15, 70);
-
-      // Create table data structure for PDF
-      const tableData = invoiceList.map((transaction, index) => {
-        const total =
-          parseFloat(transaction.cash_amt || 0) +
-          parseFloat(transaction.online_amt || 0) +
-          parseFloat(transaction.cheque_amt || 0);
-        return [
-          index + 1,
-          formatDate(transaction.created_at),
-          transaction.description,
-          transaction.entry_type === "cr" ? "Credit" : "Debit",
-          transaction.cash_amt !== "0.00"
-            ? formatAmount(transaction.cash_amt)
-            : "",
-          transaction.online_amt !== "0.00"
-            ? formatAmount(transaction.online_amt)
-            : "",
-          transaction.cheque_amt !== "0.00"
-            ? formatAmount(transaction.cheque_amt)
-            : "",
-          formatAmount(total),
-        ];
-      });
-
-      // Add summary row
-      tableData.push([
-        "",
-        "",
-        "TOTAL",
-        "",
-        formatAmount(totals.totalCash),
-        formatAmount(totals.totalBank),
-        formatAmount(totals.totalCheque),
-        formatAmount(totals.grandTotal),
-      ]);
-
-      // Generate table
-      doc.autoTable({
-        head: [
-          [
-            "Sr.",
-            "Date",
-            "Description",
-            "Type",
-            "Cash Amount",
-            "Bank Amount",
-            "Cheque Amount",
-            "Total",
-          ],
-        ],
-        body: tableData,
-        startY: 80,
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [22, 163, 74], textColor: 255 },
-        footStyles: { fillColor: [240, 240, 240] },
-        alternateRowStyles: { fillColor: [245, 245, 245] },
-      });
-
-      doc.save("total_payments_report.pdf");
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-      // You could add error handling here, such as displaying a notification
-    }
-  };
-
   return (
     <div>
-      <div className="mb-4 flex justify-end">
-        <button
-          onClick={generatePDF}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded flex items-center"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 mr-2"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-            />
-          </svg>
-          Download PDF
-        </button>
-      </div>
+      <div className="mb-4 flex justify-end"></div>
 
       <div className={tableStyles.tableContainer}>
         <div
@@ -394,6 +265,8 @@ const TotalPayments = ({ isVisible }) => {
     getDateParamsFromUrl();
   const [startDate, setStartDate] = useState(urlStartDate);
   const [endDate, setEndDate] = useState(urlEndDate);
+  const [invoiceList, setInvoiceList] = useState([]);
+  const tableRef = useRef(null);
 
   useEffect(() => {
     if (urlStartDate && urlEndDate) {
@@ -405,6 +278,161 @@ const TotalPayments = ({ isVisible }) => {
   const handleDateChange = (start, end) => {
     setStartDate(start);
     setEndDate(end);
+  };
+
+  const handleDataLoaded = (data) => {
+    setInvoiceList(data);
+  };
+
+  const formatAmount = (amount) => {
+    return parseFloat(amount || 0).toLocaleString("en-IN", {
+      maximumFractionDigits: 2,
+      minimumFractionDigits: 2,
+      style: "currency",
+      currency: "AED",
+    });
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleDateString("en-IN");
+  };
+
+  // Calculate totals for summary row - moved to parent
+  const calculateTotals = () => {
+    let totalCash = 0;
+    let totalBank = 0;
+    let totalCheque = 0;
+    let grandTotal = 0;
+
+    invoiceList?.forEach((transaction) => {
+      totalCash += parseFloat(transaction.cash_amt || 0);
+      totalBank += parseFloat(transaction.online_amt || 0);
+      totalCheque += parseFloat(transaction.cheque_amt || 0);
+      grandTotal +=
+        parseFloat(transaction.cash_amt || 0) +
+        parseFloat(transaction.online_amt || 0) +
+        parseFloat(transaction.cheque_amt || 0);
+    });
+
+    return {
+      totalCash,
+      totalBank,
+      totalCheque,
+      grandTotal,
+    };
+  };
+
+  // Generate PDF from table data - moved to parent
+  const generatePDF = () => {
+    if (!invoiceList || invoiceList.length === 0) return;
+
+    try {
+      const doc = new jsPDF();
+      const totals = calculateTotals();
+
+      // Add logo
+      const logoWidth = 45;
+      const logoHeight = 30;
+      const logoX = 15;
+      const logoY = 15;
+      doc.addImage("/logo.jpeg", "PNG", logoX, logoY, logoWidth, logoHeight);
+
+      // Page width calculation
+      const pageWidth = doc.internal.pageSize.width;
+
+      // Add details on the right
+      const detailsX = pageWidth - 80;
+      const detailsY = logoY + 5;
+      const lineHeight = 6;
+
+      // Add title and details on right side
+      doc.setFontSize(13);
+      doc.text("Total Payments Report", detailsX, detailsY, { align: "left" });
+
+      doc.setFontSize(11);
+      doc.text(
+        `Generated: ${formatDate(new Date())}`,
+        detailsX,
+        detailsY + lineHeight,
+        { align: "left" }
+      );
+
+      // Add date range if present
+      if (startDate && endDate) {
+        doc.text(
+          `Date Range: ${formatDate(startDate)} - ${formatDate(endDate)}`,
+          15,
+          60
+        );
+      }
+
+      // Add main title
+      doc.setFontSize(18);
+      doc.text("Total Payments Report", 15, 70);
+
+      // Create table data structure for PDF
+      const tableData = invoiceList.map((transaction, index) => {
+        const total =
+          parseFloat(transaction.cash_amt || 0) +
+          parseFloat(transaction.online_amt || 0) +
+          parseFloat(transaction.cheque_amt || 0);
+        return [
+          index + 1,
+          formatDate(transaction.created_at),
+          transaction.description,
+          transaction.entry_type === "cr" ? "Credit" : "Debit",
+          transaction.cash_amt !== "0.00"
+            ? formatAmount(transaction.cash_amt)
+            : "",
+          transaction.online_amt !== "0.00"
+            ? formatAmount(transaction.online_amt)
+            : "",
+          transaction.cheque_amt !== "0.00"
+            ? formatAmount(transaction.cheque_amt)
+            : "",
+          formatAmount(total),
+        ];
+      });
+
+      // Add summary row
+      tableData.push([
+        "",
+        "",
+        "TOTAL",
+        "",
+        formatAmount(totals.totalCash),
+        formatAmount(totals.totalBank),
+        formatAmount(totals.totalCheque),
+        formatAmount(totals.grandTotal),
+      ]);
+
+      // Generate table
+      doc.autoTable({
+        head: [
+          [
+            "Sr.",
+            "Date",
+            "Description",
+            "Type",
+            "Cash Amount",
+            "Bank Amount",
+            "Cheque Amount",
+            "Total",
+          ],
+        ],
+        body: tableData,
+        startY: 80,
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [22, 163, 74], textColor: 255 },
+        footStyles: { fillColor: [240, 240, 240] },
+        alternateRowStyles: { fillColor: [245, 245, 245] },
+      });
+
+      doc.save("total_payments_report.pdf");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    }
   };
 
   return (
@@ -429,6 +457,26 @@ const TotalPayments = ({ isVisible }) => {
             <div className="bg-green-600 text-white font-semibold text-base h-11 px-4 flex items-center rounded-lg">
               <DateFilters onDateChange={handleDateChange} />
             </div>
+            <button
+              onClick={generatePDF}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded flex items-center"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 mr-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                />
+              </svg>
+              Download PDF
+            </button>
           </div>
         </div>
       </div>
@@ -439,6 +487,7 @@ const TotalPayments = ({ isVisible }) => {
             handleDateChange={handleDateChange}
             startDate={startDate}
             endDate={endDate}
+            onDataLoaded={handleDataLoaded}
           />
         </div>
       </div>

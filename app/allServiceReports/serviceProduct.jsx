@@ -40,6 +40,11 @@ const ProductReport = () => {
 
   const [firms, setFirms] = useState([]);
   const [selectedFirm, setSelectedFirm] = useState("all");
+  
+  // New state for product filtering
+  const [uniqueProducts, setUniqueProducts] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState("all");
+  
   const [noDataFound, setNoDataFound] = useState(false);
 
   const [startDate, setStartDate] = useState(null);
@@ -123,6 +128,11 @@ const ProductReport = () => {
         filterText += filterText
           ? `, Firm: ${selectedFirm}`
           : `Firm: ${selectedFirm}`;
+      }
+      if (selectedProduct !== "all") {
+        filterText += filterText
+          ? `, Product: ${selectedProduct}`
+          : `Product: ${selectedProduct}`;
       }
       if (!filterText) {
         filterText = "All Data";
@@ -217,6 +227,7 @@ const ProductReport = () => {
         setFilteredContent([]);
         setCaptains([]);
         setFirms([]);
+        setUniqueProducts([]);
         setFetchingData(false);
         return;
       }
@@ -271,6 +282,8 @@ const ProductReport = () => {
 
       // Extract all used_products from all service reports
       const allProducts = [];
+      const uniqueProductNames = new Set();
+      
       if (response?.data && Array.isArray(response.data)) {
         response.data.forEach((report) => {
           const firmName =
@@ -291,17 +304,24 @@ const ProductReport = () => {
 
           if (report.used_products && Array.isArray(report.used_products)) {
             // Add captain and firm information to each product
-            const productsWithInfo = report.used_products.map((product) => ({
-              ...product,
-              captain_name: report.job?.captain?.name || "Unknown",
-              firm_name: firmName,
-            }));
+            const productsWithInfo = report.used_products.map((product) => {
+              if (product && product.product && product.product.product_name) {
+                uniqueProductNames.add(product.product.product_name);
+              }
+              
+              return {
+                ...product,
+                captain_name: report.job?.captain?.name || "Unknown",
+                firm_name: firmName,
+              };
+            });
             allProducts.push(...productsWithInfo);
           }
         });
       }
 
       setProductsList(allProducts);
+      setUniqueProducts(Array.from(uniqueProductNames));
 
       // Updated debug info with product counts
       setDebugInfo((prevDebug) => ({
@@ -411,11 +431,18 @@ const ProductReport = () => {
       console.log(
         "Filtering with captain:",
         selectedCaptain,
-        "and firm:",
-        selectedFirm
+        "firm:",
+        selectedFirm,
+        "and product:",
+        selectedProduct
       );
+      
       console.log("Available firms in data:", [
         ...new Set(mappedContent.map((item) => item.firm_name)),
+      ]);
+      
+      console.log("Available products in data:", [
+        ...new Set(mappedContent.map((item) => item.product_name)),
       ]);
 
       // Debug logging of selected firm
@@ -460,6 +487,17 @@ const ProductReport = () => {
 
         console.log("After firm filtering:", filtered.length, "items");
       }
+      
+      // Filter by product if selected
+      if (selectedProduct !== "all") {
+        console.log("Before product filtering:", filtered.length, "items");
+        
+        filtered = filtered.filter((item) => {
+          return item.product_name === selectedProduct;
+        });
+        
+        console.log("After product filtering:", filtered.length, "items");
+      }
 
       console.log("Filtered data count:", filtered.length);
       setFilteredContent(filtered);
@@ -468,7 +506,7 @@ const ProductReport = () => {
       setFilteredContent([]);
       setNoDataFound(true);
     }
-  }, [selectedCaptain, selectedFirm, mappedContent]);
+  }, [selectedCaptain, selectedFirm, selectedProduct, mappedContent]);
 
   const handleCaptainChange = (event) => {
     setSelectedCaptain(event.target.value);
@@ -476,6 +514,10 @@ const ProductReport = () => {
 
   const handleFirmChange = (event) => {
     setSelectedFirm(event.target.value);
+  };
+  
+  const handleProductChange = (event) => {
+    setSelectedProduct(event.target.value);
   };
 
   const calculateUsedPrice = (item) => {
@@ -514,7 +556,7 @@ const ProductReport = () => {
               <TableCell>Sr No</TableCell>
               <TableCell>Product Name</TableCell>
               <TableCell>Captain Name</TableCell>
-              <TableCell>Firm Name</TableCell> {/* Added Firm Name column */}
+              <TableCell>Firm Name</TableCell>
               <TableCell>Consumed Quantity</TableCell>
               <TableCell>Consumed Units</TableCell>
               {selectedFirm === "all" && (
@@ -532,8 +574,7 @@ const ProductReport = () => {
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{row?.product_name || "N/A"}</TableCell>
                   <TableCell>{row?.captain_name || "Unknown"}</TableCell>
-                  <TableCell>{row?.firm_name || "Unknown"}</TableCell>{" "}
-                  {/* Display Firm Name */}
+                  <TableCell>{row?.firm_name || "Unknown"}</TableCell>
                   <TableCell>{row.total_qty || 0}</TableCell>
                   <TableCell>{row.consumed_units.toFixed(2) || 0}</TableCell>
                   {selectedFirm === "all" && (
@@ -547,7 +588,7 @@ const ProductReport = () => {
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={selectedFirm === "all" ? 8 : 6} // Updated colspan to match new column count
+                  colSpan={selectedFirm === "all" ? 8 : 6}
                   align="center"
                 >
                   No data available with current filters
@@ -557,7 +598,7 @@ const ProductReport = () => {
             {selectedFirm === "all" && filteredContent?.length > 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={6} // Updated to match new column count
+                  colSpan={6}
                   align="right"
                   style={{ fontWeight: "bold" }}
                 >
@@ -616,6 +657,23 @@ const ProductReport = () => {
               {firms.map((firm) => (
                 <MenuItem key={firm} value={firm}>
                   {firm}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          
+          {/* New Product filter dropdown */}
+          <FormControl sx={{ minWidth: 200 }}>
+            <InputLabel>Filter by Product</InputLabel>
+            <Select
+              value={selectedProduct}
+              onChange={handleProductChange}
+              label="Filter by Product"
+            >
+              <MenuItem value="all">All Products</MenuItem>
+              {uniqueProducts.map((product) => (
+                <MenuItem key={product} value={product}>
+                  {product}
                 </MenuItem>
               ))}
             </Select>
