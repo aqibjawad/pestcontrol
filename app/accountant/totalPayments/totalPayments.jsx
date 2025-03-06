@@ -223,7 +223,7 @@ const ListServiceTable = ({ startDate, endDate, onDataLoaded }) => {
 
                     {/* Summary row */}
                     <tr className="bg-gray-100 font-bold">
-                      <td colSpan="4" className="py-3 px-4 text-sm text-right">
+                      <td colSpan="5" className="py-3 px-4 text-sm text-right">
                         TOTAL
                       </td>
                       <td className="py-3 px-4 text-sm text-right">
@@ -236,7 +236,7 @@ const ListServiceTable = ({ startDate, endDate, onDataLoaded }) => {
                         Cheque: {formatAmount(totals.totalCheque)}
                       </td>
                       <td className="py-3 px-4 text-sm text-right">
-                        Grand Total: {formatAmount(totals.grandTotal)}
+                        Grand: {formatAmount(totals.grandTotal)}
                       </td>
                     </tr>
                   </tbody>
