@@ -5,7 +5,7 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Grid from "@mui/material/Grid";
 import Skeleton from "@mui/material/Skeleton";
-import { serviceInvoice, dashboard, clients } from "@/networkUtil/Constants";
+import { serviceInvoice, dashboard, company } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
 import DateFilters2 from "@/components/generic/DateFilters2";
 import Link from "next/link";
@@ -36,49 +36,86 @@ const All = () => {
     unpaid: false,
   });
 
+  // Default date range (current month)
+  const defaultDateRange = getDefaultDateRange();
+
+  // Add state for date range
+  const [dateRange, setDateRange] = useState({
+    startDate: defaultDateRange.start,
+    endDate: defaultDateRange.end,
+  });
+
   const [expenseList, setExpenseList] = useState([]);
-  const [paidInvoices, setPaidInvoices] = useState([]);
+  const [chequeList, setChequeList] = useState([]); // Changed from quoteList
   const [totalAmount, setTotalAmount] = useState(0);
   const [unPaidList, setUnPaidList] = useState([]);
   const [unPaidTotalAmount, setUnPaidTotalAmount] = useState(0);
   const [cashList, setCashList] = useState([]);
   const [fetchingData, setFetchingData] = useState(false);
+  const [loadingDetails, setLoadingDetails] = useState(true);
 
-  // Default date range (current month)
-  const defaultDateRange = getDefaultDateRange();
+  const [totals, setTotals] = useState({
+    cashTotal: 0,
+  });
 
-  const fetchPaidInvoices = async (startDate, endDate) => {
+  // Effect to fetch data on component mount
+  useEffect(() => {
+    fetchExpenses(dateRange.startDate, dateRange.endDate);
+    getAllCheques(dateRange.startDate, dateRange.endDate);
+    fetchUnpaidInvoices(dateRange.startDate, dateRange.endDate);
+    fetchFinancialData(dateRange.startDate, dateRange.endDate);
+  }, []);
+
+  const getAllCheques = async (startDate, endDate) => {
+    setFetchingData(true);
+    setLoadingDetails(true);
     setLoadingStates((prev) => ({ ...prev, paid: true }));
+
+    const queryParams = [];
+    if (startDate && endDate) {
+      queryParams.push(`start_date=${startDate}`);
+      queryParams.push(`end_date=${endDate}`);
+    } else {
+      // Use default date range as fallback
+      queryParams.push(`start_date=${dateRange.startDate}`);
+      queryParams.push(`end_date=${dateRange.endDate}`);
+    }
+
     try {
-      const finalStartDate = startDate || defaultDateRange.start;
-      const finalEndDate = endDate || defaultDateRange.end;
-
       const response = await api.getDataWithToken(
-        `${clients}/received_amount/get?start_date=${finalStartDate}&end_date=${finalEndDate}`
+        `${company}/receives/get?${queryParams.join("&")}`
       );
 
-      const invoices = response.data;
-
-      const total = invoices.reduce(
-        (sum, invoice) => sum + parseFloat(invoice.ledger_cr_amt_sum || 0),
-        0
-      );
-
-      setPaidInvoices(invoices);
-      setTotalAmount(total);
-      
+      setChequeList(response.data);
+      // Calculate totals
+      calculateTotals(response.data);
     } catch (error) {
-      console.error("Error fetching paid invoices:", error);
+      console.error("Error fetching cheques:", error);
     } finally {
+      setFetchingData(false);
+      setLoadingDetails(false);
       setLoadingStates((prev) => ({ ...prev, paid: false }));
     }
+  };
+
+  const calculateTotals = (data) => {
+    const totals = data.reduce(
+      (acc, transaction) => {
+        return {
+          cashTotal: acc.cashTotal + parseFloat(transaction.cash_amt || 0),
+        };
+      },
+      { cashTotal: 0 }
+    );
+
+    setTotals(totals);
   };
 
   const fetchUnpaidInvoices = async (startDate, endDate) => {
     setLoadingStates((prev) => ({ ...prev, unpaid: true }));
     try {
-      const finalStartDate = startDate || defaultDateRange.start;
-      const finalEndDate = endDate || defaultDateRange.end;
+      const finalStartDate = startDate || dateRange.startDate;
+      const finalEndDate = endDate || dateRange.endDate;
 
       const response = await api.getDataWithToken(
         `${serviceInvoice}?start_date=${finalStartDate}&end_date=${finalEndDate}`
@@ -104,8 +141,8 @@ const All = () => {
   const fetchExpenses = async (startDate, endDate) => {
     setLoadingStates((prev) => ({ ...prev, expense: true }));
     try {
-      const finalStartDate = startDate || defaultDateRange.start;
-      const finalEndDate = endDate || defaultDateRange.end;
+      const finalStartDate = startDate || dateRange.startDate;
+      const finalEndDate = endDate || dateRange.endDate;
 
       const response = await api.getDataWithToken(
         `${dashboard}/expense_collection?start_date=${finalStartDate}&end_date=${finalEndDate}`
@@ -120,8 +157,8 @@ const All = () => {
 
   const getCash = async (startDate, endDate) => {
     try {
-      const finalStartDate = startDate || defaultDateRange.start;
-      const finalEndDate = endDate || defaultDateRange.end;
+      const finalStartDate = startDate || dateRange.startDate;
+      const finalEndDate = endDate || dateRange.endDate;
 
       const response = await api.getDataWithToken(
         `${dashboard}/cash_collection?start_date=${finalStartDate}&end_date=${finalEndDate}`
@@ -145,19 +182,32 @@ const All = () => {
   };
 
   const handleExpenseDateChange = (startDate, endDate) => {
+    setDateRange({ startDate, endDate });
     fetchExpenses(startDate, endDate);
   };
 
   const handlePaidDateChange = (startDate, endDate) => {
-    fetchPaidInvoices(startDate, endDate);
+    setDateRange({ startDate, endDate });
+    getAllCheques(startDate, endDate);
   };
 
   const handleUnpaidDateChange = (startDate, endDate) => {
+    setDateRange({ startDate, endDate });
     fetchUnpaidInvoices(startDate, endDate);
   };
 
   const handleDateChange = ({ startDate, endDate }) => {
+    setDateRange({ startDate, endDate });
     fetchFinancialData(startDate, endDate);
+  };
+
+  const formatAmount = (amount) => {
+    return parseFloat(amount || 0).toLocaleString("en-IN", {
+      maximumFractionDigits: 2,
+      minimumFractionDigits: 2,
+      style: "currency",
+      currency: "AED",
+    });
   };
 
   return (
@@ -230,10 +280,7 @@ const All = () => {
                   justifyContent: "space-between",
                 }}
               >
-                <div>Total Amount: {totalAmount.toFixed(2)}</div>
-                <div>
-                  <Link href="/amounts">View Details</Link>
-                </div>
+                <div>Total Amount: {formatAmount(totals.cashTotal)}</div>
               </div>
             )}
           </CardContent>
@@ -274,7 +321,7 @@ const All = () => {
                   justifyContent: "space-between",
                 }}
               >
-                <div>Total Amount: {unPaidTotalAmount.toFixed(2)}</div>
+                <div>Total Amount: {formatAmount(unPaidTotalAmount)}</div>
                 <div>
                   <Link href="/amounts">View Details</Link>
                 </div>

@@ -102,13 +102,14 @@ const Page = () => {
       {/* Left Grid Section - Now wider (3 columns instead of 2) */}
       <div className="col-span-3 space-y-4">
         <All />
-        <Pending />
         {/* <Transactions /> */}
         <TotalRecieves />
         <TotalPayments />
-        <Invoices />
+        <Pending />
+
+        {/* <Invoices />
         <CommissionCal />
-        <Vehicles />
+        <Vehicles /> */}
       </div>
 
       {/* Right Grid Section (Tabs) - Now narrower (1 column out of 4 instead of 1 out of 3) */}
@@ -208,7 +209,12 @@ const Page = () => {
                           </Grid>
                         </Grid>
 
-                        <Grid className="mt-2" container spacing={2} alignItems="center">
+                        <Grid
+                          className="mt-2"
+                          container
+                          spacing={2}
+                          alignItems="center"
+                        >
                           <Grid item xs={12}>
                             <Typography
                               variant="body1"

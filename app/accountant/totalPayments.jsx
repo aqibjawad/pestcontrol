@@ -4,9 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import tableStyles from "../../styles/upcomingJobsStyles.module.css";
 import { company } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
-import { startOfMonth, endOfMonth, format } from "date-fns";
-import { jsPDF } from "jspdf";
-import "jspdf-autotable";
+import { format } from "date-fns";
 import Link from "next/link";
 
 const ListServiceTable = ({ startDate, endDate }) => {
@@ -14,7 +12,6 @@ const ListServiceTable = ({ startDate, endDate }) => {
   const [fetchingData, setFetchingData] = useState(false);
   const [invoiceList, setQuoteList] = useState([]);
   const [loadingDetails, setLoadingDetails] = useState(true);
-  const tableRef = useRef(null);
 
   // Calculate totals for summary row
   const calculateTotals = () => {
@@ -93,68 +90,79 @@ const ListServiceTable = ({ startDate, endDate }) => {
 
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleDateString("en-IN");
+    return new Date(dateString).toLocaleDateString("en-US", {
+      day: "numeric",
+      month: "numeric",
+      year: "numeric",
+    });
   };
 
   return (
     <div>
       <div className={tableStyles.tableContainer}>
-        <div
-          style={{
-            overflow: "auto",
-            display: "flex",
-            flexDirection: "column",
-            maxHeight: "500px",
-          }}
-        >
-          <div className="relative">
-            <div className="overflow-x-auto">
-              {loadingDetails ? (
-                <div className="flex justify-center items-center h-64">
-                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-                  <span className="ml-3 text-gray-600">Loading data...</span>
-                </div>
-              ) : (
-                <table ref={tableRef} className="w-full bg-white">
-                  <thead className="bg-gray-100 sticky top-0 z-10">
-                    <tr>
-                      <th className="py-3 px-4 border-b border-gray-200 text-left font-semibold text-sm">
-                        Sr.
-                      </th>
-                      <th className="py-3 px-4 border-b border-gray-200 text-left font-semibold text-sm">
-                        Date
-                      </th>
-                      <th className="py-3 px-4 border-b border-gray-200 text-right font-semibold text-sm">
-                        Total
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {invoiceList.map((transaction, index) => {
-                      const total =
-                        parseFloat(transaction.cash_amt || 0) +
-                        parseFloat(transaction.online_amt || 0) +
-                        parseFloat(transaction.cheque_amt || 0);
-
-                      return (
-                        <tr key={transaction.id} className="hover:bg-gray-50">
-                          <td className="py-3 px-4 text-sm">{index + 1}</td>
-                          <td className="py-3 px-4 text-sm">
-                            {formatDate(transaction.created_at)}
-                          </td>
-
-                          <td className="py-3 px-4 text-sm font-medium text-right">
-                            {formatAmount(total)}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              )}
-            </div>
+        {loadingDetails ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            <span className="ml-3 text-gray-600">Loading data...</span>
           </div>
-        </div>
+        ) : (
+          <div className="grid gap-2">
+            {invoiceList.map((transaction, index) => {
+              const total =
+                parseFloat(transaction.cash_amt || 0) +
+                parseFloat(transaction.online_amt || 0) +
+                parseFloat(transaction.cheque_amt || 0);
+
+              return (
+                <div
+                  key={transaction.id}
+                  className="bg-white rounded shadow px-4 py-2"
+                >
+                  {/* First row - Sr. No, Date, Invoice # */}
+                  <div className="flex mb-1">
+                    <div style={{ width: "70px" }} className="text-sm">
+                      <span className="font-semibold">Sr. No</span>
+                      <div>{index + 1}</div>
+                    </div>
+                    <div style={{ width: "100px" }} className="text-sm">
+                      <span className="font-semibold">Date</span>
+                      <div>{formatDate(transaction.created_at)}</div>
+                    </div>
+                    <div className="text-sm">
+                      <span className="font-semibold">Reference</span>
+                      <div>
+                        {" "}
+                        {transaction?.referenceable?.expense_name ||
+                          transaction?.referenceable?.name ||
+                          transaction?.referenceable?.supplier_name ||
+                          transaction?.referenceable?.vehicle_number ||
+                          "other Payments"}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Second row - Customer, Amount */}
+                  <div className="flex justify-between mt-5">
+                    <div className="text-sm">
+                      <span className="font-semibold">Description </span>
+                      <div> {transaction.description}</div>
+                    </div>
+                    <div className="text-sm text-right">
+                      <span className="font-semibold">Amount</span>
+                      <div className="font-medium">
+                        AED{" "}
+                        {parseFloat(total).toLocaleString("en-IN", {
+                          maximumFractionDigits: 2,
+                          minimumFractionDigits: 2,
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -190,31 +198,30 @@ const PaymentsTotal = () => {
 
   return (
     <div>
-      <div style={{ padding: "30px", borderRadius: "10px" }}>
+      <div style={{ padding: "20px 0" }}>
         {/* Updated header with flex layout */}
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-4">
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center">
             <div
               style={{
                 fontSize: "20px",
-                fontFamily: "semibold",
+                fontWeight: "600",
               }}
             >
               Total Payments
             </div>
           </div>
 
-          {/* Date filter aligned to the right */}
-          <div className="flex items-center gap-4">
-            {/* Date Filter Component */}
-            <div className="bg-green-600 text-white font-semibold text-base h-11 px-4 flex items-center rounded-lg">
+          {/* View button */}
+          <div>
+            <div className="bg-green-500 text-white font-semibold text-base py-2 px-6 rounded cursor-pointer">
               <Link href="/accountant/totalPayments">View</Link>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-12 gap-4">
+      <div className="grid grid-cols-12">
         <div className="col-span-12">
           <ListServiceTable
             handleDateChange={handleDateChange}
