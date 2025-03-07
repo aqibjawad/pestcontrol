@@ -250,7 +250,7 @@ const ListServiceTable = ({ startDate, endDate, onDataLoaded }) => {
   );
 };
 
-const TotalPayments = ({ isVisible }) => {
+const TotalPayments = () => {
   const getDateParamsFromUrl = () => {
     if (typeof window !== "undefined") {
       const searchParams = new URL(window.location.href).searchParams;

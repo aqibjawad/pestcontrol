@@ -171,6 +171,11 @@ export default function SideMenu({ children }) {
           url: "stockUseReport",
           icon: "/quotes.png",
         },
+        // {
+        //   name: "Invoices",
+        //   url: "stockUseReport",
+        //   icon: "/quotes.png",
+        // },
         {
           name: "Sales Report",
           url: "accountant/salesReport",
