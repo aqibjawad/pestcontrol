@@ -45,9 +45,6 @@ import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import WarningIcon from "@mui/icons-material/Warning";
-import ErrorIcon from "@mui/icons-material/Error";
 
 import { getDocumentsByProfession } from "../../../Helper/documents";
 

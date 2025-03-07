@@ -140,8 +140,8 @@ export default function SideMenu({ children }) {
           icon: "/hr.png",
         },
         {
-          name: "Rented Properties",
-          url: `account/addVehiclesExpense`,
+          name: "RenewAble Agreements",
+          url: `agreement`,
           icon: "/hr.png",
         },
         {
