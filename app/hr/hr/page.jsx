@@ -27,6 +27,7 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 
+import { useRouter } from "next/navigation";
 import APICall from "@/networkUtil/APICall";
 
 const AllEmployees = dynamic(
@@ -63,6 +64,7 @@ const TabPanel = (props) => {
 
 const Page = () => {
   const api = new APICall();
+  const router = useRouter();
 
   const [activeTab, setActiveTab] = useState(0);
 
@@ -70,6 +72,7 @@ const Page = () => {
   const [employeeList, setEmployeeList] = useState([]);
   const [profession, setProfession] = useState("");
   const [documents, setDocuments] = useState([]);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
 
   const [requiredDocs, setRequiredDocs] = useState([]);
   const [missingDocs, setMissingDocs] = useState([]);

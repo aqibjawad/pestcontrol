@@ -13,16 +13,16 @@ import { job } from "../networkUtil/Constants";
 import * as XLSX from "xlsx";
 
 // Helper functions
-const getStatusText = (status) => {
+const getStatusInfo = (status) => {
   switch (status) {
     case 0:
-      return "Not Started";
+      return { text: "Pending", backgroundColor: "red", color: "white" };
     case 1:
-      return "Completed";
+      return { text: "Completed", backgroundColor: "", color: "" };
     case 2:
-      return "In Progress";
+      return { text: "In Progress", backgroundColor: "", color: "" };
     default:
-      return "Unknown";
+      return { text: "Unknown", backgroundColor: "", color: "" };
   }
 };
 
@@ -229,11 +229,17 @@ const UpcomingJobs = ({
             {row?.client_address?.area || "No Area Specified"}
           </div>
         </td>
-        <td>{row?.client?.firm_name}</td>
+        <td>{row?.user?.client?.firm_name}</td>
         <td>{row.job_title}</td>
         <td>
-          <div className={styles.statusContainer}>
-            {getStatusText(row.is_completed)}
+          <div
+            className={styles.statusContainer}
+            style={{
+              backgroundColor: getStatusInfo(row.is_completed).backgroundColor,
+              color: getStatusInfo(row.is_completed).color,
+            }}
+          >
+            {getStatusInfo(row.is_completed).text}
           </div>
         </td>
         <td>

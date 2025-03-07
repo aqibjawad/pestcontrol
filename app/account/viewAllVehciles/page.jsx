@@ -633,7 +633,7 @@ const Page = () => {
                 loadingSubmit ? (
                   <CircularProgress size={20} color="inherit" />
                 ) : (
-                  "handleUpdateVehicle "
+                  "Assign Vehicle "
                 )
               }
               disabled={loadingSubmit}
