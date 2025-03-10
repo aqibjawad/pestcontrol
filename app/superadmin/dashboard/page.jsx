@@ -291,22 +291,27 @@ const Page = () => {
       <div className="grid grid-cols-12 gap-4 mt-10">
         <div className="col-span-12 md:col-span-9">
           <div className={selectedIndex === 0 ? `block` : "hidden"}>
-            <Operations />
-            <AllJobs />
-            <Quotation />
-            <Contracts />
+            {selectedIndex === 0 && (
+              <>
+                <Operations />
+                <AllJobs />
+                <Quotation />
+                <Contracts />
+              </>
+            )}
           </div>
 
           <div className={selectedIndex === 1 ? `block` : "hidden"}>
-            <Finance isVisible={selectedIndex === 1} />
+            {selectedIndex === 1 && <Finance />}
           </div>
 
           <div className={selectedIndex === 2 ? `block` : "hidden"}>
-            <Schedule isVisible={selectedIndex === 2} />
+            {/* <Schedule isVisible={selectedIndex === 2} /> */}
+            {selectedIndex === 2 && <Schedule />}
           </div>
 
           <div className={selectedIndex === 3 ? `block` : "hidden"}>
-            <Reports />
+            {selectedIndex === 3 && <Reports />}
           </div>
         </div>
 
