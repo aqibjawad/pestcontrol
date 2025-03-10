@@ -212,8 +212,37 @@ const UpcomingJobs = ({
     }
   };
 
-  const renderJobRows = () =>
-    filteredJobs?.map((row, index) => (
+  const renderJobRows = () => {
+    let sortedJobs = [...filteredJobs];
+
+    if (sortField) {
+      sortedJobs.sort((a, b) => {
+        let valueA, valueB;
+
+        switch (sortField) {
+          case "clientName":
+            valueA = a.job_title?.toLowerCase() || "";
+            valueB = b.job_title?.toLowerCase() || "";
+            break;
+          case "firmName":
+            valueA = a.user?.client?.firm_name?.toLowerCase() || "";
+            valueB = b.user?.client?.firm_name?.toLowerCase() || "";
+            break;
+          case "status":
+            valueA = getStatusInfo(a.is_completed).text;
+            valueB = getStatusInfo(b.is_completed).text;
+            break;
+          default:
+            return 0;
+        }
+
+        if (valueA < valueB) return sortDirection === "asc" ? -1 : 1;
+        if (valueA > valueB) return sortDirection === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+
+    return sortedJobs.map((row, index) => (
       <tr key={row.id} className="border-b border-gray-200">
         <td>{row.id}</td>
         <td>
@@ -297,6 +326,7 @@ const UpcomingJobs = ({
         </td>
       </tr>
     ));
+  };
 
   const renderSkeletonRows = () =>
     [...Array(5)].map((_, index) => (
@@ -398,6 +428,18 @@ const UpcomingJobs = ({
     }
   };
 
+  const [sortField, setSortField] = useState(null);
+  const [sortDirection, setSortDirection] = useState("asc");
+
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
+
   return (
     <div className={styles.parentContainer}>
       <div className="flex justify-between items-center mb-4">
@@ -455,21 +497,37 @@ const UpcomingJobs = ({
           <thead>
             <tr>
               {[
-                "Sr No",
-                "Client Name",
-                "Firm Name",
-                "Job Name",
-                "Status",
-                "Priority",
-                "Job Schedule",
-                "Assign Job",
-                "View Details",
-              ].map((header, index) => (
+                { id: "srNo", label: "Sr No" },
+                { id: "clientName", label: "Client Name", sortable: true },
+                { id: "firmName", label: "Firm Name", sortable: true },
+                { id: "jobName", label: "Job Name" },
+                { id: "status", label: "Status", sortable: true },
+                { id: "priority", label: "Priority" },
+                { id: "jobSchedule", label: "Job Schedule" },
+                { id: "assignJob", label: "Assign Job" },
+                { id: "viewDetails", label: "View Details" },
+              ].map((header) => (
                 <th
-                  key={index}
-                  className="py-5 px-4 border-b border-gray-200 text-left"
+                  key={header.id}
+                  className={`py-5 px-4 border-b border-gray-200 text-left ${
+                    header.sortable ? "cursor-pointer hover:bg-gray-50" : ""
+                  }`}
+                  onClick={
+                    header.sortable ? () => handleSort(header.id) : undefined
+                  }
                 >
-                  {header}
+                  <div className="flex items-center">
+                    {header.label}
+                    {header.sortable && (
+                      <span className="ml-2">
+                        {sortField === header.id
+                          ? sortDirection === "asc"
+                            ? "▲"
+                            : "▼"
+                          : "⇵"}
+                      </span>
+                    )}
+                  </div>
                 </th>
               ))}
             </tr>

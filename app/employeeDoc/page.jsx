@@ -57,6 +57,7 @@ const InsuranceForm = () => {
     processAmount: "",
     description: "",
     entryPermitStatus: "Entry Permit",
+    document_identification_number: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -89,6 +90,8 @@ const InsuranceForm = () => {
         processAmount: currentDoc.process_amt || "",
         description: currentDoc.desc || "",
         entryPermitStatus: currentDoc.entryPermitStatus || "Entry Permit",
+        document_identification_number:
+          currentDoc.document_identification_number || "",
       });
     } else {
       setCurrentDocData(null);
@@ -100,6 +103,7 @@ const InsuranceForm = () => {
         processAmount: "",
         description: "",
         entryPermitStatus: "Entry Permit",
+        document_identification_number: "",
       });
     }
   }, [activeTab, employeeList]);
@@ -151,6 +155,8 @@ const InsuranceForm = () => {
         process_date: formState.processDate,
         process_amt: formState.processAmount,
         desc: formState.description,
+        document_identification_number:
+          formState.document_identification_number,
       };
 
       if (tabData[activeTab] === "Entry Permit Inside") {
@@ -319,11 +325,18 @@ const InsuranceForm = () => {
                       Selected: {selectedFile.name}
                     </Typography>
                   )}
+
+                  <input
+                    type="text"
+                    id="file-upload"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
                 </Box>
               </Grid>
 
               <Grid className="mt-5" container spacing={3}>
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={4}>
                   <TextField
                     fullWidth
                     type="date"
@@ -334,13 +347,24 @@ const InsuranceForm = () => {
                     InputLabelProps={{ shrink: true }}
                   />
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={4}>
                   <TextField
                     fullWidth
                     type="date"
                     label="Expiry Date"
                     value={formState.expiryDate}
                     onChange={handleFormChange("expiryDate")}
+                    variant="outlined"
+                    InputLabelProps={{ shrink: true }}
+                  />
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    type="text"
+                    label="Document Identification nUMBER" 
+                    value={formState.document_identification_number}
+                    onChange={handleFormChange("document_identification_number")}
                     variant="outlined"
                     InputLabelProps={{ shrink: true }}
                   />

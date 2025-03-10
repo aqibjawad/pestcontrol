@@ -3,11 +3,9 @@ export const getDocumentsByProfession = (profession) => {
   const allDocuments = [
     "Employment Letter",
     "Job Offer Letter/Joining Letter APCS",
-    "Passport Handover Form",
     "Passport",
     "EID",
     "DM Card",
-    "Driving Licence",
     "MOHRE Letter",
     "Labour Card",
     "Change Status",
@@ -17,7 +15,6 @@ export const getDocumentsByProfession = (profession) => {
     "Visa Stamping",
     "Health Insurance",
     "Vehicle Policy",
-    "Asset Policy",
     "ILOE Insurance",
     "Bank Detail/Salary Transfer",
   ];
