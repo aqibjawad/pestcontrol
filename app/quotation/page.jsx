@@ -50,6 +50,7 @@ const Page = () => {
     billing_method: "service",
     services: [],
     processedQuoteServices: false,
+    branch_id: "",
   });
   
   const [loading, setLoading] = useState(false);

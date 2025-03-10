@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import styles from "../../../styles/loginStyles.module.css";
 import InputWithTitle from "../../../components/generic/InputWithTitle";
 import MultilineInput from "../../../components/generic/MultilineInput";
-import { clients } from "../../../networkUtil/Constants";
+import { clients, branches } from "../../../networkUtil/Constants";
 import APICall from "../../../networkUtil/APICall";
 import { Grid, Skeleton } from "@mui/material";
 
@@ -14,15 +14,21 @@ const BasicQuote = ({ setFormData, formData }) => {
 
   const [allBrandsList, setAllBrandsList] = useState([]);
   const [allClients, setAllClients] = useState([]);
+  const [allBranches, setAllBranches] = useState([]);
+  const [branchOptions, setBranchOptions] = useState([]);
+
   const [selectedBrand, setSelectedClientId] = useState("");
+  const [selectedBranch, setSelectedBranch] = useState("");
   const [firmName, setFirmName] = useState("");
   const [addresses, setAddresses] = useState([]);
   const [referenceName, setReferenceName] = useState("");
   const [selectedAddress, setSelectedAddress] = useState("");
   const [loadingClients, setLoadingClients] = useState(true);
+  const [loadingBranches, setLoadingBranches] = useState(true);
 
   useEffect(() => {
     getAllClients();
+    getAllBranches();
   }, []);
 
   useEffect(() => {
@@ -84,6 +90,26 @@ const BasicQuote = ({ setFormData, formData }) => {
     }
   };
 
+  const getAllBranches = async () => {
+    setLoadingBranches(true);
+    try {
+      const response = await api.getDataWithToken(branches);
+      setAllBranches(response.data);
+
+      // Format branches for react-select dropdown
+      const branchOptions = response.data.map((branch) => ({
+        value: branch.id,
+        label: branch.name,
+        data: branch,
+      }));
+      setBranchOptions(branchOptions);
+    } catch (error) {
+      console.error("Error fetching branches:", error);
+    } finally {
+      setLoadingBranches(false);
+    }
+  };
+
   const handleClientChange = (selectedOption) => {
     // If no option is selected
     if (!selectedOption) {
@@ -141,6 +167,23 @@ const BasicQuote = ({ setFormData, formData }) => {
         setAddresses([]);
       }
     }
+  };
+
+  const handleBranchChange = (selectedOption) => {
+    if (!selectedOption) {
+      setSelectedBranch("");
+      setFormData((prev) => ({
+        ...prev,
+        branch_id: "",
+      }));
+      return;
+    }
+
+    setSelectedBranch(selectedOption.value);
+    setFormData((prev) => ({
+      ...prev,
+      branch_id: selectedOption.value,
+    }));
   };
 
   const handleAddressChange = (e) => {
@@ -304,6 +347,30 @@ const BasicQuote = ({ setFormData, formData }) => {
             value={formData.duration_in_months}
             onChange={handleDurationChange}
           />
+        </Grid>
+
+        <Grid className="mt-5" item lg={6} xs={12} md={6} mt={2}>
+          {loadingBranches ? (
+            <Skeleton variant="rectangular" width="100%" height={50} />
+          ) : (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Select Branch
+              </label>
+              <Select
+                className="mt-1"
+                options={branchOptions}
+                value={
+                  branchOptions.find(
+                    (option) => option.value === selectedBranch
+                  ) || null
+                }
+                onChange={handleBranchChange}
+                placeholder="Select a Branch"
+                isSearchable
+              />
+            </div>
+          )}
         </Grid>
 
         <Grid item lg={12} xs={12} mt={5}>
