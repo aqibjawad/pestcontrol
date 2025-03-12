@@ -108,6 +108,38 @@ const Page = () => {
     }
   };
 
+  // Get the last paid amount from amount_history array
+  // Get the sum of paid amounts for entries with the same most recent date
+  const getLastPaidAmount = (item) => {
+    if (
+      item?.amount_history &&
+      Array.isArray(item.amount_history) &&
+      item.amount_history.length > 0
+    ) {
+      // Sort entries by created_at date (newest first)
+      const sortedHistory = [...item.amount_history].sort(
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+      );
+
+      // Get the most recent date
+      const latestDate = sortedHistory[0].created_at;
+
+      // Get all entries with the same latest date
+      const sameLatestDateEntries = sortedHistory.filter(
+        (entry) => entry.created_at === latestDate
+      );
+
+      // Sum up the paid amounts for these entries
+      const totalPaidAmount = sameLatestDateEntries.reduce(
+        (sum, entry) => sum + Number(entry.paid_amt || 0),
+        0
+      );
+
+      return totalPaidAmount.toString();
+    }
+    return "0"; // Default if no amount_history exists
+  };
+
   const generatePDF = () => {
     const doc = new jsPDF();
 
@@ -159,7 +191,7 @@ const Page = () => {
         (index + 1).toString(),
         item.invoiceable_id || "N/A",
         item.user?.name || "N/A",
-        item.paid_amt || "0",
+        getLastPaidAmount(item), // Use the last paid amount from amount_history
         item.total_amt || "0",
         item.status || "N/A",
       ];
@@ -182,9 +214,9 @@ const Page = () => {
     doc.setTextColor(0, 128, 0);
     doc.text("Summary", 105, summaryY, { align: "center" });
 
-    // Calculate totals
+    // Calculate totals using the last paid amount
     const totalPaidAmount = salesData
-      .reduce((sum, item) => sum + Number(item?.paid_amt || 0), 0)
+      .reduce((sum, item) => sum + Number(getLastPaidAmount(item)), 0)
       .toFixed(2);
 
     const totalAmount = salesData
@@ -279,7 +311,7 @@ const Page = () => {
                       <TableCell>{index + 1}</TableCell>
                       <TableCell>{item?.id}</TableCell>
                       <TableCell>{item?.user?.name}</TableCell>
-                      <TableCell>{item?.paid_amt}</TableCell>
+                      <TableCell>{getLastPaidAmount(item)}</TableCell>
                       <TableCell>{item?.total_amt}</TableCell>
                       <TableCell>{item?.status}</TableCell>
                     </TableRow>
@@ -310,18 +342,21 @@ const Page = () => {
               <Typography>
                 <b>Total Paid Amount:</b>{" "}
                 {salesData
-                  .reduce((sum, item) => sum + Number(item?.paid_amt || 0), 0)
+                  .reduce(
+                    (sum, item) => sum + Number(getLastPaidAmount(item)),
+                    0
+                  )
                   .toFixed(2)}
               </Typography>
 
-              <Typography>
+              {/* <Typography>
                 <b>Total Amount:</b>{" "}
                 {salesData
                   .reduce((sum, item) => sum + Number(item?.total_amt || 0), 0)
                   .toFixed(2)}
-              </Typography>
+              </Typography> */}
 
-              <Typography>
+              {/* <Typography>
                 <b>Remaining Amount:</b>{" "}
                 {(
                   salesData.reduce(
@@ -329,11 +364,11 @@ const Page = () => {
                     0
                   ) -
                   salesData.reduce(
-                    (sum, item) => sum + Number(item?.paid_amt || 0),
+                    (sum, item) => sum + Number(getLastPaidAmount(item)),
                     0
                   )
                 ).toFixed(2)}
-              </Typography>
+              </Typography> */}
             </div>
           )}
         </>
