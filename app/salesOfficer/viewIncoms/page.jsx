@@ -277,7 +277,7 @@ const Page = () => {
                   salesData.map((item, index) => (
                     <TableRow key={index}>
                       <TableCell>{index + 1}</TableCell>
-                      <TableCell>{item?.invoiceable_id}</TableCell>
+                      <TableCell>{item?.id}</TableCell>
                       <TableCell>{item?.user?.name}</TableCell>
                       <TableCell>{item?.paid_amt}</TableCell>
                       <TableCell>{item?.total_amt}</TableCell>
@@ -313,19 +313,26 @@ const Page = () => {
                   .reduce((sum, item) => sum + Number(item?.paid_amt || 0), 0)
                   .toFixed(2)}
               </Typography>
-{/* 
-              <Typography>
-                <b>Total Unpaid Amount:</b>{" "}
-                {salesData
-                  .reduce((sum, item) => sum + Number(item?._amt || 0), 0)
-                  .toFixed(2)}
-              </Typography> */}
 
               <Typography>
                 <b>Total Amount:</b>{" "}
                 {salesData
                   .reduce((sum, item) => sum + Number(item?.total_amt || 0), 0)
                   .toFixed(2)}
+              </Typography>
+
+              <Typography>
+                <b>Remaining Amount:</b>{" "}
+                {(
+                  salesData.reduce(
+                    (sum, item) => sum + Number(item?.total_amt || 0),
+                    0
+                  ) -
+                  salesData.reduce(
+                    (sum, item) => sum + Number(item?.paid_amt || 0),
+                    0
+                  )
+                ).toFixed(2)}
               </Typography>
             </div>
           )}

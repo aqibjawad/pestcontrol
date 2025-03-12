@@ -362,7 +362,7 @@ const InsuranceForm = () => {
                   <TextField
                     fullWidth
                     type="text"
-                    label="Document Identification nUMBER" 
+                    label="Document Identification Number" 
                     value={formState.document_identification_number}
                     onChange={handleFormChange("document_identification_number")}
                     variant="outlined"

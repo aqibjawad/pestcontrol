@@ -482,6 +482,7 @@ const Page = () => {
                   <th> Basic Salary </th>
                   <th> Allowance </th>
                   <th> Total Salary </th>
+                  <th> Others </th>
                 </tr>
               </thead>
               <tbody>
@@ -505,6 +506,13 @@ const Page = () => {
                       <Skeleton width="80%" />
                     ) : (
                       employeeList?.employee?.total_salary
+                    )}
+                  </td>
+                  <td>
+                    {fetchingData ? (
+                      <Skeleton width="80%" />
+                    ) : (
+                      employeeList?.employee?.other
                     )}
                   </td>
                 </tr>

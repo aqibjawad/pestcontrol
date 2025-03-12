@@ -13,6 +13,8 @@ const styles = StyleSheet.create({
   page: {
     padding: 8,
     fontFamily: "Helvetica",
+    display: "flex",
+    flexDirection: "column",
   },
   headerContainer: {
     flexDirection: "row",
@@ -77,19 +79,10 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 10,
   },
-  locationContainer: {
-    backgroundColor: "#FFFF00",
-    padding: 5,
-    marginBottom: 1,
-  },
-  locationText: {
-    textAlign: "center",
-    fontSize: 10,
-    fontWeight: "bold",
-  },
-  // Rest of the styles remain the same
+  // Table styles
   table: {
     marginTop: 5,
+    flexGrow: 1, // Allow table to grow and fill available space
   },
   tableRow: {
     flexDirection: "row",
@@ -124,19 +117,29 @@ const styles = StyleSheet.create({
   col10: { width: "8%" },
   col11: { width: "8%" },
   col12: { width: "15%" },
-  // Adding fixed header styles
-  fixedHeader: {
+  // Content container for proper spacing
+  contentContainer: {
+    flex: 1,
+    display: "flex",
+    flexDirection: "column",
+  },
+  headerSection: {
+    marginBottom: 5, // Reduced space between header and table
+  },
+  footer: {
     position: "absolute",
-    top: 0,
+    bottom: 5,
     left: 0,
     right: 0,
+    textAlign: "center",
+    fontSize: 8,
   },
 });
 
 // Create a separate Header component
 const PageHeader = ({ totalNetPay, period }) => (
-  <>
-    <View style={styles.headerContainer} fixed>
+  <View style={styles.headerSection}>
+    <View style={styles.headerContainer}>
       <View style={styles.logoContainer}>
         <Image src="/logo.jpeg" style={styles.logo} />
       </View>
@@ -147,7 +150,7 @@ const PageHeader = ({ totalNetPay, period }) => (
       </View>
     </View>
 
-    <View style={styles.subHeader} fixed>
+    <View style={styles.subHeader}>
       <Text style={styles.payrollReport}>PAYROLL REPORT</Text>
       <View style={styles.netPayContainer}>
         <Text style={styles.netPayLabel}>NET PAY AED :</Text>
@@ -155,10 +158,10 @@ const PageHeader = ({ totalNetPay, period }) => (
       </View>
     </View>
 
-    <View style={styles.periodContainer} fixed>
+    <View style={styles.periodContainer}>
       <Text style={styles.periodText}>Payroll Period : {period}</Text>
     </View>
-  </>
+  </View>
 );
 
 const SalaryPDFGenerator = ({ data, selectedMonth }) => {
@@ -174,11 +177,22 @@ const SalaryPDFGenerator = ({ data, selectedMonth }) => {
     : "";
   const period = `${monthYear} 1, 2025- ${monthYear} 31, 2025`;
 
-  // Split data into chunks for pagination (e.g., 20 items per page)
-  const itemsPerPage = 20;
+  // Use more efficient pagination to maximize space usage
+  // Increased items per page to utilize more space
+  const itemsPerPage = 25; // Increased from 20
+
+  // Calculate the number of whole pages needed
+  const pageCount = Math.ceil(data.length / itemsPerPage);
+
+  // Create pages array with better distribution of items
   const pages = [];
-  for (let i = 0; i < data.length; i += itemsPerPage) {
-    pages.push(data.slice(i, i + itemsPerPage));
+  for (let i = 0; i < pageCount; i++) {
+    // Calculate start and end indices for this page
+    const startIdx = i * itemsPerPage;
+    const endIdx = Math.min(startIdx + itemsPerPage, data.length);
+
+    // Add this page's data to the pages array
+    pages.push(data.slice(startIdx, endIdx));
   }
 
   return (
@@ -190,82 +204,94 @@ const SalaryPDFGenerator = ({ data, selectedMonth }) => {
             size="A4"
             orientation="landscape"
             style={styles.page}
+            wrap={false} // Prevent automatic wrapping which can cause gaps
           >
-            <PageHeader totalNetPay={totalNetPay} period={period} />
+            <View style={styles.contentContainer}>
+              <PageHeader totalNetPay={totalNetPay} period={period} />
 
-            <View style={[styles.table, { marginTop: 140 }]}>
-              {" "}
-              {/* Add margin to account for fixed header */}
-              <View style={[styles.tableRow, styles.tableHeader]} fixed>
-                <Text style={[styles.tableCellHeader, styles.col1]}>S.NO</Text>
-                <Text style={[styles.tableCellHeader, styles.col2]}>
-                  Employee Name
-                </Text>
-                <Text style={[styles.tableCellHeader, styles.col3]}>
-                  Department
-                </Text>
-                <Text style={[styles.tableCellHeader, styles.col4]}>
-                  Salary
-                </Text>
-                <Text style={[styles.tableCellHeader, styles.col5]}>
-                  Salary/Day
-                </Text>
-                <Text style={[styles.tableCellHeader, styles.col6]}>
-                  Deduction (No Pays)
-                </Text>
-                <Text style={[styles.tableCellHeader, styles.col7]}>
-                  Deduction (Fines)
-                </Text>
-                <Text style={[styles.tableCellHeader, styles.col8]}>
-                  Deduction (Advance)
-                </Text>
-                <Text style={[styles.tableCellHeader, styles.col9]}>OT</Text>
-                <Text style={[styles.tableCellHeader, styles.col10]}>
-                  Net Pay
-                </Text>
-                <Text style={[styles.tableCellHeader, styles.col11]}>Mode</Text>
-                <Text style={[styles.tableCellHeader, styles.col12]}>
-                  Deduction Details
-                </Text>
-              </View>
-              {pageData.map((employee, index) => (
-                <View key={index} style={styles.tableRow}>
-                  <Text style={[styles.tableCell, styles.col1]}>
-                    {pageIndex * itemsPerPage + index + 1}
+              <View style={styles.table}>
+                <View style={[styles.tableRow, styles.tableHeader]}>
+                  <Text style={[styles.tableCellHeader, styles.col1]}>
+                    S.NO
                   </Text>
-                  <Text style={[styles.tableCell, styles.col2]}>
-                    {employee?.user?.name}
+                  <Text style={[styles.tableCellHeader, styles.col2]}>
+                    Employee Name
                   </Text>
-                  <Text style={[styles.tableCell, styles.col3]}>Operation</Text>
-                  <Text style={[styles.tableCell, styles.col4]}>
-                    {employee.basic_salary}
+                  <Text style={[styles.tableCellHeader, styles.col3]}>
+                    Department
                   </Text>
-                  <Text style={[styles.tableCell, styles.col5]}>
-                    {(employee.basic_salary / 30).toFixed(2)}
+                  <Text style={[styles.tableCellHeader, styles.col4]}>
+                    Salary
                   </Text>
-                  <Text style={[styles.tableCell, styles.col6]}>
-                    {employee.no_pay_deduction || ""}
+                  <Text style={[styles.tableCellHeader, styles.col5]}>
+                    Salary/Day
                   </Text>
-                  <Text style={[styles.tableCell, styles.col7]}>
-                    {employee.fine_received || ""}
+                  <Text style={[styles.tableCellHeader, styles.col6]}>
+                    Deduction (No Pays)
                   </Text>
-                  <Text style={[styles.tableCell, styles.col8]}>
-                    {employee.adv_received || ""}
+                  <Text style={[styles.tableCellHeader, styles.col7]}>
+                    Deduction (Fines)
                   </Text>
-                  <Text style={[styles.tableCell, styles.col9]}>
-                    {employee.overtime || ""}
+                  <Text style={[styles.tableCellHeader, styles.col8]}>
+                    Deduction (Advance)
                   </Text>
-                  <Text style={[styles.tableCell, styles.col10]}>
-                    {employee.paid_salary || ""}
+                  <Text style={[styles.tableCellHeader, styles.col9]}>OT</Text>
+                  <Text style={[styles.tableCellHeader, styles.col10]}>
+                    Net Pay
                   </Text>
-                  <Text style={[styles.tableCell, styles.col11]}>
-                    {employee.payment_type?.toUpperCase() || "WPS"}
+                  <Text style={[styles.tableCellHeader, styles.col11]}>
+                    Mode
                   </Text>
-                  <Text style={[styles.tableCell, styles.col12]}>
-                    {employee.description || ""}
+                  <Text style={[styles.tableCellHeader, styles.col12]}>
+                    Deduction Details
                   </Text>
                 </View>
-              ))}
+                {pageData.map((employee, index) => (
+                  <View key={index} style={styles.tableRow}>
+                    <Text style={[styles.tableCell, styles.col1]}>
+                      {pageIndex * itemsPerPage + index + 1}
+                    </Text>
+                    <Text style={[styles.tableCell, styles.col2]}>
+                      {employee?.user?.name}
+                    </Text>
+                    <Text style={[styles.tableCell, styles.col3]}>
+                      Operation
+                    </Text>
+                    <Text style={[styles.tableCell, styles.col4]}>
+                      {employee.basic_salary}
+                    </Text>
+                    <Text style={[styles.tableCell, styles.col5]}>
+                      {(employee.basic_salary / 30).toFixed(2)}
+                    </Text>
+                    <Text style={[styles.tableCell, styles.col6]}>
+                      {employee.no_pay_deduction || ""}
+                    </Text>
+                    <Text style={[styles.tableCell, styles.col7]}>
+                      {employee.fine_received || ""}
+                    </Text>
+                    <Text style={[styles.tableCell, styles.col8]}>
+                      {employee.adv_received || ""}
+                    </Text>
+                    <Text style={[styles.tableCell, styles.col9]}>
+                      {employee.overtime || ""}
+                    </Text>
+                    <Text style={[styles.tableCell, styles.col10]}>
+                      {employee.paid_salary || ""}
+                    </Text>
+                    <Text style={[styles.tableCell, styles.col11]}>
+                      {employee.payment_type?.toUpperCase() || "WPS"}
+                    </Text>
+                    <Text style={[styles.tableCell, styles.col12]}>
+                      {employee.description || ""}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+
+              {/* Optional: Page number at bottom */}
+              <Text style={styles.footer}>
+                Page {pageIndex + 1} of {pages.length}
+              </Text>
             </View>
           </Page>
         ))}

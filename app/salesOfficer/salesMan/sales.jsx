@@ -104,6 +104,10 @@ const Sales = () => {
                 {" "}
                 Receieved Target{" "}
               </TableCell>
+              <TableCell style={{ color: "white" }}>
+                {" "}
+                MTD Sales
+              </TableCell>
               <TableCell style={{ color: "white" }}>View Visits</TableCell>
               <TableCell style={{ color: "white" }}>View Jobs</TableCell>
               <TableCell style={{ color: "white" }}>View Incomes</TableCell>
@@ -140,6 +144,7 @@ const Sales = () => {
                       {row?.employee_commissions[0]?.target}
                     </TableCell>
                     <TableCell>{row?.employee_commissions[0]?.sale}</TableCell>
+                    <TableCell>{row?.completed_jobs_total}</TableCell>
                     <TableCell>
                       <Link
                         href={`/salesOfficer/viewVisits?id=${

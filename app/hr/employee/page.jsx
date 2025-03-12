@@ -47,9 +47,9 @@ const Page = () => {
     branch_id: "",
     joining_date:"",
     remaining_off_days: "",
-    base_target:"",
-    contract_target: "",
-    achieved_target: ""
+    base_target:0,
+    contract_target: 0,
+    achieved_target: 0
 
   });
 
