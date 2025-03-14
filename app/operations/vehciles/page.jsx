@@ -31,6 +31,7 @@ const Page = () => {
     expiry_date,
     oil_change_limit,
     meter_reading,
+    price,
     employeesList,
     selectedEmployee,
     setSelectedEmployee,
@@ -40,6 +41,7 @@ const Page = () => {
     setExpiryDate,
     setOilChange,
     setMeterRead,
+    setPrice,
 
     sendingData,
     addVehicle,
@@ -220,24 +222,22 @@ const Page = () => {
 
             {/* Price */}
             <Grid item xs={12} md={6}>
-              <InputWithTitle3
+              <InputWithTitle
                 title="Price"
                 placeholder="Price"
-                value={expiry_date}
+                value={price}
                 type="text"
-                onChange={handleDateChange}
-                name="expiry_date"
+                onChange={(value) => setPrice(value)}
               />
             </Grid>
 
             <Grid item xs={12} md={6}>
-              <InputWithTitle3
-                title="Meter Reading"
-                placeholder="Meter Reading"
+              <InputWithTitle
+                title={"Meter Reading"}
+                placeholder={"Meter Reading"}
                 value={meter_reading}
                 type="text"
                 onChange={(value) => setMeterRead(value)}
-                name="meter_reading"
               />
             </Grid>
 

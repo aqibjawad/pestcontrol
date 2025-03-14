@@ -209,6 +209,12 @@ const Page = () => {
 
               <Grid item xs={12} sm={6} md={4} lg={3}>
                 <div className={styles.addProd}>
+                  <Link href="/terms&conditions">Terms and Conditions</Link>
+                </div>
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={4} lg={3}>
+                <div className={styles.addProd}>
                   <Link href="/operations/treatment_method">
                     Add Treatment Method
                   </Link>
@@ -306,12 +312,6 @@ const Page = () => {
               <Grid className="" item xs={12} sm={6} md={4} lg={3}>
                 <div className={styles.addProd}>
                   <Link href="/allVendors">View Vendors</Link>
-                </div>
-              </Grid>
-
-              <Grid item xs={12} sm={6} md={4} lg={3}>
-                <div className={styles.addProd}>
-                  <Link href="/terms&conditions">Terms and Conditions</Link>
                 </div>
               </Grid>
             </Grid>
