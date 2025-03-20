@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import InputWithTitle from "../../../components/generic/InputWithTitle";
 import styles from "../../../styles/account/addServiceAgreementStyles.module.css";
-import { Editor } from "@tinymce/tinymce-react";
+import dynamic from "next/dynamic";
 import GreenButton from "../../../components/generic/GreenButton";
 import Loading from "../../../components/generic/Loading";
 import useServices from "./useServices";
@@ -21,35 +21,33 @@ import {
 } from "@mui/material";
 import withAuth from "@/utils/withAuth";
 
+// Import React Quill dynamically to avoid SSR issues
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+import "react-quill/dist/quill.snow.css";
+
 const Page = () => {
   const alert = new AppAlerts();
   const { isLoading, service, addService, updateService, addingService } =
     useServices();
 
-  const editorRef = useRef(null);
   const [name, setServiceName] = useState("");
   const [pestName, setPestName] = useState("");
-  const [work_scope, setScope] = useState("");
+  const [work_scope, setScope] = useState("<p>Add your scope of work here...</p>");
   const [isUpdate, setIsUpdate] = useState(false);
   const [updateId, setUpdateId] = useState(null);
 
   const handleFormSubmit = async () => {
-    // Get the current content from TinyMCE editor
-    const editorContent = editorRef.current
-      ? editorRef.current.getContent()
-      : "";
-
     if (pestName === "") {
       alert.errorAlert("Pest Name is required");
     } else if (name === "") {
       alert.errorAlert("Name is required");
-    } else if (editorContent.trim() === "") {
+    } else if (work_scope.trim() === "" || work_scope === "<p>Add your scope of work here...</p>") {
       alert.errorAlert("Please enter scope of work");
     } else {
       if (isUpdate) {
-        updateService(updateId, pestName, name, editorContent);
+        updateService(updateId, pestName, name, work_scope);
       } else {
-        addService(pestName, name, editorContent);
+        addService(pestName, name, work_scope);
       }
     }
   };
@@ -58,13 +56,9 @@ const Page = () => {
     if (isLoading) {
       setServiceName("");
       setPestName("");
-      setScope("");
+      setScope("<p>Add your scope of work here...</p>");
       setIsUpdate(false);
       setUpdateId(null);
-      // Reset TinyMCE editor
-      if (editorRef.current) {
-        editorRef.current.setContent("");
-      }
     }
   }, [isLoading]);
 
@@ -73,11 +67,59 @@ const Page = () => {
     setUpdateId(item.id);
     setServiceName(item.service_title);
     setPestName(item.pest_name);
+    setScope(item.term_and_conditions || "<p>Add your scope of work here...</p>");
+  };
 
-    // Set the content in TinyMCE editor
-    if (editorRef.current) {
-      editorRef.current.setContent(item.term_and_conditions || "");
+  // Quill editor modules and formats
+  const modules = {
+    toolbar: [
+      [{ 'header': [1, 2, false] }],
+      ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+      [{'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
+      ['link', 'image'],
+      ['clean']
+    ],
+    clipboard: {
+      matchVisual: false,
     }
+  };
+  
+  const formats = [
+    'header',
+    'bold', 'italic', 'underline', 'strike', 'blockquote',
+    'list', 'bullet', 'indent',
+    'link', 'image'
+  ];
+
+  // Function to handle image upload
+  const imageHandler = () => {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
+    
+    input.onchange = () => {
+      const file = input.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+
+      fetch('/api/upload-image', {
+        method: 'POST',
+        body: formData,
+      })
+        .then(response => response.json())
+        .then(data => {
+          const quill = document.querySelector('.quill-editor').querySelector('.ql-editor');
+          const range = document.getSelection().getRangeAt(0);
+          const img = document.createElement('img');
+          img.src = data.location;
+          range.insertNode(img);
+        })
+        .catch(err => {
+          console.error(err);
+          alert('Failed to upload image!');
+        });
+    };
   };
 
   return (
@@ -145,54 +187,14 @@ const Page = () => {
           </div>
 
           <div className="mt-5">
-            <Editor
-              apiKey="gz7lzl53pn7erx245ajl5zprzl79zhcadvybrd9hzbil53sv"
-              onInit={(evt, editor) => (editorRef.current = editor)}
-              initialValue="<p>Add your scope of work here...</p>"
-              init={{
-                height: 300,
-                menubar: true,
-                plugins: [
-                  "advlist autolink lists link image charmap print preview anchor",
-                  "searchreplace visualblocks code fullscreen",
-                  "insertdatetime media table paste code help wordcount",
-                  "image imagetools lists",
-                ],
-                toolbar: [
-                  "undo redo | formatselect | bold italic backcolor",
-                  "alignleft aligncenter alignright alignjustify",
-                  "numlist bullist | outdent indent",
-                  "removeformat | link image",
-                ].join(" | "),
-                lists_indent_on_tab: true,
-                automatic_uploads: true,
-                images_upload_url: "/api/upload-image",
-                file_picker_types: "image",
-                file_picker_callback: (cb, value, meta) => {
-                  const input = document.createElement("input");
-                  input.setAttribute("type", "file");
-                  input.setAttribute("accept", "image/*");
-                  input.onchange = () => {
-                    const file = input.files[0];
-                    const formData = new FormData();
-                    formData.append("file", file);
-
-                    fetch("/api/upload-image", {
-                      method: "POST",
-                      body: formData,
-                    })
-                      .then((response) => response.json())
-                      .then((data) => {
-                        cb(data.location);
-                      })
-                      .catch((err) => {
-                        console.error(err);
-                        alert("Failed to upload image!");
-                      });
-                  };
-                  input.click();
-                },
-              }}
+            <div className="mb-2 text-sm font-medium">Scope of Work</div>
+            <ReactQuill
+              className="quill-editor"
+              theme="snow"
+              value={work_scope}
+              onChange={setScope}
+              modules={modules}
+              formats={formats}
             />
           </div>
 

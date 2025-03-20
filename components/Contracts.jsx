@@ -17,13 +17,13 @@ import { quotation } from "@/networkUtil/Constants";
 import Link from "next/link";
 
 import DateFilters from "./generic/DateFilters";
-import { format } from "date-fns"; 
+import { format, differenceInDays, parseISO } from "date-fns";
 
 const Contracts = () => {
   const api = new APICall();
 
   const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("id");
+  const [orderBy, setOrderBy] = useState("daysUntilExpiration"); // Default sort by days until expiration
 
   const [fetchingData, setFetchingData] = useState(false);
   const [quoteList, setQuoteList] = useState([]);
@@ -60,7 +60,20 @@ const Contracts = () => {
         ),
       ]);
 
-      const mergedData = [...contactsResponse.data];
+      // Process the data to calculate days until expiration
+      const today = new Date();
+      const mergedData = contactsResponse.data.map((contract) => {
+        let daysUntilExpiration = null;
+        if (contract.contract_end_date) {
+          const expirationDate = parseISO(contract.contract_end_date);
+          daysUntilExpiration = differenceInDays(expirationDate, today);
+        }
+        return {
+          ...contract,
+          daysUntilExpiration,
+        };
+      });
+
       setQuoteList(mergedData);
     } catch (error) {
       console.error("Error fetching quotes and contacts:", error);
@@ -85,6 +98,19 @@ const Contracts = () => {
         // Sort by contract cancel status
         aValue = a?.contract_cancel_reason ? "Canceled" : "Active";
         bValue = b?.contract_cancel_reason ? "Canceled" : "Active";
+      } else if (orderBy === "daysUntilExpiration") {
+        // Sort by days until expiration
+        aValue =
+          a.daysUntilExpiration === null ? Infinity : a.daysUntilExpiration;
+        bValue =
+          b.daysUntilExpiration === null ? Infinity : b.daysUntilExpiration;
+
+        // Numeric comparison for days
+        if (order === "asc") {
+          return aValue - bValue;
+        } else {
+          return bValue - aValue;
+        }
       } else {
         aValue =
           orderBy === "id"
@@ -100,11 +126,15 @@ const Contracts = () => {
             : b[orderBy];
       }
 
-      if (order === "desc") {
-        [aValue, bValue] = [bValue, aValue];
+      if (orderBy !== "daysUntilExpiration") {
+        if (order === "desc") {
+          [aValue, bValue] = [bValue, aValue];
+        }
+        return (aValue || "")
+          .toString()
+          .localeCompare((bValue || "").toString());
       }
-
-      return (aValue || "").toString().localeCompare((bValue || "").toString());
+      return 0;
     });
   };
 
@@ -116,6 +146,24 @@ const Contracts = () => {
       width: "20px", // Slightly larger arrows
       height: "20px",
     },
+  };
+
+  // Function to render expiration warning style
+  const getExpirationStyle = (days) => {
+    if (days === null) return {};
+    if (days < -60) return { color: "#dc2626", fontWeight: "bold" }; // More than 2 months overdue
+    if (days < 0) return { color: "#f59e0b", fontWeight: "bold" }; // Expired but less than 2 months
+    if (days <= 30) return { color: "#f59e0b", fontWeight: "bold" }; // Expires within a month
+    return {};
+  };
+  
+  // Function to render expiration text
+  const getExpirationText = (days) => {
+    if (days === null) return "No expiration date";
+    if (days < 0) return `Expired ${Math.abs(days)} days ago`;
+    if (days === 0) return "Expires today";
+    if (days === 1) return "Expires tomorrow";
+    return `Expires in ${days} days`;
   };
 
   const listServiceTable = () => {
@@ -140,6 +188,16 @@ const Contracts = () => {
               <TableCell>Billing Method</TableCell>
               <TableCell>Quote Title</TableCell>
               <TableCell>Treatment Method Name</TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderBy === "daysUntilExpiration"}
+                  direction={orderBy === "daysUntilExpiration" ? order : "asc"}
+                  onClick={() => handleRequestSort("daysUntilExpiration")}
+                  sx={sortLabelStyles}
+                >
+                  Expire At
+                </TableSortLabel>
+              </TableCell>
               <TableCell>Sub Total</TableCell>
               <TableCell>Grand Total</TableCell>
               <TableCell>
@@ -185,6 +243,12 @@ const Contracts = () => {
                       ?.map((method) => method.name)
                       .join(", ") || "N/A"}
                   </TableCell>
+                  <TableCell>
+                    <div>{row.contract_end_date}</div>
+                    <div style={getExpirationStyle(row.daysUntilExpiration)}>
+                      {getExpirationText(row.daysUntilExpiration)}
+                    </div>
+                  </TableCell>
                   <TableCell>{row.sub_total}</TableCell>
                   <TableCell>{row.grand_total}</TableCell>
                   <TableCell>
@@ -214,7 +278,13 @@ const Contracts = () => {
                       </Link>
                     ) : (
                       <Link href={`/contractCancel?id=${row.id}`}>
-                        <span style={{ fontSize:"16px", color: "#dc2626", cursor: "pointer" }}>
+                        <span
+                          style={{
+                            fontSize: "16px",
+                            color: "#dc2626",
+                            cursor: "pointer",
+                          }}
+                        >
                           Cancel Contract
                         </span>
                       </Link>
