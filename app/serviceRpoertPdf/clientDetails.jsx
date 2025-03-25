@@ -52,14 +52,7 @@ const ClientDetails = ({ serviceReportList }) => {
                     <strong> Visit Type:</strong>
                   </TableCell>
                   <TableCell> {serviceReportList?.type_of_visit} </TableCell>
-                </TableRow>
-
-                <TableRow sx={{ border: "none" }}>
-                  <TableCell>
-                    <strong> Invoice Id:</strong>
-                  </TableCell>
-                  <TableCell> {serviceReportList?.service_invoice || "No invoice"} </TableCell>
-                </TableRow>
+                </TableRow> 
               </TableBody>
             </Table>
           </TableContainer>
@@ -94,6 +87,12 @@ const ClientDetails = ({ serviceReportList }) => {
                       minute: "2-digit",
                     })}
                   </TableCell>
+                </TableRow>
+                <TableRow sx={{ border: "none" }}>
+                  <TableCell>
+                    <strong> Invoice Id:</strong>
+                  </TableCell>
+                  <TableCell> {serviceReportList?.service_invoice || "No invoice"} </TableCell>
                 </TableRow>
               </TableBody>
             </Table>

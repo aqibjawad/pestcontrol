@@ -113,10 +113,10 @@ const Page = () => {
 
     // Add title and supplier information
     doc.setFontSize(16);
-    doc.text("Ledger Report", 14, 20);
+    // doc.text("Ledger Report", 14, 20);
 
     doc.setFontSize(12);
-    doc.text(`Supplier: ${supplierName}`, 14, 30);
+    doc.text(`Client Name: ${supplierName}`, 14, 20);
     doc.text(`Phone: ${phoneNumber}`, 14, 35);
     doc.text(`Date: ${format(new Date(), "dd/MM/yyyy")}`, 14, 40);
 
@@ -148,7 +148,7 @@ const Page = () => {
         fontSize: 8,
         cellPadding: 2,
       },
-      headStyles: { fillColor: [66, 139, 202], textColor: 255 },
+      headStyles: { fillColor: [50, 169, 46], textColor: 255 },
       didDrawPage: function (data) {
         // Add total row after the table
         const finalY = data.cursor.y + 10;

@@ -14,6 +14,7 @@ import {
   TableContainer,
   Paper,
   CircularProgress,
+  Button,
 } from "@mui/material";
 import styles from "../../styles/invoiceDetails.module.css";
 
@@ -22,6 +23,7 @@ import { serviceInvoice, clients } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
 
 import { format } from "date-fns";
+import html2pdf from "html2pdf.js";
 
 const invoiceData = {
   companyDetails: {
@@ -65,6 +67,56 @@ const Page = () => {
 
   const [error, setError] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(true);
+  const [uploadingToCloudinary, setUploadingToCloudinary] = useState(false);
+
+  // Cloudinary Upload Function
+  const uploadToCloudinary = async () => {
+    try {
+      setUploadingToCloudinary(true);
+
+      // Generate PDF from the entire layout
+      const element = document.querySelector("body"); // Adjust selector if needed
+      const opt = {
+        margin: 0,
+        filename: `invoice_${Date.now()}.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+      };
+
+      // Generate PDF
+      const file = await html2pdf().set(opt).from(element).outputPdf("blob");
+
+      // Prepare FormData for Cloudinary upload
+      const formData = new FormData();
+      formData.append("file", file, `invoice_${Date.now()}.pdf`);
+      formData.append("upload_preset", "pestcontrol"); // Your Cloudinary preset
+
+      // Upload to Cloudinary
+      const response = await fetch(
+        "https://api.cloudinary.com/v1_1/df59vjsv5/auto/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Cloudinary upload failed");
+      }
+
+      const data = await response.json();
+      console.log("Upload success:", data);
+      alert("Invoice uploaded successfully!");
+      return data.secure_url;
+    } catch (error) {
+      console.error("Error in uploadToCloudinary:", error);
+      alert("Failed to upload invoice. Please try again.");
+      throw error;
+    } finally {
+      setUploadingToCloudinary(false);
+    }
+  };
 
   useEffect(() => {
     // Get the current URL
@@ -247,7 +299,7 @@ const Page = () => {
 
   return (
     <Layout>
-      <Grid container spacing={2}>
+      <Grid className="p-2" container spacing={2}>
         <Grid item xs={6}>
           <Typography variant="body1" sx={{ fontWeight: "bold" }}>
             {invoiceData.companyDetails.name}
@@ -265,9 +317,6 @@ const Page = () => {
             <Typography variant="body1" sx={{ fontWeight: "bold" }}>
               {invoiceList?.user?.client?.firm_name}
             </Typography>
-            {/* <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-              {invoiceList?.user?.email}
-            </Typography> */}
             <Typography variant="body1" sx={{ fontWeight: "bold" }}>
               TRN: {invoiceList?.invoiceable?.trn}
             </Typography>
@@ -375,13 +424,13 @@ const Page = () => {
           </div>
 
           <div style={{ textAlign: "right" }} className={styles.totalAmount}>
-            Invoice Id: 
+            Invoice Id:
             {invoiceList?.job || "No Invoice"}
           </div>
         </Grid>
       </Grid>
 
-      <Grid className="" container spacing={2}>
+      <Grid className="p-2" container spacing={2}>
         <Grid className="mt-1" item xs={5}>
           <TableContainer component={Paper}>
             <Table>
@@ -557,7 +606,7 @@ const Page = () => {
         </Grid>
       </Grid>
 
-      <Grid container spacing={2}>
+      <Grid className="p-2" container spacing={2}>
         <Grid item xs={10}>
           <div>
             <div className={styles.totalAmount}>
@@ -589,10 +638,10 @@ const Page = () => {
       </Grid>
 
       <div className="mt-2">
-        <Typography className="" variant="body2" sx={{ fontWeight: "bold" }}>
+        <Typography className="p-2" variant="body2" sx={{ fontWeight: "bold" }}>
           Ledger
         </Typography>
-        <TableContainer component={Paper}>
+        <TableContainer className="p-2" component={Paper}>
           <Table>
             <TableHead style={{ backgroundColor: "#32A92E", color: "white" }}>
               <TableRow>
@@ -708,21 +757,21 @@ const Page = () => {
         </TableContainer>
       </div>
 
-      <Grid className="" container spacing={2}>
+      <Grid className="p-2" container spacing={2}>
         <Grid item xs={6}>
           <Typography variant="body1" sx={{ fontWeight: "bold" }}>
             {invoiceList?.user?.client?.firm_name}
           </Typography>
         </Grid>
 
-        <Grid item xs={6}>
+        <Grid className="p-2" item xs={6}>
           <Typography variant="body1" sx={{ fontWeight: "bold" }}>
             Accurate Pest Control Services LLC
           </Typography>
         </Grid>
       </Grid>
 
-      <Grid className="" container spacing={2}>
+      <Grid className="p-2" container spacing={2}>
         <Grid item xs={6}>
           <Typography variant="body1" sx={{ fontWeight: "bold" }}>
             _________________________
@@ -746,6 +795,21 @@ const Page = () => {
 
           <Typography variant="body2">Signature</Typography>
           <Typography variant="body2">Date :</Typography>
+        </Grid>
+      </Grid>
+
+      <Grid container spacing={2} className="mt-4">
+        <Grid item xs={12} sx={{ textAlign: "center" }}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={uploadToCloudinary}
+            disabled={uploadingToCloudinary}
+          >
+            {uploadingToCloudinary
+              ? "Uploading..."
+              : "Upload Invoice to Cloudinary"}
+          </Button>
         </Grid>
       </Grid>
     </Layout>
