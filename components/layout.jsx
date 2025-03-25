@@ -4,7 +4,7 @@ import { Box, Grid } from "@mui/material";
 const LayoutComponent = ({ children }) => {
   // A4 size in pixels (assuming 96 DPI)
   const a4Width = 750; // 210mm
-  const a4Height = 1070; // 297mm
+  const a4Height = 1050; // 297mm
 
   return (
     <Box
@@ -81,9 +81,8 @@ const LayoutComponent = ({ children }) => {
           alt="Center"
           style={{
             maxWidth: "100%",
-            maxHeight: "250px",
             objectFit: "contain",
-            marginTop:"8.4rem"
+            marginTop:"7rem"
           }}
         />
       </div>

@@ -8,7 +8,7 @@ import styles from "../../styles/viewQuote.module.css";
 import APICall from "@/networkUtil/APICall";
 import { job } from "@/networkUtil/Constants";
 import Layout from "../../components/layout";
-import html2pdf from "html2pdf.js"
+import html2pdf from "html2pdf.js";
 
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
@@ -69,20 +69,43 @@ const Page = () => {
       setUploadingToCloudinary(true);
 
       // Generate PDF from a specific container instead of entire body
-      const element = document.getElementById('pdf-container');
+      const element = document.getElementById("pdf-container");
       const opt = {
-        margin: [0.5, 0.5, 1, 0.5], // top, right, bottom, left margins in inches
+        margin: [1, 0.5, 1, 0.5], // top, right, bottom, left margins in inches
         filename: `invoice_${Date.now()}.pdf`,
         image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { 
+        html2canvas: {
           scale: 2,
           scrollX: 0,
-          scrollY: -window.scrollY 
+          scrollY: -window.scrollY,
         },
-        jsPDF: { 
-          unit: "in", 
-          format: "letter", 
-          orientation: "portrait" 
+        jsPDF: {
+          unit: "in",
+          format: "letter",
+          orientation: "portrait",
+        },
+        pagebreak: {
+          mode: ["css", "legacy"],
+          before: ".page-break",
+        },
+        header: function (pageNum, pageCount) {
+          const headerElement = document.querySelector(".pdf-header");
+          return headerElement ? headerElement.innerHTML : "";
+        },
+        footer: function (pageNum, pageCount) {
+          const footerElement = document.querySelector(".pdf-footer");
+
+          // Replace the placeholder with actual page numbers
+          if (footerElement) {
+            const pageNumberDiv = footerElement.querySelector(
+              "div[data-page-number]"
+            );
+            if (pageNumberDiv) {
+              pageNumberDiv.textContent = `Page ${pageNum} of ${pageCount}`;
+            }
+            return footerElement.innerHTML;
+          }
+          return "";
         },
       };
 
@@ -120,7 +143,7 @@ const Page = () => {
     }
   };
 
-  return (
+  return ( 
     <div id="pdf-container">
       <Layout>
         <ClientDetails serviceReportList={serviceReportList} />

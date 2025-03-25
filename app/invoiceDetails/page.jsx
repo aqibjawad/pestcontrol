@@ -72,25 +72,30 @@ const Page = () => {
   // Cloudinary Upload Function
   const uploadToCloudinary = async () => {
     try {
+      // Set a loading state to indicate upload is in progress
       setUploadingToCloudinary(true);
 
-      // Generate PDF from the entire layout
-      const element = document.querySelector("body"); // Adjust selector if needed
+      // PDF generation configuration
+      const element = document.querySelector("body"); // Select the entire body to convert to PDF
       const opt = {
-        margin: 0,
-        filename: `invoice_${Date.now()}.pdf`,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+        margin: 0, // No margins
+        filename: `invoice_${Date.now()}.pdf`, // Dynamic filename with timestamp
+        image: { type: "jpeg", quality: 0.98 }, // High-quality JPEG conversion
+        html2canvas: { scale: 2 }, // Increased scale for better resolution
+        jsPDF: {
+          unit: "in",
+          format: "letter",
+          orientation: "portrait",
+        }, // PDF formatting options
       };
 
-      // Generate PDF
+      // Generate PDF as a blob
       const file = await html2pdf().set(opt).from(element).outputPdf("blob");
 
-      // Prepare FormData for Cloudinary upload
+      // Create FormData for Cloudinary upload
       const formData = new FormData();
       formData.append("file", file, `invoice_${Date.now()}.pdf`);
-      formData.append("upload_preset", "pestcontrol"); // Your Cloudinary preset
+      formData.append("upload_preset", "pestcontrol"); // Cloudinary upload preset
 
       // Upload to Cloudinary
       const response = await fetch(
@@ -101,19 +106,23 @@ const Page = () => {
         }
       );
 
+      // Check if upload was successful
       if (!response.ok) {
         throw new Error("Cloudinary upload failed");
       }
 
+      // Parse and log the response
       const data = await response.json();
       console.log("Upload success:", data);
       alert("Invoice uploaded successfully!");
-      return data.secure_url;
+      return data.secure_url; // Return the uploaded file's URL
     } catch (error) {
+      // Error handling
       console.error("Error in uploadToCloudinary:", error);
       alert("Failed to upload invoice. Please try again.");
       throw error;
     } finally {
+      // Reset loading state regardless of success or failure
       setUploadingToCloudinary(false);
     }
   };
@@ -298,264 +307,389 @@ const Page = () => {
   }
 
   return (
-    <Layout>
-      <Grid className="p-2" container spacing={2}>
-        <Grid item xs={6}>
-          <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-            {invoiceData.companyDetails.name}
-          </Typography>
-          <Typography variant="body2">
-            Warehouse No 1 Plot No 247-289, Al Qusais Industrial Area 4 , Dubai
-            - UAE
-          </Typography>
-          <Typography variant="body2">info@accuratepestcontrol.ae</Typography>
+    <div id="pdf-container">
+      <Layout>
+        <Grid className="p-2" container spacing={2}>
+          <Grid item xs={6}>
+            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              {invoiceData.companyDetails.name}
+            </Typography>
+            <Typography variant="body2">
+              Warehouse No 1 Plot No 247-289, Al Qusais Industrial Area 4 ,
+              Dubai - UAE
+            </Typography>
+            <Typography variant="body2">info@accuratepestcontrol.ae</Typography>
 
-          <div className="mt-5">
-            <Typography className="" variant="body2">
-              Bill To
-            </Typography>
-            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-              {invoiceList?.user?.client?.firm_name}
-            </Typography>
-            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-              TRN: {invoiceList?.invoiceable?.trn}
-            </Typography>
-          </div>
+            <div className="mt-5">
+              <Typography className="" variant="body2">
+                Bill To
+              </Typography>
+              <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                {invoiceList?.user?.client?.firm_name}
+              </Typography>
+              <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                TRN: {invoiceList?.invoiceable?.trn}
+              </Typography>
+            </div>
 
-          <div className="mt-5">
-            <Typography className="" variant="body2">
-              Contact Person
-            </Typography>
-            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-              Manager
-            </Typography>
-            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-              {invoiceList?.user?.client?.mobile_number}
-            </Typography>
-          </div>
-        </Grid>
+            <div className="mt-5">
+              <Typography className="" variant="body2">
+                Contact Person
+              </Typography>
+              <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                Manager
+              </Typography>
+              <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                {invoiceList?.user?.client?.mobile_number}
+              </Typography>
+            </div>
+          </Grid>
 
-        <Grid item xs={6}>
-          <Typography
-            variant="body1"
-            sx={{ fontWeight: "bold", textAlign: "right" }}
-          >
-            Tax Invoice
-          </Typography>
-          <div>
+          <Grid item xs={6}>
             <Typography
               variant="body1"
-              sx={{ fontWeight: "bold", textAlign: "right" }}
+              sx={{
+                fontWeight: "bold",
+                textAlign: "right",
+                paddingBottom: "10px",
+              }}
             >
-              TRN: 1041368802200003
+              Tax Invoice
             </Typography>
-          </div>
+            <div>
+              <Typography
+                variant="body1"
+                sx={{
+                  fontWeight: "bold",
+                  textAlign: "right",
+                  paddingBottom: "10px",
+                }}
+              >
+                TRN: 1041368802200003
+              </Typography>
+            </div>
 
-          <div style={{ ...commonStyles, ...headerStyles }}>
-            <Grid container spacing={2}>
-              <Grid item xs={6}>
-                <div>Tax Invoice</div>
+            <div style={{ ...commonStyles, ...headerStyles }}>
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <div>Tax Invoice</div>
+                </Grid>
+                <Grid item xs={6}>
+                  <div>{invoiceList?.service_invoice_id}</div>
+                </Grid>
               </Grid>
-              <Grid item xs={6}>
-                <div>{invoiceList?.service_invoice_id}</div>
-              </Grid>
-            </Grid>
-          </div>
+            </div>
 
-          <TableContainer component={Paper} style={commonStyles}>
-            <Table>
-              <TableHead style={{ backgroundColor: "lightgreen" }}>
-                <TableRow>
-                  <TableCell
-                    sx={{
-                      color: "black",
-                      padding: "4px 16px",
-                      lineHeight: "1rem",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Date
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      color: "black",
-                      padding: "4px 16px",
-                      lineHeight: "1rem",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Due Date
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      color: "black",
-                      padding: "4px 16px",
-                      lineHeight: "1rem",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Total
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                <TableRow>
-                  <TableCell align="right">
-                    {invoiceList?.issued_date}
-                  </TableCell>
-                  <TableCell align="right">
-                    {getNextMonthDate(invoiceList?.issued_date)}
-                  </TableCell>
-                  <TableCell align="right">{invoiceList?.total_amt}</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </TableContainer>
+            <TableContainer component={Paper} style={commonStyles}>
+              <Table>
+                <TableHead style={{ backgroundColor: "lightgreen" }}>
+                  <TableRow>
+                    <TableCell
+                      sx={{
+                        color: "black",
+                        padding: "4px 16px",
+                        lineHeight: "1rem",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Date
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        color: "black",
+                        padding: "4px 16px",
+                        lineHeight: "1rem",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Due Date
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        color: "black",
+                        padding: "4px 16px",
+                        lineHeight: "1rem",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Total
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRow>
+                    <TableCell align="right">
+                      {invoiceList?.issued_date}
+                    </TableCell>
+                    <TableCell align="right">
+                      {getNextMonthDate(invoiceList?.issued_date)}
+                    </TableCell>
+                    <TableCell align="right">
+                      {invoiceList?.total_amt}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
 
-          <div style={{ textAlign: "right" }} className={styles.totalAmount}>
-            APCS{invoiceList?.user?.client?.referencable_id}PT
-            {invoiceList?.invoiceable?.billing_method === "monthly"
-              ? 1
-              : invoiceList?.invoiceable?.billing_method === "monthly"
-              ? 2
-              : invoiceList?.invoiceable?.billing_method === "service"
-              ? 3
-              : "unknown"}
-          </div>
+            <div style={{ textAlign: "right" }} className={styles.totalAmount}>
+              APCS{invoiceList?.user?.client?.referencable_id}PT
+              {invoiceList?.invoiceable?.billing_method === "monthly"
+                ? 1
+                : invoiceList?.invoiceable?.billing_method === "monthly"
+                ? 2
+                : invoiceList?.invoiceable?.billing_method === "service"
+                ? 3
+                : "unknown"}
+            </div>
 
-          <div style={{ textAlign: "right" }} className={styles.totalAmount}>
-            Invoice Id:
-            {invoiceList?.job || "No Invoice"}
-          </div>
+            <div style={{ textAlign: "right" }} className={styles.totalAmount}>
+              Invoice Id:
+              {invoiceList?.job || "No Invoice"}
+            </div>
+          </Grid>
         </Grid>
-      </Grid>
 
-      <Grid className="p-2" container spacing={2}>
-        <Grid className="mt-1" item xs={5}>
+        <Grid className="p-2" container spacing={2}>
+          <Grid className="mt-1" item xs={5}>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead
+                  style={{ backgroundColor: "#32A92E", color: "white" }}
+                >
+                  <TableRow>
+                    <TableCell
+                      sx={{
+                        color: "white",
+                        padding: "4px 16px",
+                        lineHeight: "1rem",
+                      }}
+                    >
+                      Description
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        color: "white",
+                        padding: "4px 16px",
+                        lineHeight: "1rem",
+                      }}
+                      align="right"
+                    >
+                      VAT
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        color: "white",
+                        padding: "4px 16px",
+                        lineHeight: "1rem",
+                      }}
+                      align="right"
+                    >
+                      Total
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRow>
+                    <TableCell
+                      sx={{
+                        color: "black",
+                        padding: "4px 16px",
+                        lineHeight: "1rem",
+                      }}
+                    >
+                      {" "}
+                      General Pest Control{" "}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        color: "black",
+                        padding: "4px 16px",
+                        lineHeight: "1rem",
+                      }}
+                      align="right"
+                    >
+                      {invoiceList?.invoiceable?.vat_per}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        color: "black",
+                        padding: "4px 16px",
+                        lineHeight: "1rem",
+                      }}
+                      align="right"
+                    >
+                      {invoiceList?.total_amt}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Grid>
+
+          <Grid className="mt-1" item xs={7}>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead
+                  style={{ backgroundColor: "#32A92E", color: "white" }}
+                >
+                  <TableRow>
+                    <TableCell
+                      sx={{
+                        color: "white",
+                        padding: "4px 16px",
+                        lineHeight: "1rem",
+                      }}
+                      align="center"
+                    >
+                      Sr No
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        color: "white",
+                        padding: "4px 16px",
+                        lineHeight: "1rem",
+                      }}
+                      align="center"
+                    >
+                      Job Id
+                    </TableCell>
+
+                    <TableCell
+                      sx={{
+                        color: "white",
+                        padding: "4px 16px",
+                        lineHeight: "1rem",
+                      }}
+                      align="center"
+                    >
+                      Expected Date
+                    </TableCell>
+
+                    <TableCell
+                      sx={{
+                        color: "white",
+                        padding: "4px 16px",
+                        lineHeight: "1rem",
+                      }}
+                      align="center"
+                    >
+                      Job Date
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {invoiceList.jobs?.map((row, index) => (
+                    <TableRow key={index}>
+                      <TableCell
+                        sx={{
+                          color: "black",
+                          padding: "4px 16px",
+                          lineHeight: "1rem",
+                        }}
+                        align="left"
+                      >
+                        {index + 1}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          color: "black",
+                          padding: "4px 16px",
+                          lineHeight: "1rem",
+                        }}
+                        align="left"
+                      >
+                        {row?.id}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          color: "black",
+                          padding: "4px 16px",
+                          lineHeight: "1rem",
+                        }}
+                        align="left"
+                      >
+                        {row?.job_date}
+                      </TableCell>
+
+                      <TableCell
+                        sx={{
+                          color: "black",
+                          padding: "4px 16px",
+                          lineHeight: "1rem",
+                        }}
+                        align="left"
+                      >
+                        {row?.job_end_time || "no Date"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Grid>
+        </Grid>
+
+        <Grid className="p-2" container spacing={2}>
+          <Grid item xs={10}>
+            <div>
+              <div className={styles.totalAmount}>
+                (
+                {invoiceList?.total_amt &&
+                  formatAmountDisplay(invoiceList.total_amt)}
+                )
+              </div>
+
+              <div className={styles.descrp}>
+                Payment will be paid after receiving of invoice within 30 days
+                period.
+              </div>
+
+              <div className={styles.totalAmount}>Bank Details:</div>
+
+              <div className={styles.Bankdescrp}>
+                Account Holder : ACCURATE PEST CONTROL SERVICES L.L.C IBAN:
+                AE980400000883216722001
+              </div>
+
+              <div className={styles.Bankdescrp}>
+                Account: 0883216722001 Bank Name : RAK BANK
+              </div>
+
+              <div className={styles.Bankdescrp}>
+                Branch: DRAGON MART, DUBAI
+              </div>
+            </div>
+          </Grid>
+        </Grid>
+
+        <div className="mt-2">
+          {/* <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+            Ledger
+          </Typography> */}
           <TableContainer component={Paper}>
             <Table>
               <TableHead style={{ backgroundColor: "#32A92E", color: "white" }}>
                 <TableRow>
-                  <TableCell
-                    sx={{
-                      color: "white",
-                      padding: "4px 16px",
-                      lineHeight: "1rem",
-                    }}
-                  >
-                    Description
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      color: "white",
-                      padding: "4px 16px",
-                      lineHeight: "1rem",
-                    }}
-                    align="right"
-                  >
-                    VAT
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      color: "white",
-                      padding: "4px 16px",
-                      lineHeight: "1rem",
-                    }}
-                    align="right"
-                  >
-                    Total
-                  </TableCell>
+                  {["Date", "Description", "Credit", "Debit", "Balance"].map(
+                    (header) => (
+                      <TableCell
+                        key={header}
+                        sx={{
+                          color: "white",
+                          padding: "4px 16px",
+                          lineHeight: "1rem",
+                          textAlign: header === "Balance" ? "right" : "center",
+                        }}
+                      >
+                        {header}
+                      </TableCell>
+                    )
+                  )}
                 </TableRow>
               </TableHead>
               <TableBody>
-                <TableRow>
-                  <TableCell
-                    sx={{
-                      color: "black",
-                      padding: "4px 16px",
-                      lineHeight: "1rem",
-                    }}
-                  >
-                    {" "}
-                    General Pest Control{" "}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      color: "black",
-                      padding: "4px 16px",
-                      lineHeight: "1rem",
-                    }}
-                    align="right"
-                  >
-                    {invoiceList?.invoiceable?.vat_per}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      color: "black",
-                      padding: "4px 16px",
-                      lineHeight: "1rem",
-                    }}
-                    align="right"
-                  >
-                    {invoiceList?.total_amt}
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Grid>
-
-        <Grid className="mt-1" item xs={7}>
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead style={{ backgroundColor: "#32A92E", color: "white" }}>
-                <TableRow>
-                  <TableCell
-                    sx={{
-                      color: "white",
-                      padding: "4px 16px",
-                      lineHeight: "1rem",
-                    }}
-                    align="center"
-                  >
-                    Sr No
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      color: "white",
-                      padding: "4px 16px",
-                      lineHeight: "1rem",
-                    }}
-                    align="center"
-                  >
-                    Job Id
-                  </TableCell>
-
-                  <TableCell
-                    sx={{
-                      color: "white",
-                      padding: "4px 16px",
-                      lineHeight: "1rem",
-                    }}
-                    align="center"
-                  >
-                    Expected Date
-                  </TableCell>
-
-                  <TableCell
-                    sx={{
-                      color: "white",
-                      padding: "4px 16px",
-                      lineHeight: "1rem",
-                    }}
-                    align="center"
-                  >
-                    Job Date
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {invoiceList.jobs?.map((row, index) => (
+                {rowData.map((row, index) => (
                   <TableRow key={index}>
                     <TableCell
                       sx={{
@@ -565,7 +699,7 @@ const Page = () => {
                       }}
                       align="left"
                     >
-                      {index + 1}
+                      {format(new Date(row.updated_at), "yyyy-MM-dd")}
                     </TableCell>
                     <TableCell
                       sx={{
@@ -575,7 +709,7 @@ const Page = () => {
                       }}
                       align="left"
                     >
-                      {row?.id}
+                      {row.description}
                     </TableCell>
                     <TableCell
                       sx={{
@@ -585,9 +719,8 @@ const Page = () => {
                       }}
                       align="left"
                     >
-                      {row?.job_date}
+                      {row.cr_amt}
                     </TableCell>
-
                     <TableCell
                       sx={{
                         color: "black",
@@ -596,223 +729,88 @@ const Page = () => {
                       }}
                       align="left"
                     >
-                      {row?.job_end_time || "no Date"}
+                      {row.dr_amt}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        color: "black",
+                        padding: "4px 16px",
+                        lineHeight: "1rem",
+                      }}
+                      align="right"
+                    >
+                      {row.cash_balance}
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </TableContainer>
+        </div>
+
+        <Grid className="p-2" container spacing={2}>
+          <Grid item xs={6}>
+            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              {invoiceList?.user?.client?.firm_name}
+            </Typography>
+          </Grid>
+
+          <Grid className="p-2" item xs={6}>
+            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              Accurate Pest Control Services LLC
+            </Typography>
+          </Grid>
         </Grid>
-      </Grid>
 
-      <Grid className="p-2" container spacing={2}>
-        <Grid item xs={10}>
-          <div>
-            <div className={styles.totalAmount}>
-              (
-              {invoiceList?.total_amt &&
-                formatAmountDisplay(invoiceList.total_amt)}
-              )
-            </div>
+        <Grid className="p-2" container spacing={2}>
+          <Grid item xs={6}>
+            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              _________________________
+            </Typography>
 
-            <div className={styles.descrp}>
-              Payment will be paid after receiving of invoice within 30 days
-              period.
-            </div>
+            <Typography variant="body2">Signature</Typography>
+            <Typography variant="body2">Date :</Typography>
 
-            <div className={styles.totalAmount}>Bank Details:</div>
+            <Typography className="" variant="body2">
+              {invoiceList?.user?.name}
+            </Typography>
+            {/* <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              Manager
+            </Typography> */}
+          </Grid>
 
-            <div className={styles.Bankdescrp}>
-              Account Holder : ACCURATE PEST CONTROL SERVICES L.L.C IBAN:
-              AE980400000883216722001
-            </div>
+          <Grid item xs={6}>
+            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              _________________________
+            </Typography>
 
-            <div className={styles.Bankdescrp}>
-              Account: 0883216722001 Bank Name : RAK BANK
-            </div>
-
-            <div className={styles.Bankdescrp}>Branch: DRAGON MART, DUBAI</div>
-          </div>
+            <Typography variant="body2">Signature</Typography>
+            <Typography variant="body2">Date :</Typography>
+          </Grid>
         </Grid>
-      </Grid>
+      </Layout>
 
-      <div className="mt-2">
-        <Typography className="p-2" variant="body2" sx={{ fontWeight: "bold" }}>
-          Ledger
-        </Typography>
-        <TableContainer className="p-2" component={Paper}>
-          <Table>
-            <TableHead style={{ backgroundColor: "#32A92E", color: "white" }}>
-              <TableRow>
-                <TableCell
-                  sx={{
-                    color: "white",
-                    padding: "4px 16px",
-                    lineHeight: "1rem",
-                  }}
-                  align="center"
-                >
-                  Date
-                </TableCell>
-                <TableCell
-                  sx={{
-                    color: "white",
-                    padding: "4px 16px",
-                    lineHeight: "1rem",
-                  }}
-                  align="center"
-                >
-                  Description
-                </TableCell>
-                <TableCell
-                  sx={{
-                    color: "white",
-                    padding: "4px 16px",
-                    lineHeight: "1rem",
-                  }}
-                  align="center"
-                >
-                  Credit
-                </TableCell>
-                <TableCell
-                  sx={{
-                    color: "white",
-                    padding: "4px 16px",
-                    lineHeight: "1rem",
-                  }}
-                  align="center"
-                >
-                  Debit
-                </TableCell>
-                <TableCell
-                  sx={{
-                    color: "white",
-                    padding: "4px 16px",
-                    lineHeight: "1rem",
-                  }}
-                  align="right"
-                >
-                  Balance
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {rowData.map((row, index) => (
-                <TableRow key={index}>
-                  <TableCell
-                    sx={{
-                      color: "black",
-                      padding: "4px 16px",
-                      lineHeight: "1rem",
-                    }}
-                    align="left"
-                  >
-                    {format(new Date(row.updated_at), "yyyy-MM-dd")}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      color: "black",
-                      padding: "4px 16px",
-                      lineHeight: "1rem",
-                    }}
-                    align="left"
-                  >
-                    {row.description}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      color: "black",
-                      padding: "4px 16px",
-                      lineHeight: "1rem",
-                    }}
-                    align="left"
-                  >
-                    {row.cr_amt}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      color: "black",
-                      padding: "4px 16px",
-                      lineHeight: "1rem",
-                    }}
-                    align="left"
-                  >
-                    {row.dr_amt}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      color: "black",
-                      padding: "4px 16px",
-                      lineHeight: "1rem",
-                    }}
-                    align="left"
-                  >
-                    {row.cash_balance}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+      <div className="upload-button-container hidden-in-print">
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={uploadToCloudinary}
+          disabled={uploadingToCloudinary}
+        >
+          {uploadingToCloudinary
+            ? "Uploading..."
+            : "Upload Invoice to Cloudinary"}
+        </Button>
       </div>
 
-      <Grid className="p-2" container spacing={2}>
-        <Grid item xs={6}>
-          <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-            {invoiceList?.user?.client?.firm_name}
-          </Typography>
-        </Grid>
-
-        <Grid className="p-2" item xs={6}>
-          <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-            Accurate Pest Control Services LLC
-          </Typography>
-        </Grid>
-      </Grid>
-
-      <Grid className="p-2" container spacing={2}>
-        <Grid item xs={6}>
-          <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-            _________________________
-          </Typography>
-
-          <Typography variant="body2">Signature</Typography>
-          <Typography variant="body2">Date :</Typography>
-
-          <Typography className="" variant="body2">
-            {invoiceList?.user?.name}
-          </Typography>
-          <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-            Manager
-          </Typography>
-        </Grid>
-
-        <Grid item xs={6}>
-          <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-            _________________________
-          </Typography>
-
-          <Typography variant="body2">Signature</Typography>
-          <Typography variant="body2">Date :</Typography>
-        </Grid>
-      </Grid>
-
-      <Grid container spacing={2} className="mt-4">
-        <Grid item xs={12} sx={{ textAlign: "center" }}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={uploadToCloudinary}
-            disabled={uploadingToCloudinary}
-          >
-            {uploadingToCloudinary
-              ? "Uploading..."
-              : "Upload Invoice to Cloudinary"}
-          </Button>
-        </Grid>
-      </Grid>
-    </Layout>
+      <style jsx global>{`
+        @media print {
+          .hidden-in-print {
+            display: none !important;
+          }
+        }
+      `}</style>
+    </div>
   );
 };
 
