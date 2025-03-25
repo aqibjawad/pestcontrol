@@ -20,7 +20,6 @@ import styles from "../../styles/invoiceDetails.module.css";
 import { serviceInvoice, clients } from "@/networkUtil/Constants";
 
 import APICall from "@/networkUtil/APICall";
-import withAuth from "@/utils/withAuth";
 
 import { format } from "date-fns";
 
@@ -753,4 +752,4 @@ const Page = () => {
   );
 };
 
-export default withAuth(Page);
+export default Page;

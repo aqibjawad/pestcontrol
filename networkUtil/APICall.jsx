@@ -1,11 +1,10 @@
 import axios from "axios";
 import User from "./user";
-import { useRouter } from 'next/navigation'; // For app directory routing
-
+import { useRouter } from "next/navigation"; // For app directory routing
 
 class APICall {
   constructor() {
-   this.router = useRouter();
+    this.router = useRouter();
   }
   async makeRequest(
     method,
@@ -46,19 +45,17 @@ class APICall {
     } catch (error) {
       if (error.response) {
         if (error.response.status === 401) {
-          
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
-          localStorage.removeItem('user');
+          // Clear user data
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("refreshToken");
+          localStorage.removeItem("user");
           User.logout();
-          if (typeof window !== 'undefined') {
-            this.router.push('/');;
-          }
 
-          // Return an error object
-          return { 
-            error: 'Unauthorized. Please log in again.', 
-            status: 401 
+          // Return an unauthorized error instead of redirecting here
+          return {
+            error: "Unauthorized. Please log in again.",
+            status: 401,
+            unauthorized: true, // Add a flag to handle this specially
           };
         }
 
@@ -85,14 +82,13 @@ class APICall {
     return this.makeRequest("post", url, data, false, true);
   }
 
-  async postFormDataWithToken(url, data) { 
+  async postFormDataWithToken(url, data) {
     return this.makeRequest("post", url, data, true, true);
   }
 
   async postDataToken(url, data) {
     return this.makeRequest("post", url, data, true, false);
   }
-
 
   async getDataWithToken(url) {
     return this.makeRequest("get", url, null, true);
@@ -114,10 +110,9 @@ class APICall {
     return this.makeRequest("post", url, data, true, false);
   }
 
-  async updateFormData(url, data) { 
+  async updateFormData(url, data) {
     return this.makeRequest("put", url, data, true, true);
   }
-
 }
 
 export default APICall;

@@ -40,11 +40,11 @@ const ProductReport = () => {
 
   const [firms, setFirms] = useState([]);
   const [selectedFirm, setSelectedFirm] = useState("all");
-  
+
   // New state for product filtering
   const [uniqueProducts, setUniqueProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState("all");
-  
+
   const [noDataFound, setNoDataFound] = useState(false);
 
   const [startDate, setStartDate] = useState(null);
@@ -59,12 +59,57 @@ const ProductReport = () => {
       .toFixed(2);
   };
 
-  const handleExport = (type) => {
+  const generatePDFFile = () => {
     if (!filteredContent || filteredContent.length === 0) {
       console.warn("No data available to export");
-      return;
+      return null;
     }
 
+    const doc = new jsPDF();
+
+    const logoPath = "/logo.jpeg";
+    const logoWidth = 35;
+    const logoHeight = 20;
+
+    // Add logo
+    doc.addImage(logoPath, "PNG", 170, 10, logoWidth, logoHeight);
+
+    // Add title
+    doc.setFontSize(16);
+    doc.text("Stock Use Report", 14, 20);
+
+    // Add date range
+    doc.setFontSize(12);
+    const dateText =
+      startDate && endDate
+        ? `Date: ${format(new Date(startDate), "dd/MM/yyyy")} - ${format(
+            new Date(endDate),
+            "dd/MM/yyyy"
+          )}`
+        : `Date: ${format(new Date(), "dd/MM/yyyy")}`;
+    doc.text(dateText, 14, 30);
+
+    // Add selected filters
+    let filterText = "";
+    if (selectedCaptain !== "all") {
+      filterText += `Captain: ${selectedCaptain}`;
+    }
+    if (selectedFirm !== "all") {
+      filterText += filterText
+        ? `, Firm: ${selectedFirm}`
+        : `Firm: ${selectedFirm}`;
+    }
+    if (selectedProduct !== "all") {
+      filterText += filterText
+        ? `, Product: ${selectedProduct}`
+        : `Product: ${selectedProduct}`;
+    }
+    if (!filterText) {
+      filterText = "All Data";
+    }
+    doc.text(filterText, 14, 40);
+
+    // Prepare export data like in the original handleExport function
     const exportData = filteredContent.map((row, index) => {
       const baseData = {
         "Sr No": index + 1,
@@ -72,7 +117,7 @@ const ProductReport = () => {
         "Captain Name": row.captain_name || "Unknown",
         "Consumed Quantity": row.total_qty || 0,
         "Consumed Units": row.consumed_units.toFixed(2) || 0,
-        "Firm Name": row.firm_name || "Unknown", // Added firm name to exports
+        "Firm Name": row.firm_name || "Unknown",
       };
 
       // Only include price columns if firm is not selected
@@ -87,107 +132,61 @@ const ProductReport = () => {
       return baseData;
     });
 
-    if (type === "pdf") {
-      const doc = new jsPDF();
+    // Get headers dynamically based on selected firm
+    const headers = Object.keys(exportData[0]);
 
-      const logoPath = "/logo.jpeg";
-      const logoWidth = 35;
-      const logoHeight = 20;
+    // Add table
+    doc.autoTable({
+      head: [headers],
+      body: exportData.map(Object.values),
+      startY: 50,
+      theme: "grid",
+      styles: {
+        fontSize: 8,
+        cellPadding: 2,
+      },
+      headStyles: { fillColor: [22, 163, 74], textColor: 255 },
+      didDrawPage: function (data) {
+        // Only show total if firm is not selected
+        if (selectedFirm === "all") {
+          // Calculate total
+          const totalConsumedAmount =
+            calculateTotalConsumedAmount(filteredContent);
 
-      doc.addImage(
-        logoPath,
-        "PNG",
-        170,
-        10,
-        logoWidth,
-        logoHeight,
-        logoWidth * logoHeight
-      );
+          // Add total row after the table
+          const finalY = data.cursor.y + 10;
+          doc.setFontSize(10);
+          doc.setFont(undefined, "bold");
+          doc.text(`Total Consumed Amount: ${totalConsumedAmount}`, 14, finalY);
+        }
+      },
+    });
 
-      // Add title
-      doc.setFontSize(16);
-      doc.text("Stock Use Report", 14, 20);
+    // Return as blob for uploadToCloudinary
+    return doc.output("blob");
+  };
 
-      // Add date range
-      doc.setFontSize(12);
-      const dateText =
-        startDate && endDate
-          ? `Date: ${format(new Date(startDate), "dd/MM/yyyy")} - ${format(
-              new Date(endDate),
-              "dd/MM/yyyy"
-            )}`
-          : `Date: ${format(new Date(), "dd/MM/yyyy")}`;
-      doc.text(dateText, 14, 30);
+  const uploadToCloudinary = () => {
+    const file = generatePDFFile();
+    if (!file) return;
 
-      // Add selected filters
-      let filterText = "";
-      if (selectedCaptain !== "all") {
-        filterText += `Captain: ${selectedCaptain}`;
-      }
-      if (selectedFirm !== "all") {
-        filterText += filterText
-          ? `, Firm: ${selectedFirm}`
-          : `Firm: ${selectedFirm}`;
-      }
-      if (selectedProduct !== "all") {
-        filterText += filterText
-          ? `, Product: ${selectedProduct}`
-          : `Product: ${selectedProduct}`;
-      }
-      if (!filterText) {
-        filterText = "All Data";
-      }
-      doc.text(filterText, 14, 40);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "pestcontrol"); // Your preset name
 
-      // Get headers dynamically based on selected firm
-      const headers = Object.keys(exportData[0]);
-
-      // Add table
-      doc.autoTable({
-        head: [headers],
-        body: exportData.map(Object.values),
-        startY: 50,
-        theme: "grid",
-        styles: {
-          fontSize: 8,
-          cellPadding: 2,
-        },
-        headStyles: { fillColor: [22, 163, 74], textColor: 255 },
-        didDrawPage: function (data) {
-          // Only show total if firm is not selected
-          if (selectedFirm === "all") {
-            // Calculate total
-            const totalConsumedAmount =
-              calculateTotalConsumedAmount(filteredContent);
-
-            // Add total row after the table
-            const finalY = data.cursor.y + 10;
-            doc.setFontSize(10);
-            doc.setFont(undefined, "bold");
-            doc.text(
-              `Total Consumed Amount: ${totalConsumedAmount}`,
-              14,
-              finalY
-            );
-          }
-        },
+    return fetch("https://api.cloudinary.com/v1_1/df59vjsv5/auto/upload", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Upload success:", data);
+        return data.secure_url;
+      })
+      .catch((error) => {
+        console.error("Error uploading to Cloudinary:", error);
+        throw error;
       });
-
-      doc.save("stock-report.pdf");
-    } else if (type === "excel" || type === "csv") {
-      // Create workbook with filtered data
-      const wb = utils.book_new();
-      const ws = utils.json_to_sheet(exportData);
-      utils.book_append_sheet(wb, ws, "Stock Report");
-
-      // For Excel format
-      if (type === "excel") {
-        write(wb, "stock-report.xlsx");
-      } else {
-        // For CSV format
-        write(wb, "stock-report.csv");
-      }
-    }
   };
 
   const handleDateChange = (start, end) => {
@@ -283,7 +282,7 @@ const ProductReport = () => {
       // Extract all used_products from all service reports
       const allProducts = [];
       const uniqueProductNames = new Set();
-      
+
       if (response?.data && Array.isArray(response.data)) {
         response.data.forEach((report) => {
           const firmName =
@@ -308,7 +307,7 @@ const ProductReport = () => {
               if (product && product.product && product.product.product_name) {
                 uniqueProductNames.add(product.product.product_name);
               }
-              
+
               return {
                 ...product,
                 captain_name: report.job?.captain?.name || "Unknown",
@@ -436,11 +435,11 @@ const ProductReport = () => {
         "and product:",
         selectedProduct
       );
-      
+
       console.log("Available firms in data:", [
         ...new Set(mappedContent.map((item) => item.firm_name)),
       ]);
-      
+
       console.log("Available products in data:", [
         ...new Set(mappedContent.map((item) => item.product_name)),
       ]);
@@ -487,15 +486,15 @@ const ProductReport = () => {
 
         console.log("After firm filtering:", filtered.length, "items");
       }
-      
+
       // Filter by product if selected
       if (selectedProduct !== "all") {
         console.log("Before product filtering:", filtered.length, "items");
-        
+
         filtered = filtered.filter((item) => {
           return item.product_name === selectedProduct;
         });
-        
+
         console.log("After product filtering:", filtered.length, "items");
       }
 
@@ -515,7 +514,7 @@ const ProductReport = () => {
   const handleFirmChange = (event) => {
     setSelectedFirm(event.target.value);
   };
-  
+
   const handleProductChange = (event) => {
     setSelectedProduct(event.target.value);
   };
@@ -661,7 +660,7 @@ const ProductReport = () => {
               ))}
             </Select>
           </FormControl>
-          
+
           {/* New Product filter dropdown */}
           <FormControl sx={{ minWidth: 200 }}>
             <InputLabel>Filter by Product</InputLabel>
@@ -684,33 +683,15 @@ const ProductReport = () => {
             spacing={2}
             alignItems="center"
           >
-            {/* <Button
-              variant="contained"
-              startIcon={<FileDownloadIcon />}
-              onClick={() => handleExport("excel")}
-              style={{ backgroundColor: "#1976d2" }}
-              disabled={filteredContent?.length === 0}
-            >
-              Excel
-            </Button> */}
             <Button
               variant="contained"
               startIcon={<FileDownloadIcon />}
-              onClick={() => handleExport("pdf")}
+              onClick={() => uploadToCloudinary()}
               style={{ backgroundColor: "#dc004e" }}
               disabled={filteredContent?.length === 0}
             >
               PDF
             </Button>
-            {/* <Button
-              variant="contained"
-              startIcon={<FileDownloadIcon />}
-              onClick={() => handleExport("csv")}
-              style={{ backgroundColor: "#4caf50" }}
-              disabled={filteredContent?.length === 0}
-            >
-              CSV
-            </Button> */}
             <div
               style={{
                 backgroundColor: "#32A92E",

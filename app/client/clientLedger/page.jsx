@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styles from "../../../styles/ledger.module.css";
 import {
   Skeleton,
@@ -15,7 +15,9 @@ import {
   Box,
   Typography,
   Button,
+  CircularProgress,
 } from "@mui/material";
+import jsPDF from "jspdf";
 import "jspdf-autotable";
 
 import Link from "next/link";
@@ -40,7 +42,6 @@ const getParamsFromUrl = (url) => {
 };
 
 const Page = () => {
-  
   const api = new APICall();
 
   const [id, setId] = useState(null);
@@ -55,6 +56,8 @@ const Page = () => {
   const [error, setError] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalData, setModalData] = useState(null);
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState(null);
   const router = useRouter();
   const tableRef = useRef(null);
 
@@ -99,8 +102,109 @@ const Page = () => {
     setModalData(null);
   };
 
+  // PDF Generation function
+  const generatePDFFile = () => {
+    if (!rowData || rowData.length === 0) {
+      console.warn("No data available to export");
+      return;
+    }
+
+    const doc = new jsPDF();
+
+    // Add title and supplier information
+    doc.setFontSize(16);
+    doc.text("Ledger Report", 14, 20);
+
+    doc.setFontSize(12);
+    doc.text(`Supplier: ${supplierName}`, 14, 30);
+    doc.text(`Phone: ${phoneNumber}`, 14, 35);
+    doc.text(`Date: ${format(new Date(), "dd/MM/yyyy")}`, 14, 40);
+
+    // Calculate totals
+    const totalCredit = rowData
+      .reduce((acc, row) => acc + parseFloat(row.cr_amt || 0), 0)
+      .toFixed(2);
+
+    const totalDebit = rowData
+      .reduce((acc, row) => acc + parseFloat(row.dr_amt || 0), 0)
+      .toFixed(2);
+
+    // Prepare the data for the table
+    const tableRows = rowData.map((row) => [
+      format(new Date(row.updated_at), "yyyy-MM-dd"),
+      row.description,
+      row.cr_amt,
+      row.dr_amt,
+      row.cash_balance,
+    ]);
+
+    // Add the table
+    doc.autoTable({
+      head: [["Date", "Description", "Credit", "Debit", "Balance"]],
+      body: tableRows,
+      startY: 50,
+      theme: "grid",
+      styles: {
+        fontSize: 8,
+        cellPadding: 2,
+      },
+      headStyles: { fillColor: [66, 139, 202], textColor: 255 },
+      didDrawPage: function (data) {
+        // Add total row after the table
+        const finalY = data.cursor.y + 10;
+        doc.setFontSize(10);
+        doc.setFont(undefined, "bold");
+        doc.text(
+          `Total Credit: ${totalCredit}    Total Debit: ${totalDebit}`,
+          14,
+          finalY
+        );
+      },
+    });
+
+    // Return as blob for uploadToCloudinary
+    return doc.output("blob");
+  };
+
+  const uploadToCloudinary = async () => {
+    try {
+      setPdfLoading(true);
+      const file = generatePDFFile();
+      if (!file) {
+        setPdfLoading(false);
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "pestcontrol"); // Your preset name
+
+      const response = await fetch(
+        "https://api.cloudinary.com/v1_1/df59vjsv5/auto/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+      console.log("Upload success:", data);
+      setPdfUrl(data.secure_url);
+      return data.secure_url;
+    } catch (error) {
+      console.error("Error uploading to Cloudinary:", error);
+    } finally {
+      setPdfLoading(false);
+    }
+  };
+
   const handlePrint = () => {
     window.print();
+  };
+
+  // Handle PDF generation and upload
+  const handleGeneratePDF = () => {
+    uploadToCloudinary();
   };
 
   return (
@@ -108,7 +212,22 @@ const Page = () => {
       <div className={styles.container}>
         <div className={styles.leftSection}>{supplierName}</div>
         <div>
-          <div>
+          <div className="flex items-center gap-4">
+            <Button
+              className={styles.hideOnPrint}
+              variant="contained"
+              color="primary"
+              onClick={handleGeneratePDF}
+              disabled={pdfLoading}
+              startIcon={
+                pdfLoading ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : null
+              }
+            >
+              {pdfLoading ? "Sending..." : "Send Email PDF"}
+            </Button>
+
             <Button
               className={styles.hideOnPrint}
               variant="contained"

@@ -1,41 +1,45 @@
 "use client";
 
+import { Inter } from "next/font/google";
+import "./globals.css";
 import { usePathname } from "next/navigation";
 import SideMenu from "../components/SideMenu";
+import AuthGuard from "../components/AuthGuard";
 
+const inter = Inter({ subsets: ["latin"] });
 
-export default function RootLayoutClient({ children }) {
+export default function RootLayout({ children }) {
   const pathname = usePathname();
-  const isHomePage = pathname === "/";
-  const isInvoicePage = pathname === "/serviceRpoertPdf/";
+  const cleanedPathname = pathname.split("?")[0];
 
-  const LayoutWithSidebar = ({ children }) => (
-    <div className="layout-container">
-      <div className="sidebar-container">
-        <SideMenu />
-      </div>
-      <div className="main-content">
-        <main className="main-content-child">
-          {children}
-        </main>
-      </div>
-    </div>
+  const noLayoutPages = [
+    "/serviceReportPdf", // Fixed typo
+    "/quotePdf",
+    "/invoiceDetails",
+    "/paySlip",
+    "/deviceDoc",
+  ];
+
+  // Check if current path is in noLayoutPages (without needing trailing slashes)
+  const isNoLayoutPage = noLayoutPages.some(path => 
+    cleanedPathname === path || cleanedPathname.startsWith(`${path}/`)
   );
+  
+  const isRootPath = cleanedPathname === "/" || cleanedPathname.startsWith("/?");
 
-  const LayoutWithoutSidebar = ({ children }) => (
-    <div className="layout-container home-layout">
-      <div className="main-content">
-        <main className="main-content-child full-width">
-          {children}
-        </main>
-      </div>
-    </div>
+  return (
+    <html lang="en">
+      <body className={inter.className}>
+        {isNoLayoutPage || isRootPath ? (
+          // No auth check for these pages
+          <div className="">{children}</div>
+        ) : (
+          // Auth check for all other pages
+          <AuthGuard>
+            <SideMenu>{children}</SideMenu>
+          </AuthGuard>
+        )}
+      </body>
+    </html>
   );
-
-  if (isHomePage || isInvoicePage) {
-    
-    return <LayoutWithoutSidebar>{children}</LayoutWithoutSidebar>;
-  } else {
-    return <LayoutWithSidebar>{children}</LayoutWithSidebar>;
-  }
 }
