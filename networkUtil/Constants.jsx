@@ -109,3 +109,5 @@ export const visitFollowUps = apiPrefix + "/visit/filter/get";
 export const purchaeOrder = apiPrefix + "/purchase_order";
 
 export const inspectionReport = apiPrefix + "/inspection/report";
+
+export const sendEmail = apiPrefix + "/email/pest_info/send";

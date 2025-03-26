@@ -22,7 +22,7 @@ import "jspdf-autotable";
 
 import Link from "next/link";
 
-import { clients } from "../../../networkUtil/Constants";
+import { clients, sendEmail } from "../../../networkUtil/Constants";
 import APICall from "../../../networkUtil/APICall";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
@@ -103,22 +103,28 @@ const Page = () => {
   };
 
   // PDF Generation function
+  // Updated generatePDFFile function
   const generatePDFFile = () => {
+    // Check if row data exists
     if (!rowData || rowData.length === 0) {
       console.warn("No data available to export");
-      return;
+      return null;
     }
 
+    // Create a new jsPDF instance
     const doc = new jsPDF();
 
-    // Add title and supplier information
+    // Set up document properties
     doc.setFontSize(16);
-    // doc.text("Ledger Report", 14, 20);
+    doc.setFont("helvetica", "bold");
+    doc.text("Ledger Report", 105, 15, { align: "center" });
 
+    // Add supplier/client information
     doc.setFontSize(12);
-    doc.text(`Client Name: ${supplierName}`, 14, 20);
-    doc.text(`Phone: ${phoneNumber}`, 14, 35);
-    doc.text(`Date: ${format(new Date(), "dd/MM/yyyy")}`, 14, 40);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Client Name: ${supplierName || "N/A"}`, 14, 25);
+    doc.text(`Phone: ${phoneNumber || "N/A"}`, 14, 35);
+    doc.text(`Date: ${format(new Date(), "dd/MM/yyyy")}`, 14, 45);
 
     // Calculate totals
     const totalCredit = rowData
@@ -129,41 +135,80 @@ const Page = () => {
       .reduce((acc, row) => acc + parseFloat(row.dr_amt || 0), 0)
       .toFixed(2);
 
+    // Get the final balance (last entry's cash balance)
+    const finalBalance =
+      rowData.length > 0
+        ? parseFloat(rowData[rowData.length - 1].cash_balance || 0).toFixed(2)
+        : "0.00";
+
     // Prepare the data for the table
     const tableRows = rowData.map((row) => [
       format(new Date(row.updated_at), "yyyy-MM-dd"),
-      row.description,
-      row.cr_amt,
-      row.dr_amt,
-      row.cash_balance,
+      row.description || "N/A",
+      row.cr_amt ? parseFloat(row.cr_amt).toFixed(2) : "0.00",
+      row.dr_amt ? parseFloat(row.dr_amt).toFixed(2) : "0.00",
+      row.cash_balance ? parseFloat(row.cash_balance).toFixed(2) : "0.00",
     ]);
 
     // Add the table
     doc.autoTable({
       head: [["Date", "Description", "Credit", "Debit", "Balance"]],
       body: tableRows,
-      startY: 50,
+      startY: 55,
       theme: "grid",
       styles: {
-        fontSize: 8,
-        cellPadding: 2,
+        fontSize: 10,
+        cellPadding: 3,
+        valign: "middle",
+        halign: "center",
       },
-      headStyles: { fillColor: [50, 169, 46], textColor: 255 },
+      headStyles: {
+        fillColor: [50, 169, 46],
+        textColor: 255,
+        fontSize: 11,
+        fontStyle: "bold",
+      },
+      columnStyles: {
+        0: { cellWidth: 30 },
+        1: { cellWidth: "auto" },
+        2: { cellWidth: 25 },
+        3: { cellWidth: 25 },
+        4: { cellWidth: 25 },
+      },
       didDrawPage: function (data) {
         // Add total row after the table
         const finalY = data.cursor.y + 10;
-        doc.setFontSize(10);
+        doc.setFontSize(12);
         doc.setFont(undefined, "bold");
         doc.text(
-          `Total Credit: ${totalCredit}    Total Debit: ${totalDebit}`,
+          `Total Credit: ₹${totalCredit}    Total Debit: ₹${totalDebit}`,
           14,
           finalY
         );
+        doc.text(`Final Balance: ₹${finalBalance}`, 14, finalY + 10);
       },
     });
 
-    // Return as blob for uploadToCloudinary
-    return doc.output("blob");
+    // Add page number
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(10);
+      doc.text(
+        `Page ${i} of ${pageCount}`,
+        doc.internal.pageSize.width - 30,
+        doc.internal.pageSize.height - 10
+      );
+    }
+
+    // Filename with client name
+    const filename = `${
+      supplierName ? supplierName.replace(/\s+/g, "_") : "client"
+    }_.pdf`;
+
+    // Create a File object with PDF extension
+    const pdfBlob = doc.output("blob");
+    return new File([pdfBlob], filename, { type: "application/pdf" });
   };
 
   const uploadToCloudinary = async () => {
@@ -175,22 +220,31 @@ const Page = () => {
         return;
       }
 
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("upload_preset", "pestcontrol"); // Your preset name
+      // const formData = new FormData();
+      // formData.append("file", file);
+      // formData.append("upload_preset", "pestcontrol"); // Your preset name
 
-      const response = await fetch(
-        "https://api.cloudinary.com/v1_1/df59vjsv5/auto/upload",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const data = {
+        user_id: "83",
+        subject: "Client Ledger",
+        file: file,
+        html: "<h1>Client PDF</h1>",
+      };
 
-      const data = await response.json();
-      console.log("Upload success:", data);
-      setPdfUrl(data.secure_url);
-      return data.secure_url;
+      // const response = await fetch(
+      //   "https://api.cloudinary.com/v1_1/df59vjsv5/auto/upload",
+      //   {
+      //     method: "POST",
+      //     body: formData,
+      //   }
+      // );
+
+      const response = await api.postFormDataWithToken(`${sendEmail}`, data);
+
+      const testData = await response.json();
+      console.log("Upload success:", testData);
+      setPdfUrl(testData.secure_url);
+      return testData.secure_url;
     } catch (error) {
       console.error("Error uploading to Cloudinary:", error);
     } finally {
