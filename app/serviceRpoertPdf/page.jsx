@@ -6,9 +6,18 @@ import ClientRecords from "./clientRecords";
 import { Grid, Button } from "@mui/material";
 import styles from "../../styles/viewQuote.module.css";
 import APICall from "@/networkUtil/APICall";
-import { job } from "@/networkUtil/Constants";
+import { job, sendEmail } from "@/networkUtil/Constants";
 import Layout from "../../components/layout";
 import html2pdf from "html2pdf.js";
+
+const invoiceData = {
+  companyDetails: {
+    name: "Accurate Pest Control Services LLC",
+    address: "Office 12, Building # Greece K-12, International City Dubai",
+    email: "accuratepestcontrolcl.ae",
+    phone: "+971 52 449 6173",
+  },
+};
 
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
@@ -71,7 +80,6 @@ const Page = () => {
       // Generate PDF from a specific container instead of entire body
       const element = document.getElementById("pdf-container");
       const opt = {
-        margin: [1, 0.5, 1, 0.5], // top, right, bottom, left margins in inches
         filename: `invoice_${Date.now()}.pdf`,
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: {
@@ -109,31 +117,54 @@ const Page = () => {
         },
       };
 
-      // Generate PDF
-      const file = await html2pdf().set(opt).from(element).outputPdf("blob");
+      const pdfBlob = await new Promise((resolve, reject) => {
+        html2pdf()
+          .set(opt)
+          .from(element)
+          .outputPdf()
+          .save()
+          .then((pdf) => {
+            // Convert the PDF to blob
+            const blob = new Blob([pdf], { type: "application/pdf" });
+            resolve(blob);
+          })
+          .catch((error) => {
+            console.error("PDF generation error:", error);
+            reject(error);
+          });
+      });
 
-      // Prepare FormData for Cloudinary upload
-      const formData = new FormData();
-      formData.append("file", file, `invoice_${Date.now()}.pdf`);
-      formData.append("upload_preset", "pestcontrol"); // Your Cloudinary preset
-
-      // Upload to Cloudinary
-      const response = await fetch(
-        "https://api.cloudinary.com/v1_1/df59vjsv5/auto/upload",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Cloudinary upload failed");
+      // Verify blob
+      if (!(pdfBlob instanceof Blob)) {
+        throw new Error("Failed to generate PDF blob");
       }
 
-      const data = await response.json();
-      console.log("Upload success:", data);
+      const data = {
+        user_id: serviceReportList?.job?.user?.id,
+        subject: "Invoice PDF",
+        file: pdfBlob,
+        html: `
+        <h1> ${serviceReportList?.job?.user?.name} </h1>
+        <a href="" > View Service Report </a>
+        <footer style="text-align: center; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 10px;">        
+          <div style="margin-top: 15px; font-size: 0.9em; color: #333;">
+            <h4> Accurate Pest Control Services LLC </h4>
+            <p style="margin: 5px 0;"> Office 12, Building # Greece K-12, International City Dubai </p>
+            <p style="margin: 5px 0;">
+              Email: accuratepestcontrolcl.ae | Phone: +971 52 449 6173
+            </p>
+          </div>
+        </footer>
+        `,
+      };
+
+      // Make the API call
+      const response = await api.postFormDataWithToken(`${sendEmail}`, data);
+
+      const testData = await response.json();
+      console.log("Upload success:", testData);
       alert("Invoice uploaded successfully!");
-      return data.secure_url;
+      return testData.secure_url;
     } catch (error) {
       console.error("Error in uploadToCloudinary:", error);
       alert("Failed to upload invoice. Please try again.");
@@ -143,7 +174,7 @@ const Page = () => {
     }
   };
 
-  return ( 
+  return (
     <div id="pdf-container">
       <Layout>
         <ClientDetails serviceReportList={serviceReportList} />
@@ -153,7 +184,7 @@ const Page = () => {
           <div className="flex-grow"></div>
 
           <div>
-            <div className="mt-10 contractTable">Clients Signature</div>
+            <div className="mt-5 contractTable">Clients Signature</div>
             <img
               style={{ height: "100px", width: "100px" }}
               src={serviceReportList?.signature_img}

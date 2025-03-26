@@ -107,7 +107,7 @@ const Page = () => {
 
       // Generate PDF as blob for upload
       const pdfBlob = await html2pdf().set(opt).from(element).outputPdf("blob");
-
+      return new File([pdfBlob], "invoice", { type: "application/pdf" });
       // Create data object (not FormData)
       const data = {
         user_id: invoiceList?.user?.id,
@@ -133,7 +133,7 @@ const Page = () => {
 
       // Make the API call
       const response = await api.postFormDataWithToken(`${sendEmail}`, data);
-      return new File([pdfBlob], "invoice", { type: "application/pdf" });
+   
 
       if (!response.ok) {
         throw new Error("Upload failed");

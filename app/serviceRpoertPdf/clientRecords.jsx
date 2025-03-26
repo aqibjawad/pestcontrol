@@ -117,11 +117,11 @@ const ClientRecords = ({ serviceReportList, loading }) => {
     <div>
       <div>
         <Grid container spacing={0}>
-          <Grid item lg={4} xs={12} sm={6} md={6}>
+          <Grid item lg={12} xs={12} sm={6} md={6}>
             <div>
               <div
                 style={{
-                  fontSize: "13px",
+                  fontSize: "15px",
                   fontWeight: "bold",
                   color: "black",
                   marginBottom: "4px", // Reduced margin
@@ -134,6 +134,71 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                   const isChecked = rowsPest.some(
                     (pest) => pest.pest_name === row.pest_name
                   );
+
+                  return (
+                    <Grid
+                      item
+                      xs={4}
+                      sm={4}
+                      md={4}
+                      lg={2}
+                      key={index}
+                      sx={{
+                        "@media print": {
+                          flexBasis: "33.333%",
+                          maxWidth: "33.333%",
+                        },
+                      }}
+                    >
+                      <FormControlLabel
+                        disabled
+                        checked={isChecked}
+                        control={<CustomCheckbox />}
+                        label={
+                          <div
+                            style={{
+                              fontSize: "13px",
+                              fontWeight: "regular",
+                              color: "black",
+                            }}
+                          >
+                            {row?.pest_name
+                              ? row.pest_name.charAt(0).toUpperCase() +
+                                row.pest_name.slice(1).toLowerCase()
+                              : ""}
+                          </div>
+                        }
+                        sx={{
+                          margin: 0,
+                          "& .MuiFormControlLabel-label": {
+                            marginLeft: "2px", // Reduced spacing between checkbox and label
+                          },
+                          "& .MuiCheckbox-root": {
+                            marginRight: 0, // Remove right margin of checkbox
+                          },
+                        }}
+                      />
+                    </Grid>
+                  );
+                })}
+              </Grid>
+            </div>
+          </Grid>
+
+          <Grid item lg={12} xs={12} sm={6} md={6}>
+            <div className="mt-3">
+              <div
+                style={{
+                  fontSize: "15px",
+                  fontWeight: "bold",
+                  color: "black",
+                }}
+              >
+                Treatment Methods
+              </div>
+              <Grid container spacing={0}>
+                {service.map((row, index) => {
+                  const isChecked = rows.some((item) => item.name === row.name);
 
                   return (
                     <Grid
@@ -157,80 +222,14 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                         label={
                           <div
                             style={{
-                              fontSize: "10px",
-                              fontWeight: "regular",
+                              fontSize: "13px",
                               color: "black",
                             }}
                           >
-                            {row?.pest_name}
-                          </div>
-                        }
-                        sx={{
-                          margin: 0,
-                          "& .MuiFormControlLabel-label": {
-                            marginLeft: "2px", // Reduced spacing between checkbox and label
-                          },
-                          "& .MuiCheckbox-root": {
-                            marginRight: 0, // Remove right margin of checkbox
-                          },
-                        }}
-                      />
-                    </Grid>
-                  );
-                })}
-              </Grid>
-            </div>
-          </Grid>
-
-          <Grid item lg={8} xs={12} sm={6} md={6}>
-            <div
-              style={{
-                borderLeft: "1px solid #e0e0e0",
-                paddingLeft: "8px", // Reduced padding
-              }}
-            >
-              <div
-                style={{
-                  fontSize: "13px",
-                  fontWeight: "bold",
-                  color: "black",
-                  marginBottom: "4px", // Reduced margin
-                }}
-              >
-                Treatment Methods
-              </div>
-              <Grid container spacing={0}>
-                {service.map((row, index) => {
-                  const isChecked = rows.some((item) => item.name === row.name);
-
-                  return (
-                    <Grid
-                      item
-                      xs={4}
-                      sm={4}
-                      md={4}
-                      lg={3}
-                      key={index}
-                      sx={{
-                        "@media print": {
-                          flexBasis: "33.333%",
-                          maxWidth: "33.333%",
-                        },
-                      }}
-                    >
-                      <FormControlLabel
-                        disabled
-                        checked={isChecked}
-                        control={<CustomCheckbox />}
-                        label={
-                          <div
-                            style={{
-                              fontSize: "10px",
-                              fontWeight: "bold",
-                              color: "black",
-                            }}
-                          >
-                            {row?.name}
+                            {row?.name
+                              ? row.name.charAt(0).toUpperCase() +
+                                row.name.slice(1).toLowerCase()
+                              : ""}
                           </div>
                         }
                         sx={{
@@ -252,7 +251,7 @@ const ClientRecords = ({ serviceReportList, loading }) => {
         </Grid>
       </div>
 
-      <div style={{ marginTop: "2rem" }} className={styles.clientRecord}>
+      <div className={styles.clientRecord}>
         <div className={styles.areaHead}>Areas</div>
         <TableContainer component={Paper}>
           <Table>
@@ -340,97 +339,87 @@ const ClientRecords = ({ serviceReportList, loading }) => {
         </TableContainer>
       </div>
 
-      <div style={{ marginTop: "2rem" }} className={styles.clientRecord}>
-        <div className={styles.areaHead}>Products Used</div>
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead className={styles.tableHead}>
-              <TableRow>
-                <TableCell
-                  sx={{
-                    color: "white",
-                    padding: "4px 16px",
-                    lineHeight: "1rem",
-                  }}
-                >
-                  Product Name
-                </TableCell>
-                <TableCell
-                  sx={{
-                    color: "white",
-                    padding: "4px 16px",
-                    lineHeight: "1rem",
-                  }}
-                >
-                  Dose
-                </TableCell>
-                <TableCell
-                  sx={{
-                    color: "white",
-                    padding: "4px 16px",
-                    lineHeight: "1rem",
-                  }}
-                >
-                  Quantity
-                </TableCell>
-                <TableCell
-                  sx={{
-                    color: "white",
-                    padding: "4px 16px",
-                    lineHeight: "1rem",
-                  }}
-                >
-                  Total
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {loading
-                ? skeletonProductRows
-                : rowsProducts.map((row, index) => (
-                    <TableRow key={index}>
-                      <TableCell
-                        sx={{
-                          padding: "4px 16px",
-                          lineHeight: "1rem",
-                        }}
-                      >
-                        {row?.product?.product_name}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          padding: "4px 16px",
-                          lineHeight: "1rem",
-                        }}
-                      >
-                        {row.dose}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          padding: "4px 16px",
-                          lineHeight: "1rem",
-                        }}
-                      >
-                        {row.qty}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          padding: "4px 16px",
-                          lineHeight: "1rem",
-                        }}
-                      >
-                        {row.total}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </div>
+      <div className="flex gap-4 mt-3">
+        <div className={styles.clientRecord} style={{ flex: 1 }}>
+          <div className={styles.areaHead}>Products Used</div>
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead className={styles.tableHead}>
+                <TableRow>
+                  <TableCell
+                    sx={{
+                      color: "white",
+                      padding: "4px 16px",
+                      lineHeight: "1rem",
+                    }}
+                  >
+                    Product Name
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      color: "white",
+                      padding: "4px 16px",
+                      lineHeight: "1rem",
+                    }}
+                  >
+                    Dose
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      color: "white",
+                      padding: "4px 16px",
+                      lineHeight: "1rem",
+                    }}
+                  >
+                    Quantity
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      color: "white",
+                      padding: "4px 16px",
+                      lineHeight: "1rem",
+                    }}
+                  >
+                    Total
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {loading
+                  ? skeletonProductRows
+                  : rowsProducts.map((row, index) => (
+                      <TableRow key={index}>
+                        <TableCell
+                          sx={{ padding: "4px 16px", lineHeight: "1rem" }}
+                        >
+                          {row?.product?.product_name}
+                        </TableCell>
+                        <TableCell
+                          sx={{ padding: "4px 16px", lineHeight: "1rem" }}
+                        >
+                          {row.dose}
+                        </TableCell>
+                        <TableCell
+                          sx={{ padding: "4px 16px", lineHeight: "1rem" }}
+                        >
+                          {row.qty}
+                        </TableCell>
+                        <TableCell
+                          sx={{ padding: "4px 16px", lineHeight: "1rem" }}
+                        >
+                          {row.total}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </div>
 
-      <div className={styles.clientRecord}>
-        <div className={styles.areaHead}>Recommendations</div>
-        <div>{serviceReportList?.recommendations_and_remarks}</div>
+        <div className={styles.clientRecord} style={{ flex: 1 }}>
+          <div className={styles.areaHead}>Recommendations</div>
+          <div>{serviceReportList?.recommendations_and_remarks}</div>
+        </div>
       </div>
     </div>
   );

@@ -1,105 +1,57 @@
 import React from "react";
-
-import styles from "../../styles/viewQuote.module.css";
-
-import {
-  Grid,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableRow,
-} from "@mui/material";
+import { Grid, Typography, Box } from "@mui/material";
 
 const ClientDetails = ({ serviceReportList }) => {
   return (
-    <div>
-      <Grid container spacing={3}>
-        <Grid item lg={6} xs={12} sm={6} md={4}>
-          <TableContainer>
-            <Table sx={{ borderCollapse: "collapse" }}>
-              <TableBody>
-                <TableRow sx={{ border: "none" }}>
-                  <TableCell>
-                    <strong> Name:</strong>
-                  </TableCell>
-                  <TableCell> {serviceReportList?.job?.user?.name} </TableCell>
-                </TableRow>
-
-                <TableRow sx={{ border: "none" }}>
-                  <TableCell>
-                    <strong> Job Start:</strong>
-                  </TableCell>
-                  <TableCell>
-                    {new Date(
-                      serviceReportList?.job?.job_start_time
-                    ).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}{" "}
-                    {new Date(
-                      serviceReportList?.job?.job_start_time
-                    ).toLocaleTimeString("en-US", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </TableCell>
-                </TableRow>
-
-                <TableRow sx={{ border: "none" }}>
-                  <TableCell>
-                    <strong> Visit Type:</strong>
-                  </TableCell>
-                  <TableCell> {serviceReportList?.type_of_visit} </TableCell>
-                </TableRow> 
-              </TableBody>
-            </Table>
-          </TableContainer>
+    <Box sx={{ flexGrow: 1, p: 2 }}>
+      <Grid container spacing={1}>
+        <Grid item xs={6}>
+          <Typography variant="body2">
+            <strong>Name:</strong> {serviceReportList?.job?.user?.name}
+          </Typography>
         </Grid>
-
-        <Grid item lg={6} xs={12} sm={6} md={4}>
-          <TableContainer>
-            <Table sx={{ borderCollapse: "collapse" }}>
-              <TableBody>
-                <TableRow sx={{ border: "none" }}>
-                  <TableCell>
-                    <strong> Email:</strong>
-                  </TableCell>
-                  <TableCell> {serviceReportList?.job?.user?.email} </TableCell>
-                </TableRow>
-                <TableRow sx={{ border: "none" }}>
-                  <TableCell>
-                    <strong> Job End:</strong>
-                  </TableCell>
-                  <TableCell>
-                    {new Date(
-                      serviceReportList?.job?.job_end_time
-                    ).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}{" "}
-                    {new Date(
-                      serviceReportList?.job?.job_end_time
-                    ).toLocaleTimeString("en-US", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </TableCell>
-                </TableRow>
-                <TableRow sx={{ border: "none" }}>
-                  <TableCell>
-                    <strong> Invoice Id:</strong>
-                  </TableCell>
-                  <TableCell> {serviceReportList?.service_invoice || "No invoice"} </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </TableContainer>
+        <Grid item xs={6}>
+          <Typography variant="body2" align="right">
+            <strong>Email:</strong> {serviceReportList?.job?.user?.email}
+          </Typography>
+        </Grid>
+        <Grid item xs={6}>
+          <Typography variant="body2">
+            <strong>Job Start:</strong>{" "}
+            {new Date(serviceReportList?.job?.job_start_time).toLocaleString(
+              "en-US",
+              {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              }
+            )}
+          </Typography>
+        </Grid>
+        <Grid item xs={6}>
+          <Typography variant="body2" align="right">
+            <strong>Job End:</strong>{" "}
+            {new Date(serviceReportList?.job?.job_end_time).toLocaleString(
+              "en-US",
+              {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              }
+            )}
+          </Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <Typography variant="body2" align="center">
+            <strong>Visit Type:</strong> {serviceReportList?.type_of_visit}
+          </Typography>
         </Grid>
       </Grid>
-    </div>
+    </Box>
   );
 };
 
