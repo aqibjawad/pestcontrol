@@ -17,13 +17,14 @@ import {
   Typography,
   Box,
   Alert,
+  Grid,
 } from "@mui/material";
 import { FileDownload as FileDownloadIcon } from "@mui/icons-material";
 import { utils, write } from "xlsx";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import APICall from "@/networkUtil/APICall";
-import { job } from "@/networkUtil/Constants";
+import { job, sendEmail } from "@/networkUtil/Constants";
 import DateFilters from "../../components/generic/DateFilters";
 import { format } from "date-fns";
 
@@ -40,6 +41,10 @@ const ProductReport = () => {
 
   const [firms, setFirms] = useState([]);
   const [selectedFirm, setSelectedFirm] = useState("all");
+  const [isPdfUploading, setIsPdfUploading] = useState(false);
+  // New state for storing selected firm's client details
+  const [selectedFirmClientDetails, setSelectedFirmClientDetails] =
+    useState(null);
 
   // New state for product filtering
   const [uniqueProducts, setUniqueProducts] = useState([]);
@@ -59,6 +64,137 @@ const ProductReport = () => {
       .toFixed(2);
   };
 
+  const handleExport = (type) => {
+    if (!filteredContent || filteredContent.length === 0) {
+      console.warn("No data available to export");
+      return;
+    }
+
+    const exportData = filteredContent.map((row, index) => {
+      const baseData = {
+        "Sr No": index + 1,
+        "Product Name": row.product_name || "N/A",
+        "Captain Name": row.captain_name || "Unknown",
+        "Consumed Quantity": row.total_qty || 0,
+        "Consumed Units": row.consumed_units.toFixed(2) || 0,
+        "Firm Name": row.firm_name || "Unknown", // Added firm name to exports
+      };
+
+      // Only include price columns if firm is not selected
+      if (selectedFirm === "all") {
+        return {
+          ...baseData,
+          "Average Price": row.avg_price || 0,
+          "Consumed Amount": calculateUsedPrice(row),
+        };
+      }
+
+      return baseData;
+    });
+
+    if (type === "pdf") {
+      const doc = new jsPDF();
+
+      const logoPath = "/logo.jpeg";
+      const logoWidth = 35;
+      const logoHeight = 20;
+
+      doc.addImage(
+        logoPath,
+        "PNG",
+        170,
+        10,
+        logoWidth,
+        logoHeight,
+        logoWidth * logoHeight
+      );
+
+      // Add title
+      doc.setFontSize(16);
+      doc.text("Stock Use Report", 14, 20);
+
+      // Add date range
+      doc.setFontSize(12);
+      const dateText =
+        startDate && endDate
+          ? `Date: ${format(new Date(startDate), "dd/MM/yyyy")} - ${format(
+              new Date(endDate),
+              "dd/MM/yyyy"
+            )}`
+          : `Date: ${format(new Date(), "dd/MM/yyyy")}`;
+      doc.text(dateText, 14, 30);
+
+      // Add selected filters
+      let filterText = "";
+      if (selectedCaptain !== "all") {
+        filterText += `Captain: ${selectedCaptain}`;
+      }
+      if (selectedFirm !== "all") {
+        filterText += filterText
+          ? `, Firm: ${selectedFirm}`
+          : `Firm: ${selectedFirm}`;
+      }
+      if (selectedProduct !== "all") {
+        filterText += filterText
+          ? `, Product: ${selectedProduct}`
+          : `Product: ${selectedProduct}`;
+      }
+      if (!filterText) {
+        filterText = "All Data";
+      }
+      doc.text(filterText, 14, 40);
+
+      // Get headers dynamically based on selected firm
+      const headers = Object.keys(exportData[0]);
+
+      // Add table
+      doc.autoTable({
+        head: [headers],
+        body: exportData.map(Object.values),
+        startY: 50,
+        theme: "grid",
+        styles: {
+          fontSize: 8,
+          cellPadding: 2,
+        },
+        headStyles: { fillColor: [22, 163, 74], textColor: 255 },
+        didDrawPage: function (data) {
+          // Only show total if firm is not selected
+          if (selectedFirm === "all") {
+            // Calculate total
+            const totalConsumedAmount =
+              calculateTotalConsumedAmount(filteredContent);
+
+            // Add total row after the table
+            const finalY = data.cursor.y + 10;
+            doc.setFontSize(10);
+            doc.setFont(undefined, "bold");
+            doc.text(
+              `Total Consumed Amount: ${totalConsumedAmount}`,
+              14,
+              finalY
+            );
+          }
+        },
+      });
+
+      doc.save("stock-report.pdf");
+    } else if (type === "excel" || type === "csv") {
+      // Create workbook with filtered data
+      const wb = utils.book_new();
+      const ws = utils.json_to_sheet(exportData);
+      utils.book_append_sheet(wb, ws, "Stock Report");
+
+      // For Excel format
+      if (type === "excel") {
+        write(wb, "stock-report.xlsx");
+      } else {
+        // For CSV format
+        write(wb, "stock-report.csv");
+      }
+    }
+  };
+
   const generatePDFFile = () => {
     if (!filteredContent || filteredContent.length === 0) {
       console.warn("No data available to export");
@@ -72,7 +208,7 @@ const ProductReport = () => {
     const logoHeight = 20;
 
     // Add logo
-    doc.addImage(logoPath, "PNG", 170, 10, logoWidth, logoHeight);
+    doc.addImage(logoPath, "JPEG", 170, 10, logoWidth, logoHeight);
 
     // Add title
     doc.setFontSize(16);
@@ -109,6 +245,32 @@ const ProductReport = () => {
     }
     doc.text(filterText, 14, 40);
 
+    // Include client details if a specific firm is selected
+    if (selectedFirmClientDetails) {
+      const clientDetailsY = 50;
+      doc.setFontSize(10);
+      doc.text(
+        `Firm Name: ${selectedFirmClientDetails.firmName || "N/A"}`,
+        14,
+        clientDetailsY
+      );
+      doc.text(
+        `Address: ${selectedFirmClientDetails.address || "N/A"}`,
+        14,
+        clientDetailsY + 6
+      );
+      doc.text(
+        `Contact: ${selectedFirmClientDetails.contactNumber || "N/A"}`,
+        14,
+        clientDetailsY + 12
+      );
+      doc.text(
+        `Email: ${selectedFirmClientDetails.email || "N/A"}`,
+        14,
+        clientDetailsY + 18
+      );
+    }
+
     // Prepare export data like in the original handleExport function
     const exportData = filteredContent.map((row, index) => {
       const baseData = {
@@ -139,7 +301,7 @@ const ProductReport = () => {
     doc.autoTable({
       head: [headers],
       body: exportData.map(Object.values),
-      startY: 50,
+      startY: selectedFirmClientDetails ? 80 : 50,
       theme: "grid",
       styles: {
         fontSize: 8,
@@ -162,31 +324,54 @@ const ProductReport = () => {
       },
     });
 
-    // Return as blob for uploadToCloudinary
-    return doc.output("blob");
+    // Generate PDF as a Blob with PDF mime type
+    const pdfBlob = new Blob([doc.output("arraybuffer")], {
+      type: "application/pdf",
+    });
+
+    // Create File object with .pdf extension
+    return new File([pdfBlob], "Product_Use_Report.pdf", {
+      type: "application/pdf",
+    });
   };
 
-  const uploadToCloudinary = () => {
-    const file = generatePDFFile();
-    if (!file) return;
+  const uploadToCloudinary = async () => {
+    setIsPdfUploading(true);
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "pestcontrol"); // Your preset name
+    try {
+      const file = generatePDFFile();
+      if (!file) return;
 
-    return fetch("https://api.cloudinary.com/v1_1/df59vjsv5/auto/upload", {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Upload success:", data);
-        return data.secure_url;
-      })
-      .catch((error) => {
-        console.error("Error uploading to Cloudinary:", error);
-        throw error;
-      });
+      const data = {
+        user_id: `${selectedFirmClientDetails.userId}`,
+        subject: "Client Used Product Report",
+        file: file,
+        html: `
+        <h1> ${selectedFirmClientDetails.firmName}</h1>
+        <footer style="text-align: center; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 10px;">        
+          <div style="margin-top: 15px; font-size: 0.9em; color: #333;">
+            <h4> Accurate Pest Control Services LLC </h4>
+            <p style="margin: 5px 0;"> Office 12, Building # Greece K-12, International City Dubai </p>
+            <p style="margin: 5px 0;">
+              Email: accuratepestcontrolcl.ae | Phone: +971 52 449 6173
+            </p>
+          </div>
+        </footer>
+        `,
+      };
+
+      const response = await api.postFormDataWithToken(`${sendEmail}`, data);
+      const testData = await response.json();
+
+      console.log("Upload success:", testData);
+      setPdfUrl(testData.secure_url);
+      return testData.secure_url;
+    } catch (error) {
+      console.error("Error uploading to Cloudinary:", error);
+    } finally {
+      // Always set loading state back to false
+      setIsPdfUploading(false);
+    }
   };
 
   const handleDateChange = (start, end) => {
@@ -233,32 +418,6 @@ const ProductReport = () => {
 
       setData(response.data);
 
-      // Log all firm names for debugging
-      const allFirms = response.data
-        .map((report) => report.job?.user?.client?.firm_name)
-        .filter(Boolean);
-
-      console.log("All firms in data:", allFirms);
-
-      // Create debug info for each firm
-      const firmDebugInfo = {};
-      allFirms.forEach((firm) => {
-        if (!firmDebugInfo[firm]) {
-          firmDebugInfo[firm] = {
-            count: 0,
-            reportsWithProducts: 0,
-            totalProducts: 0,
-          };
-        }
-        firmDebugInfo[firm].count++;
-      });
-
-      // Update debug info
-      setDebugInfo((prevDebug) => ({
-        ...prevDebug,
-        firmCounts: firmDebugInfo,
-      }));
-
       // Extract unique captains
       const uniqueCaptains = new Set();
       response.data.forEach((report) => {
@@ -272,7 +431,6 @@ const ProductReport = () => {
       const uniqueFirms = new Set();
       response.data.forEach((report) => {
         if (report.job?.user?.client?.firm_name) {
-          // Use trim to remove any whitespace
           const firmName = report.job.user.client.firm_name.trim();
           uniqueFirms.add(firmName);
         }
@@ -288,21 +446,7 @@ const ProductReport = () => {
           const firmName =
             report.job?.user?.client?.firm_name?.trim() || "Unknown";
 
-          // Update debug info for this firm
-          if (firmName && firmDebugInfo[firmName]) {
-            if (
-              report.used_products &&
-              Array.isArray(report.used_products) &&
-              report.used_products.length > 0
-            ) {
-              firmDebugInfo[firmName].reportsWithProducts++;
-              firmDebugInfo[firmName].totalProducts +=
-                report.used_products.length;
-            }
-          }
-
           if (report.used_products && Array.isArray(report.used_products)) {
-            // Add captain and firm information to each product
             const productsWithInfo = report.used_products.map((product) => {
               if (product && product.product && product.product.product_name) {
                 uniqueProductNames.add(product.product.product_name);
@@ -321,15 +465,6 @@ const ProductReport = () => {
 
       setProductsList(allProducts);
       setUniqueProducts(Array.from(uniqueProductNames));
-
-      // Updated debug info with product counts
-      setDebugInfo((prevDebug) => ({
-        ...prevDebug,
-        firmCounts: firmDebugInfo,
-        totalProducts: allProducts.length,
-      }));
-
-      console.log("Debug info for firms:", firmDebugInfo);
     } catch (error) {
       console.error("Error fetching products data:", error);
       setNoDataFound(true);
@@ -341,27 +476,11 @@ const ProductReport = () => {
   useEffect(() => {
     if (data && data.length > 0) {
       const productMap = new Map();
-      const firmProductsMap = {}; // Track products by firm
-
-      // Initialize firm product tracking
-      firms.forEach((firm) => {
-        firmProductsMap[firm] = 0;
-      });
 
       data.forEach((report) => {
         const captainName = report.job?.captain?.name || "Unknown";
         const firmName =
           report.job?.user?.client?.firm_name?.trim() || "Unknown";
-
-        // Debug logging for reports with MASOOD firm
-        if (firmName === "MASOOD") {
-          console.log("Found MASOOD report:", report.id);
-          console.log("Has used_products:", !!report.used_products);
-          console.log(
-            "used_products length:",
-            report.used_products?.length || 0
-          );
-        }
 
         if (report.used_products && Array.isArray(report.used_products)) {
           report.used_products.forEach((usedProduct) => {
@@ -373,7 +492,7 @@ const ProductReport = () => {
               product: { product_name, per_item_qty, latest_delivery_stock },
             } = usedProduct;
 
-            const mapKey = `${product_id}-${captainName}-${firmName}`; // Include firm in key
+            const mapKey = `${product_id}-${captainName}-${firmName}`;
 
             if (!productMap.has(mapKey)) {
               productMap.set(mapKey, {
@@ -386,9 +505,6 @@ const ProductReport = () => {
                 captain_name: captainName,
                 firm_name: firmName,
               });
-
-              // Increment count for this firm
-              firmProductsMap[firmName] = (firmProductsMap[firmName] || 0) + 1;
             }
 
             const product = productMap.get(mapKey);
@@ -400,63 +516,17 @@ const ProductReport = () => {
       });
 
       const mappedData = Array.from(productMap.values());
-
-      // Log firm counts in mapped data
-      const mappedFirms = [
-        ...new Set(mappedData.map((item) => item.firm_name)),
-      ];
-      console.log("Mapped data created with firms:", mappedFirms);
-      console.log("Firm product counts:", firmProductsMap);
-
-      // Update debug state
-      setDebugInfo((prev) => ({
-        ...prev,
-        mappedFirms,
-        firmProductsMap,
-      }));
-
       setMappedContent(mappedData);
       setFilteredContent(mappedData);
     } else {
       setMappedContent([]);
       setFilteredContent([]);
     }
-  }, [data, firms]);
+  }, [data]);
 
   useEffect(() => {
     if (mappedContent && mappedContent.length > 0) {
       let filtered = [...mappedContent];
-
-      console.log(
-        "Filtering with captain:",
-        selectedCaptain,
-        "firm:",
-        selectedFirm,
-        "and product:",
-        selectedProduct
-      );
-
-      console.log("Available firms in data:", [
-        ...new Set(mappedContent.map((item) => item.firm_name)),
-      ]);
-
-      console.log("Available products in data:", [
-        ...new Set(mappedContent.map((item) => item.product_name)),
-      ]);
-
-      // Debug logging of selected firm
-      console.log("Selected firm exact value:", `'${selectedFirm}'`);
-
-      // Sample of first few firm names in data for comparison
-      const sampleFirms = mappedContent.slice(0, 5).map((item) => ({
-        firm: `'${item.firm_name}'`,
-        matches:
-          selectedFirm === "all"
-            ? true
-            : item.firm_name.trim().toLowerCase() ===
-              selectedFirm.trim().toLowerCase(),
-      }));
-      console.log("Sample firm values:", sampleFirms);
 
       // Filter by captain if selected
       if (selectedCaptain !== "all") {
@@ -465,10 +535,8 @@ const ProductReport = () => {
         );
       }
 
-      // Filter by firm if selected - use case-insensitive comparison with trimming
+      // Filter by firm - with client details capture
       if (selectedFirm !== "all") {
-        console.log("Before firm filtering:", filtered.length, "items");
-
         filtered = filtered.filter((item) => {
           const normalizedItemFirm = (item.firm_name || "")
             .trim()
@@ -476,36 +544,52 @@ const ProductReport = () => {
           const normalizedSelectedFirm = selectedFirm.trim().toLowerCase();
           const matches = normalizedItemFirm === normalizedSelectedFirm;
 
-          if (normalizedItemFirm === "masood") {
-            console.log("MASOOD item found:", item);
-            console.log("Does it match?", matches);
+          // If this is the selected firm, find and log its client details
+          if (matches) {
+            const matchingReport = data.find(
+              (report) =>
+                report.job?.user?.client?.firm_name?.trim().toLowerCase() ===
+                normalizedSelectedFirm
+            );
+
+            if (matchingReport) {
+              const clientDetails = matchingReport.job.user.client;
+
+              // Set the client details in state
+              setSelectedFirmClientDetails({
+                firmName: clientDetails.firm_name || "N/A",
+                userId: clientDetails.user_id || "N/A",
+              });
+
+              // Log the client details
+              console.log("Selected Firm Client Details:", {
+                firmName: clientDetails.firm_name,
+                userId: clientDetails.user_id,
+              });
+            }
           }
 
           return matches;
         });
-
-        console.log("After firm filtering:", filtered.length, "items");
+      } else {
+        // Reset client details when "All Firms" is selected
+        setSelectedFirmClientDetails(null);
       }
 
       // Filter by product if selected
       if (selectedProduct !== "all") {
-        console.log("Before product filtering:", filtered.length, "items");
-
         filtered = filtered.filter((item) => {
           return item.product_name === selectedProduct;
         });
-
-        console.log("After product filtering:", filtered.length, "items");
       }
 
-      console.log("Filtered data count:", filtered.length);
       setFilteredContent(filtered);
       setNoDataFound(filtered.length === 0);
     } else {
       setFilteredContent([]);
       setNoDataFound(true);
     }
-  }, [selectedCaptain, selectedFirm, selectedProduct, mappedContent]);
+  }, [selectedCaptain, selectedFirm, selectedProduct, mappedContent, data]);
 
   const handleCaptainChange = (event) => {
     setSelectedCaptain(event.target.value);
@@ -661,7 +745,6 @@ const ProductReport = () => {
             </Select>
           </FormControl>
 
-          {/* New Product filter dropdown */}
           <FormControl sx={{ minWidth: 200 }}>
             <InputLabel>Filter by Product</InputLabel>
             <Select
@@ -685,13 +768,34 @@ const ProductReport = () => {
           >
             <Button
               variant="contained"
-              startIcon={<FileDownloadIcon />}
+              startIcon={
+                isPdfUploading ? (
+                  <CircularProgress size={20} />
+                ) : (
+                  <FileDownloadIcon />
+                )
+              }
               onClick={() => uploadToCloudinary()}
+              style={{
+                backgroundColor: "#0000FF",
+                position: "relative",
+                minWidth: "120px", // Ensure button width remains consistent
+              }}
+              disabled={filteredContent?.length === 0 || isPdfUploading}
+            >
+              {isPdfUploading ? "Uploading..." : "Send to Email"}
+            </Button>
+
+            <Button
+              variant="contained"
+              startIcon={<FileDownloadIcon />}
+              onClick={() => handleExport("pdf")}
               style={{ backgroundColor: "#dc004e" }}
               disabled={filteredContent?.length === 0}
             >
               PDF
             </Button>
+
             <div
               style={{
                 backgroundColor: "#32A92E",
@@ -711,6 +815,42 @@ const ProductReport = () => {
           </Stack>
         </Box>
       </div>
+
+      {/* Client Details Section */}
+      {selectedFirmClientDetails && (
+        <Box
+          mt={2}
+          p={2}
+          border={1}
+          borderColor="grey.300"
+          borderRadius={2}
+          style={{ margin: "0 30px" }}
+        >
+          <Typography variant="h6" gutterBottom>
+            Firm Client Details
+          </Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <Typography>
+                <strong>Firm Name:</strong> {selectedFirmClientDetails.firmName}
+              </Typography>
+              <Typography>
+                <strong>Address:</strong> {selectedFirmClientDetails.address}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Typography>
+                <strong>Contact Number:</strong>{" "}
+                {selectedFirmClientDetails.contactNumber}
+              </Typography>
+              <Typography>
+                <strong>Email:</strong> {selectedFirmClientDetails.email}
+              </Typography>
+            </Grid>
+          </Grid>
+        </Box>
+      )}
+
       <div className="grid grid-cols-12 gap-4">
         <div className="col-span-12">{listProductsTable()}</div>
       </div>
