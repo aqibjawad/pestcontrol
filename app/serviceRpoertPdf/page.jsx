@@ -169,7 +169,7 @@ const Page = () => {
   return (
     <div id="pdf-container">
       <Layout2 branchId={serviceReportList?.job?.quote?.branch?.id}>
-        <ClientDetails serviceReportList={serviceReportList} />
+        <ClientDetails serviceReportList={serviceReportList} /> <hr />
         <ClientRecords serviceReportList={serviceReportList} />
 
         <div className="flex">

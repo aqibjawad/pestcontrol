@@ -62,7 +62,7 @@ const ListServiceTable = ({ startDate, endDate, onDataLoaded }) => {
     }
 
     // Remove pagination limit to get all items
-    queryParams.push("limit=1000");
+    // queryParams.push("limit=1000");
 
     try {
       const response = await api.getDataWithToken(

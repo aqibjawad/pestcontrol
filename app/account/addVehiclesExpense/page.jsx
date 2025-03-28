@@ -283,7 +283,7 @@ const Page = () => {
         <Grid item lg={4} xs={12}>
           <Dropdown2
             onChange={handleVehcileChange}
-            title="Select Vehicles *"
+            title="Select Vehicles"
             options={vehicleOptions}
             value={selectedVehicleId}
             error={errors.vehicle_id}
@@ -297,7 +297,7 @@ const Page = () => {
           <InputWithTitle3
             value={expense_date}
             onChange={handleDateChange}
-            title={"Date *"}
+            title={"Date"}
             type={"date"}
             error={errors.expense_date}
           />
@@ -310,7 +310,7 @@ const Page = () => {
           <InputWithTitle
             value={fuel_amount}
             onChange={handleInputChange(setFuelAmount, "fuel_amount")}
-            title={"Fuel *"}
+            title={"Fuel"}
             error={errors.fuel_amount}
           />
           {errors.fuel_amount && (
@@ -322,7 +322,7 @@ const Page = () => {
           <InputWithTitle
             value={oil_amount}
             onChange={handleInputChange(setOilAmount, "oil_amount")}
-            title={"Oil expense *"}
+            title={"Oil expense"}
             error={errors.oil_amount}
           />
           {errors.oil_amount && (
@@ -334,7 +334,7 @@ const Page = () => {
           <InputWithTitle
             value={maintenance_amount}
             onChange={handleInputChange(setMainAmount, "maintenance_amount")}
-            title={"Maintenance *"}
+            title={"Maintenance"}
             error={errors.maintenance_amount}
           />
           {errors.maintenance_amount && (
@@ -346,7 +346,7 @@ const Page = () => {
           <InputWithTitle
             value={oil_change_limit}
             onChange={handleInputChange(setOilChangeLimit, "oil_change_limit")}
-            title={"Next Oil Change Limit *"}
+            title={"Next Oil Change Limit"}
             error={errors.oil_change_limit}
           />
           {errors.oil_change_limit && (
@@ -357,7 +357,7 @@ const Page = () => {
         <Grid item lg={4} xs={12} sm={6} md={4}>
           <InputWithTitle
             value={meter_reading}
-            title={"Meter Reading *"}
+            title={"Meter Reading"}
             type="text"
             placeholder={"Meter Reading"}
             onChange={handleInputChange(setMeterRead, "meter_reading")}

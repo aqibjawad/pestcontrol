@@ -49,13 +49,13 @@ const Page = () => {
   const [allEmployees, setAllEmployees] = React.useState(null);
   const [employessNames, setEmployessNames] = React.useState([]);
   const [showAssginDevice, setShowAssginDevice] = useState(false);
-  const [deviceToAssign, setDeviceToAssign] = React.useState();
+  const [deviceToAssign, setDeviceToAssign] = React.useState(null);
   const [selectedEmployeeId, setSelectedEmployeeId] = React.useState();
 
   const handleMenu = (event, item, index) => {
     setAnchorEl(event.currentTarget);
-    setSelectedItem(item); // Ensure you store the correct item
-    setSelectedIndex(index); // Store index properly
+    setSelectedItem({ item, index }); // Wrap item and index in an object
+    setSelectedIndex(index);
   };
 
   const handleClose = () => {
@@ -68,14 +68,20 @@ const Page = () => {
     handleClose();
   };
 
-  const handleRemoveAssignment = () => {
+  const handleRemoveAssignment = async () => {
     alert.confirmAlert(
       "Are you sure you want to Remove Assignment",
       async () => {
-        setFetchingData(true);
-        const obj = { device_id: selectedItem.item.id };
-        var response = await api.postDataWithTokn(removeDeviceAssignment, obj);
-        getDevices();
+        try {
+          setFetchingData(true);
+          const obj = { device_id: selectedItem.item.id };
+          await api.postDataWithTokn(removeDeviceAssignment, obj);
+          await getDevices();
+        } catch (error) {
+          alert.errorAlert("Failed to remove assignment");
+        } finally {
+          setFetchingData(false);
+        }
       }
     );
 
@@ -83,41 +89,54 @@ const Page = () => {
   };
 
   const getAllEmployees = async () => {
-    var response = await api.getDataWithToken(getAllEmpoyesUrl);
-    var list = [];
-    response.data.map((item) => {
-      list.push(item.name);
-    });
+    try {
+      const response = await api.getDataWithToken(getAllEmpoyesUrl);
+      const list = response.data.map((item) => item.name);
 
-    setEmployessNames(list);
-    setAllEmployees(response.data);
+      setEmployessNames(list);
+      setAllEmployees(response.data);
+    } catch (error) {
+      alert.errorAlert("Failed to fetch employees");
+    }
   };
 
   const addDevice = async () => {
-    if (deviceName === "") {
-      alert.errorAlert("Please enter device name");
-    } else if (deviceModel === "") {
-      alert.errorAlert("Please enter device model");
-    } else if (code === "") {
-      alert.errorAlert("Please enter device indenfication code");
-    } else if (desc === "") {
-      alert.errorAlert("Please enter device description");
-    } else {
+    // Validation checks
+    const validationChecks = [
+      { value: deviceName, message: "Please enter device name" },
+      { value: deviceModel, message: "Please enter device model" },
+      { value: code, message: "Please enter device identification code" },
+      { value: desc, message: "Please enter device description" },
+    ];
+
+    for (let check of validationChecks) {
+      if (check.value === "") {
+        alert.errorAlert(check.message);
+        return;
+      }
+    }
+
+    try {
       setSendingData(true);
-      let obj = {
+      const obj = {
         name: deviceName,
         model: deviceModel,
         code_no: code,
         desc: desc,
         price: price,
       };
+
       const url =
         updateDeviceID === ""
           ? addDeviceURL
           : `${updateDevicesURL}${updateDeviceID}`;
-      var response = await api.postFormDataWithToken(url, obj);
+
+      await api.postFormDataWithToken(url, obj);
       resetValues();
-      getDevices();
+      await getDevices();
+    } catch (error) {
+      alert.errorAlert("Failed to add/update device");
+    } finally {
       setSendingData(false);
     }
   };
@@ -130,17 +149,21 @@ const Page = () => {
     setPrice("");
     setUpdateDeviceID("");
     setSelectedEmployeeId("");
-    setDeviceToAssign(false);
+    setDeviceToAssign(null);
     setShowAssginDevice(false);
   };
 
   const getDevices = async () => {
-    setFetchingData(true);
-    var response = await api.getDataWithToken(getDevicesURL);
-    setAllDevices(response.data);
-    // You might want to add console.log here to check the data
-    resetValues();
-    setFetchingData(false);
+    try {
+      setFetchingData(true);
+      const response = await api.getDataWithToken(getDevicesURL);
+      setAllDevices(response.data);
+      resetValues();
+    } catch (error) {
+      alert.errorAlert("Failed to fetch devices");
+    } finally {
+      setFetchingData(false);
+    }
   };
 
   useEffect(() => {
@@ -150,15 +173,16 @@ const Page = () => {
 
   const handleUpdate = (index) => {
     handleClose();
-    setUpdateDeviceID(allDevices[index].id);
-    setDeviceName(allDevices[index].name);
-    setDeviceModel(allDevices[index].model);
-    setCode(allDevices[index].code_no);
-    setDesc(allDevices[index].desc);
-    setPrice(allDevices[index].price);
+    const device = allDevices[index];
+    setUpdateDeviceID(device.id);
+    setDeviceName(device.name);
+    setDeviceModel(device.model);
+    setCode(device.code_no);
+    setDesc(device.desc);
+    setPrice(device.price);
   };
 
-  const handleDoc = (index) => {
+  const handleDoc = () => {
     router.push(`/deviceDoc/?id=${selectedItem.item.id}`);
   };
 
@@ -177,17 +201,23 @@ const Page = () => {
     setSelectedEmployeeId(allEmployees[index].id);
   };
 
-  const assignDevice = () => {
+  const assignDevice = async () => {
     alert.confirmAlert(
       "Are you sure you want to Assign this device",
       async () => {
-        setFetchingData(true);
-        const obj = {
-          device_id: selectedItem.item.id,
-          user_id: selectedEmployeeId,
-        };
-        var response = await api.postDataWithTokn(removeDeviceAssignment, obj);
-        getDevices();
+        try {
+          setFetchingData(true);
+          const obj = {
+            device_id: selectedItem.item.id,
+            user_id: selectedEmployeeId,
+          };
+          await api.postDataWithTokn(removeDeviceAssignment, obj);
+          await getDevices();
+        } catch (error) {
+          alert.errorAlert("Failed to assign device");
+        } finally {
+          setFetchingData(false);
+        }
       }
     );
   };
@@ -291,7 +321,7 @@ const Page = () => {
 
                               <div className="contractHeader">
                                 {item?.user?.name &&
-                                  `Assinged To : ${item?.user?.name}`}
+                                  `Assigned To : ${item?.user?.name}`}
                               </div>
                             </div>
                           </td>
@@ -326,8 +356,7 @@ const Page = () => {
                                 }}
                                 sx={{ boxShadow: "none" }}
                               >
-                                {" "}
-                                <MenuItem onClick={() => handleDoc(index)}>
+                                <MenuItem onClick={handleDoc}>
                                   View Document
                                 </MenuItem>
                                 <MenuItem
@@ -335,14 +364,10 @@ const Page = () => {
                                 >
                                   Update
                                 </MenuItem>
-                                <MenuItem
-                                  onClick={() => handleAssignToEmployee(index)}
-                                >
+                                <MenuItem onClick={handleAssignToEmployee}>
                                   Assign to Employee
                                 </MenuItem>
-                                <MenuItem
-                                  onClick={() => handleRemoveAssignment(index)}
-                                >
+                                <MenuItem onClick={handleRemoveAssignment}>
                                   Remove Assignment
                                 </MenuItem>
                               </Menu>
@@ -350,7 +375,6 @@ const Page = () => {
                           </td>
                         </tr>
                       ))}
-                      {/* Total Row */}
                       <tr className="bg-gray-100 font-medium">
                         <td
                           colSpan={5}
@@ -369,7 +393,7 @@ const Page = () => {
                     </tbody>
                   </table>
                   <div>
-                    {showAssginDevice ? (
+                    {showAssginDevice && deviceToAssign ? (
                       <div className="mb-10 mt-10 p-5">
                         <div className="pageTitle mt-10 mb-5">
                           Assign Device
@@ -394,9 +418,7 @@ const Page = () => {
                           />
                         </div>
                       </div>
-                    ) : (
-                      <></>
-                    )}
+                    ) : null}
                   </div>
                 </div>
               </div>
