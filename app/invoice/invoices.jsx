@@ -28,6 +28,7 @@ import {
   TableBody,
   IconButton,
 } from "@mui/material";
+
 const ListServiceTable = ({
   startDate,
   endDate,
@@ -46,14 +47,12 @@ const ListServiceTable = ({
   const [invoiceAllList, setInvoiceList] = useState([]);
   const [loadingDetails, setLoadingDetails] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   const [salesManagers, setSalesManagers] = useState([]);
-
   const [isModalOpenPay, setIsModalOpenPay] = useState(false);
-
   const [selectedInvoiceId, setSelectedInvoiceId] = useState(null);
-
   const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [jobIdInput, setJobIdInput] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleAssignClick = (invoiceId) => {
     setSelectedInvoiceId(invoiceId);
@@ -68,7 +67,6 @@ const ListServiceTable = ({
 
   const handleAssignment = async (invoiceId, managerId) => {
     try {
-      // Add your API call here
       console.log(`Assigned invoice ${invoiceId} to manager ${managerId}`);
       setIsModalOpen(false);
       await getAllQuotes();
@@ -289,6 +287,42 @@ const ListServiceTable = ({
     getAllQuotes();
   };
 
+  const handleInvoiceIdSearch = async () => {
+    if (!jobIdInput.trim()) {
+      // If no input, reset to full list
+      await getAllQuotes();
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // Create a new array with only the invoice that matches the ID
+      const filteredInvoices = invoiceList.filter(
+        (invoice) =>
+          invoice.service_invoice_id
+            .toLowerCase()
+            .includes(jobIdInput.toLowerCase()) ||
+          invoice.id.toString().includes(jobIdInput)
+      );
+
+      setQuoteList(filteredInvoices);
+      updateTotalAmount(filteredInvoices);
+    } catch (error) {
+      console.error("Error searching invoice:", error);
+      setQuoteList([]);
+      updateTotalAmount([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleInvoiceIdSearch();
+    }
+  };
+
   return (
     <div>
       <div className="flex flex-wrap gap-2 mb-4 items-center">
@@ -314,6 +348,23 @@ const ListServiceTable = ({
             onChange={(e) => setSearchQuery(e.target.value)}
             className="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
           />
+
+          <div className="flex items-center">
+            <input
+              type="text"
+              value={jobIdInput}
+              onChange={(e) => setJobIdInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Enter invoice ID"
+              className="h-10 px-3 border border-green-500 rounded-lg focus:outline-none focus:border-green-700"
+            />
+            <button
+              onClick={handleInvoiceIdSearch}
+              className="ml-2 h-10 px-4 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none"
+            >
+              Search
+            </button>
+          </div>
         </div>
 
         {/* Right side with export buttons */}
