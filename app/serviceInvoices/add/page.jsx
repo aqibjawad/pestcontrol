@@ -510,6 +510,14 @@ const Page = () => {
 
                 {activeTab === "online" && (
                   <>
+                    <Grid item lg={8} xs={12} md={6}>
+                      <InputWithTitle
+                        onChange={(value) => setPaidAmount(value)}
+                        type="text"
+                        value={paid_amt}
+                        title="Paid Amount"
+                      />
+                    </Grid>
                     <Grid item xs={12} sm={6}>
                       <InputWithTitle
                         title="Transaction ID"

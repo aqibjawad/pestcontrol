@@ -111,3 +111,5 @@ export const purchaeOrder = apiPrefix + "/purchase_order";
 export const inspectionReport = apiPrefix + "/inspection/report";
 
 export const sendEmail = apiPrefix + "/email/pest_info/send";
+
+export const ipmReport = apiPrefix + "/imp_report";

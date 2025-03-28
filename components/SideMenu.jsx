@@ -88,10 +88,19 @@ export default function SideMenu({ children }) {
     { name: "Clients", url: "clients", icon: "/clients.png" },
     { name: "Invoices", url: "invoice", icon: "/operations.png" },
     { name: "Outstandings", url: "badTransac", icon: <MdOutlineQueryStats /> },
-    { name: "Inpection Report", url: "inspectionReport/dashboard", icon: <MdOutlineQueryStats /> },
+    {
+      name: "Inpection Report",
+      url: "inspectionReport/dashboard",
+      icon: <MdOutlineQueryStats />,
+    },
     {
       name: "Recoveries",
       url: "recovery/details/",
+      icon: <MdOutlineQueryStats />,
+    },
+    {
+      name: "Get IPM Reports",
+      url: "ipmReports/",
       icon: <MdOutlineQueryStats />,
     },
     {

@@ -161,9 +161,23 @@ const Page = () => {
       // Make the API call
       const response = await api.postFormDataWithToken(`${sendEmail}`, data);
 
-      const testData = await response.json();
+      // Handle the response properly
+      const responseData = await response.text(); // First, get the response as text
+
+      let testData;
+      try {
+        // Try parsing the response as JSON
+        testData = JSON.parse(responseData);
+      } catch (e) {
+        // If it is not a valid JSON, log the plain response
+        console.error("Response is not JSON:", responseData);
+        testData = { message: responseData }; // Handle non-JSON response gracefully
+      }
+
+      // Log the response data
       console.log("Upload success:", testData);
       alert("Invoice uploaded successfully!");
+
       return testData.secure_url;
     } catch (error) {
       console.error("Error in uploadToCloudinary:", error);

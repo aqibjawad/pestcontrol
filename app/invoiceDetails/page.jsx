@@ -68,11 +68,11 @@ const Page = () => {
   const [loadingDetails, setLoadingDetails] = useState(true);
   const [uploadingToCloudinary, setUploadingToCloudinary] = useState(false);
 
+  const itemableIds =
+    invoiceList?.details?.map((detail) => detail.itemable_id) || [];
 
-  const itemableIds = invoiceList?.details?.map(detail => detail.itemable_id) || [];
-
-  const itemableDates = invoiceList?.details?.map(detail => detail.created_at) || [];
-
+  const itemableDates =
+    invoiceList?.details?.map((detail) => detail.created_at) || [];
 
   // Cloudinary Upload Function
   const uploadToCloudinary = async () => {
@@ -105,49 +105,53 @@ const Page = () => {
       // Save PDF locally
       await html2pdf().set(opt).from(element).save();
 
-      // Generate PDF as blob for upload
+      // Generate PDF as blob and convert to File object
       const pdfBlob = await html2pdf().set(opt).from(element).outputPdf("blob");
-      return new File([pdfBlob], "invoice", { type: "application/pdf" });
-      // Create data object (not FormData)
+      const pdfFile = new File([pdfBlob], filename, {
+        type: "application/pdf",
+      });
+
+      // Create FormData for proper file upload
       const data = {
         user_id: invoiceList?.user?.id,
         subject: "Invoice PDF",
-        file: pdfBlob,
+        file: pdfFile, // Ensure this is a valid Blob
         html: `
-        <h1> ${invoiceList?.user?.name} </h1>
-        <h2> Service Invoice IDs: ${itemableIds.join(', ')} </h2>
-        <h2> Services Dates: ${itemableDates.join(', ')} </h2>
-        <a href="" > View Service Report </a>
+      <h1>${invoiceList?.user?.name}</h1>
+      <h2>Service Invoice IDs: ${itemableIds.join(", ")}</h2>
+      <h2>Services Dates: ${itemableDates.join(", ")}</h2>
 
-        <footer style="text-align: center; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 10px;">        
-          <div style="margin-top: 15px; font-size: 0.9em; color: #333;">
-            <h4>${companyDetails.name}</h4>
-            <p style="margin: 5px 0;">${companyDetails.address}</p>
-            <p style="margin: 5px 0;">
-              Email: ${companyDetails.email} | Phone: ${companyDetails.phone}
-            </p>
-          </div>
-        </footer>
-        `,
+      <footer style="text-align: center; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 10px;">        
+        <div style="margin-top: 15px; font-size: 0.9em; color: #333;">
+          <h4>Accurate Pest Control Services LLC</h4>
+          <p style="margin: 5px 0;">Accurate Pest Control Services LLC</p>
+          <p style="margin: 5px 0;">
+            Email: accuratepestcontrolcl.ae | Phone: +971 52 449 6173
+          </p>
+        </div>
+      </footer></a>
+  `,
       };
 
       // Make the API call
-      const response = await api.postFormDataWithToken(`${sendEmail}`, data);
-   
+      const response = await api.postFormDataWithToken(
+        `${sendEmail}`,
+        data
+      );
 
-      if (!response.ok) {
-        throw new Error("Upload failed");
+      if (response.status !== "success") {
+        throw new Error(`Upload failed: ${response.message}`);
       }
 
-      alert("Invoice has been downloaded and uploaded successfully!");
+      alert("Invoice has been downloaded and sent via email successfully!");
       return response;
     } catch (error) {
       console.error("Error in uploadToCloudinary:", error);
-      alert("Failed to upload invoice. Please try again.");
+      alert("Failed to send invoice. Please try again.");
       throw error;
     } finally {
       setUploadingToCloudinary(false);
-    } 
+    }
   };
 
   useEffect(() => {
@@ -483,7 +487,10 @@ const Page = () => {
                 </tbody>
               </table>
 
-              <div style={{ textAlign: "right" }} className={styles.totalAmount}>
+              <div
+                style={{ textAlign: "right" }}
+                className={styles.totalAmount}
+              >
                 APCS{invoiceList?.user?.client?.referencable_id}PT
                 {invoiceList?.invoiceable?.billing_method === "monthly"
                   ? 1
@@ -494,7 +501,10 @@ const Page = () => {
                   : "unknown"}
               </div>
 
-              <div style={{ textAlign: "right" }} className={styles.totalAmount}>
+              <div
+                style={{ textAlign: "right" }}
+                className={styles.totalAmount}
+              >
                 Invoice Id:
                 {invoiceList?.job?.id || "No Invoice"}
               </div>
@@ -503,20 +513,27 @@ const Page = () => {
 
           <Grid className="p-2" container spacing={2}>
             <Grid className="mt-1" item xs={5}>
-              <TableContainer component={Paper}>
+              <TableContainer component={Paper} sx={{ marginTop: 0 }}>
                 <Table>
                   <TableHead
-                    style={{ backgroundColor: "#32A92E", color: "white" }}
+                    style={{ backgroundColor: "#32A92E", color: "white", paddingBottom:"-20px", marginBottom:"-20px" }}
                   >
-                    <TableRow>
+                    <TableRow
+                    style={{ paddingBottom:"-20px", marginBottom:"-20px", fontSize:"20px" }}
+                    >
+
+
                       <TableCell
                         sx={{
                           color: "white",
-                          padding: "4px 16px",
+                          // padding: "10px 16px",
+                          marginTop:"-10px",
+                          paddingTop: "0px",
+                          paddingBottom: "15px",
                           lineHeight: "1rem",
                         }}
                       >
-                        Description
+                        Description 
                       </TableCell>
                       <TableCell
                         sx={{
@@ -720,7 +737,9 @@ const Page = () => {
             </Typography> */}
             <TableContainer component={Paper}>
               <Table>
-                <TableHead style={{ backgroundColor: "#32A92E", color: "white" }}>
+                <TableHead
+                  style={{ backgroundColor: "#32A92E", color: "white" }}
+                >
                   <TableRow>
                     {["Date", "Description", "Credit", "Debit", "Balance"].map(
                       (header) => (
@@ -730,7 +749,8 @@ const Page = () => {
                             color: "white",
                             padding: "4px 16px",
                             lineHeight: "1rem",
-                            textAlign: header === "Balance" ? "right" : "center",
+                            textAlign:
+                              header === "Balance" ? "right" : "center",
                           }}
                         >
                           {header}
