@@ -103,7 +103,7 @@ const Page = () => {
       };
 
       // Save PDF locally
-      await html2pdf().set(opt).from(element).save();
+      // await html2pdf().set(opt).from(element).save();
 
       // Generate PDF as blob and convert to File object
       const pdfBlob = await html2pdf().set(opt).from(element).outputPdf("blob");
@@ -134,10 +134,7 @@ const Page = () => {
       };
 
       // Make the API call
-      const response = await api.postFormDataWithToken(
-        `${sendEmail}`,
-        data
-      );
+      const response = await api.postFormDataWithToken(`${sendEmail}`, data);
 
       if (response.status !== "success") {
         throw new Error(`Upload failed: ${response.message}`);
@@ -381,7 +378,9 @@ const Page = () => {
                 sx={{
                   fontWeight: "bold",
                   textAlign: "right",
-                  paddingBottom: "10px",
+                  marginTop: "-10px",
+                  paddingTop: "0px",
+                  paddingBottom: "15px",
                 }}
               >
                 Tax Invoice
@@ -392,7 +391,9 @@ const Page = () => {
                   sx={{
                     fontWeight: "bold",
                     textAlign: "right",
-                    paddingBottom: "10px",
+                    marginTop: "-10px",
+                    paddingTop: "0px",
+                    paddingBottom: "15px",
                   }}
                 >
                   TRN: 1041368802200003
@@ -402,10 +403,26 @@ const Page = () => {
               <div style={{ ...commonStyles, ...headerStyles }}>
                 <Grid container spacing={2}>
                   <Grid item xs={6}>
-                    <div>Tax Invoice</div>
+                    <div
+                      style={{
+                        marginTop: "-10px",
+                        paddingTop: "0px",
+                        paddingBottom: "15px",
+                      }}
+                    >
+                      Tax Invoice
+                    </div>
                   </Grid>
                   <Grid item xs={6}>
-                    <div>{invoiceList?.service_invoice_id}</div>
+                    <div
+                      style={{
+                        marginTop: "-10px",
+                        paddingTop: "0px",
+                        paddingBottom: "15px",
+                      }}
+                    >
+                      {invoiceList?.service_invoice_id}
+                    </div>
                   </Grid>
                 </Grid>
               </div>
@@ -419,8 +436,9 @@ const Page = () => {
                     <th
                       style={{
                         color: "black",
-                        padding: "4px 16px",
-                        lineHeight: "1rem",
+                        marginTop: "-10px",
+                        paddingTop: "0px",
+                        paddingBottom: "15px",
                         fontWeight: "bold",
                       }}
                       className="text-center fw-bold"
@@ -430,8 +448,9 @@ const Page = () => {
                     <th
                       style={{
                         color: "black",
-                        padding: "4px 16px",
-                        lineHeight: "1rem",
+                        marginTop: "-10px",
+                        paddingTop: "0px",
+                        paddingBottom: "15px",
                         fontWeight: "bold",
                       }}
                       className="text-center fw-bold"
@@ -441,8 +460,9 @@ const Page = () => {
                     <th
                       style={{
                         color: "black",
-                        padding: "4px 16px",
-                        lineHeight: "1rem",
+                        marginTop: "-10px",
+                        paddingTop: "0px",
+                        paddingBottom: "15px",
                         fontWeight: "bold",
                       }}
                       className="text-center fw-bold"
@@ -456,7 +476,9 @@ const Page = () => {
                     <td
                       style={{
                         color: "black",
-                        lineHeight: "1rem",
+                        marginTop: "-10px",
+                        paddingTop: "0px",
+                        paddingBottom: "15px",
                         fontWeight: "bold",
                       }}
                       className="text-end"
@@ -466,7 +488,9 @@ const Page = () => {
                     <td
                       style={{
                         color: "black",
-                        lineHeight: "1rem",
+                        marginTop: "-10px",
+                        paddingTop: "0px",
+                        paddingBottom: "15px",
                         fontWeight: "bold",
                       }}
                       className="text-end"
@@ -476,7 +500,9 @@ const Page = () => {
                     <td
                       style={{
                         color: "black",
-                        lineHeight: "1rem",
+                        marginTop: "-10px",
+                        paddingTop: "0px",
+                        paddingBottom: "15px",
                         fontWeight: "bold",
                       }}
                       className="text-end"
@@ -516,30 +542,33 @@ const Page = () => {
               <TableContainer component={Paper} sx={{ marginTop: 0 }}>
                 <Table>
                   <TableHead
-                    style={{ backgroundColor: "#32A92E", color: "white", paddingBottom:"-20px", marginBottom:"-20px" }}
+                    style={{
+                      backgroundColor: "#32A92E",
+                      color: "white",
+                    }}
                   >
                     <TableRow
-                    style={{ paddingBottom:"-20px", marginBottom:"-20px", fontSize:"20px" }}
+                      style={{
+                        fontSize: "20px",
+                      }}
                     >
-
-
                       <TableCell
                         sx={{
                           color: "white",
                           // padding: "10px 16px",
-                          marginTop:"-10px",
+                          marginTop: "-10px",
                           paddingTop: "0px",
                           paddingBottom: "15px",
-                          lineHeight: "1rem",
                         }}
                       >
-                        Description 
+                        Description
                       </TableCell>
                       <TableCell
                         sx={{
                           color: "white",
-                          padding: "4px 16px",
-                          lineHeight: "1rem",
+                          marginTop: "-10px",
+                          paddingTop: "0px",
+                          paddingBottom: "15px",
                         }}
                         align="right"
                       >
@@ -548,8 +577,9 @@ const Page = () => {
                       <TableCell
                         sx={{
                           color: "white",
-                          padding: "4px 16px",
-                          lineHeight: "1rem",
+                          marginTop: "-10px",
+                          paddingTop: "0px",
+                          paddingBottom: "15px",
                         }}
                         align="right"
                       >
@@ -562,8 +592,9 @@ const Page = () => {
                       <TableCell
                         sx={{
                           color: "black",
-                          padding: "4px 16px",
-                          lineHeight: "1rem",
+                          marginTop: "-10px",
+                          paddingTop: "0px",
+                          paddingBottom: "15px",
                         }}
                       >
                         {" "}
@@ -572,8 +603,9 @@ const Page = () => {
                       <TableCell
                         sx={{
                           color: "black",
-                          padding: "4px 16px",
-                          lineHeight: "1rem",
+                          marginTop: "-10px",
+                          paddingTop: "0px",
+                          paddingBottom: "15px",
                         }}
                         align="right"
                       >
@@ -582,8 +614,9 @@ const Page = () => {
                       <TableCell
                         sx={{
                           color: "black",
-                          padding: "4px 16px",
-                          lineHeight: "1rem",
+                          marginTop: "-10px",
+                          paddingTop: "0px",
+                          paddingBottom: "15px",
                         }}
                         align="right"
                       >
@@ -605,8 +638,9 @@ const Page = () => {
                       <TableCell
                         sx={{
                           color: "white",
-                          padding: "4px 16px",
-                          lineHeight: "1rem",
+                          marginTop: "-10px",
+                          paddingTop: "0px",
+                          paddingBottom: "15px",
                         }}
                         align="center"
                       >
@@ -615,8 +649,9 @@ const Page = () => {
                       <TableCell
                         sx={{
                           color: "white",
-                          padding: "4px 16px",
-                          lineHeight: "1rem",
+                          marginTop: "-10px",
+                          paddingTop: "0px",
+                          paddingBottom: "15px",
                         }}
                         align="center"
                       >
@@ -626,8 +661,9 @@ const Page = () => {
                       <TableCell
                         sx={{
                           color: "white",
-                          padding: "4px 16px",
-                          lineHeight: "1rem",
+                          marginTop: "-10px",
+                          paddingTop: "0px",
+                          paddingBottom: "15px",
                         }}
                         align="center"
                       >
@@ -637,8 +673,9 @@ const Page = () => {
                       <TableCell
                         sx={{
                           color: "white",
-                          padding: "4px 16px",
-                          lineHeight: "1rem",
+                          marginTop: "-10px",
+                          paddingTop: "0px",
+                          paddingBottom: "15px",
                         }}
                         align="center"
                       >
@@ -652,8 +689,9 @@ const Page = () => {
                         <TableCell
                           sx={{
                             color: "black",
-                            padding: "4px 16px",
-                            lineHeight: "1rem",
+                            marginTop: "-10px",
+                            paddingTop: "0px",
+                            paddingBottom: "15px",
                           }}
                           align="left"
                         >
@@ -662,8 +700,9 @@ const Page = () => {
                         <TableCell
                           sx={{
                             color: "black",
-                            padding: "4px 16px",
-                            lineHeight: "1rem",
+                            marginTop: "-10px",
+                            paddingTop: "0px",
+                            paddingBottom: "15px",
                           }}
                           align="left"
                         >
@@ -672,8 +711,9 @@ const Page = () => {
                         <TableCell
                           sx={{
                             color: "black",
-                            padding: "4px 16px",
-                            lineHeight: "1rem",
+                            marginTop: "-10px",
+                            paddingTop: "0px",
+                            paddingBottom: "15px",
                           }}
                           align="left"
                         >
@@ -683,8 +723,9 @@ const Page = () => {
                         <TableCell
                           sx={{
                             color: "black",
-                            padding: "4px 16px",
-                            lineHeight: "1rem",
+                            marginTop: "-10px",
+                            paddingTop: "0px",
+                            paddingBottom: "15px",
                           }}
                           align="left"
                         >
@@ -747,8 +788,9 @@ const Page = () => {
                           key={header}
                           sx={{
                             color: "white",
-                            padding: "4px 16px",
-                            lineHeight: "1rem",
+                            marginTop: "-10px",
+                            paddingTop: "0px",
+                            paddingBottom: "15px",
                             textAlign:
                               header === "Balance" ? "right" : "center",
                           }}
@@ -765,8 +807,10 @@ const Page = () => {
                       <TableCell
                         sx={{
                           color: "black",
-                          padding: "4px 16px",
-                          lineHeight: "1rem",
+                          marginTop: "-10px",
+                          paddingTop: "0px",
+                          paddingBottom: "15px",
+                          fontSize:"10px"
                         }}
                         align="left"
                       >
@@ -775,8 +819,9 @@ const Page = () => {
                       <TableCell
                         sx={{
                           color: "black",
-                          padding: "4px 16px",
-                          lineHeight: "1rem",
+                          marginTop: "-10px",
+                          paddingTop: "0px",
+                          paddingBottom: "15px",
                         }}
                         align="left"
                       >
@@ -785,8 +830,9 @@ const Page = () => {
                       <TableCell
                         sx={{
                           color: "black",
-                          padding: "4px 16px",
-                          lineHeight: "1rem",
+                          marginTop: "-10px",
+                          paddingTop: "0px",
+                          paddingBottom: "15px",
                         }}
                         align="left"
                       >
@@ -795,8 +841,9 @@ const Page = () => {
                       <TableCell
                         sx={{
                           color: "black",
-                          padding: "4px 16px",
-                          lineHeight: "1rem",
+                          marginTop: "-10px",
+                          paddingTop: "0px",
+                          paddingBottom: "15px",
                         }}
                         align="left"
                       >
@@ -805,8 +852,9 @@ const Page = () => {
                       <TableCell
                         sx={{
                           color: "black",
-                          padding: "4px 16px",
-                          lineHeight: "1rem",
+                          marginTop: "-10px",
+                          paddingTop: "0px",
+                          paddingBottom: "15px",
                         }}
                         align="right"
                       >
@@ -839,12 +887,12 @@ const Page = () => {
                 _________________________
               </Typography>
 
-              <Typography variant="body2">Signature</Typography>
-              <Typography variant="body2">Date :</Typography>
+              {/* <Typography variant="body2">Signature</Typography>
+              <Typography variant="body2">Date :</Typography> */}
 
-              <Typography className="" variant="body2">
+              {/* <Typography className="" variant="body2">
                 {invoiceList?.user?.name}
-              </Typography>
+              </Typography> */}
               {/* <Typography variant="body1" sx={{ fontWeight: "bold" }}>
                 Manager
               </Typography> */}
@@ -855,8 +903,8 @@ const Page = () => {
                 _________________________
               </Typography>
 
-              <Typography variant="body2">Signature</Typography>
-              <Typography variant="body2">Date :</Typography>
+              {/* <Typography variant="body2">Signature</Typography>
+              <Typography variant="body2">Date :</Typography> */}
             </Grid>
           </Grid>
         </Layout>

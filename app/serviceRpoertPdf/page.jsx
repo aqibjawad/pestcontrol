@@ -7,7 +7,7 @@ import { Grid, Button } from "@mui/material";
 import styles from "../../styles/viewQuote.module.css";
 import APICall from "@/networkUtil/APICall";
 import { job, sendEmail } from "@/networkUtil/Constants";
-import Layout from "../../components/layout";
+import Layout2 from "../../components/layout2";
 import html2pdf from "html2pdf.js";
 
 const invoiceData = {
@@ -40,6 +40,8 @@ const Page = () => {
   const [serviceReportList, setQuoteList] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(true);
   const [uploadingToCloudinary, setUploadingToCloudinary] = useState(false);
+
+  // console.log(serviceReportList?.job?.quote?.branch);
 
   useEffect(() => {
     const currentUrl = window.location.href;
@@ -79,8 +81,9 @@ const Page = () => {
 
       // Generate PDF from a specific container instead of entire body
       const element = document.getElementById("pdf-container");
+      const filename = `invoice_${Date.now()}.pdf`;
       const opt = {
-        filename: `invoice_${Date.now()}.pdf`,
+        filename: filename,
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: {
           scale: 2,
@@ -117,34 +120,21 @@ const Page = () => {
         },
       };
 
-      const pdfBlob = await new Promise((resolve, reject) => {
-        html2pdf()
-          .set(opt)
-          .from(element)
-          .outputPdf()
-          .save()
-          .then((pdf) => {
-            // Convert the PDF to blob
-            const blob = new Blob([pdf], { type: "application/pdf" });
-            resolve(blob);
-          })
-          .catch((error) => {
-            console.error("PDF generation error:", error);
-            reject(error);
-          });
-      });
+      await html2pdf().set(opt).from(element).save();
 
-      // Verify blob
-      if (!(pdfBlob instanceof Blob)) {
-        throw new Error("Failed to generate PDF blob");
-      }
+      // Generate PDF as blob and convert to File object
+      const pdfBlob = await html2pdf().set(opt).from(element).outputPdf("blob");
+      const pdfFile = new File([pdfBlob], filename, {
+        type: "application/pdf",
+      });
 
       const data = {
         user_id: serviceReportList?.job?.user?.id,
         subject: "Invoice PDF",
-        file: pdfBlob,
+        file: pdfFile,
         html: `
         <h1> ${serviceReportList?.job?.user?.name} </h1>
+        <h1> Invoice Id: ${serviceReportList?.job?.service_invoice?.id} </h1>
         <a href="" > View Service Report </a>
         <footer style="text-align: center; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 10px;">        
           <div style="margin-top: 15px; font-size: 0.9em; color: #333;">
@@ -161,24 +151,12 @@ const Page = () => {
       // Make the API call
       const response = await api.postFormDataWithToken(`${sendEmail}`, data);
 
-      // Handle the response properly
-      const responseData = await response.text(); // First, get the response as text
-
-      let testData;
-      try {
-        // Try parsing the response as JSON
-        testData = JSON.parse(responseData);
-      } catch (e) {
-        // If it is not a valid JSON, log the plain response
-        console.error("Response is not JSON:", responseData);
-        testData = { message: responseData }; // Handle non-JSON response gracefully
+      if (response.status !== "success") {
+        throw new Error(`Upload failed: ${response.message}`);
       }
+      alert("Invoice send successfully!");
 
-      // Log the response data
-      console.log("Upload success:", testData);
-      alert("Invoice uploaded successfully!");
-
-      return testData.secure_url;
+      return response;
     } catch (error) {
       console.error("Error in uploadToCloudinary:", error);
       alert("Failed to upload invoice. Please try again.");
@@ -190,7 +168,7 @@ const Page = () => {
 
   return (
     <div id="pdf-container">
-      <Layout>
+      <Layout2 branchId={serviceReportList?.job?.quote?.branch?.id}>
         <ClientDetails serviceReportList={serviceReportList} />
         <ClientRecords serviceReportList={serviceReportList} />
 
@@ -200,12 +178,12 @@ const Page = () => {
           <div>
             <div className="mt-5 contractTable">Clients Signature</div>
             <img
-              style={{ height: "100px", width: "100px" }}
+              style={{ height: "100px", width: "100%", objectFit:"contain" }}
               src={serviceReportList?.signature_img}
             />
           </div>
         </div>
-      </Layout>
+      </Layout2>
 
       <div className="fixed bottom-4 right-4 flex flex-col space-y-2 print:hidden">
         <button
@@ -222,9 +200,7 @@ const Page = () => {
           disabled={uploadingToCloudinary}
           fullWidth
         >
-          {uploadingToCloudinary
-            ? "Uploading..."
-            : "Upload Invoice to Cloudinary"}
+          {uploadingToCloudinary ? "Uploading..." : "Send Email"}
         </Button>
       </div>
 

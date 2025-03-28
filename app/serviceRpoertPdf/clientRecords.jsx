@@ -124,7 +124,9 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                   fontSize: "15px",
                   fontWeight: "bold",
                   color: "black",
-                  marginBottom: "4px", // Reduced margin
+                  marginTop: "-10px",
+                  paddingTop: "0px",
+                  paddingBottom: "15px",
                 }}
               >
                 Pest Found
@@ -160,6 +162,9 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                               fontSize: "13px",
                               fontWeight: "regular",
                               color: "black",
+                              marginTop: "-9px",
+                              paddingTop: "0px",
+                              paddingBottom: "10px",
                             }}
                           >
                             {row?.pest_name
@@ -192,6 +197,9 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                   fontSize: "15px",
                   fontWeight: "bold",
                   color: "black",
+                  marginTop: "-10px",
+                  paddingTop: "0px",
+                  paddingBottom: "15px",
                 }}
               >
                 Treatment Methods
@@ -224,6 +232,9 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                             style={{
                               fontSize: "13px",
                               color: "black",
+                              marginTop: "-9px",
+                              paddingTop: "0px",
+                              paddingBottom: "10px",
                             }}
                           >
                             {row?.name
@@ -252,7 +263,16 @@ const ClientRecords = ({ serviceReportList, loading }) => {
       </div>
 
       <div className={styles.clientRecord}>
-        <div className={styles.areaHead}>Areas</div>
+        <div
+          style={{
+            marginTop: "-10px",
+            paddingTop: "0px",
+            paddingBottom: "15px",
+          }}
+          className={styles.areaHead}
+        >
+          Areas
+        </div>
         <TableContainer component={Paper}>
           <Table>
             <TableHead className={styles.tableHead}>
@@ -260,8 +280,9 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                 <TableCell
                   sx={{
                     color: "white",
-                    padding: "4px 16px",
-                    lineHeight: "1rem",
+                    marginTop: "-10px",
+                    paddingTop: "0px",
+                    paddingBottom: "15px",
                   }}
                 >
                   Inspected Area
@@ -269,8 +290,9 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                 <TableCell
                   sx={{
                     color: "white",
-                    padding: "4px 16px",
-                    lineHeight: "1rem",
+                    marginTop: "-10px",
+                    paddingTop: "0px",
+                    paddingBottom: "15px",
                   }}
                 >
                   Infection Level
@@ -278,8 +300,9 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                 <TableCell
                   sx={{
                     color: "white",
-                    padding: "4px 16px",
-                    lineHeight: "1rem",
+                    marginTop: "-10px",
+                    paddingTop: "0px",
+                    paddingBottom: "15px",
                   }}
                 >
                   Manifested Area
@@ -287,8 +310,9 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                 <TableCell
                   sx={{
                     color: "white",
-                    padding: "4px 16px",
-                    lineHeight: "1rem",
+                    marginTop: "-10px",
+                    paddingTop: "0px",
+                    paddingBottom: "15px",
                   }}
                 >
                   Report and Follow Up
@@ -302,32 +326,36 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                     <TableRow key={index}>
                       <TableCell
                         sx={{
-                          padding: "4px 16px",
-                          lineHeight: "1rem",
+                          marginTop: "-10px",
+                          paddingTop: "0px",
+                          paddingBottom: "15px",
                         }}
                       >
                         {row.inspected_areas}
                       </TableCell>
                       <TableCell
                         sx={{
-                          padding: "4px 16px",
-                          lineHeight: "1rem",
+                          marginTop: "-10px",
+                          paddingTop: "0px",
+                          paddingBottom: "15px",
                         }}
                       >
                         {row.infestation_level}
                       </TableCell>
                       <TableCell
                         sx={{
-                          padding: "4px 16px",
-                          lineHeight: "1rem",
+                          marginTop: "-10px",
+                          paddingTop: "0px",
+                          paddingBottom: "15px",
                         }}
                       >
                         {row.manifested_areas}
                       </TableCell>
                       <TableCell
                         sx={{
-                          padding: "4px 16px",
-                          lineHeight: "1rem",
+                          marginTop: "-10px",
+                          paddingTop: "0px",
+                          paddingBottom: "15px",
                         }}
                       >
                         {row.report_and_follow_up_detail}
@@ -341,7 +369,16 @@ const ClientRecords = ({ serviceReportList, loading }) => {
 
       <div className="flex gap-4 mt-3">
         <div className={styles.clientRecord} style={{ flex: 1 }}>
-          <div className={styles.areaHead}>Products Used</div>
+          <div
+            style={{
+              marginTop: "-10px",
+              paddingTop: "0px",
+              paddingBottom: "15px",
+            }}
+            className={styles.areaHead}
+          >
+            Products Used
+          </div>
           <TableContainer component={Paper}>
             <Table>
               <TableHead className={styles.tableHead}>
@@ -349,17 +386,19 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                   <TableCell
                     sx={{
                       color: "white",
-                      padding: "4px 16px",
-                      lineHeight: "1rem",
+                      marginTop: "-10px",
+                      paddingTop: "0px",
+                      paddingBottom: "15px",
                     }}
                   >
-                    Product Name
+                    Product
                   </TableCell>
                   <TableCell
                     sx={{
                       color: "white",
-                      padding: "4px 16px",
-                      lineHeight: "1rem",
+                      marginTop: "-10px",
+                      paddingTop: "0px",
+                      paddingBottom: "15px",
                     }}
                   >
                     Dose
@@ -367,8 +406,9 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                   <TableCell
                     sx={{
                       color: "white",
-                      padding: "4px 16px",
-                      lineHeight: "1rem",
+                      marginTop: "-10px",
+                      paddingTop: "0px",
+                      paddingBottom: "15px",
                     }}
                   >
                     Quantity
@@ -376,8 +416,9 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                   <TableCell
                     sx={{
                       color: "white",
-                      padding: "4px 16px",
-                      lineHeight: "1rem",
+                      marginTop: "-10px",
+                      paddingTop: "0px",
+                      paddingBottom: "15px",
                     }}
                   >
                     Total
@@ -390,22 +431,38 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                   : rowsProducts.map((row, index) => (
                       <TableRow key={index}>
                         <TableCell
-                          sx={{ padding: "4px 16px", lineHeight: "1rem" }}
+                          sx={{
+                            marginTop: "-10px",
+                            paddingTop: "0px",
+                            paddingBottom: "15px",
+                          }}
                         >
                           {row?.product?.product_name}
                         </TableCell>
                         <TableCell
-                          sx={{ padding: "4px 16px", lineHeight: "1rem" }}
+                          sx={{
+                            marginTop: "-10px",
+                            paddingTop: "0px",
+                            paddingBottom: "15px",
+                          }}
                         >
                           {row.dose}
                         </TableCell>
                         <TableCell
-                          sx={{ padding: "4px 16px", lineHeight: "1rem" }}
+                          sx={{
+                            marginTop: "-10px",
+                            paddingTop: "0px",
+                            paddingBottom: "15px",
+                          }}
                         >
                           {row.qty}
                         </TableCell>
                         <TableCell
-                          sx={{ padding: "4px 16px", lineHeight: "1rem" }}
+                          sx={{
+                            marginTop: "-10px",
+                            paddingTop: "0px",
+                            paddingBottom: "15px",
+                          }}
                         >
                           {row.total}
                         </TableCell>
