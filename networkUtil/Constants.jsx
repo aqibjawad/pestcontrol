@@ -113,3 +113,9 @@ export const inspectionReport = apiPrefix + "/inspection/report";
 export const sendEmail = apiPrefix + "/email/pest_info/send";
 
 export const ipmReport = apiPrefix + "/imp_report";
+
+// Purchase Order APIs
+export const purchaseOrder = apiPrefix + "/purchase-order";
+export const addClient = apiPrefix + "/add-client";
+export const addClients = apiPrefix + "/add-clients";
+export const addVendors = apiPrefix + "/add-vendors";

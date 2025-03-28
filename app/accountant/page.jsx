@@ -139,7 +139,7 @@ const Page = () => {
                 let statusText = vehicle.status;
 
                 if (chequeDate.isBefore(currentDate, "day")) {
-                  bgColor = "#FF6347"; // Expired (Red)
+                  bgColor = "#FFEBEE"; // Expired (Red)
                   statusText = "Expired";
                 } else if (chequeDate.isAfter(oneMonthLater, "day")) {
                   bgColor = "#90EE90"; // More than one month ahead (Green)

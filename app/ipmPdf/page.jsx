@@ -16,7 +16,10 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import html2pdf from "html2pdf.js";
+import dynamic from 'next/dynamic';
+const html2pdf = dynamic(() => import('html2pdf.js'), {
+  ssr: false
+});
 import APICall from "@/networkUtil/APICall";
 import { ipmReport } from "@/networkUtil/Constants";
 
@@ -191,67 +194,6 @@ const Page = () => {
       handleCloseModal();
     }
   };
-
-  // const handleExportPDF = async () => {
-  //   // Create a container for PDF content
-  //   const pdfContent = document.createElement("div");
-  //   pdfContent.innerHTML = `<h1>IPM Report Images</h1>`;
-
-  //   // Create a table for PDF
-  //   const table = document.createElement("table");
-  //   table.style.width = "100%";
-  //   table.style.borderCollapse = "collapse";
-
-  //   // Table header
-  //   const thead = document.createElement("thead");
-  //   thead.innerHTML = `
-  //     <tr>
-  //       <th style="border: 1px solid black; padding: 8px;">Image</th>
-  //       <th style="border: 1px solid black; padding: 8px;">Description</th>
-  //       <th style="border: 1px solid black; padding: 8px;">Recommendations</th>
-  //     </tr>
-  //   `;
-  //   table.appendChild(thead);
-
-  //   // Table body
-  //   const tbody = document.createElement("tbody");
-
-  //   // Convert images to base64 and create table rows
-  //   for (const image of processedImages) {
-  //     const base64Image = await convertImageToBase64(image.src);
-
-  //     const row = document.createElement("tr");
-  //     row.innerHTML = `
-  //       <td style="border: 1px solid black; padding: 8px; text-align: center;">
-  //         <img src="${base64Image}" style="max-width: 150px; max-height: 150px;" />
-  //       </td>
-  //       <td style="border: 1px solid black; padding: 8px;">${image.description}</td>
-  //       <td style="border: 1px solid black; padding: 8px;">${image.recommendations}</td>
-  //     `;
-  //     tbody.appendChild(row);
-  //   }
-
-  //   table.appendChild(tbody);
-  //   pdfContent.appendChild(table);
-
-  //   // Add the content to the document
-  //   document.body.appendChild(pdfContent);
-
-  //   // PDF export options
-  //   const opt = {
-  //     margin: 10,
-  //     filename: "ipm_report_images.pdf",
-  //     image: { type: "jpeg", quality: 0.98 },
-  //     html2canvas: { scale: 2 },
-  //     jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-  //   };
-
-  //   // Generate PDF
-  //   html2pdf().set(opt).from(pdfContent).save();
-
-  //   // Remove the temporary content
-  //   document.body.removeChild(pdfContent);
-  // };
 
   return (
     <div>

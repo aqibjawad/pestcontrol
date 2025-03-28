@@ -1,7 +1,15 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import Layout from "../../components/layout";
+import { format } from "date-fns";
+import dynamic from 'next/dynamic';
+
+const html2pdf = dynamic(() => import('html2pdf.js'), {
+  ssr: false
+});
+
 import {
   Box,
   Grid,
@@ -16,50 +24,26 @@ import {
   CircularProgress,
   Button,
 } from "@mui/material";
+
 import styles from "../../styles/invoiceDetails.module.css";
-
 import { serviceInvoice, clients, sendEmail } from "@/networkUtil/Constants";
-
 import APICall from "@/networkUtil/APICall";
 
-import { format } from "date-fns";
-import html2pdf from "html2pdf.js";
-
-const invoiceData = {
-  companyDetails: {
-    name: "Accurate Pest Control Services LLC",
-    address: "Office 12, Building # Greece K-12, International City Dubai",
-    email: "accuratepestcontrolcl.ae",
-    phone: "+971 52 449 6173",
-  },
-  items: [
-    {
-      description: "General Pest Control",
-      rate: 1080.0,
-      tax: 54.0,
-      total: 1134.0,
-    },
-  ],
-};
-
-const getIdFromUrl = (url) => {
-  const parts = url.split("?");
-  if (parts.length > 1) {
-    const queryParams = parts[1].split("&");
-    for (const param of queryParams) {
-      const [key, value] = param.split("=");
-      if (key === "id") {
-        return value;
-      }
-    }
-  }
-  return null;
-};
-
 const Page = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <InvoiceDetails />
+    </Suspense>
+  );
+};
+
+const InvoiceDetails = () => {
+  const searchParams = useSearchParams();
   const api = new APICall();
 
-  const [id, setId] = useState(null);
+  // Extract ID from search params
+  const id = searchParams.get("id");
+
   const [fetchingData, setFetchingData] = useState(false);
   const [invoiceList, setQuoteList] = useState(null);
   const [rowData, setRowData] = useState([]);
@@ -70,135 +54,10 @@ const Page = () => {
 
   const itemableIds =
     invoiceList?.details?.map((detail) => detail.itemable_id) || [];
-
   const itemableDates =
     invoiceList?.details?.map((detail) => detail.created_at) || [];
 
-  // Cloudinary Upload Function
-  const uploadToCloudinary = async () => {
-    try {
-      setUploadingToCloudinary(true);
-
-      const element = document.getElementById("pdf-container");
-      if (!element) {
-        throw new Error("PDF container element not found");
-      }
-
-      // Generate and save PDF locally first
-      const filename = `invoice_${Date.now()}.pdf`;
-      const opt = {
-        margin: 1,
-        filename: filename,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          logging: true,
-        },
-        jsPDF: {
-          unit: "mm",
-          format: "a4",
-          orientation: "portrait",
-        },
-      };
-
-      // Save PDF locally
-      // await html2pdf().set(opt).from(element).save();
-
-      // Generate PDF as blob and convert to File object
-      const pdfBlob = await html2pdf().set(opt).from(element).outputPdf("blob");
-      const pdfFile = new File([pdfBlob], filename, {
-        type: "application/pdf",
-      });
-
-      // Create FormData for proper file upload
-      const data = {
-        user_id: invoiceList?.user?.id,
-        subject: "Invoice PDF",
-        file: pdfFile, // Ensure this is a valid Blob
-        html: `
-      <h1>${invoiceList?.user?.name}</h1>
-      <h2>Service Invoice IDs: ${itemableIds.join(", ")}</h2>
-      <h2>Services Dates: ${itemableDates.join(", ")}</h2>
-
-      <footer style="text-align: center; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 10px;">        
-        <div style="margin-top: 15px; font-size: 0.9em; color: #333;">
-          <h4>Accurate Pest Control Services LLC</h4>
-          <p style="margin: 5px 0;">Accurate Pest Control Services LLC</p>
-          <p style="margin: 5px 0;">
-            Email: accuratepestcontrolcl.ae | Phone: +971 52 449 6173
-          </p>
-        </div>
-      </footer></a>
-  `,
-      };
-
-      // Make the API call
-      const response = await api.postFormDataWithToken(`${sendEmail}`, data);
-
-      if (response.status !== "success") {
-        throw new Error(`Upload failed: ${response.message}`);
-      }
-
-      alert("Invoice has been downloaded and sent via email successfully!");
-      return response;
-    } catch (error) {
-      console.error("Error in uploadToCloudinary:", error);
-      alert("Failed to send invoice. Please try again.");
-      throw error;
-    } finally {
-      setUploadingToCloudinary(false);
-    }
-  };
-
-  useEffect(() => {
-    // Get the current URL
-    const currentUrl = window.location.href;
-
-    const urlId = getIdFromUrl(currentUrl);
-    setId(urlId);
-  }, []);
-
-  useEffect(() => {
-    if (id !== undefined && id !== null) {
-      getAllQuotes(id);
-    }
-  }, [id]);
-
-  const getAllQuotes = async () => {
-    setFetchingData(true);
-    try {
-      const response = await api.getDataWithToken(`${serviceInvoice}/${id}`);
-      setQuoteList(response.data);
-    } catch (error) {
-      console.error("Error fetching quotes:", error);
-    } finally {
-      setFetchingData(false);
-      setLoadingDetails(false);
-    }
-  };
-
-  useEffect(() => {
-    if (invoiceList?.user?.id) {
-      fetchData(invoiceList.user.id);
-    }
-  }, [invoiceList]);
-
-  const fetchData = async (userId) => {
-    setLoadingDetails(true);
-    try {
-      const response = await api.getDataWithToken(
-        `${clients}/ledger/get/${userId}`
-      );
-      const data = response.data?.slice(-5) || []; // Ensure data is an array
-      setRowData(data);
-    } catch (error) {
-      setError(error.message);
-    } finally {
-      setLoadingDetails(false);
-    }
-  };
-
+  // Number to Words Conversion
   const numberToWords = (num) => {
     const ones = [
       "",
@@ -276,6 +135,7 @@ const Page = () => {
     return result;
   };
 
+  // Format Amount Display
   const formatAmountDisplay = (amount) => {
     if (amount === undefined || amount === null) return "";
     const numAmount = parseFloat(amount);
@@ -283,36 +143,139 @@ const Page = () => {
     return `Total Amount AED ${numAmount.toFixed(2)} (${amountInWords} Only)`;
   };
 
+  // Get Next Month Date
   const getNextMonthDate = (issuedDate) => {
-    // Check if date is valid
     if (!issuedDate) return null;
-
-    // Convert string to Date object
     const date = new Date(issuedDate);
-
-    // Get the next month
     date.setMonth(date.getMonth() + 1);
-
-    // Format date to YYYY-MM-DD
-    const nextDate = date.toISOString().split("T")[0];
-
-    return nextDate;
+    return date.toISOString().split("T")[0];
   };
 
-  const commonStyles = {
-    width: "100%",
-    maxWidth: "600px", // Set a max-width to keep consistency
-    margin: "0 auto", // Center the components
+  // Cloudinary Upload Function
+  const uploadToCloudinary = async () => {
+    try {
+      setUploadingToCloudinary(true);
+
+      const element = document.getElementById("pdf-container");
+      if (!element) {
+        throw new Error("PDF container element not found");
+      }
+
+      const filename = `invoice_${Date.now()}.pdf`;
+      const opt = {
+        margin: 1,
+        filename: filename,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          logging: true,
+        },
+        jsPDF: {
+          unit: "mm",
+          format: "a4",
+          orientation: "portrait",
+        },
+      };
+
+      const pdfBlob = await html2pdf().set(opt).from(element).outputPdf("blob");
+      const pdfFile = new File([pdfBlob], filename, {
+        type: "application/pdf",
+      });
+
+      if (!invoiceList?.user?.id) {
+        throw new Error("User ID is missing");
+      }
+
+      const formData = new FormData();
+      formData.append("user_id", invoiceList.user.id);
+      formData.append("subject", "Invoice PDF");
+      formData.append("file", pdfFile);
+      formData.append(
+        "html",
+        `
+        <h1>${invoiceList?.user?.client?.firm_name || "Client"}</h1>
+        <h2>Service Invoice IDs: ${itemableIds.join(", ") || "N/A"}</h2>
+        <h2>Services Dates: ${itemableDates.join(", ") || "N/A"}</h2>
+
+        <footer style="text-align: center; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 10px;">        
+          <div style="margin-top: 15px; font-size: 0.9em; color: #333;">
+            <h4>Accurate Pest Control Services LLC</h4>
+            <p style="margin: 5px 0;">Accurate Pest Control Services LLC</p>
+            <p style="margin: 5px 0;">
+              Email: accuratepestcontrolcl.ae | Phone: +971 52 449 6173
+            </p>
+          </div>
+        </footer>
+      `
+      );
+
+      const response = await api.postFormDataWithToken(sendEmail, formData);
+
+      if (response.status !== "success") {
+        throw new Error(
+          `Upload failed: ${response.message || "Unknown error"}`
+        );
+      }
+
+      alert("Invoice has been downloaded and sent via email successfully!");
+      return response;
+    } catch (error) {
+      console.error("Error in uploadToCloudinary:", error);
+      alert(`Failed to send invoice: ${error.message}`);
+      throw error;
+    } finally {
+      setUploadingToCloudinary(false);
+    }
   };
 
-  const headerStyles = {
-    backgroundColor: "lightgreen",
-    padding: "8px",
-    lineHeight: "1rem",
-    marginBottom: "1rem",
-    borderRadius: "4px",
+  // Fetch Invoice Details
+  const getAllQuotes = async () => {
+    if (!id) return;
+
+    setFetchingData(true);
+    try {
+      const response = await api.getDataWithToken(`${serviceInvoice}/${id}`);
+      setQuoteList(response.data);
+    } catch (error) {
+      console.error("Error fetching quotes:", error);
+    } finally {
+      setFetchingData(false);
+      setLoadingDetails(false);
+    }
   };
 
+  // Fetch User Data
+  const fetchData = async (userId) => {
+    setLoadingDetails(true);
+    try {
+      const response = await api.getDataWithToken(
+        `${clients}/ledger/get/${userId}`
+      );
+      const data = response.data?.slice(-5) || [];
+      setRowData(data);
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoadingDetails(false);
+    }
+  };
+
+  // Fetch data when ID changes
+  useEffect(() => {
+    if (id) {
+      getAllQuotes();
+    }
+  }, [id]);
+
+  // Fetch user data when invoice list is available
+  useEffect(() => {
+    if (invoiceList?.user?.id) {
+      fetchData(invoiceList.user.id);
+    }
+  }, [invoiceList]);
+
+  // Render loading state
   if (loadingDetails) {
     return (
       <Layout>
@@ -330,23 +293,41 @@ const Page = () => {
     );
   }
 
+  // Common styles
+  const commonStyles = {
+    width: "100%",
+    maxWidth: "600px",
+    margin: "0 auto",
+  };
+
+  const headerStyles = {
+    backgroundColor: "lightgreen",
+    padding: "8px",
+    lineHeight: "1rem",
+    marginBottom: "1rem",
+    borderRadius: "4px",
+  };
+
   return (
     <>
       <div id="pdf-container">
         <Layout>
           <Grid className="p-2" container spacing={2}>
+            {/* Left Side Company Details */}
             <Grid item xs={6}>
               <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-                {invoiceData.companyDetails.name}
+                Accurate Pest Control Services LLC
               </Typography>
               <Typography variant="body2">
-                Warehouse No 1 Plot No 247-289, Al Qusais Industrial Area 4 ,
+                Warehouse No 1 Plot No 247-289, Al Qusais Industrial Area 4,
                 Dubai - UAE
               </Typography>
               <Typography variant="body2">
                 info@accuratepestcontrol.ae
               </Typography>
+              <Typography variant="body2">TRN: 1041368802200003</Typography>
 
+              {/* Bill To Section */}
               <div className="mt-5">
                 <Typography className="" variant="body2">
                   Bill To
@@ -359,6 +340,7 @@ const Page = () => {
                 </Typography>
               </div>
 
+              {/* Contact Person Section */}
               <div className="mt-5">
                 <Typography className="" variant="body2">
                   Contact Person
@@ -372,6 +354,7 @@ const Page = () => {
               </div>
             </Grid>
 
+            {/* Right Side Invoice Details */}
             <Grid item xs={6}>
               <Typography
                 variant="body1"
@@ -385,134 +368,46 @@ const Page = () => {
               >
                 Tax Invoice
               </Typography>
-              <div>
-                <Typography
-                  variant="body1"
-                  sx={{
-                    fontWeight: "bold",
-                    textAlign: "right",
-                    marginTop: "-10px",
-                    paddingTop: "0px",
-                    paddingBottom: "15px",
-                  }}
-                >
-                  TRN: 1041368802200003
-                </Typography>
-              </div>
 
               <div style={{ ...commonStyles, ...headerStyles }}>
                 <Grid container spacing={2}>
                   <Grid item xs={6}>
-                    <div
-                      style={{
-                        marginTop: "-10px",
-                        paddingTop: "0px",
-                        paddingBottom: "15px",
-                      }}
-                    >
-                      Tax Invoice
-                    </div>
+                    Tax Invoice
                   </Grid>
                   <Grid item xs={6}>
-                    <div
-                      style={{
-                        marginTop: "-10px",
-                        paddingTop: "0px",
-                        paddingBottom: "15px",
-                      }}
-                    >
-                      {invoiceList?.service_invoice_id}
-                    </div>
+                    {invoiceList?.service_invoice_id}
                   </Grid>
                 </Grid>
               </div>
 
+              {/* Invoice Date and Details Table */}
               <table striped bordered hover className="mb-0">
-                <thead
-                  style={{ backgroundColor: "lightgreen", marginTop: "-1rem" }}
-                  className="table-success"
-                >
+                <thead style={{ backgroundColor: "lightgreen" }}>
                   <tr>
-                    <th
-                      style={{
-                        color: "black",
-                        marginTop: "-10px",
-                        paddingTop: "0px",
-                        paddingBottom: "15px",
-                        fontWeight: "bold",
-                      }}
-                      className="text-center fw-bold"
-                    >
-                      Date
-                    </th>
-                    <th
-                      style={{
-                        color: "black",
-                        marginTop: "-10px",
-                        paddingTop: "0px",
-                        paddingBottom: "15px",
-                        fontWeight: "bold",
-                      }}
-                      className="text-center fw-bold"
-                    >
-                      Due Date
-                    </th>
-                    <th
-                      style={{
-                        color: "black",
-                        marginTop: "-10px",
-                        paddingTop: "0px",
-                        paddingBottom: "15px",
-                        fontWeight: "bold",
-                      }}
-                      className="text-center fw-bold"
-                    >
-                      Total
-                    </th>
+                    {["Date", "Due Date", "Total"].map((header) => (
+                      <th
+                        key={header}
+                        style={{
+                          color: "black",
+                          fontWeight: "bold",
+                          textAlign: "center",
+                        }}
+                      >
+                        {header}
+                      </th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td
-                      style={{
-                        color: "black",
-                        marginTop: "-10px",
-                        paddingTop: "0px",
-                        paddingBottom: "15px",
-                        fontWeight: "bold",
-                      }}
-                      className="text-end"
-                    >
-                      {invoiceList?.issued_date}
-                    </td>
-                    <td
-                      style={{
-                        color: "black",
-                        marginTop: "-10px",
-                        paddingTop: "0px",
-                        paddingBottom: "15px",
-                        fontWeight: "bold",
-                      }}
-                      className="text-end"
-                    >
-                      {getNextMonthDate(invoiceList?.issued_date)}
-                    </td>
-                    <td
-                      style={{
-                        color: "black",
-                        marginTop: "-10px",
-                        paddingTop: "0px",
-                        paddingBottom: "15px",
-                        fontWeight: "bold",
-                      }}
-                      className="text-end"
-                    >
-                      {invoiceList?.total_amt}
-                    </td>
+                    <td>{invoiceList?.issued_date}</td>
+                    <td>{getNextMonthDate(invoiceList?.issued_date)}</td>
+                    <td>{invoiceList?.total_amt}</td>
                   </tr>
                 </tbody>
               </table>
 
+              {/* Additional Invoice Reference */}
               <div
                 style={{ textAlign: "right" }}
                 className={styles.totalAmount}
@@ -520,106 +415,38 @@ const Page = () => {
                 APCS{invoiceList?.user?.client?.referencable_id}PT
                 {invoiceList?.invoiceable?.billing_method === "monthly"
                   ? 1
-                  : invoiceList?.invoiceable?.billing_method === "monthly"
-                  ? 2
                   : invoiceList?.invoiceable?.billing_method === "service"
                   ? 3
                   : "unknown"}
               </div>
-
-              <div
-                style={{ textAlign: "right" }}
-                className={styles.totalAmount}
-              >
-                Invoice Id:
-                {invoiceList?.job?.id || "No Invoice"}
-              </div>
             </Grid>
           </Grid>
 
+          {/* Invoice Items Table */}
           <Grid className="p-2" container spacing={2}>
-            <Grid className="mt-1" item xs={5}>
-              <TableContainer component={Paper} sx={{ marginTop: 0 }}>
+            <Grid className="mt-1" item xs={12}>
+              <TableContainer component={Paper}>
                 <Table>
                   <TableHead
-                    style={{
-                      backgroundColor: "#32A92E",
-                      color: "white",
-                    }}
+                    style={{ backgroundColor: "#32A92E", color: "white" }}
                   >
-                    <TableRow
-                      style={{
-                        fontSize: "20px",
-                      }}
-                    >
-                      <TableCell
-                        sx={{
-                          color: "white",
-                          // padding: "10px 16px",
-                          marginTop: "-10px",
-                          paddingTop: "0px",
-                          paddingBottom: "15px",
-                        }}
-                      >
-                        Description
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          color: "white",
-                          marginTop: "-10px",
-                          paddingTop: "0px",
-                          paddingBottom: "15px",
-                        }}
-                        align="right"
-                      >
+                    <TableRow>
+                      <TableCell sx={{ color: "white" }}>Description</TableCell>
+                      <TableCell sx={{ color: "white" }} align="right">
                         VAT
                       </TableCell>
-                      <TableCell
-                        sx={{
-                          color: "white",
-                          marginTop: "-10px",
-                          paddingTop: "0px",
-                          paddingBottom: "15px",
-                        }}
-                        align="right"
-                      >
+                      <TableCell sx={{ color: "white" }} align="right">
                         Total
                       </TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     <TableRow>
-                      <TableCell
-                        sx={{
-                          color: "black",
-                          marginTop: "-10px",
-                          paddingTop: "0px",
-                          paddingBottom: "15px",
-                        }}
-                      >
-                        {" "}
-                        General Pest Control{" "}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          color: "black",
-                          marginTop: "-10px",
-                          paddingTop: "0px",
-                          paddingBottom: "15px",
-                        }}
-                        align="right"
-                      >
+                      <TableCell>General Pest Control</TableCell>
+                      <TableCell align="right">
                         {invoiceList?.invoiceable?.vat_per}
                       </TableCell>
-                      <TableCell
-                        sx={{
-                          color: "black",
-                          marginTop: "-10px",
-                          paddingTop: "0px",
-                          paddingBottom: "15px",
-                        }}
-                        align="right"
-                      >
+                      <TableCell align="right">
                         {invoiceList?.total_amt}
                       </TableCell>
                     </TableRow>
@@ -627,126 +454,15 @@ const Page = () => {
                 </Table>
               </TableContainer>
             </Grid>
-
-            <Grid className="mt-1" item xs={7}>
-              <TableContainer component={Paper}>
-                <Table>
-                  <TableHead
-                    style={{ backgroundColor: "#32A92E", color: "white" }}
-                  >
-                    <TableRow>
-                      <TableCell
-                        sx={{
-                          color: "white",
-                          marginTop: "-10px",
-                          paddingTop: "0px",
-                          paddingBottom: "15px",
-                        }}
-                        align="center"
-                      >
-                        Sr No
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          color: "white",
-                          marginTop: "-10px",
-                          paddingTop: "0px",
-                          paddingBottom: "15px",
-                        }}
-                        align="center"
-                      >
-                        Job Id
-                      </TableCell>
-
-                      <TableCell
-                        sx={{
-                          color: "white",
-                          marginTop: "-10px",
-                          paddingTop: "0px",
-                          paddingBottom: "15px",
-                        }}
-                        align="center"
-                      >
-                        Expected Date
-                      </TableCell>
-
-                      <TableCell
-                        sx={{
-                          color: "white",
-                          marginTop: "-10px",
-                          paddingTop: "0px",
-                          paddingBottom: "15px",
-                        }}
-                        align="center"
-                      >
-                        Job Date
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {invoiceList?.jobs?.map((row, index) => (
-                      <TableRow key={index}>
-                        <TableCell
-                          sx={{
-                            color: "black",
-                            marginTop: "-10px",
-                            paddingTop: "0px",
-                            paddingBottom: "15px",
-                          }}
-                          align="left"
-                        >
-                          {index + 1}
-                        </TableCell>
-                        <TableCell
-                          sx={{
-                            color: "black",
-                            marginTop: "-10px",
-                            paddingTop: "0px",
-                            paddingBottom: "15px",
-                          }}
-                          align="left"
-                        >
-                          {row?.id}
-                        </TableCell>
-                        <TableCell
-                          sx={{
-                            color: "black",
-                            marginTop: "-10px",
-                            paddingTop: "0px",
-                            paddingBottom: "15px",
-                          }}
-                          align="left"
-                        >
-                          {row?.job_date}
-                        </TableCell>
-
-                        <TableCell
-                          sx={{
-                            color: "black",
-                            marginTop: "-10px",
-                            paddingTop: "0px",
-                            paddingBottom: "15px",
-                          }}
-                          align="left"
-                        >
-                          {row?.job_end_time || "no Date"}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Grid>
           </Grid>
 
+          {/* Additional Invoice Details */}
           <Grid className="p-2" container spacing={2}>
             <Grid item xs={10}>
               <div>
                 <div className={styles.totalAmount}>
-                  (
                   {invoiceList?.total_amt &&
                     formatAmountDisplay(invoiceList.total_amt)}
-                  )
                 </div>
 
                 <div className={styles.descrp}>
@@ -757,12 +473,12 @@ const Page = () => {
                 <div className={styles.totalAmount}>Bank Details:</div>
 
                 <div className={styles.Bankdescrp}>
-                  Account Holder : ACCURATE PEST CONTROL SERVICES L.L.C IBAN:
+                  Account Holder: ACCURATE PEST CONTROL SERVICES L.L.C IBAN:
                   AE980400000883216722001
                 </div>
 
                 <div className={styles.Bankdescrp}>
-                  Account: 0883216722001 Bank Name : RAK BANK
+                  Account: 0883216722001 Bank Name: RAK BANK
                 </div>
 
                 <div className={styles.Bankdescrp}>
@@ -772,10 +488,8 @@ const Page = () => {
             </Grid>
           </Grid>
 
+          {/* Ledger Table */}
           <div className="mt-2">
-            {/* <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-              Ledger
-            </Typography> */}
             <TableContainer component={Paper}>
               <Table>
                 <TableHead
@@ -788,9 +502,6 @@ const Page = () => {
                           key={header}
                           sx={{
                             color: "white",
-                            marginTop: "-10px",
-                            paddingTop: "0px",
-                            paddingBottom: "15px",
                             textAlign:
                               header === "Balance" ? "right" : "center",
                           }}
@@ -804,62 +515,13 @@ const Page = () => {
                 <TableBody>
                   {rowData.map((row, index) => (
                     <TableRow key={index}>
-                      <TableCell
-                        sx={{
-                          color: "black",
-                          marginTop: "-10px",
-                          paddingTop: "0px",
-                          paddingBottom: "15px",
-                          fontSize:"10px"
-                        }}
-                        align="left"
-                      >
+                      <TableCell>
                         {format(new Date(row.updated_at), "yyyy-MM-dd")}
                       </TableCell>
-                      <TableCell
-                        sx={{
-                          color: "black",
-                          marginTop: "-10px",
-                          paddingTop: "0px",
-                          paddingBottom: "15px",
-                        }}
-                        align="left"
-                      >
-                        {row.description}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          color: "black",
-                          marginTop: "-10px",
-                          paddingTop: "0px",
-                          paddingBottom: "15px",
-                        }}
-                        align="left"
-                      >
-                        {row.cr_amt}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          color: "black",
-                          marginTop: "-10px",
-                          paddingTop: "0px",
-                          paddingBottom: "15px",
-                        }}
-                        align="left"
-                      >
-                        {row.dr_amt}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          color: "black",
-                          marginTop: "-10px",
-                          paddingTop: "0px",
-                          paddingBottom: "15px",
-                        }}
-                        align="right"
-                      >
-                        {row.cash_balance}
-                      </TableCell>
+                      <TableCell>{row.description}</TableCell>
+                      <TableCell>{row.cr_amt}</TableCell>
+                      <TableCell>{row.dr_amt}</TableCell>
+                      <TableCell align="right">{row.cash_balance}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -867,49 +529,26 @@ const Page = () => {
             </TableContainer>
           </div>
 
-          <Grid className="p-2" container spacing={2}>
+          {/* Signature Section */}
+          <Grid className="p-2 mt-2" container spacing={2}>
             <Grid item xs={6}>
               <Typography variant="body1" sx={{ fontWeight: "bold" }}>
                 {invoiceList?.user?.client?.firm_name}
               </Typography>
             </Grid>
-
-            <Grid className="p-2" item xs={6}>
-              <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-                Accurate Pest Control Services LLC
-              </Typography>
-            </Grid>
           </Grid>
 
-          <Grid className="p-2" container spacing={2}>
+          <Grid container spacing={2}>
             <Grid item xs={6}>
               <Typography variant="body1" sx={{ fontWeight: "bold" }}>
                 _________________________
               </Typography>
-
-              {/* <Typography variant="body2">Signature</Typography>
-              <Typography variant="body2">Date :</Typography> */}
-
-              {/* <Typography className="" variant="body2">
-                {invoiceList?.user?.name}
-              </Typography> */}
-              {/* <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-                Manager
-              </Typography> */}
-            </Grid>
-
-            <Grid item xs={6}>
-              <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-                _________________________
-              </Typography>
-
-              {/* <Typography variant="body2">Signature</Typography>
-              <Typography variant="body2">Date :</Typography> */}
             </Grid>
           </Grid>
         </Layout>
       </div>
 
+      {/* PDF Generation Button */}
       <div className="text-center mt-3">
         <Button
           variant="contained"

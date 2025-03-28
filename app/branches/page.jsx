@@ -160,6 +160,7 @@ const Page = () => {
             <Table>
               <TableHead>
                 <TableRow>
+                  <TableCell>Sr No</TableCell>
                   <TableCell>ID</TableCell>
                   <TableCell>Name</TableCell>
                   <TableCell>Location</TableCell>
@@ -173,8 +174,9 @@ const Page = () => {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  rows.map((row) => (
-                    <TableRow key={row.id}>
+                  rows.map((row, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{index + 1}</TableCell>
                       <TableCell>{row.id}</TableCell>
                       <TableCell>{row.name}</TableCell>
                       <TableCell>{row.address}</TableCell>
