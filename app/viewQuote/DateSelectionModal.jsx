@@ -169,14 +169,26 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
     }
   }, [selectedDates, durationMonths, isCustomJob]);
 
-  useEffect(() => {
-    if (durationMonths) {
-      const dates = generateWeeklyDates(selectedTime);
-      validateMonthlyDates(dates);
-      setGeneratedDates(dates);
+// Add this useEffect to track checkbox selections
+useEffect(() => {
+  // Count total selected checkboxes across all weeks
+  const totalSelected = Object.values(weeklySelection).reduce((count, weekDays) => {
+    return count + Object.values(weekDays).filter(Boolean).length;
+  }, 0);
+  
+  // Update validation state based on selections
+  if (tabIndex === 1) { // Only for Day Wise tab
+    setIsValidTotalDates(totalSelected === totalServices);
+    
+    if (totalSelected > totalServices) {
+      setErrorMessage(`Too many days selected. Please select only ${totalServices} days.`);
+    } else if (totalSelected < totalServices) {
+      setErrorMessage(`Not enough days selected. Please select ${totalServices} days.`);
+    } else {
+      setErrorMessage("");
     }
-  }, [weeklySelection, durationMonths]);
-
+  }
+}, [weeklySelection, totalServices, tabIndex]);
   // Existing helper functions
   const countDatesPerMonth = (dates) => {
     const counts = {};
@@ -316,7 +328,30 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
     setErrorMessage("");
   };
 
+  // Modify the handleWeekDayChange function
   const handleWeekDayChange = (week, day) => {
+    // Calculate how many checkboxes are currently selected
+    const currentSelectedCount = Object.values(weeklySelection).reduce(
+      (count, weekDays) => {
+        return count + Object.values(weekDays).filter(Boolean).length;
+      },
+      0
+    );
+
+    // Check if trying to select a new checkbox
+    const isSelecting = !weeklySelection[week][day];
+
+    // If selecting and already at max allowed, prevent selection
+    if (isSelecting && currentSelectedCount >= totalServices) {
+      // Show error message
+      setErrorMessage(`You can only select ${totalServices} days per month`);
+      return;
+    }
+
+    // Clear error message if deselecting or within limits
+    setErrorMessage("");
+
+    // Update the weekly selection state
     const newWeeklySelection = {
       ...weeklySelection,
       [week]: {
@@ -325,13 +360,26 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
       },
     };
 
+    // Apply the state change
+    setWeeklySelection(newWeeklySelection);
+
+    // Generate dates based on the new selection
     const potentialDates = generateWeeklyDates(
       selectedTime,
       newWeeklySelection
     );
-    if (validateMonthlyDates(potentialDates)) {
-      setWeeklySelection(newWeeklySelection);
-    }
+    setGeneratedDates(potentialDates);
+
+    // Count how many days are now selected
+    const newSelectedCount = Object.values(newWeeklySelection).reduce(
+      (count, weekDays) => {
+        return count + Object.values(weekDays).filter(Boolean).length;
+      },
+      0
+    );
+
+    // Update validation state
+    setIsValidTotalDates(newSelectedCount === totalServices);
   };
 
   const generateWeeklyDates = (timeString, weekSelection = weeklySelection) => {
@@ -386,8 +434,6 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
         },
       ],
     };
-
-    console.log("data to send", dataToSend);
 
     try {
       const response = await api.postDataToken(
@@ -552,9 +598,11 @@ const DateTimeSelectionModal = ({ open, onClose, initialDates, quoteData }) => {
           color="primary"
           disabled={
             loading ||
-            (isCustomJob
-              ? selectedDates.length !== 1
-              : selectedDates.length !== totalServices)
+            (tabIndex === 0
+              ? isCustomJob
+                ? selectedDates.length !== 1
+                : selectedDates.length !== totalServices
+              : !isValidTotalDates)
           }
         >
           {loading ? <CircularProgress size={24} /> : "Save Dates"}
