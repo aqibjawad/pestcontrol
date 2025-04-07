@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTermHook } from "./useTermHook";
 import Loading from "../../components/generic/Loading";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import GreenButton from "@/components/generic/GreenButton";
-import { Editor } from "@tinymce/tinymce-react";
+import dynamic from "next/dynamic";
 
 import {
   Table,
@@ -16,8 +16,13 @@ import {
   TableRow,
   Paper,
   CircularProgress,
+  Button,
 } from "@mui/material";
 import withAuth from "@/utils/withAuth";
+
+// Import React Quill dynamically to avoid SSR issues
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+import "react-quill/dist/quill.snow.css";
 
 const Page = () => {
   const {
@@ -25,12 +30,73 @@ const Page = () => {
     brandsList,
     name,
     setName,
-    text,
-    setText,
     assignStock,
+    isEditing,
+    setIsEditing,
+    handleEditItem,
+    currentItemId,
   } = useTermHook();
 
+  // Make sure text is initialized with a non-empty value
+  const [text, setText] = useState("<p>Add your text here...</p>");
   const [loadingSubmit, setLoadingSubmit] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Quill editor modules and formats
+  const modules = {
+    toolbar: [
+      [{ header: [1, 2, false] }],
+      ["bold", "italic", "underline", "strike", "blockquote"],
+      [
+        { list: "ordered" },
+        { list: "bullet" },
+        { indent: "-1" },
+        { indent: "+1" },
+      ],
+      ["link", "image"],
+      ["clean"],
+    ],
+    clipboard: {
+      matchVisual: false,
+    },
+  };
+
+  const formats = [
+    "header",
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "blockquote",
+    "list",
+    "bullet",
+    "indent",
+    "link",
+    "image",
+  ];
+
+  // Handle text change with validation
+  const handleTextChange = (content) => {
+    // Ensure content is a string and not empty or just HTML tags
+    if (content && content.trim() !== "") {
+      setText(content);
+      setError(null);
+    } else {
+      setText("");
+      setError("The text field cannot be empty");
+    }
+  };
+
+  const handleUpdateClick = (item) => {
+    const itemText = handleEditItem(item);
+    setText(itemText);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setName("");
+    setText("<p>Add your text here...</p>");
+  };
 
   const viewList = () => (
     <TableContainer component={Paper}>
@@ -39,7 +105,7 @@ const Page = () => {
           <TableRow>
             <TableCell>Name</TableCell>
             <TableCell>Text</TableCell>
-            <TableCell>Created At</TableCell>
+            <TableCell>Action</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -56,7 +122,13 @@ const Page = () => {
                   <div dangerouslySetInnerHTML={{ __html: item.text }} />
                 </TableCell>
                 <TableCell>
-                  <div>{new Date(item.created_at).toLocaleDateString()}</div>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleUpdateClick(item)}
+                  >
+                    Update
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -66,11 +138,28 @@ const Page = () => {
   );
 
   const handleSave = async () => {
+    // Validate text before submitting
+    if (
+      !text ||
+      text.trim() === "" ||
+      text === "<p></p>" ||
+      text === "<p><br></p>"
+    ) {
+      setError("The text field is required and cannot be empty");
+      return;
+    }
+
     setLoadingSubmit(true);
     try {
-      await assignStock();
+      // Explicitly pass both name and text to your assign function
+      await assignStock({
+        name: name,
+        text: text,
+      });
+      setText("<p>Add your text here...</p>"); // Reset text after successful save
     } catch (error) {
-      console.error("Error assigning stock:", error);
+      console.error("Error:", error);
+      setError(error.message || "Failed to save");
     } finally {
       setLoadingSubmit(false);
     }
@@ -97,52 +186,41 @@ const Page = () => {
 
             <div className="mt-5">
               <div className="text-sm font-medium mb-2">Enter Text</div>
-              <Editor
-                apiKey="gz7lzl53pn7erx245ajl5zprzl79zhcadvybrd9hzbil53sv"
-                value={text}
-                onEditorChange={(content) => setText(content)}
-                init={{
-                  height: 300,
-                  menubar: false,
-                  plugins: [
-                    "advlist",
-                    "autolink",
-                    "lists",
-                    "link",
-                    "image",
-                    "charmap",
-                    "preview",
-                    "anchor",
-                    "searchreplace",
-                    "visualblocks",
-                    "code",
-                    "fullscreen",
-                    "insertdatetime",
-                    "media",
-                    "table",
-                    "code",
-                    "help",
-                    "wordcount",
-                  ],
-                  toolbar:
-                    "undo redo | blocks | " +
-                    "bold italic forecolor | alignleft aligncenter " +
-                    "alignright alignjustify | bullist numlist outdent indent | " +
-                    "removeformat | help",
-                }}
-              />
+              {typeof window !== "undefined" && (
+                <ReactQuill
+                  className="quill-editor"
+                  theme="snow"
+                  value={text}
+                  onChange={handleTextChange}
+                  modules={modules}
+                  formats={formats}
+                />
+              )}
+              {error && <div className="text-red-500 mt-2">{error}</div>}
             </div>
-            <div className="mt-20">
+            <div className="mt-20 flex space-x-4">
               <GreenButton
                 onClick={handleSave}
-                title={loadingSubmit ? "Saving..." : "Save"}
-                disabled={loadingSubmit}
+                title={
+                  loadingSubmit ? "Saving..." : isEditing ? "Update" : "Save"
+                }
+                disabled={loadingSubmit || !text || text.trim() === ""}
                 startIcon={
                   loadingSubmit ? (
                     <CircularProgress size={20} color="inherit" />
                   ) : null
                 }
               />
+
+              {isEditing && (
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={handleCancelEdit}
+                >
+                  Cancel
+                </Button>
+              )}
             </div>
           </div>
         </div>

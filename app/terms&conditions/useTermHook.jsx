@@ -2,21 +2,16 @@
 
 import { useState, useEffect } from "react";
 import APICall from "@/networkUtil/APICall";
-import {
-  termsCond,
-} from "@/networkUtil/Constants";
+import { termsCond } from "@/networkUtil/Constants";
 
 export const useTermHook = () => {
   const api = new APICall();
   const [fetchingData, setFetchingData] = useState(false);
   const [brandsList, setBrandsList] = useState(null);
   const [name, setName] = useState("");
-  const [text, setText] = useState("");
   const [sendingData, setSendingData] = useState(false);
-
-  const [employeesList, setEmployeesList] = useState([]);
-  const [employees, setEmployessList] = useState([]);
- 
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentItemId, setCurrentItemId] = useState(null);
 
   useEffect(() => {
     getAllBrands();
@@ -34,43 +29,66 @@ export const useTermHook = () => {
     }
   };
 
-  const assignStock = async () => {
+  const assignStock = async (data) => {
+    if (!data || !data.name || !data.text) {
+      throw new Error("Name and text are required");
+    }
 
     setSendingData(true);
     try {
+      let endpoint = `${termsCond}/create`;
+      let successMessage = "Terms and Conditions has been assigned";
+
+      // If we're in edit mode, use the update endpoint
+      if (isEditing && currentItemId) {
+        endpoint = `${termsCond}/update/${currentItemId}`;
+        successMessage = "Terms and Conditions has been updated";
+      }
+
       const obj = {
-        name: name,
-        text: text,
+        name: data.name,
+        text: data.text,
       };
-      const response = await api.postFormDataWithToken(
-        `${termsCond}/create`,
-        obj
-      );
+
+      const response = await api.postFormDataWithToken(endpoint, obj);
+
       if (response.status === "success") {
-        alert("Terms and Conditions has been assigned");
+        alert(successMessage);
         setName("");
-        setText("");
+        setIsEditing(false);
+        setCurrentItemId(null);
         await getAllBrands();
+        return response;
       } else {
-        alert("Could not assign the stock, please try again");
+        throw new Error("Operation failed, please try again");
       }
     } catch (error) {
-      console.error("Error assigning stock:", error);
-      alert("An error occurred while assigning the stock");
+      console.error("Error:", error);
+      throw error;
     } finally {
       setSendingData(false);
     }
   };
 
+  const handleEditItem = (item) => {
+    setName(item.name);
+    setIsEditing(true);
+    setCurrentItemId(item.id);
+    return item.text; // Return text to be set in the component
+  };
+
   return {
     fetchingData,
     brandsList,
-    employeesList,
-    employees,
+    name,
     setName,
-    setText,
     sendingData,
     assignStock,
+    getAllBrands,
+    isEditing,
+    setIsEditing,
+    handleEditItem,
+    currentItemId,
   };
 };
 
