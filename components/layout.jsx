@@ -2,17 +2,15 @@ import React from "react";
 import { Box, Grid } from "@mui/material";
 
 const LayoutComponent = ({ children }) => {
-  const a4Width = 750; // 210mm
-  const a4Height = 1070; // 297mm
-
   return (
     <Box
       sx={{
-        width: `${a4Width}px`,
-        height: `${a4Height}px`,
-        margin: "auto",
+        marginLeft: "-0.5rem",
+        marginTop: "-1rem",
+        marginRight: "5rem",
         position: "relative",
-        // border: "1px solid black",
+        width: "100%",
+        height: "100%",
       }}
     >
       <div sx={{ height: "100%" }}>
@@ -21,7 +19,7 @@ const LayoutComponent = ({ children }) => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            position: "relative", // Added for absolute positioning of right image
+            position: "relative",
           }}
         >
           <img
@@ -35,9 +33,8 @@ const LayoutComponent = ({ children }) => {
             }}
           />
 
-          {/* New image added to the right side of the logo */}
           <img
-            src="/approved_by_logo.svg" // Replace with your actual image path
+            src="/approved_by_logo.svg"
             alt="Right Logo"
             style={{
               maxWidth: "100px",
@@ -96,7 +93,7 @@ const LayoutComponent = ({ children }) => {
           style={{
             maxWidth: "100%",
             objectFit: "contain",
-            marginTop: "7rem",
+            marginTop: "12rem", // Reduced from 9rem to 2rem
           }}
         />
       </div>

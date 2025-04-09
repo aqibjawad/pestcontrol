@@ -165,7 +165,6 @@ const InvoiceDetails = () => {
 
       const filename = `invoice_${Date.now()}.pdf`;
       const opt = {
-        margin: 1,
         filename: filename,
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: {
@@ -184,7 +183,10 @@ const InvoiceDetails = () => {
       const html2pdfInstance = await import("html2pdf.js");
       const html2pdf = html2pdfInstance.default || html2pdfInstance;
 
-      // Generate PDF directly as blob for the email without saving locally
+      // First, generate and save PDF locally
+      // await html2pdf().from(element).set(opt).save();
+
+      // Then generate PDF as blob for the email without saving locally again
       const pdfBlob = await html2pdf().from(element).set(opt).outputPdf("blob");
 
       const pdfFile = new File([pdfBlob], filename, {
@@ -330,6 +332,21 @@ const InvoiceDetails = () => {
 
   return (
     <>
+      {/* Loading overlay that shows when uploading to Cloudinary */}
+      {uploadingToCloudinary && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-md shadow-lg text-center">
+            <CircularProgress size={40} />
+            <Typography variant="h6" className="mt-4">
+              Preparing invoice and sending email...
+            </Typography>
+            <Typography variant="body2" className="mt-2">
+              Please don't close this window
+            </Typography>
+          </div>
+        </div>
+      )}
+
       <div id="pdf-container">
         <Layout>
           <Grid className="p-2" container spacing={2}>
@@ -360,17 +377,17 @@ const InvoiceDetails = () => {
                 </Typography>
               </div>
 
-              {/* Contact Person Section */}
-              <div className="mt-5">
-                <Typography className="" variant="body2">
-                  Contact Person
-                </Typography>
-                <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-                  Manager
-                </Typography>
-                <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-                  {invoiceList?.user?.client?.mobile_number}
-                </Typography>
+              {/* Additional Invoice Reference */}
+              <div
+                style={{ textAlign: "left", marginTop: "1rem" }}
+                className={styles.totalAmount}
+              >
+                APCS{invoiceList?.user?.client?.referencable_id}PT
+                {invoiceList?.invoiceable?.billing_method === "monthly"
+                  ? 1
+                  : invoiceList?.invoiceable?.billing_method === "service"
+                  ? 3
+                  : "unknown"}
               </div>
             </Grid>
 
@@ -427,17 +444,16 @@ const InvoiceDetails = () => {
                 </tbody>
               </table>
 
-              {/* Additional Invoice Reference */}
-              <div
-                style={{ textAlign: "right" }}
-                className={styles.totalAmount}
-              >
-                APCS{invoiceList?.user?.client?.referencable_id}PT
-                {invoiceList?.invoiceable?.billing_method === "monthly"
-                  ? 1
-                  : invoiceList?.invoiceable?.billing_method === "service"
-                  ? 3
-                  : "unknown"}
+              <div className="mt-5" style={{ textAlign: "right" }}>
+                <Typography className="" variant="body2">
+                  Contact Person
+                </Typography>
+                <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                  Manager
+                </Typography>
+                <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                  {invoiceList?.user?.client?.mobile_number}
+                </Typography>
               </div>
             </Grid>
           </Grid>
@@ -550,7 +566,7 @@ const InvoiceDetails = () => {
           </div>
 
           {/* Signature Section */}
-          <Grid className="p-2 mt-2" container spacing={2}>
+          {/* <Grid className="p-2 mt-2" container spacing={2}>
             <Grid item xs={6}>
               <Typography variant="body1" sx={{ fontWeight: "bold" }}>
                 {invoiceList?.user?.client?.firm_name}
@@ -564,7 +580,7 @@ const InvoiceDetails = () => {
                 _________________________
               </Typography>
             </Grid>
-          </Grid>
+          </Grid> */}
         </Layout>
       </div>
     </>
