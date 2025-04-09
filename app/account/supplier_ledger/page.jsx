@@ -329,7 +329,7 @@ const Page = () => {
                     <TableCell>{row.cash_balance}</TableCell>
                     <TableCell>
                       <Link
-                        href={`/account/purchaseOrderDetails?id=${row?.purchase_order?.id}`}
+                        href={`/account/purchaseOrderDetails?id=${row?.delivery_note?.id}`}
                       >
                         View
                       </Link>

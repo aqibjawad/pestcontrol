@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import tableStyles from "../../../styles/upcomingJobsStyles.module.css";
 import APICall from "@/networkUtil/APICall";
-import { purchaseOrder } from "@/networkUtil/Constants";
+import { deliveryOrder } from "@/networkUtil/Constants";
 import { Skeleton } from "@mui/material";
 import withAuth from "@/utils/withAuth";
 
@@ -45,11 +45,13 @@ const PurchaseOrder = () => {
     setLoading(true);
     try {
       const response = await api.getDataWithToken(
-        `${purchaseOrder}/${orderId}`
+        `${deliveryOrder}/${orderId}`
       );
       console.log("API response data:", response.data);
       setOrderDetails(response.data);
-      setTableDetails(response.data.order_details || []);
+
+      // Update this line to use note_details instead of order_details
+      setTableDetails(response.data.note_details || []);
     } catch (error) {
       console.error("Error fetching order details:", error);
     } finally {
@@ -58,7 +60,7 @@ const PurchaseOrder = () => {
   };
 
   const listTable = () => {
-    if (!Array.isArray(tableDetails)) {
+    if (!Array.isArray(tableDetails) || tableDetails.length === 0) {
       return <div>No data available</div>;
     }
 
@@ -112,14 +114,20 @@ const PurchaseOrder = () => {
                 <td className="py-2 px-4">
                   {row.product?.product_type || "N/A"}
                 </td>
-                <td className="py-2 px-4">{row.product.unit || "N/A"}</td>
-                <td className="py-2 px-4">{row.product.mfg_date || "N/A"}</td>
-                <td className="py-2 px-4">{row.product.exp_date || "N/A"}</td>
-                <td className="py-2 px-4">{row.product.moccae_approval}</td>
-                <td className="py-2 px-4">{row.product.moccae_strat_date}</td>
-                <td className="py-2 px-4">{row.product.moccae_exp_date}</td>
-                <td className="py-2 px-4">{row.quantity}</td>
-                <td className="py-2 px-4">{row.total}</td>
+                <td className="py-2 px-4">{row.product?.unit || "N/A"}</td>
+                <td className="py-2 px-4">{row.product?.mfg_date || "N/A"}</td>
+                <td className="py-2 px-4">{row.product?.exp_date || "N/A"}</td>
+                <td className="py-2 px-4">
+                  {row.product?.moccae_approval || "N/A"}
+                </td>
+                <td className="py-2 px-4">
+                  {row.product?.moccae_strat_date || "N/A"}
+                </td>
+                <td className="py-2 px-4">
+                  {row.product?.moccae_exp_date || "N/A"}
+                </td>
+                <td className="py-2 px-4">{row.quantity || "N/A"}</td>
+                <td className="py-2 px-4">{row.total || "N/A"}</td>
               </tr>
             ))}
           </tbody>
@@ -148,7 +156,7 @@ const PurchaseOrder = () => {
       <div
         style={{ fontSize: "16px", fontFamily: "semibold", padding: "30px" }}
       >
-        {loading ? <Skeleton width="30%" /> : orderDetails?.po_id}
+        {loading ? <Skeleton width="30%" /> : orderDetails?.dn_id}
       </div>
       <div className="grid grid-cols-12 gap-4 mt-5">
         <div className="col-span-12">

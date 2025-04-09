@@ -301,12 +301,6 @@ const ListServiceTable = ({
                       style={{ width: "10%" }}
                       className="py-2 px-4 border-b border-gray-200 text-left"
                     >
-                      Payment Date
-                    </th>
-                    <th
-                      style={{ width: "10%" }}
-                      className="py-2 px-4 border-b border-gray-200 text-left"
-                    >
                       Reference Category
                     </th>
                     <th
@@ -366,11 +360,6 @@ const ListServiceTable = ({
                           </td>
                           <td style={{ width: "10%" }} className="py-2 px-4">
                             {row.cheque_no || 0}
-                          </td>
-                          <td style={{ width: "10%" }} className="py-2 px-4">
-                            {row.updated_at
-                              ? new Date(row.updated_at).toLocaleDateString()
-                              : "N/A"}
                           </td>
                           <td style={{ width: "10%" }} className="py-2 px-4">
                             {row.entry_type === "supplier_payment"
