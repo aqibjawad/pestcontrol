@@ -22,7 +22,6 @@ import {
   TableContainer,
   Paper,
   CircularProgress,
-  Button,
 } from "@mui/material";
 
 import styles from "../../styles/invoiceDetails.module.css";
@@ -51,6 +50,7 @@ const InvoiceDetails = () => {
   const [error, setError] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(true);
   const [uploadingToCloudinary, setUploadingToCloudinary] = useState(false);
+  const [pdfGenerated, setPdfGenerated] = useState(false);
 
   const itemableIds =
     invoiceList?.details?.map((detail) => detail.itemable_id) || [];
@@ -152,8 +152,9 @@ const InvoiceDetails = () => {
   };
 
   // Cloudinary Upload Function
-
   const uploadToCloudinary = async () => {
+    if (pdfGenerated || uploadingToCloudinary || !invoiceList?.user?.id) return;
+
     try {
       setUploadingToCloudinary(true);
 
@@ -195,29 +196,6 @@ const InvoiceDetails = () => {
       }
 
       // Continue with your original API call logic
-      const formData = new FormData();
-      //   formData.append("user_id", invoiceList.user.id);
-      //   formData.append("subject", "Invoice PDF");
-      //   formData.append("file", pdfFile);
-      //   formData.append(
-      //     "html",
-      //     `
-      //   <h1>${invoiceList?.user?.client?.firm_name || "Client"}</h1>
-      //   <h2>Service Invoice IDs: ${itemableIds.join(", ") || "N/A"}</h2>
-      //   <h2>Services Dates: ${itemableDates.join(", ") || "N/A"}</h2>
-
-      //   <footer style="text-align: center; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 10px;">
-      //     <div style="margin-top: 15px; font-size: 0.9em; color: #333;">
-      //       <h4>Accurate Pest Control Services LLC</h4>
-      //       <p style="margin: 5px 0;">Accurate Pest Control Services LLC</p>
-      //       <p style="margin: 5px 0;">
-      //         Email: accuratepestcontrolcl.ae | Phone: +971 52 449 6173
-      //       </p>
-      //     </div>
-      //   </footer>
-      // `
-      //   );
-
       const data = {
         user_id: invoiceList.user.id,
         subject: "Invoice PDF",
@@ -248,6 +226,7 @@ const InvoiceDetails = () => {
       }
 
       alert("Invoice has been downloaded and sent via email successfully!");
+      setPdfGenerated(true);
       return response;
     } catch (error) {
       console.error("Error in uploadToCloudinary:", error);
@@ -303,6 +282,18 @@ const InvoiceDetails = () => {
       fetchData(invoiceList.user.id);
     }
   }, [invoiceList]);
+
+  // Auto-trigger PDF generation when page is fully loaded
+  useEffect(() => {
+    if (!loadingDetails && invoiceList && rowData.length > 0 && !pdfGenerated) {
+      // Small delay to ensure the DOM is fully rendered
+      const timer = setTimeout(() => {
+        uploadToCloudinary();
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [loadingDetails, invoiceList, rowData, pdfGenerated]);
 
   // Render loading state
   if (loadingDetails) {
@@ -575,19 +566,6 @@ const InvoiceDetails = () => {
             </Grid>
           </Grid>
         </Layout>
-      </div>
-
-      {/* PDF Generation Button */}
-      <div className="text-center mt-3">
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={uploadToCloudinary}
-          // disabled={uploadingToCloudinary}
-          style={{ marginLeft: "10px" }}
-        >
-          Download PDF
-        </Button>
       </div>
     </>
   );

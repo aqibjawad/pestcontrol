@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import ClientDetails from "./clientDetails";
 import ClientRecords from "./clientRecords";
-import { Grid, Button } from "@mui/material";
+import { Grid, Button, Typography, CircularProgress } from "@mui/material";
 import styles from "../../styles/viewQuote.module.css";
 import APICall from "@/networkUtil/APICall";
 import { job, sendEmail } from "@/networkUtil/Constants";
@@ -107,7 +107,7 @@ const Page = () => {
 
       // Generate PDF from a specific container instead of entire body
       const element = document.getElementById("pdf-container");
-      const filename = `invoice_${Date.now()}.pdf`;
+      const filename = `servicereport_${Date.now()}.pdf`;
 
       // Setup options for PDF generation
       const opt = {
@@ -142,7 +142,7 @@ const Page = () => {
 
       const data = {
         user_id: serviceReportList?.job?.user?.id,
-        subject: "Invoice PDF",
+        subject: "Service Report",
         file: pdfFile,
         html: `
       <h1> ${serviceReportList?.job?.user?.name} </h1>
@@ -179,45 +179,60 @@ const Page = () => {
   };
 
   return (
-    <div id="pdf-container">
-      <Layout2 branchId={serviceReportList?.job?.quote?.branch?.id}>
-        <div style={{textAlign:"center", fontWeight:"bold"}}>
-          Service Report
-        </div>
-        <ClientDetails serviceReportList={serviceReportList} /> <hr />
-        <ClientRecords serviceReportList={serviceReportList} />
-        <div className="flex">
-          <div className="flex-grow"></div>
-
-          <div>
-            <div className="mt-5 contractTable">Clients Signature</div>
-            <img
-              style={{ height: "100px", width: "100%", objectFit: "contain" }}
-              src={serviceReportList?.signature_img}
-            />
+    <>
+      {/* Loading overlay that shows when uploading to Cloudinary */}
+      {uploadingToCloudinary && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-md shadow-lg text-center">
+            <CircularProgress size={40} />
+            <Typography variant="h6" className="mt-4">
+              Preparing invoice and sending email...
+            </Typography>
+            <Typography variant="body2" className="mt-2">
+              Please don't close this window
+            </Typography>
           </div>
         </div>
-      </Layout2>
+      )}
 
-      <div className="fixed bottom-4 right-4 flex flex-col space-y-2 print:hidden">
-        <button
-          onClick={handlePrint}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md shadow-md"
-        >
-          Print
-        </button>
+      <div id="pdf-container">
+        <Layout2 branchId={serviceReportList?.job?.quote?.branch?.id}>
+          <div style={{ textAlign: "center", fontWeight: "bold" }}>
+            Service Report
+          </div>
+          <ClientDetails serviceReportList={serviceReportList} /> <hr />
+          <ClientRecords serviceReportList={serviceReportList} />
+          <div className="flex">
+            <div className="flex-grow"></div>
 
-        {/* Send Email button removed */}
-      </div>
+            <div>
+              <div className="mt-5 contractTable">Clients Signature</div>
+              <img
+                style={{ height: "100px", width: "100%", objectFit: "contain" }}
+                src={serviceReportList?.signature_img}
+              />
+            </div>
+          </div>
+        </Layout2>
 
-      <style jsx global>{`
-        @media print {
-          .print-button {
-            display: none !important;
+        <div className="fixed bottom-4 right-4 flex flex-col space-y-2 print:hidden">
+          <button
+            onClick={handlePrint}
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md shadow-md"
+          >
+            Print
+          </button>
+        </div>
+
+        <style jsx global>{`
+          @media print {
+            .print-button {
+              display: none !important;
+            }
           }
-        }
-      `}</style>
-    </div>
+        `}</style>
+      </div>
+    </>
   );
 };
 
