@@ -2,7 +2,6 @@ import React from "react";
 import { Box, Grid } from "@mui/material";
 
 const LayoutComponent = ({ children }) => {
-  // A4 size in pixels (assuming 96 DPI)
   const a4Width = 750; // 210mm
   const a4Height = 1070; // 297mm
 
@@ -13,7 +12,7 @@ const LayoutComponent = ({ children }) => {
         height: `${a4Height}px`,
         margin: "auto",
         position: "relative",
-        border: "1px solid black",
+        // border: "1px solid black",
       }}
     >
       <div sx={{ height: "100%" }}>
@@ -22,6 +21,7 @@ const LayoutComponent = ({ children }) => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+            position: "relative", // Added for absolute positioning of right image
           }}
         >
           <img
@@ -31,7 +31,21 @@ const LayoutComponent = ({ children }) => {
               maxWidth: "100px",
               maxHeight: "100px",
               objectFit: "contain",
-              marginTop:"1rem"
+              marginTop: "1rem",
+            }}
+          />
+
+          {/* New image added to the right side of the logo */}
+          <img
+            src="/approved_by_logo.svg" // Replace with your actual image path
+            alt="Right Logo"
+            style={{
+              maxWidth: "100px",
+              maxHeight: "100px",
+              objectFit: "contain",
+              marginTop: "1rem",
+              position: "absolute",
+              right: "0",
             }}
           />
         </div>
@@ -61,7 +75,7 @@ const LayoutComponent = ({ children }) => {
               position: "absolute",
               marginLeft: "5rem",
               marginTop: "2rem",
-              marginRight:"2rem"
+              marginRight: "2rem",
             }}
           >
             {children}
@@ -82,7 +96,7 @@ const LayoutComponent = ({ children }) => {
           style={{
             maxWidth: "100%",
             objectFit: "contain",
-            marginTop:"8rem"
+            marginTop: "7rem",
           }}
         />
       </div>

@@ -267,7 +267,7 @@ const ClientRecords = ({ serviceReportList, loading }) => {
           style={{
             marginTop: "-10px",
             paddingTop: "0px",
-            paddingBottom: "15px",
+            fontSize:"12px"
           }}
           className={styles.areaHead}
         >
@@ -283,6 +283,7 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                     marginTop: "-10px",
                     paddingTop: "0px",
                     paddingBottom: "15px",
+                    fontSize: "10px",
                   }}
                 >
                   Inspected Area
@@ -293,6 +294,7 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                     marginTop: "-10px",
                     paddingTop: "0px",
                     paddingBottom: "15px",
+                    fontSize: "10px",
                   }}
                 >
                   Infection Level
@@ -303,6 +305,7 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                     marginTop: "-10px",
                     paddingTop: "0px",
                     paddingBottom: "15px",
+                    fontSize: "10px",
                   }}
                 >
                   Manifested Area
@@ -313,6 +316,7 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                     marginTop: "-10px",
                     paddingTop: "0px",
                     paddingBottom: "15px",
+                    fontSize: "10px",
                   }}
                 >
                   Report and Follow Up
@@ -329,6 +333,7 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                           marginTop: "-10px",
                           paddingTop: "0px",
                           paddingBottom: "15px",
+                          fontSize: "10px",
                         }}
                       >
                         {row.inspected_areas}
@@ -338,6 +343,7 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                           marginTop: "-10px",
                           paddingTop: "0px",
                           paddingBottom: "15px",
+                          fontSize: "10px",
                         }}
                       >
                         {row.infestation_level}
@@ -347,6 +353,7 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                           marginTop: "-10px",
                           paddingTop: "0px",
                           paddingBottom: "15px",
+                          fontSize: "10px",
                         }}
                       >
                         {row.manifested_areas}
@@ -356,6 +363,7 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                           marginTop: "-10px",
                           paddingTop: "0px",
                           paddingBottom: "15px",
+                          fontSize: "10px",
                         }}
                       >
                         {row.report_and_follow_up_detail}
@@ -373,7 +381,7 @@ const ClientRecords = ({ serviceReportList, loading }) => {
             style={{
               marginTop: "-10px",
               paddingTop: "0px",
-              paddingBottom: "15px",
+              fontSize:"12px"
             }}
             className={styles.areaHead}
           >
@@ -389,6 +397,7 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                       marginTop: "-10px",
                       paddingTop: "0px",
                       paddingBottom: "15px",
+                      fontSize: "10px",
                     }}
                   >
                     Product
@@ -399,29 +408,10 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                       marginTop: "-10px",
                       paddingTop: "0px",
                       paddingBottom: "15px",
-                    }}
-                  >
-                    Dose
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      color: "white",
-                      marginTop: "-10px",
-                      paddingTop: "0px",
-                      paddingBottom: "15px",
+                      fontSize: "10px",
                     }}
                   >
                     Quantity
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      color: "white",
-                      marginTop: "-10px",
-                      paddingTop: "0px",
-                      paddingBottom: "15px",
-                    }}
-                  >
-                    Total
                   </TableCell>
                 </TableRow>
               </TableHead>
@@ -435,6 +425,7 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                             marginTop: "-10px",
                             paddingTop: "0px",
                             paddingBottom: "15px",
+                            fontSize: "10px",
                           }}
                         >
                           {row?.product?.product_name}
@@ -444,27 +435,10 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                             marginTop: "-10px",
                             paddingTop: "0px",
                             paddingBottom: "15px",
-                          }}
-                        >
-                          {row.dose}
-                        </TableCell>
-                        <TableCell
-                          sx={{
-                            marginTop: "-10px",
-                            paddingTop: "0px",
-                            paddingBottom: "15px",
+                            fontSize: "10px",
                           }}
                         >
                           {row.qty}
-                        </TableCell>
-                        <TableCell
-                          sx={{
-                            marginTop: "-10px",
-                            paddingTop: "0px",
-                            paddingBottom: "15px",
-                          }}
-                        >
-                          {row.total}
                         </TableCell>
                       </TableRow>
                     ))}

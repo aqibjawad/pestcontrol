@@ -21,6 +21,7 @@ const LayoutComponent = ({ children }) => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+            position: "relative", // Added for absolute positioning of right image
           }}
         >
           <img
@@ -31,6 +32,20 @@ const LayoutComponent = ({ children }) => {
               maxHeight: "100px",
               objectFit: "contain",
               marginTop: "1rem",
+            }}
+          />
+          
+          {/* New image added to the right side of the logo */}
+          <img
+            src="/approved_by_logo.svg" // Replace with your actual image path
+            alt="Right Logo"
+            style={{
+              maxWidth: "100px",
+              maxHeight: "100px",
+              objectFit: "contain",
+              marginTop: "1rem",
+              position: "absolute",
+              right: "0",
             }}
           />
         </div>

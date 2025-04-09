@@ -4,10 +4,10 @@ import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Layout from "../../components/layout";
 import { format } from "date-fns";
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
 
-const html2pdf = dynamic(() => import('html2pdf.js'), {
-  ssr: false
+const html2pdf = dynamic(() => import("html2pdf.js"), {
+  ssr: false,
 });
 
 import {
@@ -152,6 +152,7 @@ const InvoiceDetails = () => {
   };
 
   // Cloudinary Upload Function
+
   const uploadToCloudinary = async () => {
     try {
       setUploadingToCloudinary(true);
@@ -178,7 +179,13 @@ const InvoiceDetails = () => {
         },
       };
 
-      const pdfBlob = await html2pdf().set(opt).from(element).outputPdf("blob");
+      // Generate the PDF using the correct method chain for html2pdf.js
+      const html2pdfInstance = await import("html2pdf.js");
+      const html2pdf = html2pdfInstance.default || html2pdfInstance;
+
+      // Generate PDF directly as blob for the email without saving locally
+      const pdfBlob = await html2pdf().from(element).set(opt).outputPdf("blob");
+
       const pdfFile = new File([pdfBlob], filename, {
         type: "application/pdf",
       });
@@ -187,30 +194,52 @@ const InvoiceDetails = () => {
         throw new Error("User ID is missing");
       }
 
+      // Continue with your original API call logic
       const formData = new FormData();
-      formData.append("user_id", invoiceList.user.id);
-      formData.append("subject", "Invoice PDF");
-      formData.append("file", pdfFile);
-      formData.append(
-        "html",
-        `
-        <h1>${invoiceList?.user?.client?.firm_name || "Client"}</h1>
-        <h2>Service Invoice IDs: ${itemableIds.join(", ") || "N/A"}</h2>
-        <h2>Services Dates: ${itemableDates.join(", ") || "N/A"}</h2>
+      //   formData.append("user_id", invoiceList.user.id);
+      //   formData.append("subject", "Invoice PDF");
+      //   formData.append("file", pdfFile);
+      //   formData.append(
+      //     "html",
+      //     `
+      //   <h1>${invoiceList?.user?.client?.firm_name || "Client"}</h1>
+      //   <h2>Service Invoice IDs: ${itemableIds.join(", ") || "N/A"}</h2>
+      //   <h2>Services Dates: ${itemableDates.join(", ") || "N/A"}</h2>
 
-        <footer style="text-align: center; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 10px;">        
-          <div style="margin-top: 15px; font-size: 0.9em; color: #333;">
-            <h4>Accurate Pest Control Services LLC</h4>
-            <p style="margin: 5px 0;">Accurate Pest Control Services LLC</p>
-            <p style="margin: 5px 0;">
-              Email: accuratepestcontrolcl.ae | Phone: +971 52 449 6173
-            </p>
-          </div>
-        </footer>
-      `
-      );
+      //   <footer style="text-align: center; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 10px;">
+      //     <div style="margin-top: 15px; font-size: 0.9em; color: #333;">
+      //       <h4>Accurate Pest Control Services LLC</h4>
+      //       <p style="margin: 5px 0;">Accurate Pest Control Services LLC</p>
+      //       <p style="margin: 5px 0;">
+      //         Email: accuratepestcontrolcl.ae | Phone: +971 52 449 6173
+      //       </p>
+      //     </div>
+      //   </footer>
+      // `
+      //   );
 
-      const response = await api.postFormDataWithToken(sendEmail, formData);
+      const data = {
+        user_id: invoiceList.user.id,
+        subject: "Invoice PDF",
+        file: pdfFile,
+        html: `
+         <h1>${invoiceList?.user?.client?.firm_name || "Client"}</h1>
+          <h2>Service Invoice IDs: ${itemableIds.join(", ") || "N/A"}</h2>
+          <h2>Services Dates: ${itemableDates.join(", ") || "N/A"}</h2>
+          <a href="" > View Service Report </a>
+          <footer style="text-align: center; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 10px;">
+                  <div style="margin-top: 15px; font-size: 0.9em; color: #333;">
+                    <h4>Accurate Pest Control Services LLC</h4>
+                    <p style="margin: 5px 0;">Accurate Pest Control Services LLC</p>
+                    <p style="margin: 5px 0;">
+                      Email: accuratepestcontrolcl.ae | Phone: +971 52 449 6173
+                    </p>
+                  </div>
+          </footer>
+          `,
+      };
+
+      const response = await api.postFormDataWithToken(sendEmail, data);
 
       if (response.status !== "success") {
         throw new Error(
@@ -552,11 +581,12 @@ const InvoiceDetails = () => {
       <div className="text-center mt-3">
         <Button
           variant="contained"
-          color="primary"
+          color="secondary"
           onClick={uploadToCloudinary}
-          disabled={uploadingToCloudinary}
+          // disabled={uploadingToCloudinary}
+          style={{ marginLeft: "10px" }}
         >
-          {uploadingToCloudinary ? "Generating PDF..." : "Generate PDF"}
+          Download PDF
         </Button>
       </div>
     </>

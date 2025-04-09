@@ -8,11 +8,16 @@ import styles from "../../styles/viewQuote.module.css";
 import APICall from "@/networkUtil/APICall";
 import { job, sendEmail } from "@/networkUtil/Constants";
 import Layout2 from "../../components/layout2";
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
 
-const html2pdf = dynamic(() => import('html2pdf.js'), {
-  ssr: false
-});
+// Import html2pdf dynamically
+const Html2PdfWrapper = dynamic(
+  () =>
+    import("html2pdf.js").then((mod) => ({
+      default: mod.default || mod,
+    })),
+  { ssr: false }
+);
 
 const invoiceData = {
   companyDetails: {
@@ -44,8 +49,7 @@ const Page = () => {
   const [serviceReportList, setQuoteList] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(true);
   const [uploadingToCloudinary, setUploadingToCloudinary] = useState(false);
-
-  // console.log(serviceReportList?.job?.quote?.branch);
+  const [emailSent, setEmailSent] = useState(false);
 
   useEffect(() => {
     const currentUrl = window.location.href;
@@ -58,6 +62,14 @@ const Page = () => {
       getAllJobs(id);
     }
   }, [id]);
+
+  // New useEffect to automatically send email when data is loaded
+  useEffect(() => {
+    if (serviceReportList && !loadingDetails && !emailSent) {
+      // Only run once when data is loaded
+      handleAutoSendEmail();
+    }
+  }, [serviceReportList, loadingDetails, emailSent]);
 
   const getAllJobs = async () => {
     setFetchingData(true);
@@ -78,6 +90,16 @@ const Page = () => {
     window.print();
   };
 
+  // Auto send email function
+  const handleAutoSendEmail = async () => {
+    try {
+      await uploadToCloudinary();
+      setEmailSent(true);
+    } catch (error) {
+      console.error("Error in auto sending email:", error);
+    }
+  };
+
   // Cloudinary Upload Function
   const uploadToCloudinary = async () => {
     try {
@@ -86,6 +108,8 @@ const Page = () => {
       // Generate PDF from a specific container instead of entire body
       const element = document.getElementById("pdf-container");
       const filename = `invoice_${Date.now()}.pdf`;
+
+      // Setup options for PDF generation
       const opt = {
         filename: filename,
         image: { type: "jpeg", quality: 0.98 },
@@ -103,31 +127,15 @@ const Page = () => {
           mode: ["css", "legacy"],
           before: ".page-break",
         },
-        header: function (pageNum, pageCount) {
-          const headerElement = document.querySelector(".pdf-header");
-          return headerElement ? headerElement.innerHTML : "";
-        },
-        footer: function (pageNum, pageCount) {
-          const footerElement = document.querySelector(".pdf-footer");
-
-          // Replace the placeholder with actual page numbers
-          if (footerElement) {
-            const pageNumberDiv = footerElement.querySelector(
-              "div[data-page-number]"
-            );
-            if (pageNumberDiv) {
-              pageNumberDiv.textContent = `Page ${pageNum} of ${pageCount}`;
-            }
-            return footerElement.innerHTML;
-          }
-          return "";
-        },
       };
 
-      await html2pdf().set(opt).from(element).save();
+      // Use the library properly by importing the actual html2pdf module
+      const html2pdfInstance = await import("html2pdf.js");
+      const html2pdf = html2pdfInstance.default || html2pdfInstance;
 
-      // Generate PDF as blob and convert to File object
-      const pdfBlob = await html2pdf().set(opt).from(element).outputPdf("blob");
+      // Generate PDF directly as blob for the email without saving locally
+      const pdfBlob = await html2pdf().from(element).set(opt).outputPdf("blob");
+
       const pdfFile = new File([pdfBlob], filename, {
         type: "application/pdf",
       });
@@ -137,19 +145,19 @@ const Page = () => {
         subject: "Invoice PDF",
         file: pdfFile,
         html: `
-        <h1> ${serviceReportList?.job?.user?.name} </h1>
-        <h1> Invoice Id: ${serviceReportList?.job?.service_invoice?.id} </h1>
-        <a href="" > View Service Report </a>
-        <footer style="text-align: center; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 10px;">        
-          <div style="margin-top: 15px; font-size: 0.9em; color: #333;">
-            <h4> Accurate Pest Control Services LLC </h4>
-            <p style="margin: 5px 0;"> Office 12, Building # Greece K-12, International City Dubai </p>
-            <p style="margin: 5px 0;">
-              Email: accuratepestcontrolcl.ae | Phone: +971 52 449 6173
-            </p>
-          </div>
-        </footer>
-        `,
+      <h1> ${serviceReportList?.job?.user?.name} </h1>
+      <h1> Invoice Id: ${serviceReportList?.job?.service_invoice?.id} </h1>
+      <a href="" > View Service Report </a>
+      <footer style="text-align: center; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 10px;">        
+        <div style="margin-top: 15px; font-size: 0.9em; color: #333;">
+          <h4> Accurate Pest Control Services LLC </h4>
+          <p style="margin: 5px 0;"> Office 12, Building # Greece K-12, International City Dubai </p>
+          <p style="margin: 5px 0;">
+            Email: accuratepestcontrolcl.ae | Phone: +971 52 449 6173
+          </p>
+        </div>
+      </footer>
+      `,
       };
 
       // Make the API call
@@ -158,7 +166,7 @@ const Page = () => {
       if (response.status !== "success") {
         throw new Error(`Upload failed: ${response.message}`);
       }
-      alert("Invoice send successfully!");
+      alert("Invoice sent successfully!");
 
       return response;
     } catch (error) {
@@ -173,16 +181,18 @@ const Page = () => {
   return (
     <div id="pdf-container">
       <Layout2 branchId={serviceReportList?.job?.quote?.branch?.id}>
+        <div style={{textAlign:"center", fontWeight:"bold"}}>
+          Service Report
+        </div>
         <ClientDetails serviceReportList={serviceReportList} /> <hr />
         <ClientRecords serviceReportList={serviceReportList} />
-
         <div className="flex">
           <div className="flex-grow"></div>
 
           <div>
             <div className="mt-5 contractTable">Clients Signature</div>
             <img
-              style={{ height: "100px", width: "100%", objectFit:"contain" }}
+              style={{ height: "100px", width: "100%", objectFit: "contain" }}
               src={serviceReportList?.signature_img}
             />
           </div>
@@ -197,15 +207,7 @@ const Page = () => {
           Print
         </button>
 
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={uploadToCloudinary}
-          disabled={uploadingToCloudinary}
-          fullWidth
-        >
-          {uploadingToCloudinary ? "Uploading..." : "Send Email"}
-        </Button>
+        {/* Send Email button removed */}
       </div>
 
       <style jsx global>{`

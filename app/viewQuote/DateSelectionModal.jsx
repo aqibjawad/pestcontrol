@@ -448,7 +448,7 @@ useEffect(() => {
           text: "Data has been added successfully!",
         });
         onClose();
-        window.location.reload();
+        window.location.reload();s
       } else {
         throw new Error(response.error?.message || "Unknown error occurred");
       }

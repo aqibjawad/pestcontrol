@@ -25,7 +25,6 @@ import Link from "next/link";
 import Swal from "sweetalert2";
 
 import { useRouter } from "next/navigation";
-import { Router } from "next/router";
 import { MoreVerticalIcon } from "lucide-react";
 import InputWithTitleWithClearButton from "../../components/generic/InputWithTitleWithClearButton";
 
@@ -49,7 +48,7 @@ const AllClients = () => {
   const [mobile_number, setMobNumber] = useState("");
   const [industry_name, setIndustryName] = useState("");
   const [opening_balance, setOpeningBalance] = useState(0);
-  const [filterClientName, setFilterClientName] = useState();
+  const [filterClientName, setFilterClientName] = useState("");
   const [allClients, setAllClients] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [activeRow, setActiveRow] = useState(null);
@@ -152,6 +151,9 @@ const AllClients = () => {
               <th className="py-5 px-4 border-b border-gray-200 text-left">
                 Sr No
               </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Firm
+              </th>
               <th className="py-5 px-4 border-b border-gray-200 text-left">
                 Client Name
               </th>
@@ -163,9 +165,6 @@ const AllClients = () => {
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Email
-              </th>
-              <th className="py-2 px-4 border-b border-gray-200 text-left">
-                Firm
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Date
@@ -182,11 +181,11 @@ const AllClients = () => {
             {allClientsList?.map((row, index) => (
               <tr key={index} className="border-b border-gray-200">
                 <td className="py-5 px-4">{index + 1}</td>
+                <td className="py-2 px-4">{row?.client?.firm_name}</td>
                 <td className="py-5 px-4">{row.name}</td>
                 <td className="py-5 px-4">{row?.client.referencable?.name}</td>
                 <td className="py-2 px-4">{row?.client?.phone_number}</td>
                 <td className="py-5 px-4">{row.email}</td>
-                <td className="py-2 px-4">{row?.client?.firm_name}</td>
                 <td className="py-2 px-4">
                   {AppHelpers.convertDate(row.created_at)}
                 </td>
@@ -372,9 +371,10 @@ const AllClients = () => {
             client?.email?.toLowerCase().includes(searchTerm) ||
             client?.client.phone_number?.toLowerCase().includes(searchTerm) ||
             client?.client.mobile_number?.toLowerCase().includes(searchTerm) ||
-            client?.client.referencable.name
+            client?.client.referencable?.name
               ?.toLowerCase()
               .includes(searchTerm) ||
+            // Added firm_name to the search criteria
             client?.client?.firm_name?.toLowerCase().includes(searchTerm)
         );
         setAllClientsList(filtered);
@@ -409,7 +409,7 @@ const AllClients = () => {
               title={"Search Clients"}
               onChange={handleFilterByName}
               value={filterClientName}
-              placeholder="Search Clients"
+              placeholder="Search by name, firm, email, phone..."
             />
             <div
               className="ml-5 mt-7"
@@ -425,6 +425,7 @@ const AllClients = () => {
                 justifyContent: "center",
                 alignItems: "center",
                 borderRadius: "10px",
+                cursor: "pointer",
               }}
             >
               + Clients
