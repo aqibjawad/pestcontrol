@@ -47,6 +47,9 @@ const InvoiceDetails = () => {
   const [invoiceList, setQuoteList] = useState(null);
   const [rowData, setRowData] = useState([]);
 
+  console.log(invoiceList, "invoice");
+  
+
   const [error, setError] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(true);
   const [uploadingToCloudinary, setUploadingToCloudinary] = useState(false);
@@ -348,7 +351,15 @@ const InvoiceDetails = () => {
       )}
 
       <div id="pdf-container">
-        <Layout>
+        <div
+          style={{
+            textAlign: "center",
+            fontWeight: "bold",
+          }}
+        >
+          Invoice Report
+        </div>
+        <Layout branchId={invoiceList?.invoiceable?.branch_id} style={{marginTop:"-2rem"}}>
           <Grid className="p-2" container spacing={2}>
             {/* Left Side Company Details */}
             <Grid item xs={6}>

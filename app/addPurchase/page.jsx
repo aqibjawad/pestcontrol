@@ -214,6 +214,7 @@ const Page = () => {
 
   return (
     <div>
+      <div className="pageTitle">Add Purchase Order</div>
       <Grid container spacing={2} padding={2}>
         {rows.map((row, index) => (
           <Grid

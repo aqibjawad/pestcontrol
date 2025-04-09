@@ -86,10 +86,6 @@ const Page = () => {
     }
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
-
   // Auto send email function
   const handleAutoSendEmail = async () => {
     try {
@@ -133,6 +129,8 @@ const Page = () => {
       const html2pdfInstance = await import("html2pdf.js");
       const html2pdf = html2pdfInstance.default || html2pdfInstance;
 
+      // await html2pdf().from(element).set(opt).save();
+
       // Generate PDF directly as blob for the email without saving locally
       const pdfBlob = await html2pdf().from(element).set(opt).outputPdf("blob");
 
@@ -161,7 +159,7 @@ const Page = () => {
       };
 
       // Make the API call
-      const response = await api.postFormDataWithToken(`${sendEmail}`, data);
+      // const response = await api.postFormDataWithToken(`${sendEmail}`, data);
 
       if (response.status !== "success") {
         throw new Error(`Upload failed: ${response.message}`);
@@ -197,7 +195,14 @@ const Page = () => {
 
       <div id="pdf-container">
         <Layout2 branchId={serviceReportList?.job?.quote?.branch?.id}>
-          <div style={{ textAlign: "center", fontWeight: "bold" }}>
+          <div
+            style={{
+              textAlign: "center",
+              fontWeight: "bold",
+              marginTop: "-5rem",
+              color: "#32A92E",
+            }}
+          >
             Service Report
           </div>
           <ClientDetails serviceReportList={serviceReportList} /> <hr />
@@ -213,16 +218,25 @@ const Page = () => {
               />
             </div>
           </div>
+          <div style={{ fontSize: "10px", marginTop: "2rem", color: "#555",marginTop:"10rem" }}>
+            <p>
+              • Avoid washing the treated area or removing the gel. • Keep
+              GPC-treated area closed for 4+ hrs. <br /> • Maintain cleanliness,
+              especially in infested zones. <br /> • Seal gaps and fix maintenance
+              issues to stop pest/rats nesting. <br /> • Follow our team’s advice to
+              reduce or prevent future infestations.
+            </p>
+          </div>
         </Layout2>
 
-        <div className="fixed bottom-4 right-4 flex flex-col space-y-2 print:hidden">
+        {/* <div className="fixed bottom-4 right-4 flex flex-col space-y-2 print:hidden">
           <button
             onClick={handlePrint}
             className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md shadow-md"
           >
             Print
           </button>
-        </div>
+        </div> */}
 
         <style jsx global>{`
           @media print {

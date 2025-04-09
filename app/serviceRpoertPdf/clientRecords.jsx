@@ -115,153 +115,6 @@ const ClientRecords = ({ serviceReportList, loading }) => {
 
   return (
     <div>
-      <div>
-        <Grid container spacing={0}>
-          <Grid item lg={12} xs={12} sm={6} md={6}>
-            <div>
-              <div
-                style={{
-                  fontSize: "15px",
-                  fontWeight: "bold",
-                  color: "black",
-                  marginTop: "-10px",
-                  paddingTop: "0px",
-                  paddingBottom: "15px",
-                }}
-              >
-                Pest Found
-              </div>
-              <Grid container spacing={0}>
-                {pests?.map((row, index) => {
-                  const isChecked = rowsPest.some(
-                    (pest) => pest.pest_name === row.pest_name
-                  );
-
-                  return (
-                    <Grid
-                      item
-                      xs={4}
-                      sm={4}
-                      md={4}
-                      lg={2}
-                      key={index}
-                      sx={{
-                        "@media print": {
-                          flexBasis: "33.333%",
-                          maxWidth: "33.333%",
-                        },
-                      }}
-                    >
-                      <FormControlLabel
-                        disabled
-                        checked={isChecked}
-                        control={<CustomCheckbox />}
-                        label={
-                          <div
-                            style={{
-                              fontSize: "13px",
-                              fontWeight: "regular",
-                              color: "black",
-                              marginTop: "-9px",
-                              paddingTop: "0px",
-                              paddingBottom: "10px",
-                            }}
-                          >
-                            {row?.pest_name
-                              ? row.pest_name.charAt(0).toUpperCase() +
-                                row.pest_name.slice(1).toLowerCase()
-                              : ""}
-                          </div>
-                        }
-                        sx={{
-                          margin: 0,
-                          "& .MuiFormControlLabel-label": {
-                            marginLeft: "2px", // Reduced spacing between checkbox and label
-                          },
-                          "& .MuiCheckbox-root": {
-                            marginRight: 0, // Remove right margin of checkbox
-                          },
-                        }}
-                      />
-                    </Grid>
-                  );
-                })}
-              </Grid>
-            </div>
-          </Grid>
-
-          <Grid item lg={12} xs={12} sm={6} md={6}>
-            <div className="mt-3">
-              <div
-                style={{
-                  fontSize: "15px",
-                  fontWeight: "bold",
-                  color: "black",
-                  marginTop: "-10px",
-                  paddingTop: "0px",
-                  paddingBottom: "15px",
-                }}
-              >
-                Treatment Methods
-              </div>
-              <Grid container spacing={0}>
-                {service.map((row, index) => {
-                  const isChecked = rows.some((item) => item.name === row.name);
-
-                  return (
-                    <Grid
-                      item
-                      xs={4}
-                      sm={4}
-                      md={4}
-                      lg={4}
-                      key={index}
-                      sx={{
-                        "@media print": {
-                          flexBasis: "33.333%",
-                          maxWidth: "33.333%",
-                        },
-                      }}
-                    >
-                      <FormControlLabel
-                        disabled
-                        checked={isChecked}
-                        control={<CustomCheckbox />}
-                        label={
-                          <div
-                            style={{
-                              fontSize: "13px",
-                              color: "black",
-                              marginTop: "-9px",
-                              paddingTop: "0px",
-                              paddingBottom: "10px",
-                            }}
-                          >
-                            {row?.name
-                              ? row.name.charAt(0).toUpperCase() +
-                                row.name.slice(1).toLowerCase()
-                              : ""}
-                          </div>
-                        }
-                        sx={{
-                          margin: 0,
-                          "& .MuiFormControlLabel-label": {
-                            marginLeft: "2px", // Reduced spacing between checkbox and label
-                          },
-                          "& .MuiCheckbox-root": {
-                            marginRight: 0, // Remove right margin of checkbox
-                          },
-                        }}
-                      />
-                    </Grid>
-                  );
-                })}
-              </Grid>
-            </div>
-          </Grid>
-        </Grid>
-      </div>
-
       <div className={styles.clientRecord}>
         <div
           style={{
@@ -284,6 +137,7 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                     marginTop: "-10px",
                     paddingTop: "0px",
                     paddingBottom: "15px",
+                    borderRight: "1px solid rgba(224, 224, 224, 0.8)", // Add right border to first cell
                   }}
                 >
                   Inspected Area
@@ -294,6 +148,7 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                     marginTop: "-10px",
                     paddingTop: "0px",
                     paddingBottom: "15px",
+                    borderRight: "1px solid rgba(224, 224, 224, 0.8)", // Add right border to first cell
                   }}
                 >
                   Infection Level
@@ -304,6 +159,7 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                     marginTop: "-10px",
                     paddingTop: "0px",
                     paddingBottom: "15px",
+                    borderRight: "1px solid rgba(224, 224, 224, 0.8)", // Add right border to first cell
                   }}
                 >
                   Manifested Area
@@ -331,6 +187,7 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                           paddingTop: "0px",
                           paddingBottom: "15px",
                           fontSize: "10px",
+                          borderRight: "1px solid rgba(224, 224, 224, 0.5)",
                         }}
                       >
                         {row.inspected_areas}
@@ -341,6 +198,7 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                           paddingTop: "0px",
                           paddingBottom: "15px",
                           fontSize: "10px",
+                          borderRight: "1px solid rgba(224, 224, 224, 0.5)",
                         }}
                       >
                         {row.infestation_level}
@@ -351,6 +209,7 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                           paddingTop: "0px",
                           paddingBottom: "15px",
                           fontSize: "10px",
+                          borderRight: "1px solid rgba(224, 224, 224, 0.5)",
                         }}
                       >
                         {row.manifested_areas}
@@ -370,6 +229,149 @@ const ClientRecords = ({ serviceReportList, loading }) => {
             </TableBody>
           </Table>
         </TableContainer>
+      </div>
+
+      <div className="mt-3">
+        <Grid container spacing={0}>
+          <Grid item lg={12} xs={12} sm={6} md={6}>
+            <div className="mt-3">
+              <div
+                style={{
+                  fontSize: "15px",
+                  fontWeight: "bold",
+                  color: "black",
+                  marginTop: "-10px",
+                  paddingTop: "0px",
+                  paddingBottom: "15px",
+                }}
+              >
+                Treatment Methods
+              </div>
+              <Grid container spacing={0}>
+                {service
+                  .filter((row) => rows.some((item) => item.name === row.name))
+                  .map((row, index) => (
+                    <Grid
+                      item
+                      xs={4}
+                      sm={4}
+                      md={4}
+                      lg={4}
+                      key={index}
+                      sx={{
+                        "@media print": {
+                          flexBasis: "33.333%",
+                          maxWidth: "33.333%",
+                        },
+                      }}
+                    >
+                      <FormControlLabel
+                        disabled
+                        checked={true} // Since we're only showing checked items now
+                        control={<CustomCheckbox />}
+                        label={
+                          <div
+                            style={{
+                              fontSize: "13px",
+                              color: "black",
+                              marginTop: "-9px",
+                              paddingTop: "0px",
+                              paddingBottom: "10px",
+                            }}
+                          >
+                            {row?.name
+                              ? row.name.charAt(0).toUpperCase() +
+                                row.name.slice(1).toLowerCase()
+                              : ""}
+                          </div>
+                        }
+                        sx={{
+                          margin: 0,
+                          "& .MuiFormControlLabel-label": {
+                            marginLeft: "2px",
+                          },
+                          "& .MuiCheckbox-root": {
+                            marginRight: 0,
+                          },
+                        }}
+                      />
+                    </Grid>
+                  ))}
+              </Grid>
+            </div>
+          </Grid>
+
+          <Grid className="mt-3" item lg={12} xs={12} sm={6} md={6}>
+            <div>
+              <div
+                style={{
+                  fontSize: "15px",
+                  fontWeight: "bold",
+                  color: "black",
+                  marginTop: "-10px",
+                  paddingTop: "0px",
+                  paddingBottom: "15px",
+                }}
+              >
+                Pest Found
+              </div>
+              <Grid container spacing={0}>
+                {pests
+                  ?.filter((row) =>
+                    rowsPest.some((pest) => pest.pest_name === row.pest_name)
+                  )
+                  .map((row, index) => (
+                    <Grid
+                      item
+                      xs={4}
+                      sm={4}
+                      md={4}
+                      lg={2}
+                      key={index}
+                      sx={{
+                        "@media print": {
+                          flexBasis: "33.333%",
+                          maxWidth: "33.333%",
+                        },
+                      }}
+                    >
+                      <FormControlLabel
+                        disabled
+                        checked={true} // Since all displayed items are checked now
+                        control={<CustomCheckbox />}
+                        label={
+                          <div
+                            style={{
+                              fontSize: "13px",
+                              fontWeight: "regular",
+                              color: "black",
+                              marginTop: "-9px",
+                              paddingTop: "0px",
+                              paddingBottom: "10px",
+                            }}
+                          >
+                            {row?.pest_name
+                              ? row.pest_name.charAt(0).toUpperCase() +
+                                row.pest_name.slice(1).toLowerCase()
+                              : ""}
+                          </div>
+                        }
+                        sx={{
+                          margin: 0,
+                          "& .MuiFormControlLabel-label": {
+                            marginLeft: "2px",
+                          },
+                          "& .MuiCheckbox-root": {
+                            marginRight: 0,
+                          },
+                        }}
+                      />
+                    </Grid>
+                  ))}
+              </Grid>
+            </div>
+          </Grid>
+        </Grid>
       </div>
 
       <div className="flex gap-4 mt-3">
@@ -395,6 +397,7 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                       marginTop: "-10px",
                       paddingTop: "0px",
                       paddingBottom: "15px",
+                      borderRight: "1px solid rgba(224, 224, 224, 0.8)", // Add right border to first cell
                     }}
                   >
                     Product
@@ -422,6 +425,7 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                             paddingTop: "0px",
                             paddingBottom: "15px",
                             fontSize: "10px",
+                            borderRight: "1px solid rgba(224, 224, 224, 0.5)", // Add right border to first cell
                           }}
                         >
                           {row?.product?.product_name}

@@ -7,7 +7,7 @@ const ClientDetails = ({ serviceReportList }) => {
       <Grid container spacing={1}>
         <Grid item xs={6}>
           <Typography variant="body2">
-            <strong>Name:</strong> {serviceReportList?.job?.user?.name}
+            <strong>Business Name:</strong> {serviceReportList?.job?.user?.name}
           </Typography>
         </Grid>
         <Grid item xs={6}>
@@ -29,6 +29,9 @@ const ClientDetails = ({ serviceReportList }) => {
               }
             )}
           </Typography>
+          <Typography variant="body2">
+            <strong>Visit Type:</strong> {serviceReportList?.type_of_visit}
+          </Typography>
         </Grid>
         <Grid item xs={6}>
           <Typography variant="body2" align="right">
@@ -43,11 +46,6 @@ const ClientDetails = ({ serviceReportList }) => {
                 minute: "2-digit",
               }
             )}
-          </Typography>
-        </Grid>
-        <Grid item xs={12}>
-          <Typography variant="body2" align="center">
-            <strong>Visit Type:</strong> {serviceReportList?.type_of_visit}
           </Typography>
         </Grid>
       </Grid>
