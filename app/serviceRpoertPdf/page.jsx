@@ -159,7 +159,7 @@ const Page = () => {
       };
 
       // Make the API call
-      // const response = await api.postFormDataWithToken(`${sendEmail}`, data);
+      const response = await api.postFormDataWithToken(`${sendEmail}`, data);
 
       if (response.status !== "success") {
         throw new Error(`Upload failed: ${response.message}`);

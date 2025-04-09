@@ -48,7 +48,6 @@ const InvoiceDetails = () => {
   const [rowData, setRowData] = useState([]);
 
   console.log(invoiceList, "invoice");
-  
 
   const [error, setError] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(true);
@@ -359,7 +358,10 @@ const InvoiceDetails = () => {
         >
           Invoice Report
         </div>
-        <Layout branchId={invoiceList?.invoiceable?.branch_id} style={{marginTop:"-2rem"}}>
+        <Layout
+          branchId={invoiceList?.invoiceable?.branch_id}
+          style={{ marginTop: "-2rem" }}
+        >
           <Grid className="p-2" container spacing={2}>
             {/* Left Side Company Details */}
             <Grid item xs={6}>
@@ -385,6 +387,9 @@ const InvoiceDetails = () => {
                 </Typography>
                 <Typography variant="body1" sx={{ fontWeight: "bold" }}>
                   TRN: {invoiceList?.invoiceable?.trn}
+                </Typography>
+                <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                  Location: {invoiceList?.address?.address || "No address"}
                 </Typography>
               </div>
 

@@ -3,7 +3,6 @@ import { Modal, Box } from "@mui/material";
 import styles from "../styles/serviceReport.module.css";
 import InputWithTitle from "./generic/InputWithTitle";
 import GreenButton from "../components/generic/GreenButton";
-
 import Dropdown from "./generic/Dropdown";
 
 const AddService = ({
@@ -15,7 +14,7 @@ const AddService = ({
 }) => {
   const [serviceData, setServiceData] = useState({
     inspected_areas: "",
-    pestFound: "",
+    pest_found: "",
     infestation_level: "",
     manifested_areas: "",
     report_and_follow_up_detail: "",
@@ -32,7 +31,7 @@ const AddService = ({
     onAddService(serviceData);
     setServiceData({
       inspected_areas: "",
-      pestFound: "",
+      pest_found: "",
       infestation_level: "",
       manifested_areas: "",
       report_and_follow_up_detail: "",
@@ -79,24 +78,19 @@ const AddService = ({
           <div className="mt-5">
             <InputWithTitle
               title={"Pest found"}
-              value={serviceData.pestFound}
-              onChange={(value) => handleInputChange("pestFound", value)}
+              value={serviceData.pest_found}
+              onChange={(value) => handleInputChange("pest_found", value)}
             />
           </div>
 
           <div className="mt-5">
-            {/* <InputWithTitle
+            <Dropdown
               title={"Infestation level"}
               value={serviceData.infestation_level}
+              options={["High", "Medium", "Low"]}
               onChange={(value) =>
                 handleInputChange("infestation_level", value)
               }
-            /> */}
-            <Dropdown
-              title={"Manifested level"}
-              value={serviceData.infestation_level}
-              options={["High", "Medium", "Low"]}
-              onChange={(value) => handleInputChange(value)}
             />
           </div>
 

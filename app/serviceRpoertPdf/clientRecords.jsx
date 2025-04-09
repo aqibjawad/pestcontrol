@@ -151,6 +151,17 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                     borderRight: "1px solid rgba(224, 224, 224, 0.8)", // Add right border to first cell
                   }}
                 >
+                  Pest Found
+                </TableCell>
+                <TableCell
+                  sx={{
+                    color: "white",
+                    marginTop: "-10px",
+                    paddingTop: "0px",
+                    paddingBottom: "15px",
+                    borderRight: "1px solid rgba(224, 224, 224, 0.8)", // Add right border to first cell
+                  }}
+                >
                   Infection Level
                 </TableCell>
                 <TableCell
@@ -191,6 +202,17 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                         }}
                       >
                         {row.inspected_areas}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          marginTop: "-10px",
+                          paddingTop: "0px",
+                          paddingBottom: "15px",
+                          fontSize: "10px",
+                          borderRight: "1px solid rgba(224, 224, 224, 0.5)",
+                        }}
+                      >
+                        {row.pest_found}
                       </TableCell>
                       <TableCell
                         sx={{
