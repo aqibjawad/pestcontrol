@@ -221,7 +221,7 @@ const InvoiceDetails = () => {
           `,
       };
 
-      // const response = await api.postFormDataWithToken(sendEmail, data);
+      const response = await api.postFormDataWithToken(sendEmail, data);
 
       if (response.status !== "success") {
         throw new Error(

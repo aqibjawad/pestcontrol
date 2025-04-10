@@ -156,7 +156,7 @@ const Contracts = () => {
     if (days <= 30) return { color: "#f59e0b", fontWeight: "bold" }; // Expires within a month
     return {};
   };
-  
+
   // Function to render expiration text
   const getExpirationText = (days) => {
     if (days === null) return "No expiration date";
@@ -210,6 +210,8 @@ const Contracts = () => {
                   Status
                 </TableSortLabel>
               </TableCell>
+              <TableCell>View Details</TableCell>
+              <TableCell>Download PDF</TableCell>
               <TableCell>Actions</TableCell>
               <TableCell></TableCell>
             </TableRow>
@@ -268,6 +270,23 @@ const Contracts = () => {
                         View Details
                       </span>
                     </Link>
+                  </TableCell>
+                  <TableCell
+                    className="contractTable"
+                    style={{ color: "blue" }}
+                  >
+                    {row?.pdf_url ? (
+                      <a
+                        href={row.pdf_url}
+                        download
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Download PDF
+                      </a>
+                    ) : (
+                      "No PDF"
+                    )}
                   </TableCell>
                   <TableCell>
                     {!row?.contract_cancel_reason ? (

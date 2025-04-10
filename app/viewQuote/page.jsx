@@ -260,6 +260,7 @@ const Quotation = () => {
                   Grand Total
                 </TableSortLabel>
               </TableCell>
+              <TableCell className="contractHeader">Download PDF</TableCell>
               <TableCell className="contractHeader">Actions</TableCell>
               <TableCell className="contractHeader">Edit</TableCell>
             </TableRow>
@@ -318,6 +319,21 @@ const Quotation = () => {
                   <TableCell className="contractTable">
                     {row?.grand_total || 0}
                   </TableCell>
+                  <TableCell className="contractTable" style={{color:"blue"}}>
+                    {row?.pdf_url ? (
+                      <a
+                        href={row.pdf_url}
+                        download
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Download PDF
+                      </a>
+                    ) : (
+                      "No PDF"
+                    )}
+                  </TableCell>
+
                   <TableCell className="contractTable">
                     <div className="flex space-x-2">
                       <Link href={`/quotePdf?id=${row?.id}`}>

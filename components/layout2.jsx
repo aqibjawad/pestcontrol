@@ -42,7 +42,7 @@ const LayoutComponent = ({ children, branchId }) => {
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundImage: "url('/Asset 1@3x.png')",
+          backgroundImage: "url('/watermark.png')",
           backgroundSize: "contain",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",

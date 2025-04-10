@@ -219,8 +219,11 @@ const Page = () => {
             </div>
           </div>
           <div style={{ fontSize: "10px", marginTop: "2rem", color: "#555",marginTop:"10rem" }}>
+            <div style={{fontWeight:"bold", fontSize:"12px"}}>
+              Recommendations
+            </div>
             <p>
-              • Avoid washing the treated area or removing the gel. • Keep
+              • Avoid washing the treated area or removing the gel. <br /> • Keep
               GPC-treated area closed for 4+ hrs. <br /> • Maintain cleanliness,
               especially in infested zones. <br /> • Seal gaps and fix maintenance
               issues to stop pest/rats nesting. <br /> • Follow our team’s advice to

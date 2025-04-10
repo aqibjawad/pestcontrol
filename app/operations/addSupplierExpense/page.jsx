@@ -437,7 +437,7 @@ const Page = () => {
             <div className="mt-5">
               <InputWithTitle
                 title={"VAT %"}
-                type={"text"}
+                type={"text"} 
                 placeholder={"VAT"}
                 onChange={handleVatChange}
                 value={vat}

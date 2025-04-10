@@ -62,12 +62,11 @@
 
 .clientRecord {
   width: 100%;
-  height: auto;
-  padding: 14px 12px 14px 12px;
+  padding-left: 14px;
+  padding-right: 14px;
   border-radius: 8px;
   border: 1px;
   border: 1px solid #68cc5838;
-  margin-top: 1rem;
 }
 
 .clientHead {

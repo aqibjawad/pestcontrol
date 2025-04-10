@@ -83,16 +83,17 @@ const Vehciles = () => {
                 Oil Amount
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
+                Registration Renewal
+              </th>
+              <th className="py-2 px-4 border-b border-gray-200 text-left">
                 VAT
               </th>
-
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Oil Change Limit
               </th>
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Payment Type
               </th>
-
               <th className="py-2 px-4 border-b border-gray-200 text-left">
                 Amount
               </th>
@@ -115,6 +116,11 @@ const Vehciles = () => {
                 <td className="py-2 px-4">
                   <div className={tableStyles.clientContact}>
                     {row.fuel_amount}
+                  </div>
+                </td>
+                <td className="py-2 px-4">
+                  <div className={tableStyles.clientContact}>
+                    {row.registration_renewal}
                   </div>
                 </td>
                 <td className="py-2 px-4">
