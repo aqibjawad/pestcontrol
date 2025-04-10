@@ -23,6 +23,7 @@ const Page = () => {
   const [total, setTotal] = useState("");
   const [description, setDesc] = useState("");
   const [amount, setAmount] = useState("");
+  const [receipt_no, setReceiptNo] = useState("");
   const [cheque_no, setChequeNumber] = useState("");
   const [cheque_date, setChequeDate] = useState("");
   const [transection_id, setTransactionId] = useState("");
@@ -165,6 +166,7 @@ const Page = () => {
       description,
       payment_type: activeTab,
       delivery_note_id: selectedInvoice.id,
+      receipt_no,
     };
 
     if (activeTab === "cash") {
@@ -308,6 +310,15 @@ const Page = () => {
             type={"text"}
             placeholder={"Enter description"}
             onChange={setDesc}
+          />
+        </div>
+
+        <div className="mt-5">
+          <InputWithTitle
+            title={"Receipt Number"}
+            type={"text"}
+            placeholder={"Enter Receipt Number"}
+            onChange={setReceiptNo}
           />
         </div>
 

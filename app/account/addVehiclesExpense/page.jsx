@@ -31,6 +31,7 @@ const Page = () => {
   const [oil_amount, setOilAmount] = useState("");
   const [oil_change_limit, setOilChangeLimit] = useState("");
   const [meter_reading, setMeterRead] = useState("");
+  const [registration_renewal, setRegRenew] = useState("");
   const [vat_per, setVat] = useState("");
   const [total, setTotal] = useState("");
 
@@ -179,6 +180,7 @@ const Page = () => {
       maintenance_amount,
       oil_change_limit,
       meter_reading,
+      registration_renewal,
       payment_type: activeTab,
     };
 
@@ -365,6 +367,22 @@ const Page = () => {
           />
           {errors.meter_reading && (
             <div className={styles.errorText}>{errors.meter_reading}</div>
+          )}
+        </Grid>
+
+        <Grid item lg={4} xs={12} sm={6} md={4}>
+          <InputWithTitle
+            value={registration_renewal}
+            title={"Registration Renewal"}
+            type="text"
+            placeholder={"Registration Renewal"}
+            onChange={handleInputChange(setRegRenew, "registration_renewal")}
+            error={errors.registration_renewal}
+          />
+          {errors.registration_renewal && (
+            <div className={styles.errorText}>
+              {errors.registration_renewal}
+            </div>
           )}
         </Grid>
 

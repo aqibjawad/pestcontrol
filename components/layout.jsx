@@ -5,7 +5,7 @@ const LayoutComponent = ({ children, branchId }) => {
   const a4Width = 750; // 210mm
   const a4Height = 1050; // 297mm
 
-  // console.log("branch Id", branchId);
+  console.log("branch Id", branchId);
 
   // Handle default case to prevent errors when branchId is null/undefined
   const getImageSrc = () => {
