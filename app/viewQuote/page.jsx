@@ -336,11 +336,11 @@ const Quotation = () => {
 
                   <TableCell className="contractTable">
                     <div className="flex space-x-2">
-                      <Link href={`/quotePdf?id=${row?.id}`}>
+                      {/* <Link href={`/quotePdf?id=${row?.id}`}>
                         <span className="text-blue-600 hover:text-blue-800">
                           View Details
                         </span>
-                      </Link>
+                      </Link> */}
 
                       {row?.contract_cancel_reason === null &&
                         row?.is_contracted === 0 && (

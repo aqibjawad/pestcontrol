@@ -210,7 +210,7 @@ const Contracts = () => {
                   Status
                 </TableSortLabel>
               </TableCell>
-              <TableCell>View Details</TableCell>
+              {/* <TableCell>View Details</TableCell> */}
               <TableCell>Download PDF</TableCell>
               <TableCell>Actions</TableCell>
               <TableCell></TableCell>
@@ -264,13 +264,13 @@ const Contracts = () => {
                       </div>
                     )}
                   </TableCell>
-                  <TableCell>
+                  {/* <TableCell>
                     <Link href={`/quotePdf?id=${row.id}`}>
                       <span style={{ color: "#2563eb", cursor: "pointer" }}>
                         View Details
                       </span>
                     </Link>
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell
                     className="contractTable"
                     style={{ color: "blue" }}
