@@ -12,6 +12,8 @@ import APICall from "@/networkUtil/APICall";
 import { AppAlerts } from "../../../Helper/AppAlerts";
 import { useRouter } from "next/navigation";
 import withAuth from "@/utils/withAuth";
+import UploadImagePlaceholder from "../../../components/generic/uploadImage";
+import styles from "../../../styles/superAdmin/addExpensesStyles.module.css";
 
 const Page = () => {
   const api = new APICall();
@@ -40,6 +42,11 @@ const Page = () => {
   const [deliveryNotes, setDeliveryNotes] = useState([]);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [fetchingNotes, setFetchingNotes] = useState(false);
+  const [receipt_file, setExpenseFile] = useState();
+
+  const handleFileSelect = (file) => {
+    setExpenseFile(file);
+  };
 
   // Calculate total whenever amount or VAT changes
   useEffect(() => {
@@ -168,6 +175,9 @@ const Page = () => {
       delivery_note_id: selectedInvoice.id,
       receipt_no,
     };
+    if (receipt_file) {
+      expenseObj.receipt_file = receipt_file;
+    }
 
     if (activeTab === "cash") {
       expenseObj = {
@@ -313,13 +323,18 @@ const Page = () => {
           />
         </div>
 
-        <div className="mt-5">
-          <InputWithTitle
-            title={"Receipt Number"}
-            type={"text"}
-            placeholder={"Enter Receipt Number"}
-            onChange={setReceiptNo}
-          />
+        <div className="flex items-start gap-4 mt-5">
+          <div className="flex-1">
+            <InputWithTitle
+              title={"Receipt Number"}
+              type={"text"}
+              placeholder={"Enter Receipt Number"}
+              onChange={setReceiptNo}
+            />
+          </div>
+          <div>
+            <UploadImagePlaceholder onFileSelect={handleFileSelect} />
+          </div>
         </div>
 
         <Tabs activeTab={activeTab} setActiveTab={handleTabChange} />
@@ -437,7 +452,7 @@ const Page = () => {
             <div className="mt-5">
               <InputWithTitle
                 title={"VAT %"}
-                type={"text"} 
+                type={"text"}
                 placeholder={"VAT"}
                 onChange={handleVatChange}
                 value={vat}
