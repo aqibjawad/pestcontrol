@@ -187,7 +187,7 @@ const Page = () => {
               Preparing invoice and sending email...
             </Typography>
             <Typography variant="body2" className="mt-2">
-              Please don't close this window
+              Please do not close this window
             </Typography>
           </div>
         </div>

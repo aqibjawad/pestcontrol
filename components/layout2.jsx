@@ -143,7 +143,7 @@ const LayoutComponent = ({ children, branchId }) => {
               style={{
                 maxWidth: "100%",
                 objectFit: "contain",
-                marginTop: "8.5rem",
+                marginTop: "7.5rem",
               }}
             />
           </div>

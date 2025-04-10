@@ -21,17 +21,15 @@ const ClientDetails = ({ serviceReportList }) => {
             <strong>Location:</strong>{" "}
             {serviceReportList?.job?.client_address?.address}
           </Typography>
+
           <Typography variant="body2">
             <strong>Visit Type:</strong> {serviceReportList?.type_of_visit}
           </Typography>
         </Grid>
+
         <Grid item xs={6}>
-          <Typography
-            variant="body2"
-            align="right"
-            style={{ marginLeft: "4rem" }}
-          >
-            <strong>Job:</strong>{" "}
+          <Typography variant="body2" align="right" style={{marginRight:"-1.5rem"}}>
+            <strong>Date & Time:</strong>{" "}
             {new Date(serviceReportList?.job?.job_start_time).toLocaleString(
               "en-US",
               {
@@ -42,7 +40,7 @@ const ClientDetails = ({ serviceReportList }) => {
                 minute: "2-digit",
               }
             )}
-            &nbsp; / &nbsp;{" "}
+            &nbsp; / &nbsp; <br />
             {new Date(serviceReportList?.job?.job_end_time).toLocaleString(
               "en-US",
               {
@@ -55,13 +53,9 @@ const ClientDetails = ({ serviceReportList }) => {
             )}
           </Typography>
 
-          <Typography
-            variant="body2"
-            align="center"
-            style={{ marginLeft: "5rem" }}
-          >
+          <div style={{ textAlign:"right" }}>
             <strong>Job Id:</strong> {serviceReportList?.job?.id}
-          </Typography>
+          </div>
         </Grid>
       </Grid>
     </Box>

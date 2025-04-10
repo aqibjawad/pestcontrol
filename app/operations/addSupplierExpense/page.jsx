@@ -36,6 +36,9 @@ const Page = () => {
   const [loading, setLoading] = useState(true);
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [selectedSupplier, setSelectedSupplier] = useState(null);
+  const [deliveryNotes, setDeliveryNotes] = useState([]);
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [fetchingNotes, setFetchingNotes] = useState(false);
 
   // Calculate total whenever amount or VAT changes
   useEffect(() => {
@@ -44,10 +47,10 @@ const Page = () => {
 
   const calculateTotal = () => {
     const amountValue = parseFloat(amount) || 0;
-    const vatPercentage = parseFloat(vat) || 0; // Use VAT as a percentage
-    const vatAmount = (amountValue * vatPercentage) / 100; // Calculate VAT amount
-    const calculatedTotal = amountValue + vatAmount; // Add VAT amount to the base amount
-    setTotal(calculatedTotal.toFixed(2)); // Update total with two decimal places
+    const vatPercentage = parseFloat(vat) || 0;
+    const vatAmount = (amountValue * vatPercentage) / 100;
+    const calculatedTotal = amountValue + vatAmount;
+    setTotal(calculatedTotal.toFixed(2));
   };
 
   const handleAmountChange = (value) => {
@@ -61,15 +64,28 @@ const Page = () => {
   const handleTabChange = (tab) => {
     setActiveTab(tab);
     // Reset values when changing tabs
-    setAmount("");
-    setVat("");
-    setTotal("");
+    if (!selectedInvoice) {
+      setAmount("");
+      setVat("");
+      setTotal("");
+    }
   };
 
   useEffect(() => {
     getAllSupplier();
     getAllBanks();
   }, []);
+
+  // Fetch delivery notes when supplier is selected
+  useEffect(() => {
+    if (selectedSupplier) {
+      fetchDeliveryNotes(selectedSupplier.id);
+      setSelectedInvoice(null);
+      setAmount("");
+      setVat("");
+      setTotal("");
+    }
+  }, [selectedSupplier]);
 
   const getAllSupplier = async () => {
     setFetchingData(true);
@@ -79,9 +95,28 @@ const Page = () => {
       const expenseNames = response.data.map((item) => item.supplier_name);
       setSupplierNameList(expenseNames);
     } catch (error) {
-      console.error("Error fetching expenses:", error);
+      console.error("Error fetching suppliers:", error);
     } finally {
       setFetchingData(false);
+    }
+  };
+
+  const fetchDeliveryNotes = async (supplierId) => {
+    setFetchingNotes(true);
+    try {
+      const response = await api.getDataWithToken(
+        `${getAllSuppliers}/delivery_note/get/${supplierId}/unpaid`
+      );
+      if (response.data && response.data.delivery_note) {
+        setDeliveryNotes(response.data.delivery_note);
+      } else {
+        setDeliveryNotes([]);
+      }
+    } catch (error) {
+      console.error("Error fetching delivery notes:", error);
+      setDeliveryNotes([]);
+    } finally {
+      setFetchingNotes(false);
     }
   };
 
@@ -102,6 +137,7 @@ const Page = () => {
   const handleExpenseChange = (name, index) => {
     const selectedSupplier = allSupplierList[index];
     setSelectedSupplier(selectedSupplier);
+    setSelectedInvoice(null);
   };
 
   const supplierOptions = allSupplierList.map(
@@ -114,6 +150,13 @@ const Page = () => {
     setSelectedBankId(idAtIndex);
   };
 
+  const handleInvoiceSelect = (invoice) => {
+    setSelectedInvoice(invoice);
+    setAmount(invoice.grand_total);
+    // Reset VAT as it will be calculated on the full amount
+    setVat("0");
+  };
+
   const createExpenseObject = () => {
     let expenseObj = {
       supplier_id: selectedSupplier.id,
@@ -121,6 +164,7 @@ const Page = () => {
       total,
       description,
       payment_type: activeTab,
+      delivery_note_id: selectedInvoice.id,
     };
 
     if (activeTab === "cash") {
@@ -131,7 +175,6 @@ const Page = () => {
     } else if (activeTab === "cheque") {
       expenseObj = {
         ...expenseObj,
-        // bank_id: selectedBankId,
         amount,
         cheque_no,
         cheque_date,
@@ -139,7 +182,6 @@ const Page = () => {
     } else if (activeTab === "online") {
       expenseObj = {
         ...expenseObj,
-        // bank_id: selectedBankId,
         amount,
         transection_id,
       };
@@ -159,7 +201,7 @@ const Page = () => {
       );
 
       if (response.status === "success") {
-        alerts.successAlert("Expense has been updated");
+        alerts.successAlert("Payment has been added successfully");
         router.push(
           `/account/supplier_ledger/?id=${selectedSupplier.id}&supplier_name=${
             selectedSupplier.supplier_name
@@ -170,6 +212,8 @@ const Page = () => {
       } else {
         alerts.errorAlert(response.error.message);
       }
+    } catch (error) {
+      alerts.errorAlert("An error occurred while processing payment");
     } finally {
       setLoadingSubmit(false);
     }
@@ -177,6 +221,69 @@ const Page = () => {
 
   const handleChequeDate = (name, value) => {
     setChequeDate(value);
+  };
+
+  const renderDeliveryNotes = () => {
+    if (fetchingNotes) {
+      return (
+        <div className="flex justify-center p-4">
+          <CircularProgress size={30} />
+        </div>
+      );
+    }
+
+    if (!selectedSupplier) {
+      return (
+        <div className="text-gray-500 p-4 text-center">
+          Please select a supplier to view unpaid invoices
+        </div>
+      );
+    }
+
+    if (deliveryNotes.length === 0) {
+      return (
+        <div className="text-gray-500 p-4 text-center">
+          No unpaid invoices found for this supplier
+        </div>
+      );
+    }
+
+    return (
+      <div className="mt-5 overflow-x-auto">
+        <table className="min-w-full bg-white border border-gray-200">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="py-2 px-3 border-b text-left">Select</th>
+              <th className="py-2 px-3 border-b text-left">Invoice No</th>
+              <th className="py-2 px-3 border-b text-left">PO Number</th>
+              <th className="py-2 px-3 border-b text-left">Date</th>
+              <th className="py-2 px-3 border-b text-left">Total Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {deliveryNotes.map((note) => (
+              <tr key={note.id} className="hover:bg-gray-50">
+                <td className="py-2 px-3 border-b">
+                  <input
+                    type="radio"
+                    className="form-radio h-5 w-5 text-green-600"
+                    checked={selectedInvoice && selectedInvoice.id === note.id}
+                    onChange={() => handleInvoiceSelect(note)}
+                    name="invoice-selection"
+                  />
+                </td>
+                <td className="py-2 px-3 border-b">
+                  {note.invoice_no || "Not Generated"}
+                </td>
+                <td className="py-2 px-3 border-b">{note.dn_id}</td>
+                <td className="py-2 px-3 border-b">{note.delivery_date}</td>
+                <td className="py-2 px-3 border-b">{note.grand_total}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
   };
 
   const expenseForm = () => {
@@ -188,6 +295,11 @@ const Page = () => {
             title={"Suppliers List"}
             options={allSupplierNameList}
           />
+        </div>
+
+        <div className="mt-5">
+          <div className="text-xl font-semibold mb-2">Unpaid Invoices</div>
+          {renderDeliveryNotes()}
         </div>
 
         <div className="mt-5">
@@ -210,6 +322,7 @@ const Page = () => {
                 placeholder={"Cash Amount"}
                 onChange={handleAmountChange}
                 value={amount}
+                disabled={true}
               />
             </div>
 
@@ -237,14 +350,6 @@ const Page = () => {
 
         {activeTab === "cheque" && (
           <div>
-            {/* <div className="mt-5">
-              <Dropdown
-                onChange={handleBankChange}
-                title={"Banks"}
-                options={allBankNameList}
-              />
-            </div> */}
-
             <div className="mt-5">
               <InputWithTitle3
                 title={"Cheque Date"}
@@ -261,6 +366,7 @@ const Page = () => {
                 placeholder={"Cheque Amount"}
                 onChange={handleAmountChange}
                 value={amount}
+                disabled={true}
               />
             </div>
 
@@ -297,14 +403,6 @@ const Page = () => {
 
         {activeTab === "online" && (
           <div>
-            {/* <div className="mt-5">
-              <Dropdown
-                onChange={handleBankChange}
-                title={"Banks"}
-                options={allBankNameList}
-              />
-            </div> */}
-
             <div className="mt-5">
               <InputWithTitle
                 title={"Transaction Amount"}
@@ -312,6 +410,7 @@ const Page = () => {
                 placeholder={"Transaction Amount"}
                 onChange={handleAmountChange}
                 value={amount}
+                disabled={true}
               />
             </div>
 
@@ -364,7 +463,7 @@ const Page = () => {
               "Submit"
             )
           }
-          disabled={loadingSubmit}
+          disabled={loadingSubmit || !selectedInvoice || !selectedSupplier}
         />
       </div>
     </div>

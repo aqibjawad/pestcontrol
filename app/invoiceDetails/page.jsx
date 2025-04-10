@@ -343,7 +343,7 @@ const InvoiceDetails = () => {
               Preparing invoice and sending email...
             </Typography>
             <Typography variant="body2" className="mt-2">
-              Please don't close this window
+              Please dont close this window
             </Typography>
           </div>
         </div>

@@ -61,10 +61,12 @@ export default function Login() {
         const storedUserIdRecovery = User.getUserId();
         router.replace(`/recovery/dashboard/?id=${storedUserIdRecovery}`);
         break;
-        case 9:
-          const storedUserIdSaleOfficer = User.getUserId();
-          router.replace(`/salesOfficer/dashboard/?id=${storedUserIdSaleOfficer}`);
-          break;
+      case 9:
+        const storedUserIdSaleOfficer = User.getUserId();
+        router.replace(
+          `/salesOfficer/dashboard/?id=${storedUserIdSaleOfficer}`
+        );
+        break;
       default:
         router.replace("/accountant");
     }
@@ -171,6 +173,9 @@ export default function Login() {
     </div>
   );
 
+  // Inside your tryLogin function, update the error handling logic:
+
+  // Modified tryLogin function with improved error handling
   const tryLogin = async () => {
     if (!isValidEmail(userEmail)) {
       alert("Please enter a valid email");
@@ -183,6 +188,8 @@ export default function Login() {
     }
 
     setSendingData(true);
+    setShowAlert(false); // Reset error alert state
+
     const userObj = {
       email: userEmail,
       password: password,
@@ -191,22 +198,58 @@ export default function Login() {
     try {
       const response = await apiCall.postData(login, userObj);
 
-      if (response.error) {
-        setErrorMsg(response.error.message);
+      console.log(response);
+      
+
+      // For debugging - log the response
+      console.log("Login response:", response);
+
+      // Check all possible error formats
+      if (response.status === "error") {
+        console.log("Error detected in status field");
+        setErrorMsg(response.message || "Login failed");
+        setShowAlert(true);
+      } else if (response.error) {
+        console.log("Error detected in error object");
+        setErrorMsg(response.error.message || "Login failed");
+        setShowAlert(true);
+      } else if (!response.data) {
+        console.log("No data in response");
+        setErrorMsg("Invalid credentials. Please try again.");
         setShowAlert(true);
       } else {
+        // Login success
         const user = new User(response);
         const roleId = response.data.role_id;
         const userId = response.data.user_id;
         redirectBasedOnRole(roleId);
       }
     } catch (error) {
+      console.error("Login error:", error);
       setErrorMsg("An unexpected error occurred. Please try again.");
       setShowAlert(true);
     } finally {
       setSendingData(false);
     }
   };
+
+  // Update the error alert display in the loginForm function
+  // Replace the existing error alert section with this:
+  {
+    showErrorAlert && (
+      <div
+        className={styles.errorContainer}
+        style={{ marginTop: "15px", width: "100%" }}
+      >
+        <Alert
+          severity="error"
+          style={{ width: "100%", display: "flex", alignItems: "center" }}
+        >
+          {errorMsg}
+        </Alert>
+      </div>
+    );
+  }
 
   function isValidEmail(email: string) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

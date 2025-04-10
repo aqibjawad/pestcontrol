@@ -115,143 +115,141 @@ const ClientRecords = ({ serviceReportList, loading }) => {
 
   return (
     <div>
-      <div className={styles.clientRecord}>
-        <div
-          style={{
-            marginTop: "-10px",
-            paddingTop: "0px",
-            fontSize: "12px",
-            marginBottom: "10px",
-          }}
-          className={styles.areaHead}
-        >
-          Areas
-        </div>
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead className={styles.tableHead}>
-              <TableRow>
-                <TableCell
-                  sx={{
-                    color: "white",
-                    marginTop: "-10px",
-                    paddingTop: "0px",
-                    paddingBottom: "15px",
-                    borderRight: "1px solid rgba(224, 224, 224, 0.8)", // Add right border to first cell
-                  }}
-                >
-                  Inspected Area
-                </TableCell>
-                <TableCell
-                  sx={{
-                    color: "white",
-                    marginTop: "-10px",
-                    paddingTop: "0px",
-                    paddingBottom: "15px",
-                    borderRight: "1px solid rgba(224, 224, 224, 0.8)", // Add right border to first cell
-                  }}
-                >
-                  Pest Found
-                </TableCell>
-                <TableCell
-                  sx={{
-                    color: "white",
-                    marginTop: "-10px",
-                    paddingTop: "0px",
-                    paddingBottom: "15px",
-                    borderRight: "1px solid rgba(224, 224, 224, 0.8)", // Add right border to first cell
-                  }}
-                >
-                  Infection Level
-                </TableCell>
-                <TableCell
-                  sx={{
-                    color: "white",
-                    marginTop: "-10px",
-                    paddingTop: "0px",
-                    paddingBottom: "15px",
-                    borderRight: "1px solid rgba(224, 224, 224, 0.8)", // Add right border to first cell
-                  }}
-                >
-                  Manifested Area
-                </TableCell>
-                <TableCell
-                  sx={{
-                    color: "white",
-                    marginTop: "-10px",
-                    paddingTop: "0px",
-                    paddingBottom: "15px",
-                  }}
-                >
-                  Report and Follow Up
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {loading
-                ? skeletonAreaRows
-                : rowsAreas.map((row, index) => (
-                    <TableRow key={index}>
-                      <TableCell
-                        sx={{
-                          marginTop: "-10px",
-                          paddingTop: "0px",
-                          paddingBottom: "15px",
-                          fontSize: "10px",
-                          borderRight: "1px solid rgba(224, 224, 224, 0.5)",
-                        }}
-                      >
-                        {row.inspected_areas}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          marginTop: "-10px",
-                          paddingTop: "0px",
-                          paddingBottom: "15px",
-                          fontSize: "10px",
-                          borderRight: "1px solid rgba(224, 224, 224, 0.5)",
-                        }}
-                      >
-                        {row.pest_found}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          marginTop: "-10px",
-                          paddingTop: "0px",
-                          paddingBottom: "15px",
-                          fontSize: "10px",
-                          borderRight: "1px solid rgba(224, 224, 224, 0.5)",
-                        }}
-                      >
-                        {row.infestation_level}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          marginTop: "-10px",
-                          paddingTop: "0px",
-                          paddingBottom: "15px",
-                          fontSize: "10px",
-                          borderRight: "1px solid rgba(224, 224, 224, 0.5)",
-                        }}
-                      >
-                        {row.manifested_areas}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          marginTop: "-10px",
-                          paddingTop: "0px",
-                          paddingBottom: "15px",
-                          fontSize: "10px",
-                        }}
-                      >
-                        {row.report_and_follow_up_detail}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+      <div
+        style={{
+          marginTop: "-10px",
+          paddingTop: "0px",
+          fontSize: "12px",
+          marginBottom: "10px",
+        }}
+        className={styles.areaHead}
+      >
+        Areas
       </div>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead className={styles.tableHead}>
+            <TableRow>
+              <TableCell
+                sx={{
+                  color: "white",
+                  marginTop: "-10px",
+                  paddingTop: "0px",
+                  paddingBottom: "15px",
+                  borderRight: "1px solid rgba(224, 224, 224, 0.8)", // Add right border to first cell
+                }}
+              >
+                Inspected Area
+              </TableCell>
+              <TableCell
+                sx={{
+                  color: "white",
+                  marginTop: "-10px",
+                  paddingTop: "0px",
+                  paddingBottom: "15px",
+                  borderRight: "1px solid rgba(224, 224, 224, 0.8)", // Add right border to first cell
+                }}
+              >
+                Pest Found
+              </TableCell>
+              <TableCell
+                sx={{
+                  color: "white",
+                  marginTop: "-10px",
+                  paddingTop: "0px",
+                  paddingBottom: "15px",
+                  borderRight: "1px solid rgba(224, 224, 224, 0.8)", // Add right border to first cell
+                }}
+              >
+                Infection Level
+              </TableCell>
+              <TableCell
+                sx={{
+                  color: "white",
+                  marginTop: "-10px",
+                  paddingTop: "0px",
+                  paddingBottom: "15px",
+                  borderRight: "1px solid rgba(224, 224, 224, 0.8)", // Add right border to first cell
+                }}
+              >
+                Manifested Area
+              </TableCell>
+              <TableCell
+                sx={{
+                  color: "white",
+                  marginTop: "-10px",
+                  paddingTop: "0px",
+                  paddingBottom: "15px",
+                }}
+              >
+                Report and Follow Up
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {loading
+              ? skeletonAreaRows
+              : rowsAreas.map((row, index) => (
+                  <TableRow key={index}>
+                    <TableCell
+                      sx={{
+                        marginTop: "-10px",
+                        paddingTop: "0px",
+                        paddingBottom: "15px",
+                        fontSize: "10px",
+                        borderRight: "1px solid rgba(224, 224, 224, 0.5)",
+                      }}
+                    >
+                      {row.inspected_areas}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        marginTop: "-10px",
+                        paddingTop: "0px",
+                        paddingBottom: "15px",
+                        fontSize: "10px",
+                        borderRight: "1px solid rgba(224, 224, 224, 0.5)",
+                      }}
+                    >
+                      {row.pest_found}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        marginTop: "-10px",
+                        paddingTop: "0px",
+                        paddingBottom: "15px",
+                        fontSize: "10px",
+                        borderRight: "1px solid rgba(224, 224, 224, 0.5)",
+                      }}
+                    >
+                      {row.infestation_level}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        marginTop: "-10px",
+                        paddingTop: "0px",
+                        paddingBottom: "15px",
+                        fontSize: "10px",
+                        borderRight: "1px solid rgba(224, 224, 224, 0.5)",
+                      }}
+                    >
+                      {row.manifested_areas}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        marginTop: "-10px",
+                        paddingTop: "0px",
+                        paddingBottom: "15px",
+                        fontSize: "10px",
+                      }}
+                    >
+                      {row.report_and_follow_up_detail}
+                    </TableCell>
+                  </TableRow>
+                ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
       <div className="mt-3">
         <Grid container spacing={0}>
@@ -397,7 +395,7 @@ const ClientRecords = ({ serviceReportList, loading }) => {
       </div>
 
       <div className="flex gap-4 mt-3">
-        <div className={styles.clientRecord} style={{ flex: 1 }}>
+        <div style={{ flex: 1 }}>
           <div
             style={{
               marginTop: "-10px",
