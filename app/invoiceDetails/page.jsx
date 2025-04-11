@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Layout from "../../components/layout";
 import { format } from "date-fns";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 
 const html2pdf = dynamic(() => import("html2pdf.js"), {
   ssr: false,
@@ -39,6 +40,7 @@ const Page = () => {
 const InvoiceDetails = () => {
   const searchParams = useSearchParams();
   const api = new APICall();
+  const router = useRouter();
 
   // Extract ID from search params
   const id = searchParams.get("id");
@@ -231,6 +233,7 @@ const InvoiceDetails = () => {
 
       alert("Invoice has been downloaded and sent via email successfully!");
       setPdfGenerated(true);
+      router.back("");
       return response;
     } catch (error) {
       console.error("Error in uploadToCloudinary:", error);

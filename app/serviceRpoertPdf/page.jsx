@@ -9,6 +9,7 @@ import APICall from "@/networkUtil/APICall";
 import { job, sendEmail } from "@/networkUtil/Constants";
 import Layout2 from "../../components/layout2";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 
 // Import html2pdf dynamically
 const Html2PdfWrapper = dynamic(
@@ -44,6 +45,8 @@ const getIdFromUrl = (url) => {
 
 const Page = () => {
   const api = new APICall();
+  const router = useRouter();
+
   const [id, setId] = useState("");
   const [fetchingData, setFetchingData] = useState(false);
   const [serviceReportList, setQuoteList] = useState(null);
@@ -164,8 +167,8 @@ const Page = () => {
       if (response.status !== "success") {
         throw new Error(`Upload failed: ${response.message}`);
       }
-      alert("Invoice sent successfully!");
-
+      alert("Service Report sent successfully!");
+      router.back("");
       return response;
     } catch (error) {
       console.error("Error in uploadToCloudinary:", error);
@@ -218,16 +221,23 @@ const Page = () => {
               />
             </div>
           </div>
-          <div style={{ fontSize: "10px", marginTop: "2rem", color: "#555",marginTop:"10rem" }}>
-            <div style={{fontWeight:"bold", fontSize:"12px"}}>
+          <div
+            style={{
+              fontSize: "10px",
+              marginTop: "2rem",
+              color: "#555",
+              marginTop: "10rem",
+            }}
+          >
+            <div style={{ fontWeight: "bold", fontSize: "12px" }}>
               Recommendations
             </div>
             <p>
-              • Avoid washing the treated area or removing the gel. <br /> • Keep
-              GPC-treated area closed for 4+ hrs. <br /> • Maintain cleanliness,
-              especially in infested zones. <br /> • Seal gaps and fix maintenance
-              issues to stop pest/rats nesting. <br /> • Follow our team’s advice to
-              reduce or prevent future infestations.
+              • Avoid washing the treated area or removing the gel. <br /> •
+              Keep GPC-treated area closed for 4+ hrs. <br /> • Maintain
+              cleanliness, especially in infested zones. <br /> • Seal gaps and
+              fix maintenance issues to stop pest/rats nesting. <br /> • Follow
+              our team’s advice to reduce or prevent future infestations.
             </p>
           </div>
         </Layout2>
