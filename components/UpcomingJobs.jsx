@@ -314,7 +314,7 @@ const UpcomingJobs = ({
                 </Link>
               ) : (
                 <Link href={`/serviceRpoertPdf?id=${row?.report?.id}`}>
-                  <GreenButton title="View & send Report" />
+                  <GreenButton title="View" />
                 </Link>
               )
             ) : (
@@ -322,6 +322,13 @@ const UpcomingJobs = ({
                 <GreenButton title="View Details" />
               </Link>
             )}
+          </div>
+        </td>
+        <td>
+          <div className={styles.teamCaptainName}>
+            <Link href={`/serviceReportPdf?id=${row?.report?.id}`}>
+              <GreenButton title="Print" />
+            </Link>
           </div>
         </td>
       </tr>
@@ -506,6 +513,7 @@ const UpcomingJobs = ({
                 { id: "jobSchedule", label: "Job Schedule" },
                 { id: "assignJob", label: "Assign Job" },
                 { id: "viewDetails", label: "View Details" },
+                { id: "printDetails", label: "Print Details" },
               ].map((header) => (
                 <th
                   key={header.id}
