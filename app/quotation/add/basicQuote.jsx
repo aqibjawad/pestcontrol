@@ -64,7 +64,7 @@ const BasicQuote = ({ setFormData, formData }) => {
         value: client.id,
         label: `${(
           client.client?.firm_name || "Unknown Firm"
-        ).toLowerCase()} (${client.name || "Unknown Name"})`,
+        )} (${client.name || "Unknown Name"})`,
         data: client,
       }));
       setAllBrandsList(transformedClients);

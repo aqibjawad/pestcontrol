@@ -168,7 +168,7 @@ const Page = () => {
         throw new Error(`Upload failed: ${response.message}`);
       }
       alert("Service Report sent successfully!");
-      router.back("");
+      router.back("/");
       return response;
     } catch (error) {
       console.error("Error in uploadToCloudinary:", error);

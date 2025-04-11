@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-import { serviceInvoice, clients } from "@/networkUtil/Constants";
+import { serviceInvoice, clients, sendEmail } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
 
 import {
@@ -13,7 +14,8 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper, Skeleton
+  Paper,
+  Skeleton,
 } from "@mui/material";
 
 import styles from "../../styles/paymentPdf.module.css";
@@ -40,6 +42,7 @@ const getParamsFromUrl = (url) => {
 
 const Page = () => {
   const api = new APICall();
+  const router = useRouter();
 
   const [id, setId] = useState("");
   const [userId, setUserId] = useState(null);
@@ -47,12 +50,14 @@ const Page = () => {
   const [allInvoiceList, setAllInvoiceList] = useState([]);
   const [rowData, setRowData] = useState([]);
 
-  console.log(rowData);
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const [fetchingData, setFetchingData] = useState(false);
+
+  const [loadingDetails, setLoadingDetails] = useState(true);
+  const [uploadingToCloudinary, setUploadingToCloudinary] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
 
   useEffect(() => {
     const currentUrl = window.location.href;
@@ -75,13 +80,13 @@ const Page = () => {
     try {
       if (id !== "") {
         const response = await api.getDataWithToken(`${serviceInvoice}/${id}`);
-
         setAllInvoiceList(response.data);
       }
     } catch (error) {
       console.error("Error fetching Services:", error);
     } finally {
       setFetchingData(false);
+      setLoadingDetails(false); // Set loadingDetails to false after fetching data
     }
   };
 
@@ -100,6 +105,7 @@ const Page = () => {
       setLoading(false);
     }
   };
+
   const numberToWords = (num) => {
     const belowTwenty = [
       "",
@@ -170,11 +176,120 @@ const Page = () => {
     return words.trim();
   };
 
+  // New useEffect to automatically send email when data is loaded
+  useEffect(() => {
+    console.log("Checking conditions:", {
+      hasInvoiceList: Boolean(allInvoiceList),
+      loadingDetails,
+      emailSent,
+    });
+
+    if (allInvoiceList && !loadingDetails && !emailSent) {
+      // Only run once when data is loaded
+      console.log("Auto sending email now");
+      handleAutoSendEmail();
+    }
+  }, [allInvoiceList, loadingDetails, emailSent]);
+
+  const handleAutoSendEmail = async () => {
+    try {
+      console.log("Starting email send process");
+      await uploadToCloudinary();
+      setEmailSent(true);
+      console.log("Email sent successfully");
+    } catch (error) {
+      console.error("Error in auto sending email:", error);
+    }
+  };
+
+  // Cloudinary Upload Function
+  const uploadToCloudinary = async () => {
+    try {
+      setUploadingToCloudinary(true);
+      console.log("Starting upload to Cloudinary");
+
+      // Generate PDF from a specific container instead of entire body
+      const element = document.getElementById("pdf-container");
+      if (!element) {
+        console.error("PDF container element not found!");
+        throw new Error("PDF container element not found");
+      }
+
+      const filename = `servicereport_${Date.now()}.pdf`;
+
+      // Setup options for PDF generation
+      const opt = {
+        filename: filename,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: {
+          scale: 2,
+          scrollX: 0,
+          scrollY: -window.scrollY,
+        },
+        jsPDF: {
+          unit: "in",
+          format: "letter",
+          orientation: "portrait",
+        },
+        pagebreak: {
+          mode: ["css", "legacy"],
+          before: ".page-break",
+        },
+      };
+
+      // Use the library properly by importing the actual html2pdf module
+      const html2pdfInstance = await import("html2pdf.js");
+      const html2pdf = html2pdfInstance.default || html2pdfInstance;
+
+      // Generate PDF directly as blob for the email without saving locally
+      const pdfBlob = await html2pdf().from(element).set(opt).outputPdf("blob");
+
+      const pdfFile = new File([pdfBlob], filename, {
+        type: "application/pdf",
+      });
+
+      const data = {
+        user_id: allInvoiceList?.user?.id,
+        subject: "Payment Invoice",
+        file: pdfFile,
+        html: `
+        <h1> ${allInvoiceList?.user?.name} </h1>
+        <a href="" > View Service Report </a>
+        <footer style="text-align: center; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 10px;">        
+          <div style="margin-top: 15px; font-size: 0.9em; color: #333;">
+            <h4> Accurate Pest Control Services LLC </h4>
+            <p style="margin: 5px 0;"> Office 12, Building # Greece K-12, International City Dubai </p>
+            <p style="margin: 5px 0;">
+              Email: accuratepestcontrolcl.ae | Phone: +971 52 449 6173
+            </p>
+          </div>
+        </footer>
+        `,
+      };
+
+      // Make the API call
+      const response = await api.postFormDataWithToken(`${sendEmail}`, data);
+
+      if (response.status !== "success") {
+        throw new Error(`Upload failed: ${response.message}`);
+      }
+      alert("Service Report sent successfully!");
+      router.back();
+      return response;
+    } catch (error) {
+      console.error("Error in uploadToCloudinary:", error);
+      alert("Failed to upload invoice. Please try again.");
+      throw error;
+    } finally {
+      setUploadingToCloudinary(false);
+    }
+  };
+
   return (
-    <div className={styles.customSize}>
+    <div id="pdf-container" className={styles.customSize}>
       <Grid container spacing={2}>
         <Grid item lg={6} xs={12} sm={6} md={4}>
-          <img className={styles.logo} src="/logo.jpeg" />
+          <img className={styles.logo} src="/logo.jpeg" alt="Company Logo" />
         </Grid>
 
         <Grid className="mt-5" item lg={6} xs={12} sm={6} md={4}>
@@ -210,7 +325,7 @@ const Page = () => {
         <Grid className="mt-5" item lg={3} xs={12} sm={6} md={4}></Grid>
 
         <Grid className="mt-5" item lg={4} xs={12} sm={6} md={4}>
-          <div className={styles.payment}>Paymen Voucher</div>
+          <div className={styles.payment}>Payment Voucher</div>
         </Grid>
 
         <Grid className="mr-2" item lg={3} xs={12} sm={6} md={4}>
@@ -227,7 +342,6 @@ const Page = () => {
                       رسید نمبر
                     </span>
                   </div>
-                  {/* {allInvoiceList.service_invoice_id} */}
                   <div className="h-16 p-2">
                     {allInvoiceList?.service_invoice_id}
                   </div>
@@ -390,7 +504,7 @@ const Page = () => {
         </div>
 
         <div className="px-4 mt-5">
-          <img className={styles.qrImage} src="/qr.png" />
+          <img className={styles.qrImage} src="/qr.png" alt="QR Code" />
         </div>
       </div>
 
@@ -424,7 +538,6 @@ const Page = () => {
                     <TableCell>
                       <Skeleton variant="wave" width={100} />
                     </TableCell>
-
                   </TableRow>
                 ))
               : rowData.map((row, index) => (

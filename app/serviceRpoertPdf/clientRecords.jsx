@@ -444,6 +444,16 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                   >
                     Dose
                   </TableCell>
+                  <TableCell
+                    sx={{
+                      color: "white",
+                      marginTop: "-10px",
+                      paddingTop: "0px",
+                      paddingBottom: "15px",
+                    }}
+                  >
+                    Average Price
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -481,6 +491,16 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                           }}
                         >
                           {row.dose}
+                        </TableCell>
+                        <TableCell
+                          sx={{
+                            marginTop: "-10px",
+                            paddingTop: "0px",
+                            paddingBottom: "15px",
+                            fontSize: "10px",
+                          }}
+                        >
+                          {row.avg_price}
                         </TableCell>
                       </TableRow>
                     ))}
