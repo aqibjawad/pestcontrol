@@ -19,6 +19,7 @@ export default function RootLayout({
     "/quotePdf/",
     // "/account/supplier_ledger/",
     "/invoiceDetails/",
+    "/invoiceDetailsPdf/",
     "/paySlip/",
     "/deviceDoc/",
     "/paymentInvoice/",

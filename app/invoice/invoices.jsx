@@ -494,6 +494,12 @@ const ListServiceTable = ({
                     >
                       Assign
                     </th>
+                    <th
+                      style={{ width: "8%" }}
+                      className="py-2 px-4 border-b border-gray-200 text-left"
+                    >
+                      Print
+                    </th>
                   </tr>
                 </thead>
               </table>
@@ -607,6 +613,13 @@ const ListServiceTable = ({
                             >
                               Pay
                             </button>
+                          </td>
+                          <td style={{ width: "8%" }} className="py-2 px-4">
+                            <Link href={`/invoiceDetailsPdf?id=${row.id}`}>
+                              <span className="text-blue-600 hover:text-blue-800">
+                                Print Details
+                              </span>
+                            </Link>
                           </td>
                         </tr>
                       ))}
