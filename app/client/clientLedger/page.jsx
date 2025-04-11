@@ -341,7 +341,7 @@ const Page = () => {
                     <TableCell>{row.dr_amt}</TableCell>
                     <TableCell>{row.cash_balance}</TableCell>
                     <TableCell>
-                      <Link href={`/paymentInvoice/?id=${row.id}`}>
+                      <Link href={`/paymentInvoice/?id=${row.id}&userId=${id}`}>
                         View Invoice
                       </Link>
                     </TableCell>

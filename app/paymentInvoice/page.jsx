@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 import { serviceInvoice, clients, sendEmail } from "@/networkUtil/Constants";
@@ -43,6 +43,8 @@ const getParamsFromUrl = (url) => {
 const Page = () => {
   const api = new APICall();
   const router = useRouter();
+  // Add a ref to track if email has been sent
+  const emailSentRef = useRef(false);
 
   const [id, setId] = useState("");
   const [userId, setUserId] = useState(null);
@@ -67,7 +69,7 @@ const Page = () => {
   }, []);
 
   useEffect(() => {
-    if (id !== undefined && id !== null) {
+    if (id !== undefined && id !== null && id !== "") {
       getAllServices(id);
     }
     if (userId !== undefined && userId !== null) {
@@ -176,16 +178,24 @@ const Page = () => {
     return words.trim();
   };
 
-  // New useEffect to automatically send email when data is loaded
+  // Modified useEffect to use ref to prevent duplicate email sends
   useEffect(() => {
     console.log("Checking conditions:", {
-      hasInvoiceList: Boolean(allInvoiceList),
+      hasInvoiceList: Boolean(allInvoiceList?.user?.id),
       loadingDetails,
       emailSent,
+      emailSentRef: emailSentRef.current
     });
 
-    if (allInvoiceList && !loadingDetails && !emailSent) {
-      // Only run once when data is loaded
+    // Only proceed if data is loaded, emailSentRef is false, and we have a user ID
+    if (
+      allInvoiceList?.user?.id && 
+      !loadingDetails && 
+      !emailSent && 
+      !emailSentRef.current
+    ) {
+      // Set ref immediately to prevent duplicate executions
+      emailSentRef.current = true;
       console.log("Auto sending email now");
       handleAutoSendEmail();
     }
@@ -199,6 +209,8 @@ const Page = () => {
       console.log("Email sent successfully");
     } catch (error) {
       console.error("Error in auto sending email:", error);
+      // Reset the ref if sending fails so it can be retried
+      emailSentRef.current = false;
     }
   };
 
@@ -248,8 +260,13 @@ const Page = () => {
         type: "application/pdf",
       });
 
+      // Make sure we have a valid user_id before sending
+      if (!allInvoiceList?.user?.id) {
+        throw new Error("User ID is missing, cannot send email");
+      }
+
       const data = {
-        user_id: allInvoiceList?.user?.id,
+        user_id: allInvoiceList.user.id,
         subject: "Payment Invoice",
         file: pdfFile,
         html: `

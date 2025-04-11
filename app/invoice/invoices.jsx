@@ -480,7 +480,7 @@ const ListServiceTable = ({
                       style={{ width: "8%" }}
                       className="py-2 px-4 border-b border-gray-200 text-left"
                     >
-                      Action
+                      Send Email
                     </th>
                     <th
                       style={{ width: "8%" }}
@@ -498,7 +498,7 @@ const ListServiceTable = ({
                       style={{ width: "8%" }}
                       className="py-2 px-4 border-b border-gray-200 text-left"
                     >
-                      Print
+                      View
                     </th>
                   </tr>
                 </thead>
@@ -578,7 +578,7 @@ const ListServiceTable = ({
                           <td style={{ width: "8%" }} className="py-2 px-4">
                             <Link href={`/invoiceDetails?id=${row.id}`}>
                               <span className="text-blue-600 hover:text-blue-800">
-                                View Details
+                                Send Email
                               </span>
                             </Link>
                           </td>
@@ -617,7 +617,7 @@ const ListServiceTable = ({
                           <td style={{ width: "8%" }} className="py-2 px-4">
                             <Link href={`/invoiceDetailsPdf?id=${row.id}`}>
                               <span className="text-blue-600 hover:text-blue-800">
-                                Print Details
+                                View Details
                               </span>
                             </Link>
                           </td>
