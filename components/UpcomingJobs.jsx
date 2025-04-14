@@ -163,7 +163,7 @@ const UpcomingJobs = ({
         .includes(searchTermLower);
       // Add tag search
       const tagMatch = job?.tag?.toLowerCase().includes(searchTermLower);
-        
+
       const areaMatch =
         !selectedArea || job?.client_address?.area === selectedArea;
 
@@ -312,6 +312,22 @@ const UpcomingJobs = ({
         </td>
         <td>
           <div className={styles.teamCaptainName}>
+            <Link
+              href={
+                row.is_completed === 1
+                  ? `/serviceRpoertPdf?id=${row?.report?.id}`
+                  : "#"
+              }
+            >
+              <GreenButton
+                title="Send Email"
+                disabled={row.is_completed !== 1}
+              />
+            </Link>
+          </div>
+        </td>
+        <td>
+          <div className={styles.teamCaptainName}>
             {row.is_completed === 1 ? (
               row.report === null ? (
                 <Link href={`/serviceReport?id=${row.id}`}>
@@ -319,7 +335,7 @@ const UpcomingJobs = ({
                 </Link>
               ) : (
                 <Link href={`/serviceRpoertPdf?id=${row?.report?.id}`}>
-                  <GreenButton title="Send Email" />
+                  <GreenButton title="View Report" />
                 </Link>
               )
             ) : (
@@ -327,13 +343,6 @@ const UpcomingJobs = ({
                 <GreenButton title="View Details" />
               </Link>
             )}
-          </div>
-        </td>
-        <td>
-          <div className={styles.teamCaptainName}>
-            <Link href={`/serviceReportPdf?id=${row?.report?.id}`}>
-              <GreenButton title="View Details" />
-            </Link>
           </div>
         </td>
       </tr>
