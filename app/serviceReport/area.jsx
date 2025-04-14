@@ -106,9 +106,9 @@ const Area = ({ formData, setFormData }) => {
           <thead>
             <tr>
               <th>Sr No.</th>
-              <th>Inspected Areas</th>
-              <th>Infestation level</th>
-              <th>Manifested areas</th>
+              <th>Pest Found</th>
+              <th>Treatment Area</th>
+              <th>Main Infected areas</th>
               <th>Report and follow up detail</th>
             </tr>
           </thead>

@@ -266,8 +266,9 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                     lineHeight: "1rem",
                   }}
                 >
-                  Inspected Area
+                 Pest Found
                 </TableCell>
+
                 <TableCell
                   sx={{
                     color: "white",
@@ -275,8 +276,9 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                     lineHeight: "1rem",
                   }}
                 >
-                  Infection Level
+                   Treatment Area
                 </TableCell>
+
                 <TableCell
                   sx={{
                     color: "white",
@@ -284,7 +286,7 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                     lineHeight: "1rem",
                   }}
                 >
-                  Manifested Area
+                  Main Infected Area
                 </TableCell>
                 <TableCell
                   sx={{
@@ -306,6 +308,7 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                         sx={{
                           padding: "4px 16px",
                           lineHeight: "1rem",
+                          fontSize:"10px"
                         }}
                       >
                         {row.inspected_areas}
@@ -314,6 +317,7 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                         sx={{
                           padding: "4px 16px",
                           lineHeight: "1rem",
+                          fontSize:"10px"
                         }}
                       >
                         {row.infestation_level}
@@ -322,6 +326,7 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                         sx={{
                           padding: "4px 16px",
                           lineHeight: "1rem",
+                          fontSize:"10px"
                         }}
                       >
                         {row.manifested_areas}
@@ -330,6 +335,7 @@ const ClientRecords = ({ serviceReportList, loading }) => {
                         sx={{
                           padding: "4px 16px",
                           lineHeight: "1rem",
+                          fontSize:"10px"
                         }}
                       >
                         {row.report_and_follow_up_detail}
