@@ -565,12 +565,15 @@ const ListServiceTable = ({
                             <div
                               className={
                                 row.status.toLowerCase() === "paid"
-                                  ? "text-green-600"
+                                  ? "text-green-600"  
                                   : "text-red-600"
                               }
                             >
-                              {row.status}
+                              {row.status.toLowerCase() === "paid"
+                                ? "Received"
+                                : "Pending"}
                             </div>
+
                             <div>
                               {row.is_taken_cheque === 1 ? "Cheque Taken" : ""}
                             </div>
@@ -730,7 +733,7 @@ const Invoices = ({ isVisible }) => {
                   : "bg-gray-200 text-gray-700"
               }`}
             >
-              Paid
+              Received
             </button>
             <button
               onClick={() => setStatusFilter("unpaid")}
@@ -740,7 +743,7 @@ const Invoices = ({ isVisible }) => {
                   : "bg-gray-200 text-gray-700"
               }`}
             >
-              Unpaid
+              Pending
             </button>
           </div>
           <div className="flex gap-4">

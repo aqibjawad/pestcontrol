@@ -74,6 +74,24 @@ const Tabs = ({ activeTab, setActiveTab }) => {
         >
           Attendence
         </div>
+
+        <div
+          className={`${styles.tabPaymentButton} ${
+            currentTab === "advance" ? styles.active : ""
+          }`}
+          onClick={() => handleTabClick("advance")}
+        >
+          Advance
+        </div>
+
+        <div
+          className={`${styles.tabPaymentButton} ${
+            currentTab === "fine" ? styles.active : ""
+          }`}
+          onClick={() => handleTabClick("fine")}
+        >
+          Fine
+        </div>
       </div>
     </div>
   );

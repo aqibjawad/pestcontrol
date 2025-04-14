@@ -95,14 +95,9 @@ const Ledger = () => {
   return (
     <div className="p-6">
       <h2 className="text-xl font-bold mb-4">Advance Payments</h2>
-
-      <div className="mb-8">
-        <MonthPicker onDateChange={handleDateChange} />
-      </div>
-
       <Card sx={{ mb: 4, p: 3 }}>
         <div>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto"> 
             <table className="w-full">
               <thead>
                 <tr className="border-b">

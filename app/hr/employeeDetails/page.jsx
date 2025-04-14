@@ -10,6 +10,9 @@ import Link from "next/link";
 import EmpUpcomingJobs from "../jobs/upComing";
 import withAuth from "@/utils/withAuth";
 
+import Advance from "./advance";
+import Fine from "./fine";
+
 import Grid from "@mui/material/Grid";
 import InputWithTitle3 from "@/components/generic/InputWithTitle3";
 import GreenButton from "@/components/generic/GreenButton";
@@ -665,6 +668,18 @@ const Page = () => {
             attendence={employeeListAtten}
             onMonthChange={handleMonthChange}
           />
+        </div>
+      )}
+
+      {activeTab === "advance" && (
+        <div className={styles.personalDetailsContainer}>
+          <Advance />
+        </div>
+      )}
+
+      {activeTab === "fine" && (
+        <div className={styles.personalDetailsContainer}>
+          <Fine />
         </div>
       )}
     </div>
