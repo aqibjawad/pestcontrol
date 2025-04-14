@@ -18,7 +18,7 @@ const UseChemicals = ({ formData, setFormData }) => {
       id: Date.now(),
       is_extra: 0,
       price: 0,
-    };
+    }; 
 
     const updatedChemicals = [...used_products, chemicalWithExtra];
     setChemicals(updatedChemicals);
@@ -69,10 +69,10 @@ const UseChemicals = ({ formData, setFormData }) => {
           <tbody>
             {used_products.map((chemical, index) => (
               <tr key={chemical.id}>
-                <td>{index + 1}</td>
+                <td style={{textAlign:"center"}}>{index + 1}</td>
                 <td>{chemical.name}</td>
-                <td>{chemical.dose}</td>
-                <td>{chemical.qty}</td>
+                <td style={{textAlign:"center"}}>{chemical.dose}</td>
+                <td style={{textAlign:"center"}}>{chemical.qty}</td>
               </tr>
             ))}
           </tbody>

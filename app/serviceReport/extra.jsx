@@ -57,11 +57,11 @@ const Extra = ({ formData, setFormData }) => {
           <tbody>
             {extraChemicals.map((chemical, index) => (
               <tr key={chemical.id}>
-                <td>{index + 1}</td>
+                <td style={{ textAlign: "center" }}>{index + 1}</td>
                 <td>{chemical.name}</td>
-                <td>{chemical.dose}</td>
-                <td>{chemical.quantity}</td>
-                <td>{chemical.price}</td>
+                <td style={{ textAlign: "center" }}>{chemical.dose}</td>
+                <td style={{ textAlign: "center" }}>{chemical.quantity}</td>
+                <td style={{ textAlign: "center" }}>{chemical.price}</td>
               </tr>
             ))}
           </tbody>

@@ -37,7 +37,7 @@ const AddChemicals = ({
     setChemicalData({
       product_id: "",
       name: "",
-      dose: "",
+      dose: 1,
       qty: "",
       remaining_qty: "",
       price: 0,
@@ -105,6 +105,15 @@ const AddChemicals = ({
         </div>
         <div className="mt-5">
           <InputWithTitle
+            title="Dose"
+            type="number"
+            placeholder="Enter dose"
+            value={chemicalData.dose}
+            onChange={(value) => handleInputChange("dose", value)}
+          />
+        </div>
+        <div className="mt-5">
+          <InputWithTitle
             title={`Quantity (Available: ${chemicalData.remaining_qty})`}
             type="text"
             placeholder="qty"
@@ -116,7 +125,7 @@ const AddChemicals = ({
           <GreenButton
             title="Submit"
             onClick={handleSubmit}
-            disabled={!chemicalData.qty || chemicalData.qty <= 0} // Disable button if qty <= 0
+            disabled={!chemicalData.qty || chemicalData.qty <= 0 || !chemicalData.dose || chemicalData.dose <= 0} // Disable button if qty or dose <= 0
           />
         </div>
       </Box>
