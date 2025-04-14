@@ -45,6 +45,7 @@ const prepareExportData = (jobs) => {
     "Firm Name": job?.user?.client?.firm_name,
     Status: getStatusInfo(job.is_completed).text, // Use .text property from getStatusInfo
     Priority: job.priority,
+    Tag: job.tag || "No Tag",
     "Job Schedule":
       job.reschedule_dates?.length > 1
         ? `Reschedule - ${formatDateTime(
@@ -160,10 +161,13 @@ const UpcomingJobs = ({
       const firmNameMatch = job?.user?.client?.firm_name
         ?.toLowerCase()
         .includes(searchTermLower);
+      // Add tag search
+      const tagMatch = job?.tag?.toLowerCase().includes(searchTermLower);
+        
       const areaMatch =
         !selectedArea || job?.client_address?.area === selectedArea;
 
-      return (jobTitleMatch || firmNameMatch) && areaMatch;
+      return (jobTitleMatch || firmNameMatch || tagMatch) && areaMatch;
     });
 
     const limitedJobs = isDashboard ? filtered?.slice(0, 10) : filtered;
@@ -257,6 +261,7 @@ const UpcomingJobs = ({
           <div className={styles.clientArea}>
             {row?.client_address?.area || "No Area Specified"}
           </div>
+          {row.tag && <div className={styles.clientTag}>Tag: {row.tag}</div>}
         </td>
         <td>{row?.user?.client?.firm_name}</td>
         <td>{row.job_title}</td>
@@ -468,7 +473,7 @@ const UpcomingJobs = ({
 
           <SearchInput
             onSearch={handleSearch}
-            placeholder="Search by job title"
+            placeholder="Search Firm Name / Job Title / Tag"
           />
           <div className="flex items-center border border-green-500 rounded-lg h-10 w-36 ml-3 px-2 mr-3">
             <img
