@@ -11,10 +11,15 @@ import {
   Paper,
   Skeleton,
   TableSortLabel,
+  Button,
 } from "@mui/material";
 import APICall from "@/networkUtil/APICall";
 import { quotation } from "@/networkUtil/Constants";
 import Link from "next/link";
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import { jsPDF } from "jspdf"; // Make sure to npm install jspdf
+import "jspdf-autotable"; // Make sure to npm install jspdf-autotable
 
 import DateFilters from "./generic/DateFilters";
 import { format, differenceInDays, parseISO } from "date-fns";
@@ -166,6 +171,96 @@ const Contracts = () => {
     return `Expires in ${days} days`;
   };
 
+  const handleDownloadPDF = (pdfUrl, customerName) => {
+    if (!pdfUrl) return;
+
+    // Create an anchor element and set properties for download
+    const link = document.createElement("a");
+    link.href = pdfUrl;
+    link.download = `Contract_${customerName || "document"}.pdf`;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Function to download the entire table data as PDF
+  const downloadTableAsPDF = () => {
+    if (!sortedData || sortedData.length === 0) {
+      alert("No data available to download");
+      return;
+    }
+
+    try {
+      // Create a new PDF document
+      const doc = new jsPDF("landscape");
+
+      // Add title
+      doc.setFontSize(18);
+      doc.text("Contracts Report", 14, 22);
+
+      // Add date
+      doc.setFontSize(12);
+      doc.text(`Generated on: ${format(new Date(), "yyyy-MM-dd")}`, 14, 30);
+
+      // Filter period if available
+      if (startDate && endDate) {
+        doc.text(`Period: ${startDate} to ${endDate}`, 14, 38);
+      }
+
+      // Prepare table data
+      const tableData = sortedData.map((row, index) => [
+        index + 1,
+        row?.user?.name || "",
+        row?.jobs[0]?.total_jobs || 0,
+        row?.jobs?.length || 0,
+        row.billing_method || "",
+        row.quote_title || "",
+        row?.treatment_methods?.map((method) => method.name).join(", ") ||
+          "N/A",
+        row.contract_end_date || "",
+        getExpirationText(row.daysUntilExpiration),
+        row.sub_total || "",
+        row.grand_total || "",
+        !row?.contract_cancel_reason ? "Active" : "Canceled",
+      ]);
+
+      // Set column headers
+      const headers = [
+        "Sr No",
+        "Customer",
+        "Total Jobs",
+        "Completed Jobs",
+        "Billing Method",
+        "Quote Title",
+        "Treatment Methods",
+        "Contract End Date",
+        "Expiration Status",
+        "Sub Total",
+        "Grand Total",
+        "Status",
+      ];
+
+      // Generate the table
+      doc.autoTable({
+        head: [headers],
+        body: tableData,
+        startY: 45,
+        styles: { fontSize: 8, cellPadding: 2 },
+        headStyles: { fillColor: [50, 169, 46], textColor: 255 },
+        alternateRowStyles: { fillColor: [245, 245, 245] },
+        margin: { top: 45 },
+      });
+
+      // Save the PDF
+      doc.save(`Contracts_Report_${format(new Date(), "yyyy-MM-dd")}.pdf`);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      alert("Error generating PDF. Please try again.");
+    }
+  };
+
   const listServiceTable = () => {
     return (
       <TableContainer component={Paper} sx={{ maxHeight: "70vh" }}>
@@ -210,16 +305,14 @@ const Contracts = () => {
                   Status
                 </TableSortLabel>
               </TableCell>
-              {/* <TableCell>View Details</TableCell> */}
-              <TableCell>Download PDF</TableCell>
+              <TableCell>PDF</TableCell>
               <TableCell>Actions</TableCell>
-              <TableCell></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {fetchingData ? (
               <TableRow>
-                <TableCell colSpan={10} align="center">
+                <TableCell colSpan={12} align="center">
                   {[...Array(5)].map((_, index) => (
                     <Skeleton
                       key={index}
@@ -264,28 +357,29 @@ const Contracts = () => {
                       </div>
                     )}
                   </TableCell>
-                  {/* <TableCell>
-                    <Link href={`/quotePdf?id=${row.id}`}>
-                      <span style={{ color: "#2563eb", cursor: "pointer" }}>
-                        View Details
-                      </span>
-                    </Link>
-                  </TableCell> */}
-                  <TableCell
-                    className="contractTable"
-                    style={{ color: "blue" }}
-                  >
+                  <TableCell>
                     {row?.pdf_url ? (
-                      <a
-                        href={row.pdf_url}
-                        download
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        startIcon={<FileDownloadIcon />}
+                        onClick={() =>
+                          handleDownloadPDF(row.pdf_url, row?.user?.name)
+                        }
+                        sx={{
+                          backgroundColor: "#2563eb",
+                          "&:hover": {
+                            backgroundColor: "#1d4ed8",
+                          },
+                          fontWeight: "bold",
+                          fontSize: "12px",
+                          padding: "6px 12px",
+                        }}
                       >
-                        Download PDF
-                      </a>
+                        Download
+                      </Button>
                     ) : (
-                      "No PDF"
+                      <span style={{ color: "#666" }}>No PDF</span>
                     )}
                   </TableCell>
                   <TableCell>
@@ -331,8 +425,27 @@ const Contracts = () => {
             display: "flex",
             justifyContent: "flex-end",
             marginTop: "2rem",
+            gap: "12px",
           }}
         >
+          <Button
+            variant="contained"
+            startIcon={<PictureAsPdfIcon />}
+            onClick={downloadTableAsPDF}
+            sx={{
+              backgroundColor: "#16a34a",
+              "&:hover": {
+                backgroundColor: "#15803d",
+              },
+              fontWeight: "600",
+              height: "44px",
+              width: "180px",
+              fontSize: "14px",
+            }}
+          >
+            EXPORT PDF
+          </Button>
+
           <div
             style={{
               backgroundColor: "#32A92E",
@@ -344,7 +457,6 @@ const Contracts = () => {
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              marginLeft: "1rem",
               padding: "12px 16px",
               borderRadius: "10px",
             }}

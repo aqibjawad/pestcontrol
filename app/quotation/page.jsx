@@ -52,7 +52,7 @@ const Page = () => {
     processedQuoteServices: false,
     branch_id: "",
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [fetchingData, setFetchingData] = useState(false);
 
@@ -88,7 +88,7 @@ const Page = () => {
       });
       return;
     }
-    
+
     setLoading(true);
     try {
       const endpoint = `${quotation}/manage`;
@@ -157,7 +157,9 @@ const Page = () => {
 
   return (
     <div>
-      <div className="quote-main-head pageTitle">Create Quote</div>
+      <div>
+        <div className="quote-main-head pageTitle">Create Quote</div>
+      </div>
 
       <BasicQuote setFormData={safeSetFormData} formData={formData} />
       <ServiceAgreement

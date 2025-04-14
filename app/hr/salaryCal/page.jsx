@@ -483,6 +483,13 @@ const SalaryCal = () => {
     setSelectedBankId(selectedValue);
   };
 
+  const [totalDeductions, setTotalDeductions] = useState("0");
+  useEffect(() => {
+    const advAmount = parseFloat(adv_received) || 0;
+    const fineAmount = parseFloat(fine_received) || 0;
+    setTotalDeductions((advAmount + fineAmount).toString());
+  }, [adv_received, fine_received]);
+
   return (
     <div>
       <GreenButton
@@ -837,6 +844,17 @@ const SalaryCal = () => {
                   onChange={(value) => setFineRec(value)}
                 />
               </Grid>
+              {/* New Total Deductions field */}
+              <Grid item xs={4}>
+                <InputWithTitle
+                  type="text"
+                  title="Total Deductions"
+                  placeholder="Total Deductions"
+                  value={totalDeductions}
+                  disabled={true} // Make it read-only
+                  helperText="Sum of advance and fine deductions"
+                />
+              </Grid>
               <Grid item xs={4}>
                 <InputWithTitle
                   type="text"
@@ -878,7 +896,6 @@ const SalaryCal = () => {
               </Grid>
             </Grid>
             <Tabs activeTab={activeTab} setActiveTab={handleTabChange} />
-
             {activeTab === "online" && (
               <Grid
                 style={{
@@ -916,7 +933,6 @@ const SalaryCal = () => {
                 </Grid>
               </Grid>
             )}
-
             <div className="mt-5">
               <GreenButton
                 onClick={handleSubmit}
