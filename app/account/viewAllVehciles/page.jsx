@@ -27,6 +27,8 @@ import Tabs from "./tabs";
 
 import Dropdown2 from "@/components/generic/DropDown2";
 
+import MultilineInput from "@/components/generic/MultilineInput";
+
 const Page = () => {
   const api = new APICall();
   const [fetchingData, setFetchingData] = useState(false);
@@ -461,6 +463,14 @@ const Page = () => {
                   onChange={handleFineDateChange}
                   title={"Fine Date"}
                   type={"date"}
+                  value={fine_date}
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+                <MultilineInput
+                  onChange={handleFineDateChange}
+                  title={"Description"}
                   value={fine_date}
                 />
               </Grid>

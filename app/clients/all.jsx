@@ -263,13 +263,6 @@ const AllClients = () => {
             ))}
           </tbody>
         </table>
-
-        {/* Pagination Component */}
-        {/* <div className="flex justify-center py-4">
-          <button className="px-3 py-1 bg-gray-200 rounded-full">1</button>
-          <button className="px-3 py-1 bg-gray-200 rounded-full ml-2">2</button>
-          <button className="px-3 py-1 bg-gray-200 rounded-full ml-2">3</button>
-        </div> */}
       </div>
     );
   };
