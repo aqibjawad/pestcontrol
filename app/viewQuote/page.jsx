@@ -284,7 +284,7 @@ const Quotation = () => {
                 <TableRow key={row?.id || index}>
                   <TableCell className="contractTable">{index + 1}</TableCell>
                   <TableCell className="contractTable">
-                    {row?.user?.name || "N/A"}
+                    {row?.user?.client?.firm_name || "N/A"}
                   </TableCell>
                   <TableCell className="contractTable">
                     <div className="approvedContrant">{row?.tag || "N/A"}</div>

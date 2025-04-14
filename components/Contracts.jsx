@@ -12,14 +12,17 @@ import {
   Skeleton,
   TableSortLabel,
   Button,
+  TextField,
+  InputAdornment,
 } from "@mui/material";
 import APICall from "@/networkUtil/APICall";
 import { quotation } from "@/networkUtil/Constants";
 import Link from "next/link";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
-import { jsPDF } from "jspdf"; // Make sure to npm install jspdf
-import "jspdf-autotable"; // Make sure to npm install jspdf-autotable
+import SearchIcon from "@mui/icons-material/Search";
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
 
 import DateFilters from "./generic/DateFilters";
 import { format, differenceInDays, parseISO } from "date-fns";
@@ -28,10 +31,12 @@ const Contracts = () => {
   const api = new APICall();
 
   const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("daysUntilExpiration"); // Default sort by days until expiration
+  const [orderBy, setOrderBy] = useState("daysUntilExpiration");
 
   const [fetchingData, setFetchingData] = useState(false);
   const [quoteList, setQuoteList] = useState([]);
+  const [filteredQuoteList, setFilteredQuoteList] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -44,6 +49,18 @@ const Contracts = () => {
   useEffect(() => {
     getAllQuotes();
   }, [startDate, endDate]);
+
+  useEffect(() => {
+    // Filter quotes based on search term
+    if (searchTerm.trim() === "") {
+      setFilteredQuoteList(quoteList);
+    } else {
+      const filtered = quoteList.filter((quote) =>
+        quote?.user?.client?.firm_name?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredQuoteList(filtered);
+    }
+  }, [searchTerm, quoteList]);
 
   const getAllQuotes = async () => {
     setFetchingData(true);
@@ -80,6 +97,7 @@ const Contracts = () => {
       });
 
       setQuoteList(mergedData);
+      setFilteredQuoteList(mergedData); // Initialize filtered list with all data
     } catch (error) {
       console.error("Error fetching quotes and contacts:", error);
     } finally {
@@ -87,27 +105,35 @@ const Contracts = () => {
     }
   };
 
-  // Calculate counts for different statuses
-  const activeCount = quoteList.filter(
-    (quote) => quote.is_contracted === 1
+  // Calculate counts for different statuses based on filtered list
+  const activeCount = filteredQuoteList.filter(
+    (quote) => !quote.contract_cancel_reason
   ).length;
-  const pendingCount = quoteList.filter(
+  const pendingCount = filteredQuoteList.filter(
     (quote) => quote.is_contracted === 0
   ).length;
-  const inProcessCount = quoteList.filter(
+  const inProcessCount = filteredQuoteList.filter(
     (quote) => quote.is_contracted === 2
   ).length;
-  const expiredCount = quoteList.filter(
+  const expiredCount = filteredQuoteList.filter(
     (quote) =>
       quote.contract_cancel_reason === "expired" && quote.contract_cancelled_at
   ).length;
+  const canceledCount = filteredQuoteList.filter(
+    (quote) =>
+      quote.contract_cancel_reason && quote.contract_cancel_reason !== "expired"
+  ).length;
 
-  const totalCount = quoteList.length;
+  const totalCount = filteredQuoteList.length;
 
   const handleRequestSort = (property) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
   };
 
   const sortData = (data) => {
@@ -160,7 +186,7 @@ const Contracts = () => {
     });
   };
 
-  const sortedData = sortData(quoteList);
+  const sortedData = sortData(filteredQuoteList);
 
   const sortLabelStyles = {
     "& .MuiTableSortLabel-icon": {
@@ -226,6 +252,19 @@ const Contracts = () => {
         doc.text(`Period: ${startDate} to ${endDate}`, 14, 38);
       }
 
+      // Add search filter info if applicable
+      if (searchTerm) {
+        doc.text(`Filtered by: "${searchTerm}"`, 14, 46);
+      }
+
+      // Add logo at the top right
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const logoWidth = 45;
+      const logoHeight = 30;
+      const logoX = pageWidth - logoWidth - 15; // Position from right side
+      const logoY = 15;
+      doc.addImage("/logo.jpeg", "PNG", logoX, logoY, logoWidth, logoHeight);
+
       // Prepare table data
       const tableData = sortedData.map((row, index) => [
         index + 1,
@@ -259,16 +298,48 @@ const Contracts = () => {
         "Status",
       ];
 
+      // Get the end Y position of table to know where to add the summary
+      let finalY;
+
       // Generate the table
       doc.autoTable({
         head: [headers],
         body: tableData,
-        startY: 45,
+        startY: 50, // Adjusted starting position
         styles: { fontSize: 8, cellPadding: 2 },
         headStyles: { fillColor: [50, 169, 46], textColor: 255 },
         alternateRowStyles: { fillColor: [245, 245, 245] },
-        margin: { top: 45 },
+        margin: { top: 50 },
+        didDrawPage: (data) => {
+          finalY = data.cursor.y;
+        },
       });
+
+      // Add summary at the bottom of the table
+      finalY = finalY || doc.autoTable.previous.finalY;
+      finalY += 20; // Add some space after the table
+
+      // Create bottom summary box
+      doc.setFillColor(240, 240, 240);
+      doc.rect(14, finalY, pageWidth - 28, 80, "F"); // Made taller to accommodate the main summary too
+
+      // Add bottom summary title
+      doc.setFontSize(14);
+      doc.setTextColor(50, 50, 50);
+      doc.text("Contracts Summary", 20, finalY + 10);
+
+      // Add main summary content
+      doc.setFontSize(10);
+      doc.text(`Active: ${activeCount}`, 20, finalY + 25);
+      doc.text(`Pending: ${pendingCount}`, 20, finalY + 35);
+      doc.text(`In Process: ${inProcessCount}`, 20, finalY + 45);
+      doc.text(`Expired: ${expiredCount}`, pageWidth / 2 - 30, finalY + 25);
+      doc.text(`Canceled: ${canceledCount}`, pageWidth / 2 - 30, finalY + 35);
+      doc.text(`Total: ${totalCount}`, pageWidth / 2 - 30, finalY + 45);
+
+      // Add a footer note
+      doc.setFontSize(8);
+      doc.setTextColor(100, 100, 100);
 
       // Save the PDF
       doc.save(`Contracts_Report_${format(new Date(), "yyyy-MM-dd")}.pdf`);
@@ -341,11 +412,21 @@ const Contracts = () => {
                   ))}
                 </TableCell>
               </TableRow>
+            ) : sortedData.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={12} align="center">
+                  <div
+                    style={{ padding: "20px", fontSize: "16px", color: "#666" }}
+                  >
+                    No contracts found matching your search criteria
+                  </div>
+                </TableCell>
+              </TableRow>
             ) : (
               sortedData.map((row, index) => (
                 <TableRow key={row.id || index} hover>
                   <TableCell>{index + 1}</TableCell>
-                  <TableCell>{row?.user?.name}</TableCell>
+                  <TableCell>{row?.user?.client?.firm_name}</TableCell>
                   <TableCell>{row?.jobs[0]?.total_jobs}</TableCell>
                   <TableCell>{row?.jobs?.length}</TableCell>
                   <TableCell>{row.billing_method}</TableCell>
@@ -440,7 +521,7 @@ const Contracts = () => {
 
         {/* Quote Summary Section */}
         <div className="bg-white rounded-lg shadow-md p-4 mb-4">
-          <h2 className="text-xl font-semibold mb-4">Summary</h2>
+          <h2 className="text-xl font-semibold mb-4"> Summary </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div className="p-3 bg-green-50 rounded border border-green-200">
               <p className="text-sm text-gray-600">Active</p>
@@ -468,45 +549,69 @@ const Contracts = () => {
         <div
           style={{
             display: "flex",
-            justifyContent: "flex-end",
+            justifyContent: "space-between",
+            alignItems: "center",
             marginTop: "1rem",
             gap: "12px",
           }}
         >
-          <Button
-            variant="contained"
-            startIcon={<PictureAsPdfIcon />}
-            onClick={downloadTableAsPDF}
-            sx={{
-              backgroundColor: "#16a34a",
-              "&:hover": {
-                backgroundColor: "#15803d",
+          {/* Search Bar */}
+          <TextField
+            variant="outlined"
+            placeholder="Search by firm name..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+              style: {
+                backgroundColor: "#fff",
+                borderRadius: "8px",
+                height: "44px",
+                width: "300px",
               },
-              fontWeight: "600",
-              height: "44px",
-              width: "180px",
-              fontSize: "14px",
             }}
-          >
-            EXPORT PDF
-          </Button>
+          />
 
-          <div
-            style={{
-              backgroundColor: "#32A92E",
-              color: "white",
-              fontWeight: "600",
-              fontSize: "16px",
-              height: "44px",
-              width: "202px",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              padding: "12px 16px",
-              borderRadius: "10px",
-            }}
-          >
-            <DateFilters onDateChange={handleDateChange} />
+          <div style={{ display: "flex", gap: "12px" }}>
+            <Button
+              variant="contained"
+              startIcon={<PictureAsPdfIcon />}
+              onClick={downloadTableAsPDF}
+              sx={{
+                backgroundColor: "#16a34a",
+                "&:hover": {
+                  backgroundColor: "#15803d",
+                },
+                fontWeight: "600",
+                height: "44px",
+                width: "180px",
+                fontSize: "14px",
+              }}
+            >
+              EXPORT PDF
+            </Button>
+
+            <div
+              style={{
+                backgroundColor: "#32A92E",
+                color: "white",
+                fontWeight: "600",
+                fontSize: "16px",
+                height: "44px",
+                width: "202px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                padding: "12px 16px",
+                borderRadius: "10px",
+              }}
+            >
+              <DateFilters onDateChange={handleDateChange} />
+            </div>
           </div>
         </div>
       </div>
