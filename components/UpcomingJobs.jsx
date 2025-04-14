@@ -43,7 +43,7 @@ const prepareExportData = (jobs) => {
     Date: new Date(job.job_date).toLocaleDateString(),
     Area: job?.client_address?.area || "No Area",
     "Firm Name": job?.user?.client?.firm_name,
-    Status: getStatusText(job.is_completed),
+    Status: getStatusInfo(job.is_completed).text, // Use .text property from getStatusInfo
     Priority: job.priority,
     "Job Schedule":
       job.reschedule_dates?.length > 1

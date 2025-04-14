@@ -204,7 +204,7 @@ const Quotation = () => {
                   onClick={() => handleRequestSort("user.name")}
                   sx={sortLabelStyles}
                 >
-                  Customer
+                  Firm Name
                 </TableSortLabel>
               </TableCell>
               <TableCell className="contractHeader">

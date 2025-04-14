@@ -66,7 +66,11 @@ const Instruction = ({ jobList, loading }) => {
                             year: "numeric",
                           })}`}
                         </TableCell>
-                        <TableCell>{item.reason}</TableCell>
+                        <TableCell>
+                          {item.reason && item.reason !== "Initial Date"
+                            ? item.reason
+                            : ""}
+                        </TableCell>
                       </TableRow>
                     ))
                   : // Show skeletons if there are no reschedule entries
