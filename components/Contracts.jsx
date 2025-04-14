@@ -87,6 +87,23 @@ const Contracts = () => {
     }
   };
 
+  // Calculate counts for different statuses
+  const activeCount = quoteList.filter(
+    (quote) => quote.is_contracted === 1
+  ).length;
+  const pendingCount = quoteList.filter(
+    (quote) => quote.is_contracted === 0
+  ).length;
+  const inProcessCount = quoteList.filter(
+    (quote) => quote.is_contracted === 2
+  ).length;
+  const expiredCount = quoteList.filter(
+    (quote) =>
+      quote.contract_cancel_reason === "expired" && quote.contract_cancelled_at
+  ).length;
+
+  const totalCount = quoteList.length;
+
   const handleRequestSort = (property) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
@@ -416,15 +433,43 @@ const Contracts = () => {
     <div>
       <div style={{ padding: "30px", borderRadius: "10px" }}>
         <div
-          style={{ fontSize: "20px", fontWeight: "600", marginBottom: "-4rem" }}
+          style={{ fontSize: "20px", fontWeight: "600", marginBottom: "1rem" }}
         >
           Contracts
         </div>
+
+        {/* Quote Summary Section */}
+        <div className="bg-white rounded-lg shadow-md p-4 mb-4">
+          <h2 className="text-xl font-semibold mb-4">Summary</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+            <div className="p-3 bg-green-50 rounded border border-green-200">
+              <p className="text-sm text-gray-600">Active</p>
+              <p className="text-2xl font-bold text-green-600">{activeCount}</p>
+            </div>
+            <div className="p-3 bg-yellow-50 rounded border border-yellow-200">
+              <p className="text-sm text-gray-600">Pending</p>
+              <p className="text-2xl font-bold text-yellow-600">
+                {pendingCount}
+              </p>
+            </div>
+            <div className="p-3 bg-blue-50 rounded border border-blue-200">
+              <p className="text-sm text-gray-600">In Process</p>
+              <p className="text-2xl font-bold text-blue-600">
+                {inProcessCount}
+              </p>
+            </div>
+            <div className="p-3 bg-red-50 rounded border border-red-200">
+              <p className="text-sm text-gray-600">Expired</p>
+              <p className="text-2xl font-bold text-red-600">{expiredCount}</p>
+            </div>
+          </div>
+        </div>
+
         <div
           style={{
             display: "flex",
             justifyContent: "flex-end",
-            marginTop: "2rem",
+            marginTop: "1rem",
             gap: "12px",
           }}
         >
