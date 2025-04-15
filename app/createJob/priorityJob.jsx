@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import styles from "../../styles/loginStyles.module.css";
 import InputWithTitle from "@/components/generic/InputWithTitle";
-import Dropdown from "@/components/generic/Dropdown";
+import Dropdown from "@/components/generic/dropDown";
 import MultilineInput from "@/components/generic/MultilineInput";
 import Grid from "@mui/material/Grid"; // Import Grid from Material-UI
 

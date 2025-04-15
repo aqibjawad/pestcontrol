@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import UploadImagePlaceholder from "../../../components/generic/uploadImage";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import InputWithTitle3 from "@/components/generic/InputWithTitle3";
-import Dropdown from "@/components/generic/Dropdown";
+import Dropdown from "@/components/generic/dropDown";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 import withAuth from "@/utils/withAuth";

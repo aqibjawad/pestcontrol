@@ -17,7 +17,7 @@ import { Menu, MenuItem } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { AppAlerts } from "@/Helper/AppAlerts";
 import APICall from "@/networkUtil/APICall";
-import Dropdown from "@/components/generic/Dropdown";
+import Dropdown from "@/components/generic/dropDown";
 import {
   addDeviceURL,
   getDevicesURL,

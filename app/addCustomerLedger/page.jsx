@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import styles from "../../styles/superAdmin/addExpensesStyles.module.css";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import MultilineInput from "@/components/generic/MultilineInput";
-import Dropdown from "@/components/generic/Dropdown";
+import Dropdown from "@/components/generic/dropDown";
 import GreenButton from "@/components/generic/GreenButton";
 
 import { CircularProgress } from "@mui/material";

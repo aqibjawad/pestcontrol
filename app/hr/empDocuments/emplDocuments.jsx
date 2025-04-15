@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Grid, Typography, Button, CircularProgress } from "@mui/material";
 import InputWithTitle3 from "@/components/generic/InputWithTitle3";
-import Dropdown from "../../../components/generic/Dropdown";
+import Dropdown from "../../../components/generic/dropDown";
 import UploadImagePlaceholder from "../../../components/generic/uploadImage";
 import APICall from "../../../networkUtil/APICall"; // Import your API utility
 import { getAllEmpoyesUrl } from "../../../networkUtil/Constants"; // Assuming you have constants defined

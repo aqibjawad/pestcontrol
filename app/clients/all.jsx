@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import APICall from "@/networkUtil/APICall";
 import { clients } from "@/networkUtil/Constants";
-import Dropdown from "../../components/generic/Dropdown";
+import Dropdown from "../../components/generic/dropDown";
 import InputWithTitle from "../../components/generic/InputWithTitle";
 import { AppHelpers } from "../../Helper/AppHelpers";
 import Link from "next/link";

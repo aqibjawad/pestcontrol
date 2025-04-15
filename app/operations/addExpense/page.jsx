@@ -5,7 +5,7 @@ import UploadImagePlaceholder from "../../../components/generic/uploadImage";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import InputWithTitle3 from "../../../components/generic/InputWithTitle3";
 import MultilineInput from "@/components/generic/MultilineInput";
-import Dropdown from "@/components/generic/Dropdown";
+import Dropdown from "@/components/generic/dropDown";
 import GreenButton from "@/components/generic/GreenButton";
 import { CircularProgress } from "@mui/material";
 import Tabs from "./tabs";

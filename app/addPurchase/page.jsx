@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Grid, IconButton, Typography } from "@mui/material";
-import Dropdown from "@/components/generic/Dropdown";
+import Dropdown from "@/components/generic/dropDown";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 
 import {

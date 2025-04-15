@@ -5,7 +5,7 @@ import { useCustomersHook } from "./useCustomersHook";
 import Loading from "../../components/generic/Loading";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import GreenButton from "@/components/generic/GreenButton";
-import Dropdown from "@/components/generic/Dropdown";
+import Dropdown from "@/components/generic/dropDown";
 import {
   Table,
   TableBody,

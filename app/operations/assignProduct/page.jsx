@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import Dropdown from "../../../components/generic/Dropdown";
+import Dropdown from "../../../components/generic/dropDown";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import GreenButton from "@/components/generic/GreenButton";
 import withAuth from "@/utils/withAuth";

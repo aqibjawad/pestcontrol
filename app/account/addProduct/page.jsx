@@ -1,5 +1,5 @@
 "use client";
-import Dropdown from "@/components/generic/Dropdown";
+import Dropdown from "@/components/generic/dropDown";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import InputWithTitle3 from "@/components/generic/InputWithTitle3";
 import { Skeleton } from "@mui/material";

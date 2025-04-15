@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Grid, Skeleton } from "@mui/material";
 import InputWithTitle from "@/components/generic/InputWithTitle";
-import Dropdown from "@/components/generic/Dropdown";
+import Dropdown from "@/components/generic/dropDown";
 import MultilineInput from "@/components/generic/MultilineInput";
 import GreenButton from "@/components/generic/GreenButton";
 import { useSupplier } from "./useAddSupplier";

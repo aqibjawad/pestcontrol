@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import InputWithTitle from "../../../components/generic/InputWithTitle";
-import Dropdown from "../../../components/generic/Dropdown";
+import Dropdown from "../../../components/generic/dropDown";
 import GreenButton from "../../../components/generic/GreenButton";
 import APICall from "@/networkUtil/APICall";
 import { getCountriesURL, addSupplier } from "@/networkUtil/Constants";

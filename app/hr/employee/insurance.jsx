@@ -3,7 +3,7 @@ import { Grid, Typography } from "@mui/material";
 import InputWithTitle2 from "@/components/generic/InputWithTitle2";
 import InputWithTitle3 from "@/components/generic/InputWithTitle3";
 import "./index.css";
-import Dropdown from "../../../components/generic/Dropdown";
+import Dropdown from "../../../components/generic/dropDown";
 
 const Insurance = ({ data, onChange }) => {
   const [unemployed, setUnEmployed] = useState(true);

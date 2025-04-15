@@ -23,7 +23,7 @@ import {
 } from "../../../networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
 import DateFilters from "@/components/generic/DateFilters";
-import Dropdown from "@/components/generic/Dropdown";
+import Dropdown from "@/components/generic/dropDown";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";

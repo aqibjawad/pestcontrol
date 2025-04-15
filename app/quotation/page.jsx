@@ -23,7 +23,7 @@ import {
 } from "@mui/material";
 
 import InputWithTitle from "@/components/generic/InputWithTitle";
-import Dropdown from "@/components/generic/DropDown";
+import Dropdown from "@/components/generic/dropDown";
 
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
@@ -43,11 +43,25 @@ const Page = () => {
   const api = new APICall();
   const router = useRouter();
   const [id, setId] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [fetchingData, setFetchingData] = useState(false);
+  
+  // Moved all these state declarations up to avoid conditional hook calls
+  const [name, setName] = useState("");
+  const [firm_name, setFirmName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone_number, setPhoneNumber] = useState("");
+  const [mobile_number, setMobNumber] = useState("");
+  const [industry_name, setIndustryName] = useState("");
+  const [dropdownOptions, setDropdownOptions] = useState([]);
+  const [sendingData, setSendingData] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [selectedOption, setSelectedOption] = useState(null);
 
   // Initial form state
   const [formData, setFormData] = useState({
-    manage_type: id ? "update" : "create",
-    quote_id: id || null,
+    manage_type: "create", // Will update this based on ID later
+    quote_id: null, // Will update this based on ID later
     quote_title: "",
     user_id: "",
     client_address_id: null,
@@ -62,10 +76,9 @@ const Page = () => {
     services: [],
     processedQuoteServices: false,
     branch_id: "",
+    referencable_id: "",
+    referencable_type: "",
   });
-
-  const [loading, setLoading] = useState(false);
-  const [fetchingData, setFetchingData] = useState(false);
 
   const safeSetFormData = (updates) => {
     setFormData((prev) => {
@@ -136,15 +149,15 @@ const Page = () => {
     }
   };
 
-  const getAllQuotes = async () => {
+  const getAllQuotes = async (quoteId) => {
     setFetchingData(true);
     try {
-      if (id !== null) {
-        const response = await api.getDataWithToken(`${quotation}/${id}`);
+      if (quoteId !== null) {
+        const response = await api.getDataWithToken(`${quotation}/${quoteId}`);
         safeSetFormData({
           ...response.data,
           manage_type: "update",
-          quote_id: id,
+          quote_id: quoteId,
         });
       }
     } catch (error) {
@@ -162,19 +175,7 @@ const Page = () => {
     if (urlId) {
       getAllQuotes(urlId);
     }
-  }, [id]);
-
-  if (fetchingData) return <div>Loading...</div>;
-
-  const [name, setName] = useState("");
-  const [firm_name, setFirmName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone_number, setPhoneNumber] = useState("");
-  const [mobile_number, setMobNumber] = useState("");
-  const [industry_name, setIndustryName] = useState("");
-  const [dropdownOptions, setDropdownOptions] = useState([]);
-  const [sendingData, setSendingData] = useState(false);
-  const [open, setOpen] = useState(false); 
+  }, []);  // Empty dependency array since we only want this to run once
 
   const handleDropdownChange = (value) => {
     const selected = dropdownOptions.find((option) => option.name === value);
@@ -208,27 +209,40 @@ const Page = () => {
       referencable_type: formData.referencable_type,
       opening_balance: 0,
     };
-    const response = await api.postFormDataWithToken(`${clients}/create`, obj);
+    
+    try {
+      const response = await api.postFormDataWithToken(`${clients}/create`, obj);
 
-    if (response.status === "success") {
-      const clientId = response.data.id;
-      Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: "Data has been added successfully!",
-      });
-      // await getAllClients();
-      handleClose();
-      router.push(`/address?id=${clientId}`);
-    } else {
-      handleClose();
+      if (response.status === "success") {
+        const clientId = response.data.id;
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Data has been added successfully!",
+        });
+        // await getAllClients();
+        handleClose();
+        router.push(`/address?id=${clientId}`);
+      } else {
+        handleClose();
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: `${response.error.message}`,
+        });
+      }
+    } catch (error) {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: `${response.error.message}`,
+        text: error.message || "An error occurred.",
       });
+    } finally {
+      setSendingData(false);
     }
   };
+
+  if (fetchingData) return <div>Loading...</div>;
 
   return (
     <div>

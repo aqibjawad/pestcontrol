@@ -3,7 +3,7 @@ import { Modal, Box } from "@mui/material";
 import styles from "../styles/serviceReport.module.css";
 import InputWithTitle from "./generic/InputWithTitle";
 import GreenButton from "../components/generic/GreenButton";
-import Dropdown from "./generic/Dropdown";
+import Dropdown from "./generic/dropDown";
 
 const AddService = ({
   open,

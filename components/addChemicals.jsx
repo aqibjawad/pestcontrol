@@ -3,7 +3,7 @@ import { Modal, Box } from "@mui/material";
 import styles from "../styles/serviceReport.module.css";
 import InputWithTitle from "./generic/InputWithTitle";
 import GreenButton from "./generic/GreenButton";
-import Dropdown from "../components/generic/Dropdown";
+import Dropdown from "./generic/dropDown";
 
 import { product } from "@/networkUtil/Constants";
 import APICall from "@/networkUtil/APICall";
