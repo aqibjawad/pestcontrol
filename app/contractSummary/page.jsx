@@ -56,7 +56,7 @@ const Page = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Quote Status Dashboard</h1>
+      <h1 className="text-2xl font-bold mb-6">Contract Summary</h1>
 
       {fetchingData ? (
         <div className="flex justify-center items-center h-64">

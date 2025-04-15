@@ -257,6 +257,7 @@ const Page = () => {
   };
 
   const [fine, setFine] = useState("");
+  const [description, setDescrp] = useState("");
   const [fine_date, setFineDate] = useState("");
 
   const handleFineDateChange = (name, value) => {
@@ -469,9 +470,9 @@ const Page = () => {
 
               <Grid item xs={12}>
                 <MultilineInput
-                  onChange={handleFineDateChange}
+                  onChange={setDescrp}
                   title={"Description"}
-                  value={fine_date}
+                  value={description}
                 />
               </Grid>
             </Grid>

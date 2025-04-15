@@ -45,7 +45,7 @@ const Page = () => {
   const [id, setId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [fetchingData, setFetchingData] = useState(false);
-  
+
   // Moved all these state declarations up to avoid conditional hook calls
   const [name, setName] = useState("");
   const [firm_name, setFirmName] = useState("");
@@ -79,6 +79,30 @@ const Page = () => {
     referencable_id: "",
     referencable_type: "",
   });
+
+  const [brandsList, setBrandsList] = useState([]);
+
+  useEffect(() => {
+    getAllRef();
+  }, []);
+
+  const getAllRef = async () => {
+    setFetchingData(true);
+    try {
+      const response = await api.getDataWithToken(`${clients}/references/get`);
+      setBrandsList(response);
+      const options = response.map((item) => ({
+        id: item.id,
+        name: item.name,
+        type: item.type,
+      }));
+      setDropdownOptions(options);
+    } catch (error) {
+      console.error("Error fetching brands:", error);
+    } finally {
+      setFetchingData(false);
+    }
+  };
 
   const safeSetFormData = (updates) => {
     setFormData((prev) => {
@@ -175,7 +199,7 @@ const Page = () => {
     if (urlId) {
       getAllQuotes(urlId);
     }
-  }, []);  // Empty dependency array since we only want this to run once
+  }, []); // Empty dependency array since we only want this to run once
 
   const handleDropdownChange = (value) => {
     const selected = dropdownOptions.find((option) => option.name === value);
@@ -209,9 +233,12 @@ const Page = () => {
       referencable_type: formData.referencable_type,
       opening_balance: 0,
     };
-    
+
     try {
-      const response = await api.postFormDataWithToken(`${clients}/create`, obj);
+      const response = await api.postFormDataWithToken(
+        `${clients}/create`,
+        obj
+      );
 
       if (response.status === "success") {
         const clientId = response.data.id;
