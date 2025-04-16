@@ -93,8 +93,35 @@ const Page = () => {
 
       <style jsx global>{`
         @media print {
+          /* Remove print button */
           .print-button {
             display: none !important;
+          }
+
+          /* Force background colors to print */
+          .contractTable,
+          table th,
+          .table-header {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+            background-color-adjust: exact !important;
+          }
+
+          /* Remove all margins and padding for the entire document */
+          @page {
+            margin: 0;
+            padding: 0;
+          }
+
+          body {
+            margin: 0;
+            padding: 0;
+          }
+
+          /* Remove any extra spacing */
+          * {
+            box-sizing: border-box;
           }
         }
       `}</style>

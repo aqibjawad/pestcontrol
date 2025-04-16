@@ -46,6 +46,9 @@ const Quotation = () => {
 
   const [selectedQuoteData, setSelectedQuoteData] = useState(null);
 
+  const services = selectedQuoteData?.quote_services || [];
+  const serviceCount = services.length;
+
   const handleDateChange = (start, end) => {
     setStartDate(start);
     setEndDate(end);
@@ -54,10 +57,11 @@ const Quotation = () => {
   const handleApprove = (id) => {
     setCurrentQuoteId(id);
 
+    // Find the selected quote with all its details including services
     const selectedQuote = quoteList.find((quote) => quote.id === id);
     setSelectedQuoteData(selectedQuote);
 
-    // Remove the validation check for multiple services
+    // Now selectedQuoteData will contain quote_services array which we can access in the modal
     setIsModalOpen(true);
   };
 
