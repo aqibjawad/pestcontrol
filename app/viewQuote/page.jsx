@@ -61,8 +61,21 @@ const Quotation = () => {
     const selectedQuote = quoteList.find((quote) => quote.id === id);
     setSelectedQuoteData(selectedQuote);
 
-    // Now selectedQuoteData will contain quote_services array which we can access in the modal
-    setIsModalOpen(true);
+    // Check for duplicate services
+    const hasDuplicateServices = checkForDuplicateServices(selectedQuote);
+
+    if (hasDuplicateServices) {
+      // Show warning using Swal (already imported in your code)
+      Swal.fire({
+        title: "Warning!",
+        text: "Quote contains same service more than one time, please set appropriate quantities.",
+        icon: "warning",
+        confirmButtonText: "OK",
+      });
+    } else {
+      // Now selectedQuoteData will contain quote_services array which we can access in the modal
+      setIsModalOpen(true);
+    }
   };
 
   const handleModalClose = () => {
@@ -175,6 +188,21 @@ const Quotation = () => {
       width: "20px", // Slightly larger arrows
       height: "20px",
     },
+  };
+
+  const checkForDuplicateServices = (quoteData) => {
+    if (!quoteData?.quote_services || quoteData.quote_services.length === 0) {
+      return false;
+    }
+
+    const serviceIds = {};
+    for (const service of quoteData.quote_services) {
+      if (serviceIds[service.service_id]) {
+        return true; // Found duplicate service_id
+      }
+      serviceIds[service.service_id] = true;
+    }
+    return false;
   };
 
   const listServiceTable = () => {
