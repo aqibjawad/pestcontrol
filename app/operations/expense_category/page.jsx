@@ -114,7 +114,7 @@ const Page = () => {
 
   return (
     <div>
-      <div className="pageTitle">Vehicles</div>
+      <div className="pageTitle">Expense Category</div>
       <div className="mt-10"></div>
       {fetchingData ? (
         <Loading />

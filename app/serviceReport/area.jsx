@@ -7,6 +7,8 @@ import APICall from "@/networkUtil/APICall";
 import { treatmentMethod, services } from "@/networkUtil/Constants";
 import Grid from "@mui/material/Grid";
 
+import { FaTrash } from "react-icons/fa";
+
 const Area = ({ formData, setFormData }) => {
   const api = new APICall();
 
@@ -62,6 +64,12 @@ const Area = ({ formData, setFormData }) => {
     updateFormData(updatedAddresses, selectedPests, selectedMethods);
   };
 
+  const handleDeleteArea = (areaId) => {
+    const updatedAddresses = addresses.filter((area) => area.id !== areaId);
+    setServiceAreas(updatedAddresses);
+    updateFormData(updatedAddresses, selectedPests, selectedMethods);
+  };
+
   const handlePestToggle = (pestId) => {
     const updatedPests = selectedPests.includes(pestId)
       ? selectedPests.filter((id) => id !== pestId)
@@ -110,6 +118,7 @@ const Area = ({ formData, setFormData }) => {
               <th>Treatment Area</th>
               <th>Main Infected areas</th>
               <th>Report and follow up detail</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -120,6 +129,15 @@ const Area = ({ formData, setFormData }) => {
                 <td>{area.infestation_level}</td>
                 <td>{area.manifested_areas}</td>
                 <td>{area.report_and_follow_up_detail}</td>
+                <td>
+                  {/* <button
+                    className={styles.deleteButton}
+                    onClick={() => handleDeleteArea(area.id)}
+                  >
+                    Delete
+                  </button> */}
+                  <FaTrash onClick={() => handleDeleteArea(area.id)} style={{color:"red", cursor:"pointer"}} />
+                </td>
               </tr>
             ))}
           </tbody>

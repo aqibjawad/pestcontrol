@@ -344,18 +344,6 @@ const Page = () => {
           )}
         </Grid>
 
-        <Grid item lg={4} xs={12} sm={6} md={6}>
-          <InputWithTitle
-            value={oil_change_limit}
-            onChange={handleInputChange(setOilChangeLimit, "oil_change_limit")}
-            title={"Next Oil Change Limit"}
-            error={errors.oil_change_limit}
-          />
-          {errors.oil_change_limit && (
-            <div className={styles.errorText}>{errors.oil_change_limit}</div>
-          )}
-        </Grid>
-
         <Grid item lg={4} xs={12} sm={6} md={4}>
           <InputWithTitle
             value={meter_reading}
@@ -383,6 +371,18 @@ const Page = () => {
             <div className={styles.errorText}>
               {errors.registration_renewal}
             </div>
+          )}
+        </Grid>
+
+        <Grid item lg={4} xs={12} sm={6} md={6}>
+          <InputWithTitle
+            value={oil_change_limit}
+            onChange={handleInputChange(setOilChangeLimit, "oil_change_limit")}
+            title={"Next Oil Change Limit"}
+            error={errors.oil_change_limit}
+          />
+          {errors.oil_change_limit && (
+            <div className={styles.errorText}>{errors.oil_change_limit}</div>
           )}
         </Grid>
 

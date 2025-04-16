@@ -55,18 +55,10 @@ const Quotation = () => {
     setCurrentQuoteId(id);
 
     const selectedQuote = quoteList.find((quote) => quote.id === id);
-
-    if (selectedQuote?.quote_services?.length > 1) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "One contract should Have one service, please remove extra services and create new quote !!",
-      });
-    } else {
-      setIsModalOpen(true);
-    }
-
     setSelectedQuoteData(selectedQuote);
+
+    // Remove the validation check for multiple services
+    setIsModalOpen(true);
   };
 
   const handleModalClose = () => {
@@ -319,7 +311,10 @@ const Quotation = () => {
                   <TableCell className="contractTable">
                     {row?.grand_total || 0}
                   </TableCell>
-                  <TableCell className="contractTable" style={{color:"blue"}}>
+                  <TableCell
+                    className="contractTable"
+                    style={{ color: "blue" }}
+                  >
                     {row?.pdf_url ? (
                       <a
                         href={row.pdf_url}

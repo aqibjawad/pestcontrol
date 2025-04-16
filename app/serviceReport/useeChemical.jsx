@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import styles from "../../styles/serviceReport.module.css";
 import AddChemicals from "../../components/addChemicals";
+import { FaTrash } from "react-icons/fa";
 
 const UseChemicals = ({ formData, setFormData }) => {
   const [openUseChemicals, setOpenUseChemicals] = useState(false);
@@ -18,9 +19,22 @@ const UseChemicals = ({ formData, setFormData }) => {
       id: Date.now(),
       is_extra: 0,
       price: 0,
-    }; 
+    };
 
     const updatedChemicals = [...used_products, chemicalWithExtra];
+    setChemicals(updatedChemicals);
+
+    // Update parent formData
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      used_products: updatedChemicals,
+    }));
+  };
+
+  const handleDeleteChemical = (chemicalId) => {
+    const updatedChemicals = used_products.filter(
+      (chemical) => chemical.id !== chemicalId
+    );
     setChemicals(updatedChemicals);
 
     // Update parent formData
@@ -64,15 +78,28 @@ const UseChemicals = ({ formData, setFormData }) => {
               <th>Chemical and Material Used</th>
               <th>Dose</th>
               <th>Quantity</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
             {used_products.map((chemical, index) => (
               <tr key={chemical.id}>
-                <td style={{textAlign:"center"}}>{index + 1}</td>
+                <td style={{ textAlign: "center" }}>{index + 1}</td>
                 <td>{chemical.name}</td>
-                <td style={{textAlign:"center"}}>{chemical.dose}</td>
-                <td style={{textAlign:"center"}}>{chemical.qty}</td>
+                <td style={{ textAlign: "center" }}>{chemical.dose}</td>
+                <td style={{ textAlign: "center" }}>{chemical.qty}</td>
+                <td style={{ textAlign: "center" }}>
+                  {/* <button 
+                    className={styles.deleteButton} 
+                    onClick={() => handleDeleteChemical(chemical.id)}
+                  >
+                    Delete
+                  </button> */}
+                  <FaTrash
+                    onClick={() => handleDeleteChemical(chemical.id)}
+                    style={{ color: "red", cursor: "pointer" }}
+                  />
+                </td>
               </tr>
             ))}
           </tbody>

@@ -233,6 +233,12 @@ const Page = () => {
             </TableHead>
             <TableBody>
               <TableRow>
+                <TableCell>Firm Name</TableCell>
+                <TableCell>
+                  {jobList.user?.client?.firm_name || "N/A"}
+                </TableCell>
+              </TableRow>
+              <TableRow>
                 <TableCell>Job Title</TableCell>
                 <TableCell>{jobList.job_title || "N/A"}</TableCell>
               </TableRow>
@@ -249,6 +255,10 @@ const Page = () => {
                 <TableCell>
                   {jobList?.user?.client?.phone_number || "N/A"}
                 </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Price</TableCell>
+                <TableCell>{jobList?.sub_total || "N/A"}</TableCell>
               </TableRow>
             </TableBody>
           </Table>
@@ -314,19 +324,6 @@ const Page = () => {
               value={formData.job_instructions}
               onChange={handleJobInstructionsChange}
             />
-
-            <div>
-              {jobList.reschedule_dates?.length > 1 ? (
-                // Show a time input field instead of "Reschedule"
-                <input
-                  type="time"
-                  style={{ fontSize: "15px" }}
-                  placeholder="Select Time"
-                />
-              ) : (
-                <span style={{ fontSize: "15px" }}>Regular Job</span>
-              )}
-            </div>
           </Grid>
         </Grid>
       </div>

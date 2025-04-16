@@ -30,10 +30,17 @@ const AllJobs = ({ isVisible }) => {
     switch (type) {
       case "assigned":
         filtered = jobsList.filter((job) => {
-          const isAssigned = job.captain?.name;
-          const jobDate = new Date(job.date);
+          // Check if captain_id exists or if captain has a name
+          const isAssigned = job.captain_id !== null || job.captain?.name;
+          // Use job_date for consistency with the UpcomingJobs component
+          const jobDate = new Date(job.job_date || job.date);
           const startDateTime = startDate ? new Date(startDate) : null;
           const endDateTime = endDate ? new Date(endDate) : null;
+
+          // Adjust end date to include the entire day
+          if (endDateTime) {
+            endDateTime.setHours(23, 59, 59, 999);
+          }
 
           if (startDateTime && endDateTime) {
             return (
@@ -46,10 +53,16 @@ const AllJobs = ({ isVisible }) => {
 
       case "not-assigned":
         filtered = jobsList.filter((job) => {
-          const isNotAssigned = !job.captain?.name;
-          const jobDate = new Date(job.date);
+          // Check if captain_id is null and captain doesn't have a name
+          const isNotAssigned = job.captain_id === null && !job.captain?.name;
+          const jobDate = new Date(job.job_date || job.date);
           const startDateTime = startDate ? new Date(startDate) : null;
           const endDateTime = endDate ? new Date(endDate) : null;
+
+          // Adjust end date to include the entire day
+          if (endDateTime) {
+            endDateTime.setHours(23, 59, 59, 999);
+          }
 
           if (startDateTime && endDateTime) {
             return (
@@ -62,13 +75,17 @@ const AllJobs = ({ isVisible }) => {
         });
         break;
 
-      default:
+      default: // "all" case
         if (startDate && endDate) {
           filtered = jobsList.filter((job) => {
-            const jobDate = new Date(job.date);
-            return (
-              jobDate >= new Date(startDate) && jobDate <= new Date(endDate)
-            );
+            const jobDate = new Date(job.job_date || job.date);
+            const startDateTime = new Date(startDate);
+            const endDateTime = new Date(endDate);
+
+            // Adjust end date to include the entire day
+            endDateTime.setHours(23, 59, 59, 999);
+
+            return jobDate >= startDateTime && jobDate <= endDateTime;
           });
         } else {
           filtered = jobsList;
@@ -83,8 +100,10 @@ const AllJobs = ({ isVisible }) => {
   }, []); // Only run on mount
 
   useEffect(() => {
-    handleFilter(filterType);
-  }, [jobsList, startDate, endDate, filterType]); // Added dependencies
+    if (jobsList.length > 0) {
+      handleFilter(filterType);
+    }
+  }, [jobsList, filterType]); // Only re-filter when jobsList or filterType changes
 
   const getAllQuotes = async (start = startDate, end = endDate) => {
     setFetchingData(true);
@@ -102,7 +121,8 @@ const AllJobs = ({ isVisible }) => {
 
       // Sort jobsList by date in descending order
       const sortedData = response.data.sort(
-        (a, b) => new Date(b.date) - new Date(a.date)
+        (a, b) =>
+          new Date(b.job_date || b.date) - new Date(a.job_date || a.date)
       );
 
       setJobsList(sortedData);

@@ -5,13 +5,7 @@ import InputWithTitle from "./generic/InputWithTitle";
 import GreenButton from "../components/generic/GreenButton";
 import Dropdown from "./generic/dropDown";
 
-const AddService = ({
-  open,
-  handleClose,
-  onAddService,
-  fromData,
-  setFormData,
-}) => {
+const AddService = ({ open, handleClose, onAddService }) => {
   const [serviceData, setServiceData] = useState({
     inspected_areas: "",
     pest_found: "",
@@ -20,14 +14,28 @@ const AddService = ({
     report_and_follow_up_detail: "",
   });
 
+  // Add error state for validation feedback
+  const [validationError, setValidationError] = useState("");
+
   const handleInputChange = (field, value) => {
     setServiceData((prev) => ({
       ...prev,
       [field]: value,
     }));
+    // Clear validation error when the infestation level is selected
+    if (field === "infestation_level" && value) {
+      setValidationError("");
+    }
   };
 
   const handleSubmit = () => {
+    // Validate required field before submission
+    if (!serviceData.infestation_level) {
+      setValidationError("Please select an infestation level");
+      return;
+    }
+
+    // If validation passes, submit the form
     onAddService(serviceData);
     setServiceData({
       inspected_areas: "",
@@ -36,6 +44,7 @@ const AddService = ({
       manifested_areas: "",
       report_and_follow_up_detail: "",
     });
+    setValidationError("");
     handleClose();
   };
 
@@ -91,7 +100,13 @@ const AddService = ({
               onChange={(value) =>
                 handleInputChange("infestation_level", value)
               }
+              required={true}
             />
+            {validationError && (
+              <div style={{ color: "red", fontSize: "14px", marginTop: "5px" }}>
+                {validationError}
+              </div>
+            )}
           </div>
 
           <div className="mt-5">

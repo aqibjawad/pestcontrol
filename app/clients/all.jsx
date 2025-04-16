@@ -52,6 +52,8 @@ const AllClients = () => {
   const [allClients, setAllClients] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [activeRow, setActiveRow] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentClientId, setCurrentClientId] = useState(null);
 
   const handleClick = (event, index) => {
     setAnchorEl(event.currentTarget);
@@ -65,11 +67,59 @@ const AllClients = () => {
 
   // State for form inputs
   const handleClickOpen = () => {
+    // Reset form when adding a new client
+    resetForm();
+    setIsEditing(false);
     setOpen(true);
   };
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const resetForm = () => {
+    setName("");
+    setFirmName("");
+    setEmail("");
+    setPhoneNumber("");
+    setMobNumber("");
+    setIndustryName("");
+    setOpeningBalance(0);
+    setSelectedOption(null);
+    setFormData({
+      referencable_id: "",
+      referencable_type: "",
+    });
+    setCurrentClientId(null);
+  };
+
+  const handleEditClient = (client) => {
+    // Populate form with client data
+    setName(client.name);
+    setEmail(client.email);
+    setFirmName(client.client.firm_name || "");
+    setPhoneNumber(client.client.phone_number || "");
+    setMobNumber(client.client.mobile_number || "");
+    setIndustryName(client.client.industry_name || "");
+
+    // Set reference if available
+    if (client.client.referencable) {
+      const refOption = dropdownOptions.find(
+        (option) => option.id === client.client.referencable.id
+      );
+      if (refOption) {
+        setSelectedOption(refOption);
+        setFormData({
+          referencable_id: refOption.id,
+          referencable_type: refOption.type,
+        });
+      }
+    }
+
+    setCurrentClientId(client.id);
+    setIsEditing(true);
+    setOpen(true);
+    handleCloseMenu();
   };
 
   useEffect(() => {
@@ -206,6 +256,9 @@ const AllClients = () => {
                     open={activeRow === index && Boolean(anchorEl)}
                     onClose={handleCloseMenu}
                   >
+                    <MenuItem onClick={() => handleEditClient(row)}>
+                      Edit Info
+                    </MenuItem>
                     <MenuItem onClick={handleCloseMenu}>
                       <Link
                         href={`/client/clientsJobs/?id=${
@@ -328,25 +381,52 @@ const AllClients = () => {
       referencable_type: formData.referencable_type,
       opening_balance: 0,
     };
-    const response = await api.postFormDataWithToken(`${clients}/create`, obj);
 
-    if (response.status === "success") {
-      const clientId = response.data.id;
-      Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: "Data has been added successfully!",
-      });
-      // await getAllClients();
-      handleClose();
-      router.push(`/address?id=${clientId}`);
-    } else {
-      handleClose();
+    try {
+      let response;
+      if (isEditing) {
+        // Update existing client
+        response = await api.putFormDataWithToken(
+          `${clients}/update/${currentClientId}`,
+          obj
+        );
+      } else {
+        // Create new client
+        response = await api.postFormDataWithToken(`${clients}/create`, obj);
+      }
+
+      if (response.status === "success") {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: isEditing
+            ? "Client has been updated successfully!"
+            : "Data has been added successfully!",
+        });
+
+        await getAllClients();
+        handleClose();
+
+        if (!isEditing) {
+          const clientId = response.data.id;
+          router.push(`/address?id=${clientId}`);
+        }
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: `${response.error?.message || "An error occurred"}`,
+        });
+      }
+    } catch (error) {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: `${response.error.message}`,
+        text: "Something went wrong. Please try again.",
       });
+      console.error("Error submitting form:", error);
+    } finally {
+      setSendingData(false);
     }
   };
 
@@ -443,7 +523,7 @@ const AllClients = () => {
           <Grid container direction="column" spacing={2}>
             <Grid item>
               <Typography variant="h5" align="center" fontWeight="600">
-                Add Clients
+                {isEditing ? "Edit Client" : "Add Client"}
               </Typography>
             </Grid>
             <Grid item>
@@ -536,6 +616,7 @@ const AllClients = () => {
                   title="Select Reference"
                   options={dropdownOptions.map((option) => option.name)}
                   onChange={handleDropdownChange}
+                  value={selectedOption?.name || ""}
                 />
               </Grid>
             </Grid>
@@ -560,7 +641,13 @@ const AllClients = () => {
               cursor: "pointer",
             }}
           >
-            {sendingData ? "Adding..." : "Add Client"}
+            {sendingData
+              ? isEditing
+                ? "Updating..."
+                : "Adding..."
+              : isEditing
+              ? "Update Client"
+              : "Add Client"}
           </div>
         </DialogActions>
       </Dialog>

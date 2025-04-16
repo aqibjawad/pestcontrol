@@ -149,6 +149,35 @@ const Page = () => {
         <div className="flex">
           <div
             style={{
+              width: "202px",
+              height: "44px",
+              padding: "12px 16px",
+              gap: "8px",
+              borderRadius: "10px",
+              border: "1px solid transparent", // Assuming a border is intended
+              background: "#32a92e",
+              fontFamily: "regular",
+              fontSize: "14px",
+              fontWeight: 600,
+              lineHeight: "20px",
+              textAlign: "center",
+              color: "white",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              marginRight:"2rem"
+            }}
+          >
+            <Link
+              href="/operations/expense_category"
+              style={{ color: "white", textDecoration: "none" }}
+            >
+              Add Expense Category
+            </Link>
+          </div>
+
+          <div
+            style={{
               border: "1px solid #38A73B",
               borderRadius: "8px",
               height: "40px",

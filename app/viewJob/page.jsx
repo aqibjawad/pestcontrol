@@ -75,9 +75,10 @@ const Page = () => {
     router.back();
   };
 
+  // In your Page component:
   return (
     <div>
-      <JobDetails jobList={jobList} />
+      <JobDetails jobList={jobList} loading={loadingDetails} />
       <Instruction jobList={jobList} />
 
       {/* Conditionally render Members and Instruction if caption_id is not null */}

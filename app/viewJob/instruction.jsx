@@ -13,7 +13,6 @@ import {
   Paper,
 } from "@mui/material";
 import styles from "../../styles/job.module.css";
-import MultiInput from "../../components/generic/MultilineInput";
 
 const Instruction = ({ jobList, loading }) => {
   const [reschedule, setReschedule] = useState([]);

@@ -280,30 +280,32 @@ const UpcomingJobs = ({
           <div className={styles.statusContainer}>{row.priority}</div>
         </td>
         <td>
-          <div className={styles.teamCaptainName}>
+          <div>
             {row.reschedule_dates?.length > 1 ? (
-              <span style={{ color: "red", fontSize: "15px" }}>
+              <div
+                style={{ color: "red", fontSize: "12px", textAlign: "center" }}
+              >
                 <div style={{ textAlign: "center" }}>Reschedule</div>
                 <br />
                 {formatDateTime(
                   row.reschedule_dates[row.reschedule_dates.length - 1].job_date
                 )}
-              </span>
+              </div>
             ) : (
-              <span style={{ fontSize: "15px" }}>
+              <div style={{ fontSize: "12px", textAlign: "center" }}>
                 Regular
                 <br />
                 {row.reschedule_dates?.[0]?.job_date &&
                   formatDateTime(row.reschedule_dates[0].job_date)}
-              </span>
+              </div>
             )}
           </div>
         </td>
         <td>
-          <div className={styles.teamCaptainName}>
+          <div style={{ color: "red", fontSize: "12px", textAlign: "center" }}>
             {row.captain_id === null ? (
               <Link href={`/operations/assignJob?id=${row.id}`}>
-                <GreenButton onClick={assignedJob} title="Assign Job" />
+                Assign Job
               </Link>
             ) : (
               <span>{row?.captain?.name}</span>
@@ -311,37 +313,41 @@ const UpcomingJobs = ({
           </div>
         </td>
         <td>
-          <div className={styles.teamCaptainName}>
+          <div style={{ fontSize: "12px", textAlign: "center" }}>
             <Link
               href={
                 row.is_completed === 1
                   ? `/serviceRpoertPdf?id=${row?.report?.id}`
                   : "#"
               }
+              style={{
+                color: row.is_completed === 1 ? "blue" : "gray",
+                pointerEvents: row.is_completed === 1 ? "auto" : "none",
+                textDecoration: row.is_completed === 1 ? "underline" : "none",
+                cursor: row.is_completed === 1 ? "pointer" : "not-allowed",
+              }}
             >
-              <GreenButton
-                title="Send Email"
-                disabled={row.is_completed !== 1}
-              />
+              Send Email
             </Link>
           </div>
         </td>
+
         <td>
-          <div className={styles.teamCaptainName}>
+          <div
+            style={{ color: "#32A92E", textAlign: "center", fontSize: "12px" }}
+          >
             {row.is_completed === 1 ? (
               row.report === null ? (
                 <Link href={`/serviceReport?id=${row.id}`}>
-                  <GreenButton title="Create Service Report" />
+                  Create Service Report
                 </Link>
               ) : (
-                <Link href={`/serviceRpoertPdf?id=${row?.report?.id}`}>
-                  <GreenButton title="View Report" />
+                <Link href={`/serviceReportPdf?id=${row?.report?.id}`}>
+                  View Report
                 </Link>
               )
             ) : (
-              <Link href={`/viewJob?id=${row.id}`}>
-                <GreenButton title="View Details" />
-              </Link>
+              <Link href={`/viewJob?id=${row.id}`}>View Details</Link>
             )}
           </div>
         </td>
