@@ -396,7 +396,7 @@ const Contracts = () => {
                 </TableSortLabel>
               </TableCell>
               <TableCell>PDF</TableCell>
-              <TableCell>Actions</TableCell>
+              <TableCell>View Details</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -483,25 +483,11 @@ const Contracts = () => {
                     )}
                   </TableCell>
                   <TableCell>
-                    {!row?.contract_cancel_reason ? (
-                      <Link href={`/contractCancel?id=${row.id}`}>
-                        <span style={{ color: "#dc2626", cursor: "pointer" }}>
-                          Contract Cancel
-                        </span>
-                      </Link>
-                    ) : (
-                      <Link href={`/contractCancel?id=${row.id}`}>
-                        <span
-                          style={{
-                            fontSize: "16px",
-                            color: "#dc2626",
-                            cursor: "pointer",
-                          }}
-                        >
-                          Cancel Contract
-                        </span>
-                      </Link>
-                    )}
+                    <Link href={`/quotePdf?id=${row.id}`}>
+                      <span style={{ color: "#2563eb", cursor: "pointer" }}>
+                        View Details
+                      </span>
+                    </Link>
                   </TableCell>
                 </TableRow>
               ))

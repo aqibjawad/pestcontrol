@@ -6,10 +6,11 @@ import GreenButton from "../../../components/generic/GreenButton";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import Skeleton from "@mui/material/Skeleton";
-import DateFilters from "../../../components/generic/DateFilters";
 import withAuth from "@/utils/withAuth";
 import APICall from "@/networkUtil/APICall";
 import { getAllEmpoyesUrl } from "@/networkUtil/Constants";
+import { format } from "date-fns";
+import DateFilters from "../../../components/generic/DateFilters";
 
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
@@ -27,7 +28,6 @@ const getIdFromUrl = (url) => {
 
 const EmpUpcomingJobs = () => {
   const api = new APICall();
-
   const pathname = usePathname();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
@@ -36,11 +36,9 @@ const EmpUpcomingJobs = () => {
   const [fetchingData, setFetchingData] = useState(false);
   const [employeeList, setEmployeeList] = useState(null);
   const [employeeCompany, setEmployeeCompany] = useState([]);
-  // Add date filter states
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
   const [id, setId] = useState(null);
-
+  const [startDate, setStartDate] = useState(format(new Date(), "yyyy-MM-dd"));
+  const [endDate, setEndDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const isDashboard = pathname.includes("/superadmin/dashboard");
 
   useEffect(() => {
@@ -52,11 +50,27 @@ const EmpUpcomingJobs = () => {
     }
   }, []);
 
-  const getAllEmployees = async (employeeId) => {
+  useEffect(() => {
+    getAllEmployees(startDate, endDate);
+  }, []); // Only run on mount
+
+  const getAllEmployees = async (
+    employeeId,
+    start = startDate,
+    end = endDate
+  ) => {
     setFetchingData(true);
+
+    const queryParams = [];
+
+    if (start && end) {
+      queryParams.push(`start_date=${start}`);
+      queryParams.push(`end_date=${end}`);
+    }
+
     try {
       const response = await api.getDataWithToken(
-        `${getAllEmpoyesUrl}/${employeeId}`
+        `${getAllEmpoyesUrl}/${employeeId}${queryParams.join("&")}`
       );
       setEmployeeList(response.data);
       setEmployeeCompany(response.data.captain_all_jobs);
@@ -67,30 +81,26 @@ const EmpUpcomingJobs = () => {
     }
   };
 
+  const handleDateChange = (start, end) => {
+    setStartDate(start);
+    setEndDate(end);
+    // Trigger getAllQuotes immediately when dates change
+    getAllEmployees(start, end);
+  };
+
   useEffect(() => {
-    // Apply both search and date filters
     let filtered = employeeCompany?.filter((job) =>
       job?.user?.name?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // Apply date filter if both dates are selected
-    if (startDate && endDate) {
-      filtered = filtered?.filter((job) => {
-        const jobDate = new Date(job.job_date);
-        return jobDate >= startDate && jobDate <= endDate;
-      });
-    }
-
     const limitedJobs = isDashboard ? filtered?.slice(0, 10) : filtered;
     setFilteredJobs(limitedJobs);
 
-    // Short timeout to prevent flash of content
     setTimeout(() => {
       setLoading(false);
     }, 300);
-  }, [searchTerm, employeeCompany, isDashboard, startDate, endDate]);
+  }, [searchTerm, employeeCompany, isDashboard]);
 
-  // Show loading state if either internal loading or API loading is true
   const showLoading = loading || fetchingData;
 
   const assignedJob = () => {
@@ -100,86 +110,6 @@ const EmpUpcomingJobs = () => {
   const handleSearch = (value) => {
     setSearchTerm(value);
   };
-
-  // In your EmpUpcomingJobs component
-
-  // Make sure your handleDateChange function properly processes the dates from your DateFilters component
-  const handleDateChange = (dates) => {
-    console.log("Raw dates received:", dates);
-
-    // Check if dates is an object with startDate and endDate properties
-    if (dates && dates.startDate && dates.endDate) {
-      setStartDate(new Date(dates.startDate));
-      setEndDate(new Date(dates.endDate));
-      console.log(
-        "Date filter set:",
-        new Date(dates.startDate),
-        new Date(dates.endDate)
-      );
-    }
-    // Check if dates is an array
-    else if (Array.isArray(dates) && dates.length === 2) {
-      setStartDate(new Date(dates[0]));
-      setEndDate(new Date(dates[1]));
-      console.log("Date filter set:", new Date(dates[0]), new Date(dates[1]));
-    }
-    // If dates is a single date object (some date pickers work this way)
-    else if (dates instanceof Date) {
-      setStartDate(dates);
-      setEndDate(dates);
-      console.log("Single date filter set:", dates);
-    }
-    // Handle case where filter is cleared
-    else if (!dates) {
-      setStartDate(null);
-      setEndDate(null);
-      console.log("Date filter cleared");
-    }
-  };
-
-  // Then make sure your filtering logic in useEffect properly handles these dates
-  useEffect(() => {
-    // First apply search filter
-    let filtered = employeeCompany?.filter((job) =>
-      job?.user?.name?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    // Then apply date filter if dates are set
-    if (startDate && endDate) {
-      console.log("Filtering by date range:", startDate, endDate);
-      filtered = filtered?.filter((job) => {
-        if (!job.job_date) return false;
-
-        const jobDate = new Date(job.job_date);
-
-        // Debug log to check job dates
-        console.log(
-          "Job:",
-          job.id,
-          "Date:",
-          jobDate,
-          "In range:",
-          jobDate >= startDate && jobDate <= endDate
-        );
-
-        // Set hours to 0 for reliable date comparison
-        const jobDateOnly = new Date(jobDate.setHours(0, 0, 0, 0));
-        const startDateOnly = new Date(startDate.setHours(0, 0, 0, 0));
-        const endDateOnly = new Date(endDate.setHours(23, 59, 59, 999));
-
-        return jobDateOnly >= startDateOnly && jobDateOnly <= endDateOnly;
-      });
-      console.log("After date filter, jobs count:", filtered?.length);
-    }
-
-    const limitedJobs = isDashboard ? filtered?.slice(0, 10) : filtered;
-    setFilteredJobs(limitedJobs);
-
-    // Short timeout to prevent flash of content
-    setTimeout(() => {
-      setLoading(false);
-    }, 300);
-  }, [searchTerm, employeeCompany, isDashboard, startDate, endDate]);
 
   const jobTable = () => {
     return (
