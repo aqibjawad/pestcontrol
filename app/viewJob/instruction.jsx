@@ -49,28 +49,13 @@ const Instruction = ({ jobList, loading }) => {
               <TableBody>
                 {reschedule.length > 0
                   ? reschedule.map((item, index) => (
-                      <TableRow key={index}>
-                        <TableCell>{`${new Date(item.job_date).toLocaleString(
-                          "en-US",
-                          {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          }
-                        )}`}</TableCell>
-                        <TableCell>
-                          {`${new Date(item.job_date).toLocaleString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })}`}
-                        </TableCell>
-                        <TableCell>
-                          {item.reason && item.reason !== "Initial Date"
-                            ? item.reason
-                            : ""}
-                        </TableCell>
-                      </TableRow>
+                    <TableRow key={index}>
+                      <TableCell>{new Date(item.job_date).toString().split('GMT')[0].trim()}</TableCell>
+                      <TableCell>{new Date(item.job_date).toString().split('GMT')[0].trim()}</TableCell>
+                      <TableCell>
+                        {item.reason && item.reason !== "Initial Date" ? item.reason : ""}
+                      </TableCell>
+                    </TableRow>
                     ))
                   : // Show skeletons if there are no reschedule entries
                     [...Array(5)].map((_, index) => (

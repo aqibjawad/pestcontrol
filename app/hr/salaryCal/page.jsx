@@ -21,16 +21,9 @@ import "./index.css";
 import Tabs from "./tabs";
 
 import Dropdown2 from "@/components/generic/DropDown2";
-
-// Remove the static import of SalaryPDFGenerator
-// import SalaryPDFGenerator from "./salarypdf";
-
-// Instead, use dynamic import only when needed
 import dynamic from "next/dynamic";
 
 const SalaryCal = () => {
-  // Properly implement dynamic import with ssr: false to prevent server-side rendering
-  // This is crucial because React-PDF uses browser-only APIs
   const SalaryPDFGenerator = dynamic(() => import("./salarypdf"), {
     ssr: false,
     loading: () => <p>Loading PDF generator...</p>,
@@ -63,6 +56,10 @@ const SalaryCal = () => {
 
   const [showPDF, setShowPDF] = useState(false);
 
+  const [advDisplayValue, setAdvDisplayValue] = useState("");
+
+  const [fineDisplayValue, setFineDisplayValue] = useState("");
+
   const handlePaymentType = (type) => {
     setPaymentType(type);
   };
@@ -84,6 +81,8 @@ const SalaryCal = () => {
 
   const [selectedEmployee, setSelectedEmployee] = useState(null);
 
+  console.log(selectedEmployee);
+
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [allEmployees, setAllEmployees] = useState();
 
@@ -100,6 +99,9 @@ const SalaryCal = () => {
         `${getAllEmpoyesUrl}/salary/get?salary_month=${selectedMonth}`
       );
       if (response?.data) {
+        // Log the response to check the data structure
+        console.log("API Response:", response.data);
+
         // Sort employees: unpaid first, then paid
         const sortedEmployees = response.data.sort((a, b) => {
           if (a.status === "unpaid" && b.status === "paid") return -1;
@@ -113,11 +115,7 @@ const SalaryCal = () => {
       }
     } catch (error) {
       console.error("Error fetching employees:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to fetch employee data",
-      });
+      // Error handling
     } finally {
       setFetchingData(false);
     }
@@ -136,7 +134,13 @@ const SalaryCal = () => {
   const handleOpenModal = (employee) => {
     setSelectedEmployee(employee);
     setAttendance(employee.attendance_per || "");
+
+    setAdvDisplayValue(employee?.user?.employee?.current_adv_balance || "0");
+
+    setFineDisplayValue(employee?.user?.employee?.current_fine_balance || "0");
+
     setAdvRec(employee.adv_received || "");
+
     setFineRec(employee.fine_received || "");
     setOpenModal(true);
   };
@@ -830,9 +834,14 @@ const SalaryCal = () => {
                   type="text"
                   title="Advance Deduction"
                   placeholder="Enter advance Deduction"
-                  value={adv_received}
-                  onChange={(value) => setAdvRec(value)}
-                  helperText={`Payable Salary: ${selectedEmployee?.adv_paid}`}
+                  value={advDisplayValue} // Show the current balance
+                  onChange={(value) => {
+                    setAdvDisplayValue(value); // Update display value
+                    setAdvRec(value); // Also update the backend value
+                  }}
+                  helperText={`Current Advance Balance: ${
+                    selectedEmployee?.user?.employee?.current_adv_balance || "0"
+                  }`}
                 />
               </Grid>
               <Grid item xs={4}>
@@ -840,12 +849,21 @@ const SalaryCal = () => {
                   type="text"
                   title="Fine Deduction"
                   placeholder="Enter Fine to b deducted"
-                  value={fine_received}
-                  onChange={(value) => setFineRec(value)}
+                  // value={fine_received}
+                  // onChange={(value) => setFineRec(value)}
+                  value={fineDisplayValue} // Show the current balance
+                  onChange={(value) => {
+                    setFineDisplayValue(value); // Update display value
+                    setFineRec(value); // Also update the backend value
+                  }}
+                  helperText={`Current Advance Balance: ${
+                    selectedEmployee?.user?.employee?.current_fine_balance ||
+                    "0"
+                  }`}
                 />
               </Grid>
               {/* New Total Deductions field */}
-              <Grid item xs={4}>
+              {/* <Grid item xs={4}>
                 <InputWithTitle
                   type="text"
                   title="Total Deductions"
@@ -854,7 +872,7 @@ const SalaryCal = () => {
                   disabled={true} // Make it read-only
                   helperText="Sum of advance and fine deductions"
                 />
-              </Grid>
+              </Grid> */}
               <Grid item xs={4}>
                 <InputWithTitle
                   type="text"

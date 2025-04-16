@@ -264,7 +264,7 @@ const UpcomingJobs = ({
           {row.tag && <div className={styles.clientTag}>Tag: {row.tag}</div>}
         </td>
         <td>{row?.user?.client?.firm_name}</td>
-        <td>{row.job_title}</td>
+        <td>{row.job_services[0]?.service?.service_title}</td>
         <td>
           <div
             className={styles.statusContainer}
@@ -527,7 +527,7 @@ const UpcomingJobs = ({
                 { id: "srNo", label: "Sr No" },
                 { id: "clientName", label: "Client Name", sortable: true },
                 { id: "firmName", label: "Firm Name", sortable: true },
-                { id: "jobName", label: "Job Name" },
+                { id: "jobName", label: "Service Name" },
                 { id: "status", label: "Status", sortable: true },
                 { id: "priority", label: "Priority" },
                 { id: "jobSchedule", label: "Job Schedule" },
