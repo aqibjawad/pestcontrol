@@ -102,7 +102,7 @@ const Page = () => {
             title: "Success",
             text: "Report submitted successfully!",
           });
-          router.push(`/serviceRpoertPdf?id=${serviceReportId}`);
+          router.push(`/serviceReportPdf?id=${serviceReportId}`);
         } else {
           throw new Error(feedbackResponse.error.message || "Failed to submit feedback");
         }

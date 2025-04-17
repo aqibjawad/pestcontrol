@@ -19,14 +19,18 @@ import {
 } from "@mui/material";
 import { FaTrash, FaPlus } from "react-icons/fa";
 import { FaPencil } from "react-icons/fa6";
+import APICall from "@/networkUtil/APICall";
+import { contract } from "@/networkUtil/Constants";
 
 const ServiceProduct = ({ quote }) => {
+  const api = new APICall();
   const rows = quote?.quote_services || [];
 
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [editValue, setEditValue] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDeleteClick = (row) => {
     setSelectedRow(row);
@@ -39,10 +43,46 @@ const ServiceProduct = ({ quote }) => {
     setOpenEditModal(true);
   };
 
-  const handleDeleteConfirm = () => {
-    // Call your delete API or logic here using selectedRow.id
-    console.log("Deleting:", selectedRow);
-    setOpenDeleteModal(false);
+  const handleDeleteConfirm = async () => {
+    if (!selectedRow) return;
+
+    try {
+      setIsDeleting(true);
+
+      // Format the data exactly as required by the API
+      const data = {
+        quote_id: quote.id, // Make sure this is a number (not string)
+        quote_service_ids: [Number(selectedRow.id)], // Ensure this is an array of numbers
+      };
+
+      // Try sending as raw JSON instead of form data
+      const response = await api.postDataToken(
+        `${contract}/service/remove`,
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === "success") {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Contract has been created successfully!",
+        });
+        setOpenDeleteModal(false);
+        window.location.reload();
+      } else {
+        throw new Error(response.error?.message || "Unknown error occurred");
+      }
+    } catch (error) {
+      console.error("Error deleting service:", error);
+      // Consider adding user feedback here
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const handleEditSave = () => {
@@ -142,11 +182,19 @@ const ServiceProduct = ({ quote }) => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenDeleteModal(false)} color="primary">
+          <Button
+            onClick={() => setOpenDeleteModal(false)}
+            color="primary"
+            disabled={isDeleting}
+          >
             Cancel
           </Button>
-          <Button onClick={handleDeleteConfirm} color="error">
-            Delete
+          <Button
+            onClick={handleDeleteConfirm}
+            color="error"
+            disabled={isDeleting}
+          >
+            {isDeleting ? "Deleting..." : "Delete"}
           </Button>
         </DialogActions>
       </Dialog>

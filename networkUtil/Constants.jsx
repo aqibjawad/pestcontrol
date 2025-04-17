@@ -114,6 +114,8 @@ export const sendEmail = apiPrefix + "/email/pest_info/send";
 
 export const ipmReport = apiPrefix + "/imp_report";
 
+export const contract = apiPrefix + "/contract";
+
 // Purchase Order APIs
 export const purchaseOrder = apiPrefix + "/purchase-order";
 export const addClient = apiPrefix + "/add-client";

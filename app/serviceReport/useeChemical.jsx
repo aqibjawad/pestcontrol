@@ -89,16 +89,19 @@ const UseChemicals = ({ formData, setFormData }) => {
                 <td style={{ textAlign: "center" }}>{chemical.dose}</td>
                 <td style={{ textAlign: "center" }}>{chemical.qty}</td>
                 <td style={{ textAlign: "center" }}>
-                  {/* <button 
-                    className={styles.deleteButton} 
-                    onClick={() => handleDeleteChemical(chemical.id)}
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      color: "red",
+                      cursor: "pointer",
+                    }}
                   >
-                    Delete
-                  </button> */}
-                  <FaTrash
-                    onClick={() => handleDeleteChemical(chemical.id)}
-                    style={{ color: "red", cursor: "pointer" }}
-                  />
+                    <FaTrash
+                      onClick={() => handleDeleteChemical(chemical.id)}
+                    />
+                  </div>
                 </td>
               </tr>
             ))}
