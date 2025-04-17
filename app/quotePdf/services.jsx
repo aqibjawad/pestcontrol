@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "../../styles/viewQuote.module.css";
 
 import {
@@ -12,15 +12,23 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
   Button,
-  TextField,
+  Typography,
+  Box,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from "@mui/material";
 import { FaTrash, FaPlus } from "react-icons/fa";
 import { FaPencil } from "react-icons/fa6";
+import { MdExpandMore } from "react-icons/md";
 import APICall from "@/networkUtil/APICall";
 import { contract } from "@/networkUtil/Constants";
+
+import InputWithTitle from "@/components/generic/InputWithTitle";
+import InputWithTitle3 from "@/components/generic/InputWithTitle3";
+import Dropdown from "@/components/generic/dropDown";
 
 const ServiceProduct = ({ quote }) => {
   const api = new APICall();
@@ -29,8 +37,59 @@ const ServiceProduct = ({ quote }) => {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
-  const [editValue, setEditValue] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+  const [remainingMonths, setRemainingMonths] = useState(0);
+  const [serviceDates, setServiceDates] = useState([]);
+
+  // Edit values
+  const [editNoOfServices, setEditNoOfServices] = useState("");
+  const [editJobType, setEditJobType] = useState("");
+  const [editRate, setEditRate] = useState("");
+  const [editDurationInMonths, setEditDurationInMonths] = useState("");
+  const [selectedServiceType, setSelectedServiceType] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
+
+  // Calculate remaining months and filter service dates when a row is selected
+  useEffect(() => {
+    if (selectedRow) {
+      calculateRemainingMonths();
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Reset time to start of day
+      
+      const currentAndFutureDates = selectedRow.quote_service_dates.filter(dateObj => {
+        const serviceDate = new Date(dateObj.service_date);
+        // Include dates from the current month onward
+        return (
+          serviceDate.getMonth() >= today.getMonth() && 
+          serviceDate.getFullYear() >= today.getFullYear()
+        );
+      });
+      
+      setServiceDates(currentAndFutureDates);
+    }
+  }, [selectedRow]);
+
+  // Function to calculate remaining months (including current month)
+  const calculateRemainingMonths = () => {
+    if (!selectedRow || !selectedRow.quote_service_dates || selectedRow.quote_service_dates.length === 0) {
+      setRemainingMonths(0);
+      return;
+    }
+
+    // Find the last service date
+    const lastServiceDate = new Date(selectedRow.quote_service_dates[selectedRow.quote_service_dates.length - 1].service_date);
+    const today = new Date();
+    
+    // Calculate months difference
+    let months = (lastServiceDate.getFullYear() - today.getFullYear()) * 12;
+    months += lastServiceDate.getMonth() - today.getMonth();
+    
+    // Include current month in the count (add 1)
+    months += 1;
+    
+    setRemainingMonths(Math.max(0, months));
+  };
 
   const handleDeleteClick = (row) => {
     setSelectedRow(row);
@@ -39,7 +98,16 @@ const ServiceProduct = ({ quote }) => {
 
   const handleEditClick = (row) => {
     setSelectedRow(row);
-    setEditValue(row?.no_of_services || ""); // Set the initial value to be edited
+    // Pre-fill the fields with current values
+    setEditNoOfServices(row?.no_of_services || "");
+    setEditJobType(row?.job_type || "");
+    setEditRate(row?.rate || "");
+
+    // Calculate duration in months (12 / no_of_services)
+    const duration = row?.no_of_services / quote?.duration_in_months;
+    setEditDurationInMonths(duration);
+
+    setSelectedServiceType(row?.job_type || "");
     setOpenEditModal(true);
   };
 
@@ -70,7 +138,7 @@ const ServiceProduct = ({ quote }) => {
         Swal.fire({
           icon: "success",
           title: "Success",
-          text: "Contract has been created successfully!",
+          text: "Contract has been deleted successfully!",
         });
         setOpenDeleteModal(false);
         window.location.reload();
@@ -85,10 +153,48 @@ const ServiceProduct = ({ quote }) => {
     }
   };
 
-  const handleEditSave = () => {
-    // Call your update API or logic here using selectedRow.id and editValue
-    console.log("Editing:", selectedRow, "New value:", editValue);
-    setOpenEditModal(false);
+  const handleEditSave = async () => {
+    if (!selectedRow) return;
+
+    try {
+      // Format the data for the update API
+      const data = {
+        quote_service_id: selectedRow.id,
+        no_of_services: editNoOfServices,
+        job_type: selectedServiceType,
+        rate: editRate,
+      };
+
+      // Make API call to update the service
+      const response = await api.postDataToken(
+        `${contract}/service/update`,
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === "success") {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Service has been updated successfully!",
+        });
+        setOpenEditModal(false);
+        window.location.reload();
+      } else {
+        throw new Error(response.error?.message || "Failed to update");
+      }
+    } catch (error) {
+      console.error("Error updating service:", error);
+      // Add user feedback for error
+    }
+  };
+
+  const handleDateChange = (name, value) => {
+    setSelectedDate(value);
   };
 
   return (
@@ -174,12 +280,15 @@ const ServiceProduct = ({ quote }) => {
       </TableContainer>
 
       {/* Delete Confirmation Modal */}
-      <Dialog open={openDeleteModal} onClose={() => setOpenDeleteModal(false)}>
+      <Dialog
+        open={openDeleteModal}
+        onClose={() => setOpenDeleteModal(false)}
+        fullWidth
+        maxWidth="md"
+      >
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            Are you sure you want to delete this service product?
-          </DialogContentText>
+          <InputWithTitle title={"Reason"} />
         </DialogContent>
         <DialogActions>
           <Button
@@ -199,18 +308,69 @@ const ServiceProduct = ({ quote }) => {
         </DialogActions>
       </Dialog>
 
-      {/* Edit Modal */}
-      <Dialog open={openEditModal} onClose={() => setOpenEditModal(false)}>
-        <DialogTitle>Edit No. of Services</DialogTitle>
+      {/* Edit Modal with InputWithTitle components */}
+      <Dialog
+        open={openEditModal}
+        onClose={() => setOpenEditModal(false)}
+        fullWidth
+        maxWidth="md"
+      >
+        <DialogTitle>{selectedRow?.service?.service_title}</DialogTitle>
         <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="No. of Services"
-            type="number"
-            fullWidth
-            value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
+          <div className="flex gap-4">
+            <InputWithTitle
+              title="Jobs Per Month"
+              value={editDurationInMonths}
+              disabled={true}
+              type="text"
+            />
+          </div>
+          
+          {/* Separate input fields for Duration and Remaining Months */}
+          <div className="flex gap-4">
+            <InputWithTitle
+              title="Duration in Months"
+              value={quote?.duration_in_months}
+              disabled={true}
+              type="text"
+            />
+            
+            <InputWithTitle
+              title="Remaining Months"
+              value={`${remainingMonths} months`}
+              disabled={true}
+              type="text"
+            />
+          </div>
+          
+          {/* Job Type at the top */}
+          <Dropdown
+            title="Service Type"
+            options={["Quarterly", "Monthly"]}
+            value={selectedServiceType}
+            onChange={(value) => setSelectedServiceType(value)}
+          />
+
+          <InputWithTitle
+            title="No. of Services"
+            value={editNoOfServices}
+            onChange={setEditNoOfServices}
+            type="text"
+          />
+
+          <InputWithTitle
+            title="Rate"
+            value={editRate}
+            onChange={setEditRate}
+            type="text"
+          />
+
+          {/* Date filter below */}
+          <InputWithTitle3
+            title="Date"
+            type="date"
+            value={selectedDate}
+            onChange={handleDateChange}
           />
         </DialogContent>
         <DialogActions>
