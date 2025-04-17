@@ -23,41 +23,52 @@ const TypeVisit = ({ formData, setFormData }) => {
           <input
             type="checkbox"
             name="visitType"
-            value="Consultation"
-            checked={formData.type_of_visit === "Consultation"}
+            value="Regular Treatment (Contract)"
+            checked={formData.type_of_visit === "Regular Treatment (Contract)"}
             onChange={handleVisitTypeChange}
           />
-          Consultation
+          Regular Treatment (Contract)
         </label>
         <label className={styles.checkboxLabel}>
           <input
             type="checkbox"
             name="visitType"
-            value="Follow-up"
-            checked={formData.type_of_visit === "Follow-up"}
+            value="Inspection Visit (Contract)"
+            checked={formData.type_of_visit === "Inspection Visit (Contract)"}
             onChange={handleVisitTypeChange}
           />
-          Follow-up
+          Inspection Visit (Contract)
         </label>
         <label className={styles.checkboxLabel}>
           <input
             type="checkbox"
             name="visitType"
-            value="Emergency"
-            checked={formData.type_of_visit === "Emergency"}
+            value="Complain Visit (Contract)"
+            checked={formData.type_of_visit === "Complain Visit (Contract)"}
             onChange={handleVisitTypeChange}
           />
-          Emergency
+          Complain Visit (Contract)
         </label>
         <label className={styles.checkboxLabel}>
           <input
             type="checkbox"
             name="visitType"
-            value="Emergency"
-            checked={formData.type_of_visit === "Regular"}
+            value="One-Off Treatment"
+            checked={formData.type_of_visit === "One-Off Treatment"}
             onChange={handleVisitTypeChange}
           />
-          Regular
+          One-Off Treatment
+        </label>
+
+        <label className={styles.checkboxLabel}>
+          <input
+            type="checkbox"
+            name="visitType"
+            value="Complain Visit (One-Off)"
+            checked={formData.type_of_visit === "Complain Visit (One-Off)"}
+            onChange={handleVisitTypeChange}
+          />
+          Complain Visit (One-Off)
         </label>
       </div>
     </div>

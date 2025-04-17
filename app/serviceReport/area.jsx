@@ -58,10 +58,19 @@ const Area = ({ formData, setFormData }) => {
     }
   };
 
+  // In Area.jsx
   const handleAddService = (newService) => {
     const updatedAddresses = [...addresses, { ...newService, id: Date.now() }];
     setServiceAreas(updatedAddresses);
-    updateFormData(updatedAddresses, selectedPests, selectedMethods);
+
+    // If there's a valid pest ID, add it to selectedPests if not already there
+    if (newService.pest_id && !selectedPests.includes(newService.pest_id)) {
+      const updatedPests = [...selectedPests, newService.pest_id];
+      setSelectedPests(updatedPests);
+      updateFormData(updatedAddresses, updatedPests, selectedMethods);
+    } else {
+      updateFormData(updatedAddresses, selectedPests, selectedMethods);
+    }
   };
 
   const handleDeleteArea = (areaId) => {
@@ -125,18 +134,15 @@ const Area = ({ formData, setFormData }) => {
             {addresses.map((area, index) => (
               <tr key={area.id}>
                 <td>{index + 1}</td>
-                <td>{area.inspected_areas}</td>
+                <td>{area.pest_found}</td>
                 <td>{area.infestation_level}</td>
                 <td>{area.manifested_areas}</td>
                 <td>{area.report_and_follow_up_detail}</td>
                 <td>
-                  {/* <button
-                    className={styles.deleteButton}
+                  <FaTrash
                     onClick={() => handleDeleteArea(area.id)}
-                  >
-                    Delete
-                  </button> */}
-                  <FaTrash onClick={() => handleDeleteArea(area.id)} style={{color:"red", cursor:"pointer"}} />
+                    style={{ color: "red", cursor: "pointer" }}
+                  />
                 </td>
               </tr>
             ))}
@@ -199,6 +205,7 @@ const Area = ({ formData, setFormData }) => {
         open={open}
         handleClose={handleClose}
         onAddService={handleAddService}
+        pestList={servicesList} // Pass the pest list to the AddService component
       />
     </div>
   );

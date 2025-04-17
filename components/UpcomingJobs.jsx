@@ -130,6 +130,9 @@ const UpcomingJobs = ({
   const [filteredJobs, setFilteredJobs] = useState(jobsList || []);
   const [loading, setLoading] = useState(true);
   const [uniqueAreas, setUniqueAreas] = useState([]);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isDownloadOpen, setIsDownloadOpen] = useState(false);
+  const [activeFilter, setActiveFilter] = useState("");
 
   const isDashboard = pathname.includes("/superadmin/dashboard");
 
@@ -150,10 +153,18 @@ const UpcomingJobs = ({
     }
   }, [jobsList]);
 
+  // Update filtered jobs when currentFilter changes
+  useEffect(() => {
+    if (currentFilter) {
+      setActiveFilter(currentFilter);
+    }
+  }, [currentFilter]);
+
   useEffect(() => {
     if (!jobsList) return;
 
-    const filtered = jobsList.filter((job) => {
+    // First apply search and area filters
+    let filtered = jobsList.filter((job) => {
       const searchTermLower = searchTerm.toLowerCase();
       const jobTitleMatch = job?.job_title
         ?.toLowerCase()
@@ -161,14 +172,31 @@ const UpcomingJobs = ({
       const firmNameMatch = job?.user?.client?.firm_name
         ?.toLowerCase()
         .includes(searchTermLower);
-      // Add tag search
-      const tagMatch = job?.tag?.toLowerCase().includes(searchTermLower);
-
+      const tagMatch = job?.tag?.toLowerCase()?.includes(searchTermLower);
       const areaMatch =
         !selectedArea || job?.client_address?.area === selectedArea;
 
       return (jobTitleMatch || firmNameMatch || tagMatch) && areaMatch;
     });
+
+    // Then apply status/assignment filters
+    switch (activeFilter) {
+      case "assigned":
+        filtered = filtered.filter((job) => job.captain_id !== null);
+        break;
+      case "not-assigned":
+        filtered = filtered.filter((job) => job.captain_id === null);
+        break;
+      case "pending":
+        filtered = filtered.filter((job) => job.is_completed === 0);
+        break;
+      case "completed":
+        filtered = filtered.filter((job) => job.is_completed === 1);
+        break;
+      default:
+        // No additional filtering
+        break;
+    }
 
     const limitedJobs = isDashboard ? filtered?.slice(0, 10) : filtered;
     setFilteredJobs(limitedJobs);
@@ -176,7 +204,7 @@ const UpcomingJobs = ({
     setTimeout(() => {
       setLoading(false);
     }, 300);
-  }, [searchTerm, selectedArea, jobsList, isDashboard]);
+  }, [searchTerm, selectedArea, jobsList, isDashboard, activeFilter]);
 
   const showLoading = loading || isLoading;
 
@@ -187,13 +215,42 @@ const UpcomingJobs = ({
   const handleSearch = (value) => {
     setSearchTerm(value);
     if (!value.trim()) {
-      setFilteredJobs(jobsList || []);
+      // Reset to current filter state
+      applyCurrentFilters(jobsList);
     }
+  };
+
+  // Function to apply current filters to the jobs list
+  const applyCurrentFilters = (jobs) => {
+    if (!jobs) return;
+
+    let filtered = jobs;
+
+    // Apply current filter
+    switch (activeFilter) {
+      case "assigned":
+        filtered = filtered.filter((job) => job.captain_id !== null);
+        break;
+      case "not-assigned":
+        filtered = filtered.filter((job) => job.captain_id === null);
+        break;
+      case "pending":
+        filtered = filtered.filter((job) => job.is_completed === 0);
+        break;
+      case "completed":
+        filtered = filtered.filter((job) => job.is_completed === 1);
+        break;
+      default:
+        // No additional filtering
+        break;
+    }
+
+    setFilteredJobs(isDashboard ? filtered?.slice(0, 10) : filtered);
   };
 
   const handleJobIdSearch = async () => {
     if (!jobIdInput.trim()) {
-      setFilteredJobs(jobsList || []);
+      applyCurrentFilters(jobsList);
       return;
     }
 
@@ -212,7 +269,7 @@ const UpcomingJobs = ({
   const handleAreaChange = (e) => {
     setSelectedArea(e.target.value);
     if (!e.target.value) {
-      setFilteredJobs(jobsList || []);
+      applyCurrentFilters(jobsList);
     }
   };
 
@@ -247,7 +304,8 @@ const UpcomingJobs = ({
     }
 
     return sortedJobs.map((row, index) => (
-      <tr key={row.id} className="border-b border-gray-200">
+      <tr key={index} className="border-b border-gray-200">
+        <td>{index + 1}</td>
         <td>{row.id}</td>
         <td>
           <div className={styles.clientName}>Job Title: {row.job_title}</div>
@@ -312,23 +370,42 @@ const UpcomingJobs = ({
             )}
           </div>
         </td>
+
         <td>
           <div style={{ fontSize: "12px", textAlign: "center" }}>
-            <Link
-              href={
-                row.is_completed === 1
-                  ? `/serviceRpoertPdf?id=${row?.report?.id}`
-                  : "#"
-              }
-              style={{
-                color: row.is_completed === 1 ? "blue" : "gray",
-                pointerEvents: row.is_completed === 1 ? "auto" : "none",
-                textDecoration: row.is_completed === 1 ? "underline" : "none",
-                cursor: row.is_completed === 1 ? "pointer" : "not-allowed",
-              }}
-            >
-              Send Email
-            </Link>
+            {row.is_completed === 1 ? (
+              <Link
+                href={
+                  row.report !== null
+                    ? `/serviceRpoertPdf?id=${row?.report?.id}`
+                    : "#"
+                }
+                style={{
+                  color: row.report !== null ? "blue" : "gray",
+                  pointerEvents: row.report !== null ? "auto" : "none",
+                  textDecoration: row.report !== null ? "underline" : "none",
+                  cursor: row.report !== null ? "pointer" : "not-allowed",
+                }}
+              >
+                Send Email
+              </Link>
+            ) : (
+              <Link
+                href={
+                  row.report !== null
+                    ? `/serviceRpoertPdf?id=${row?.report?.id}`
+                    : "#"
+                }
+                style={{
+                  color: row.report !== null ? "blue" : "gray",
+                  pointerEvents: row.report !== null ? "auto" : "none",
+                  textDecoration: row.report !== null ? "underline" : "none",
+                  cursor: row.report !== null ? "pointer" : "not-allowed",
+                }}
+              >
+                Send Email
+              </Link>
+            )}
           </div>
         </td>
 
@@ -366,21 +443,22 @@ const UpcomingJobs = ({
       </tr>
     ));
 
-  const isActiveFilter = (filterType) => currentFilter === filterType;
+  const isActiveFilter = (filterType) => activeFilter === filterType;
 
-  const RenderFilterButtons = () => {
-    const [isOpen, setIsOpen] = React.useState(false);
-
+  const RenderDownloadOptions = () => {
     return (
       <div className="relative inline-block text-left">
         <button
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={() => {
+            setIsDownloadOpen(!isDownloadOpen);
+            setIsFilterOpen(false); // Close other dropdown
+          }}
           className="inline-flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-green-500 rounded hover:bg-green-600"
         >
           Download Options
         </button>
 
-        {isOpen && (
+        {isDownloadOpen && (
           <>
             <div className="origin-top-right absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
               <div className="py-1" role="menu">
@@ -402,49 +480,97 @@ const UpcomingJobs = ({
                 <button
                   onClick={() => {
                     downloadExcel(filteredJobs);
-                    setIsOpen(false);
+                    setIsDownloadOpen(false);
                   }}
                   className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 mt-2"
                 >
                   Excel
-                </button>
-                <button
-                  onClick={() => {
-                    downloadCSV(filteredJobs);
-                    setIsOpen(false);
-                  }}
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 mt-2"
-                >
-                  CSV
                 </button>
               </div>
             </div>
 
             <div
               className="fixed inset-0 z-0"
-              onClick={() => setIsOpen(false)}
+              onClick={() => setIsDownloadOpen(false)}
             ></div>
           </>
         )}
+      </div>
+    );
+  };
 
+  const handleFilterChange = (filterType) => {
+    setActiveFilter(filterType);
+    handleFilter(filterType); // Call the parent component's filter handler
+    setIsFilterOpen(false);
+  };
+
+  const RenderFilterOptions = () => {
+    return (
+      <div className="relative inline-block text-left ml-3">
         <button
-          style={{ fontSize: "12px" }}
-          onClick={() => handleFilter("assigned")}
-          className={`py-2 px-4 rounded text-white ml-3 ${
-            isActiveFilter("assigned") ? "bg-green-700" : "bg-green-500"
-          }`}
+          onClick={() => {
+            setIsFilterOpen(!isFilterOpen);
+            setIsDownloadOpen(false); // Close other dropdown
+          }}
+          className="inline-flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-green-500 rounded hover:bg-green-600"
         >
-          Assign
+          Filter Options {activeFilter ? "✓" : ""}
         </button>
-        <button
-          style={{ fontSize: "12px" }}
-          onClick={() => handleFilter("not-assigned")}
-          className={`py-2 px-4 rounded text-white ml-5 ${
-            isActiveFilter("not-assigned") ? "bg-green-700" : "bg-green-500"
-          }`}
-        >
-          Not Assign
-        </button>
+
+        {isFilterOpen && (
+          <>
+            <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
+              <div className="py-1" role="menu">
+                <button
+                  onClick={() => handleFilterChange("assigned")}
+                  className={`block w-full text-left px-4 py-2 text-sm ${
+                    isActiveFilter("assigned")
+                      ? "bg-green-100 text-green-800"
+                      : "text-gray-700 hover:bg-gray-100"
+                  }`}
+                >
+                  Assigned
+                </button>
+                <button
+                  onClick={() => handleFilterChange("not-assigned")}
+                  className={`block w-full text-left px-4 py-2 text-sm ${
+                    isActiveFilter("not-assigned")
+                      ? "bg-green-100 text-green-800"
+                      : "text-gray-700 hover:bg-gray-100"
+                  }`}
+                >
+                  Not Assigned
+                </button>
+                <button
+                  onClick={() => handleFilterChange("pending")}
+                  className={`block w-full text-left px-4 py-2 text-sm ${
+                    isActiveFilter("pending")
+                      ? "bg-green-100 text-green-800"
+                      : "text-gray-700 hover:bg-gray-100"
+                  }`}
+                >
+                  Pending
+                </button>
+                <button
+                  onClick={() => handleFilterChange("completed")}
+                  className={`block w-full text-left px-4 py-2 text-sm ${
+                    isActiveFilter("completed")
+                      ? "bg-green-100 text-green-800"
+                      : "text-gray-700 hover:bg-gray-100"
+                  }`}
+                >
+                  Completed
+                </button>
+              </div>
+            </div>
+
+            <div
+              className="fixed inset-0 z-0"
+              onClick={() => setIsFilterOpen(false)}
+            ></div>
+          </>
+        )}
       </div>
     );
   };
@@ -470,7 +596,7 @@ const UpcomingJobs = ({
   return (
     <div className={styles.parentContainer}>
       <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center">
+        <div className="flex items-center flex-wrap">
           <div className="mr-3">
             <select
               value={selectedArea}
@@ -516,7 +642,10 @@ const UpcomingJobs = ({
             </button>
           </div>
 
-          <div className="ml-10">{RenderFilterButtons()}</div>
+          <div className="ml-5 flex mt-2 sm:mt-0">
+            {RenderDownloadOptions()}
+            {RenderFilterOptions()}
+          </div>
         </div>
       </div>
       <div className={styles.tableContainer}>
@@ -525,6 +654,7 @@ const UpcomingJobs = ({
             <tr>
               {[
                 { id: "srNo", label: "Sr No" },
+                { id: "jobId", label: "Job Id" },
                 { id: "clientName", label: "Client Name", sortable: true },
                 { id: "firmName", label: "Firm Name", sortable: true },
                 { id: "jobName", label: "Service Name" },

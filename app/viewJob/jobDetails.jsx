@@ -46,6 +46,15 @@ const JobDetails = ({ jobList, loading = false }) => {
                       <Skeleton variant="text" width="100%" height={24} />
                     </TableCell>
                   </TableRow>
+
+                  <TableRow sx={{ border: "none" }}>
+                    <TableCell>
+                      <strong>Total Price:</strong>
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="text" width="100%" height={24} />
+                    </TableCell>
+                  </TableRow>
                 </TableBody>
               </Table>
             </TableContainer>
@@ -118,6 +127,15 @@ const JobDetails = ({ jobList, loading = false }) => {
                   </TableCell>
                   <TableCell>
                     {jobList?.user?.client?.referencable?.name}
+                  </TableCell>
+                </TableRow>
+
+                <TableRow sx={{ border: "none" }}>
+                  <TableCell>
+                    <strong>Total Price</strong>
+                  </TableCell>
+                  <TableCell>
+                    {jobList?.sub_total}
                   </TableCell>
                 </TableRow>
               </TableBody>

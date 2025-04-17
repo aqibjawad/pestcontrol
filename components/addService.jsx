@@ -5,17 +5,19 @@ import InputWithTitle from "./generic/InputWithTitle";
 import GreenButton from "../components/generic/GreenButton";
 import Dropdown from "./generic/dropDown";
 
-const AddService = ({ open, handleClose, onAddService }) => {
+const AddService = ({ open, handleClose, onAddService, pestList = [] }) => {
   const [serviceData, setServiceData] = useState({
     inspected_areas: "",
     pest_found: "",
+    pest_id: null, // Store the pest ID here
     infestation_level: "",
     manifested_areas: "",
     report_and_follow_up_detail: "",
   });
-
   // Add error state for validation feedback
   const [validationError, setValidationError] = useState("");
+
+  const pestOptions = pestList.map((pest) => pest.pest_name);
 
   const handleInputChange = (field, value) => {
     setServiceData((prev) => ({
@@ -48,6 +50,16 @@ const AddService = ({ open, handleClose, onAddService }) => {
     handleClose();
   };
 
+  const handlePestChange = (value) => {
+    const selectedPest = pestList.find((pest) => pest.pest_name === value);
+
+    setServiceData((prev) => ({
+      ...prev,
+      pest_found: value,
+      pest_id: selectedPest ? selectedPest.id : null,
+    }));
+  };
+
   return (
     <div>
       <Modal
@@ -78,23 +90,25 @@ const AddService = ({ open, handleClose, onAddService }) => {
 
           <div className="mt-5">
             <InputWithTitle
-              title={"Inspected areas"}
+              title={"Treatment Area"}
               value={serviceData.inspected_areas}
               onChange={(value) => handleInputChange("inspected_areas", value)}
             />
           </div>
 
           <div className="mt-5">
-            <InputWithTitle
-              title={"Pest found"}
+            {/* Changed from InputWithTitle to Dropdown for pest selection */}
+            <Dropdown
+              title={"Pest Found"}
               value={serviceData.pest_found}
-              onChange={(value) => handleInputChange("pest_found", value)}
+              options={pestOptions}
+              onChange={handlePestChange}
             />
           </div>
 
           <div className="mt-5">
             <Dropdown
-              title={"Infestation level"}
+              title={"Infestation Level"}
               value={serviceData.infestation_level}
               options={["High", "Medium", "Low"]}
               onChange={(value) =>
@@ -111,7 +125,7 @@ const AddService = ({ open, handleClose, onAddService }) => {
 
           <div className="mt-5">
             <InputWithTitle
-              title={"Manifested areas"}
+              title={"Main Infected Areas"}
               value={serviceData.manifested_areas}
               onChange={(value) => handleInputChange("manifested_areas", value)}
             />
@@ -119,7 +133,7 @@ const AddService = ({ open, handleClose, onAddService }) => {
 
           <div className="mt-5">
             <InputWithTitle
-              title={"Report and follow up detail"}
+              title={"Report and Follow up Detail"}
               value={serviceData.report_and_follow_up_detail}
               onChange={(value) =>
                 handleInputChange("report_and_follow_up_detail", value)

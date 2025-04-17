@@ -42,7 +42,7 @@ const Instruction = ({ jobList, loading }) => {
               <TableHead>
                 <TableRow>
                   <TableCell>Current Date</TableCell>
-                  <TableCell>Reschedule Date</TableCell>
+                  <TableCell>Schedule Date</TableCell>
                   <TableCell>Reason</TableCell>
                 </TableRow>
               </TableHead>

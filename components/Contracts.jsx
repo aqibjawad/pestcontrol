@@ -41,9 +41,23 @@ const Contracts = () => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
+  // Add status filters state
+  const [statusFilters, setStatusFilters] = useState({
+    active: false,
+    pending: false,
+    inProcess: false,
+    expired: false,
+    canceled: false,
+  });
+
   const handleDateChange = (start, end) => {
     setStartDate(start);
     setEndDate(end);
+  };
+
+  // Handle status filter changes
+  const handleFilterChange = (filterOptions) => {
+    setStatusFilters(filterOptions);
   };
 
   useEffect(() => {
@@ -51,18 +65,62 @@ const Contracts = () => {
   }, [startDate, endDate]);
 
   useEffect(() => {
-    // Filter quotes based on search term
-    if (searchTerm.trim() === "") {
-      setFilteredQuoteList(quoteList);
-    } else {
-      const filtered = quoteList.filter((quote) =>
+    // Apply all filters: search and status filters
+    let filtered = quoteList;
+
+    // Apply search filter
+    if (searchTerm.trim() !== "") {
+      filtered = filtered.filter((quote) =>
         quote?.user?.client?.firm_name
           ?.toLowerCase()
           .includes(searchTerm.toLowerCase())
       );
-      setFilteredQuoteList(filtered);
     }
-  }, [searchTerm, quoteList]);
+
+    // Apply status filters if any is selected
+    const hasActiveFilters = Object.values(statusFilters).some((val) => val);
+
+    if (hasActiveFilters) {
+      filtered = filtered.filter((quote) => {
+        // Check active status
+        if (statusFilters.active && !quote.contract_cancel_reason) {
+          return true;
+        }
+
+        // Check pending status
+        if (statusFilters.pending && quote.is_contracted === 0) {
+          return true;
+        }
+
+        // Check in process status
+        if (statusFilters.inProcess && quote.is_contracted === 2) {
+          return true;
+        }
+
+        // Check expired status
+        if (
+          statusFilters.expired &&
+          quote.contract_cancel_reason === "expired" &&
+          quote.contract_cancelled_at
+        ) {
+          return true;
+        }
+
+        // Check canceled status
+        if (
+          statusFilters.canceled &&
+          quote.contract_cancel_reason &&
+          quote.contract_cancel_reason !== "expired"
+        ) {
+          return true;
+        }
+
+        return false;
+      });
+    }
+
+    setFilteredQuoteList(filtered);
+  }, [searchTerm, quoteList, statusFilters]);
 
   const getAllQuotes = async () => {
     setFetchingData(true);
@@ -259,6 +317,18 @@ const Contracts = () => {
         doc.text(`Filtered by: "${searchTerm}"`, 14, 46);
       }
 
+      // Add status filter information
+      const activeFilters = [];
+      if (statusFilters.active) activeFilters.push("Active");
+      if (statusFilters.pending) activeFilters.push("Pending");
+      if (statusFilters.inProcess) activeFilters.push("In Process");
+      if (statusFilters.expired) activeFilters.push("Expired");
+      if (statusFilters.canceled) activeFilters.push("Canceled");
+
+      if (activeFilters.length > 0) {
+        doc.text(`Status Filters: ${activeFilters.join(", ")}`, 14, 54);
+      }
+
       // Add logo at the top right
       const pageWidth = doc.internal.pageSize.getWidth();
       const logoWidth = 45;
@@ -307,11 +377,11 @@ const Contracts = () => {
       doc.autoTable({
         head: [headers],
         body: tableData,
-        startY: 50, // Adjusted starting position
+        startY: 62, // Adjusted starting position for status filters
         styles: { fontSize: 8, cellPadding: 2 },
         headStyles: { fillColor: [50, 169, 46], textColor: 255 },
         alternateRowStyles: { fillColor: [245, 245, 245] },
-        margin: { top: 50 },
+        margin: { top: 62 },
         didDrawPage: (data) => {
           finalY = data.cursor.y;
         },
@@ -428,7 +498,11 @@ const Contracts = () => {
               sortedData.map((row, index) => (
                 <TableRow key={row.id || index} hover>
                   <TableCell>{index + 1}</TableCell>
-                  <TableCell>{row?.user?.client?.firm_name}</TableCell>
+                  <TableCell>
+                    <Link href={`/quotePdf?id=${row.id}`}>
+                      {row?.user?.client?.firm_name}
+                    </Link>
+                  </TableCell>
                   <TableCell>{row?.jobs[0]?.total_jobs}</TableCell>
                   <TableCell>{row?.jobs?.length}</TableCell>
                   <TableCell>{row.billing_method}</TableCell>
@@ -571,10 +645,52 @@ const Contracts = () => {
                 borderRadius: "10px",
               }}
             >
-              <DateFilters onDateChange={handleDateChange} />
+              <DateFilters
+                onDateChange={handleDateChange}
+                onFilterChange={handleFilterChange}
+              />
             </div>
           </div>
         </div>
+
+        {/* Display active filters */}
+        {Object.values(statusFilters).some((val) => val) && (
+          <div
+            style={{
+              display: "flex",
+              gap: "8px",
+              flexWrap: "wrap",
+              marginTop: "12px",
+            }}
+          >
+            <span style={{ fontWeight: "600" }}>Active filters:</span>
+            {statusFilters.active && (
+              <span className="px-2 py-1 bg-green-100 text-green-800 rounded-md text-sm">
+                Active
+              </span>
+            )}
+            {statusFilters.pending && (
+              <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-md text-sm">
+                Pending
+              </span>
+            )}
+            {statusFilters.inProcess && (
+              <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-md text-sm">
+                In Process
+              </span>
+            )}
+            {statusFilters.expired && (
+              <span className="px-2 py-1 bg-red-100 text-red-800 rounded-md text-sm">
+                Expired
+              </span>
+            )}
+            {statusFilters.canceled && (
+              <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-md text-sm">
+                Canceled
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-12 gap-4">
@@ -583,8 +699,8 @@ const Contracts = () => {
 
       {/* Quote Summary Section */}
       <div className="bg-white rounded-lg shadow-md p-4 mt-4">
-        <h2 className="text-xl font-semibold mb-4"> Summary </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+        <h2 className="text-xl font-semibold mb-4">Summary</h2>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
           <div className="p-3 bg-green-50 rounded border border-green-200">
             <p className="text-sm text-gray-600">Active</p>
             <p className="text-2xl font-bold text-green-600">{activeCount}</p>
@@ -601,6 +717,17 @@ const Contracts = () => {
             <p className="text-sm text-gray-600">Expired</p>
             <p className="text-2xl font-bold text-red-600">{expiredCount}</p>
           </div>
+          <div className="p-3 bg-gray-50 rounded border border-gray-200">
+            <p className="text-sm text-gray-600">Canceled</p>
+            <p className="text-2xl font-bold text-gray-600">{canceledCount}</p>
+          </div>
+        </div>
+
+        <div className="mt-4 text-right">
+          <span className="text-lg font-semibold">Total Contracts: </span>
+          <span className="text-lg font-bold text-indigo-600">
+            {totalCount}
+          </span>
         </div>
       </div>
     </div>

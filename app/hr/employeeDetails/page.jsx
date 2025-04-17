@@ -60,6 +60,7 @@ const Page = () => {
 
   const [employeeCompany, setEmployeeCompany] = useState([]);
   const [employeeDevices, setEmployeeDevices] = useState([]);
+  const [employeeVehicles, setEmployeeVehicles] = useState([]);
   const [activeTab, setActiveTab] = useState("documents"); // State for active tab
 
   const [empProfession, setEmployeeProfession] = useState([]);
@@ -113,6 +114,7 @@ const Page = () => {
       setEmployeeList(response.data);
       setEmployeeCompany(response.data.captain_all_jobs);
       setEmployeeDevices(response.data.devices);
+      setEmployeeVehicles(response.data.assigned_vehicles);
       setEmployeeProfession(response?.data?.employee?.profession);
 
       // Initial attendance data fetch
@@ -627,7 +629,10 @@ const Page = () => {
                 <table className="w-full border-collapse">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="p-3 text-left border">Code No</th>
+                      <th className="p-3 text-left border">Sr No</th>
+                      <th className="p-3 text-left border">
+                        Device Identification Number
+                      </th>
                       <th className="p-3 text-left border">Device Name</th>
                       <th className="p-3 text-left border">Model</th>
                     </tr>
@@ -636,6 +641,7 @@ const Page = () => {
                     {employeeDevices && employeeDevices.length > 0 ? (
                       employeeDevices.map((device, index) => (
                         <tr key={index} className="hover:bg-gray-100">
+                          <td className="p-3 border">{index + 1}</td>
                           <td className="p-3 border">{device.code_no}</td>
                           <td className="p-3 border">{device.name}</td>
                           <td className="p-3 border">{device.model}</td>
@@ -656,11 +662,50 @@ const Page = () => {
         </div>
       )}
 
-      {activeTab === "leaves" && (
+      {activeTab === "vehicles" && (
+        <div className={styles.personalDetailsContainer}>
+          <div className="w-full">
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="p-3 text-left border">Sr No</th>
+                      <th className="p-3 text-left border">Conditon</th>
+                      <th className="p-3 text-left border">Model Name</th>
+                      <th className="p-3 text-left border">Vehicle Number</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {employeeVehicles && employeeVehicles.length > 0 ? (
+                      employeeVehicles.map((vehicless, index) => (
+                        <tr key={index} className="hover:bg-gray-100">
+                          <td className="p-3 border">{index + 1}</td>
+                          <td className="p-3 border">{vehicless.condition}</td>
+                          <td className="p-3 border">{vehicless.modal_name}</td>
+                          <td className="p-3 border">{vehicless.vehicle_number}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td className="p-3 text-center border" colSpan="3">
+                          No Vehicles found
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* {activeTab === "leaves" && (
         <div className={styles.personalDetailsContainer}>
           <Leaves employeeData={employeeList} />
         </div>
-      )}
+      )} */}
 
       {activeTab === "attendence" && (
         <div className={styles.personalDetailsContainer}>
