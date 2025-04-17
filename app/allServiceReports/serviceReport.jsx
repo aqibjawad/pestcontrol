@@ -92,7 +92,7 @@ const ServiceReport = () => {
                   <TableCell>{row.for_office_use}</TableCell>
                   <TableCell>
                     {" "}
-                    <Link href={`/serviceRpoertPdf?id=${row.id}`}>
+                    <Link href={`/serviceReportPdf?id=${row.id}`}>
                       <span className="text-blue-600 hover:text-blue-800">
                         View Details
                       </span>

@@ -132,7 +132,9 @@ const UpcomingJobs = ({
   const [uniqueAreas, setUniqueAreas] = useState([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isDownloadOpen, setIsDownloadOpen] = useState(false);
-  const [activeFilter, setActiveFilter] = useState("");
+
+  // Changed from a single activeFilter to an array of selected filters
+  const [selectedFilters, setSelectedFilters] = useState([]);
 
   const isDashboard = pathname.includes("/superadmin/dashboard");
 
@@ -153,10 +155,16 @@ const UpcomingJobs = ({
     }
   }, [jobsList]);
 
-  // Update filtered jobs when currentFilter changes
+  // Update selected filters when currentFilter changes
   useEffect(() => {
     if (currentFilter) {
-      setActiveFilter(currentFilter);
+      // If the parent sends a currentFilter string, parse it
+      const filterArray = currentFilter.includes(",")
+        ? currentFilter.split(",")
+        : [currentFilter];
+
+      // Update the local state with all filters from the parent
+      setSelectedFilters(filterArray);
     }
   }, [currentFilter]);
 
@@ -179,23 +187,25 @@ const UpcomingJobs = ({
       return (jobTitleMatch || firmNameMatch || tagMatch) && areaMatch;
     });
 
-    // Then apply status/assignment filters
-    switch (activeFilter) {
-      case "assigned":
-        filtered = filtered.filter((job) => job.captain_id !== null);
-        break;
-      case "not-assigned":
-        filtered = filtered.filter((job) => job.captain_id === null);
-        break;
-      case "pending":
-        filtered = filtered.filter((job) => job.is_completed === 0);
-        break;
-      case "completed":
-        filtered = filtered.filter((job) => job.is_completed === 1);
-        break;
-      default:
-        // No additional filtering
-        break;
+    // Then apply multiple filters based on selections
+    if (selectedFilters.length > 0) {
+      filtered = filtered.filter((job) => {
+        // Check if job matches ANY of the selected filters
+        return selectedFilters.some((filter) => {
+          switch (filter) {
+            case "assigned":
+              return job.captain_id !== null;
+            case "not-assigned":
+              return job.captain_id === null;
+            case "pending":
+              return job.is_completed === 0;
+            case "completed":
+              return job.is_completed === 1;
+            default:
+              return true;
+          }
+        });
+      });
     }
 
     const limitedJobs = isDashboard ? filtered?.slice(0, 10) : filtered;
@@ -204,7 +214,7 @@ const UpcomingJobs = ({
     setTimeout(() => {
       setLoading(false);
     }, 300);
-  }, [searchTerm, selectedArea, jobsList, isDashboard, activeFilter]);
+  }, [searchTerm, selectedArea, jobsList, isDashboard, selectedFilters]);
 
   const showLoading = loading || isLoading;
 
@@ -226,23 +236,24 @@ const UpcomingJobs = ({
 
     let filtered = jobs;
 
-    // Apply current filter
-    switch (activeFilter) {
-      case "assigned":
-        filtered = filtered.filter((job) => job.captain_id !== null);
-        break;
-      case "not-assigned":
-        filtered = filtered.filter((job) => job.captain_id === null);
-        break;
-      case "pending":
-        filtered = filtered.filter((job) => job.is_completed === 0);
-        break;
-      case "completed":
-        filtered = filtered.filter((job) => job.is_completed === 1);
-        break;
-      default:
-        // No additional filtering
-        break;
+    // Apply multiple filters
+    if (selectedFilters.length > 0) {
+      filtered = filtered.filter((job) => {
+        return selectedFilters.some((filter) => {
+          switch (filter) {
+            case "assigned":
+              return job.captain_id !== null;
+            case "not-assigned":
+              return job.captain_id === null;
+            case "pending":
+              return job.is_completed === 0;
+            case "completed":
+              return job.is_completed === 1;
+            default:
+              return true;
+          }
+        });
+      });
     }
 
     setFilteredJobs(isDashboard ? filtered?.slice(0, 10) : filtered);
@@ -443,7 +454,39 @@ const UpcomingJobs = ({
       </tr>
     ));
 
-  const isActiveFilter = (filterType) => activeFilter === filterType;
+  // Function to check if a filter is active
+  const isFilterSelected = (filterType) => selectedFilters.includes(filterType);
+
+  // Modified function to handle checkbox clicking
+  const handleFilterToggle = (filterType) => {
+    // Make a copy of the current selectedFilters array
+    let updatedFilters = [...selectedFilters];
+
+    if (isFilterSelected(filterType)) {
+      // Remove the filter if it's already selected
+      updatedFilters = updatedFilters.filter((filter) => filter !== filterType);
+    } else {
+      // Add the filter if it's not selected
+      updatedFilters.push(filterType);
+    }
+
+    // Update the local state with the new filters array
+    setSelectedFilters(updatedFilters);
+
+    // Call the parent component's handler with a comma-separated string of all filters
+    if (handleFilter) {
+      handleFilter(updatedFilters.length > 0 ? updatedFilters.join(",") : "");
+    }
+  };
+
+  // Function to reset all filters
+  const clearAllFilters = () => {
+    setSelectedFilters([]);
+    if (handleFilter) {
+      handleFilter("");
+    }
+    setIsFilterOpen(false);
+  };
 
   const RenderDownloadOptions = () => {
     return (
@@ -499,13 +542,15 @@ const UpcomingJobs = ({
     );
   };
 
-  const handleFilterChange = (filterType) => {
-    setActiveFilter(filterType);
-    handleFilter(filterType); // Call the parent component's filter handler
-    setIsFilterOpen(false);
-  };
-
   const RenderFilterOptions = () => {
+    // Create an array of filter types
+    const filterTypes = [
+      { id: "assigned", label: "Assigned" },
+      { id: "not-assigned", label: "Not Assigned" },
+      { id: "pending", label: "Pending" },
+      { id: "completed", label: "Completed" },
+    ];
+
     return (
       <div className="relative inline-block text-left ml-3">
         <button
@@ -515,53 +560,50 @@ const UpcomingJobs = ({
           }}
           className="inline-flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-green-500 rounded hover:bg-green-600"
         >
-          Filter Options {activeFilter ? "✓" : ""}
+          Filter Options{" "}
+          {selectedFilters.length > 0 ? `(${selectedFilters.length})` : ""}
         </button>
 
         {isFilterOpen && (
           <>
             <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
               <div className="py-1" role="menu">
-                <button
-                  onClick={() => handleFilterChange("assigned")}
-                  className={`block w-full text-left px-4 py-2 text-sm ${
-                    isActiveFilter("assigned")
-                      ? "bg-green-100 text-green-800"
-                      : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                >
-                  Assigned
-                </button>
-                <button
-                  onClick={() => handleFilterChange("not-assigned")}
-                  className={`block w-full text-left px-4 py-2 text-sm ${
-                    isActiveFilter("not-assigned")
-                      ? "bg-green-100 text-green-800"
-                      : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                >
-                  Not Assigned
-                </button>
-                <button
-                  onClick={() => handleFilterChange("pending")}
-                  className={`block w-full text-left px-4 py-2 text-sm ${
-                    isActiveFilter("pending")
-                      ? "bg-green-100 text-green-800"
-                      : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                >
-                  Pending
-                </button>
-                <button
-                  onClick={() => handleFilterChange("completed")}
-                  className={`block w-full text-left px-4 py-2 text-sm ${
-                    isActiveFilter("completed")
-                      ? "bg-green-100 text-green-800"
-                      : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                >
-                  Completed
-                </button>
+                {filterTypes.map((filter) => (
+                  <div
+                    key={filter.id}
+                    className={`flex items-center px-4 py-2 text-sm cursor-pointer ${
+                      isFilterSelected(filter.id)
+                        ? "bg-green-100 text-green-800"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                    onClick={() => handleFilterToggle(filter.id)}
+                  >
+                    <input
+                      type="checkbox"
+                      id={`filter-${filter.id}`}
+                      checked={isFilterSelected(filter.id)}
+                      readOnly
+                      className="mr-2 h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                    />
+                    <label
+                      htmlFor={`filter-${filter.id}`}
+                      className="cursor-pointer flex-grow"
+                    >
+                      {filter.label}
+                    </label>
+                  </div>
+                ))}
+
+                {selectedFilters.length > 0 && (
+                  <div className="border-t border-gray-100 mt-2 pt-2">
+                    <button
+                      onClick={clearAllFilters}
+                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                    >
+                      Clear All Filters
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 

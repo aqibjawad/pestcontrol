@@ -157,26 +157,28 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
       opacity: isLoading ? 0.5 : 1,
     };
 
+    // Check if captain and captain_id are both null
+    const isCaptainAssigned = jobList && (jobList.captain !== null || jobList.captain_id !== null);
+
     if (jobStatus === 0) {
-      return (
-        <>
-          <Grid item lg={6} sm={12} xs={12} md={4}>
-            <div className={styles.reschBtn}>
-              <div
-                onClick={handleJobAction}
-                className={styles.addText}
-                style={buttonStyle}
-              >
-                {isLoading ? (
-                  <CircularProgress size={20} color="inherit" />
-                ) : (
-                  "Start Job"
-                )}
-              </div>
+      // Only show Start Job button if captain is assigned
+      return isCaptainAssigned ? (
+        <Grid item lg={6} sm={12} xs={12} md={4}>
+          <div className={styles.reschBtn}>
+            <div
+              onClick={handleJobAction}
+              className={styles.addText}
+              style={buttonStyle}
+            >
+              {isLoading ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : (
+                "Start Job"
+              )}
             </div>
-          </Grid>
-        </>
-      );
+          </div>
+        </Grid>
+      ) : null;
     } else if (jobStatus === 2) {
       return (
         <Grid item lg={12} sm={12} xs={12} md={8}>
