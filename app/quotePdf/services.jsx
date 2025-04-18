@@ -14,16 +14,23 @@ import {
   DialogContent,
   DialogTitle,
   Button,
+  CircularProgress,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Box,
 } from "@mui/material";
 import { FaTrash, FaPlus } from "react-icons/fa";
 import { FaPencil } from "react-icons/fa6";
-import { MdExpandMore } from "react-icons/md";
 import APICall from "@/networkUtil/APICall";
 import { contract } from "@/networkUtil/Constants";
 
 import InputWithTitle from "@/components/generic/InputWithTitle";
-import InputWithTitle3 from "@/components/generic/InputWithTitle3";
+import Swal from "sweetalert2";
 import Dropdown from "@/components/generic/dropDown";
+
+import CalendarComponent from "./calander";
 
 const ServiceProduct = ({ quote }) => {
   const api = new APICall();
@@ -45,6 +52,12 @@ const ServiceProduct = ({ quote }) => {
   const [editDurationInMonths, setEditDurationInMonths] = useState("");
   const [selectedServiceType, setSelectedServiceType] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
+  const [isNoOfServicesDisabled, setIsNoOfServicesDisabled] = useState(false);
+
+  // Time selection states
+  const [selectedHour, setSelectedHour] = useState("02");
+  const [selectedMinute, setSelectedMinute] = useState("30");
+  const [selectedAmPm, setSelectedAmPm] = useState("PM");
 
   // Calculate remaining months and filter service dates when a row is selected
   useEffect(() => {
@@ -68,6 +81,20 @@ const ServiceProduct = ({ quote }) => {
       setServiceDates(currentAndFutureDates);
     }
   }, [selectedRow]);
+
+  // Handle service type change
+  useEffect(() => {
+    if (selectedServiceType === "Quarterly") {
+      // Calculate the number of services for quarterly (remaining months / 3)
+      const quarterlyServices = Math.ceil(remainingMonths / 3);
+      setEditNoOfServices(quarterlyServices.toString());
+      setIsNoOfServicesDisabled(true);
+    } else if (selectedServiceType === "Monthly") {
+      // Empty the no. of services field for monthly
+      setEditNoOfServices("");
+      setIsNoOfServicesDisabled(false);
+    }
+  }, [selectedServiceType, remainingMonths]);
 
   // Function to calculate remaining months (including current month)
   const calculateRemainingMonths = () => {
@@ -114,7 +141,14 @@ const ServiceProduct = ({ quote }) => {
     const duration = row?.no_of_services / quote?.duration_in_months;
     setEditDurationInMonths(duration);
 
-    setSelectedServiceType(row?.job_type || "");
+    // Reset selected service type to ensure calendar is disabled initially
+    setSelectedServiceType("");
+
+    // Set default time (2:30 PM)
+    setSelectedHour("02");
+    setSelectedMinute("30");
+    setSelectedAmPm("PM");
+
     setOpenEditModal(true);
   };
 
@@ -159,49 +193,111 @@ const ServiceProduct = ({ quote }) => {
     }
   };
 
+  useEffect(() => {
+    if (selectedRow && serviceDates) {
+      // Convert service_date strings to Date objects
+      const initialDates = serviceDates.map(
+        (date) => new Date(date.service_date)
+      );
+      setUpdatedServiceDates(initialDates);
+    }
+  }, [selectedRow, serviceDates]);
+
+  const [updatedServiceDates, setUpdatedServiceDates] = useState([]);
+  const [isLoading, setIsLoading] = useState(false); // Add loading state
+
+  // Convert 12-hour format to 24-hour format for API
+  const convertTo24HourFormat = () => {
+    let hour = parseInt(selectedHour);
+
+    // Convert to 24-hour format if PM
+    if (selectedAmPm === "PM" && hour < 12) {
+      hour += 12;
+    }
+    // Handle 12 AM case (should be 00)
+    else if (selectedAmPm === "AM" && hour === 12) {
+      hour = 0;
+    }
+
+    return `${hour.toString().padStart(2, "0")}:${selectedMinute}`;
+  };
+
   const handleEditSave = async () => {
     if (!selectedRow) return;
 
+    // Check if dates are selected
+    if (!updatedServiceDates || updatedServiceDates.length === 0) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Please select at least one service date.",
+      });
+      return;
+    }
+
     try {
-      // Format the data for the update API
+      setIsLoading(true); // Set loading state to true before API call
+
+      // Convert time to 24-hour format
+      const timeIn24HourFormat = convertTo24HourFormat();
+
+      // Rest of your code remains the same
       const data = {
-        quote_service_id: selectedRow.id,
-        no_of_services: editNoOfServices,
-        job_type: selectedServiceType,
-        rate: editRate,
+        quote_id: quote.id,
+        quote_services: [
+          {
+            quote_service_id: Number(selectedRow.id),
+            job_type: selectedServiceType.toLowerCase(),
+            rate: parseFloat(editRate),
+            no_of_jobs: parseInt(editNoOfServices),
+            dates: updatedServiceDates.map((date) => {
+              // Format date as required by the API and include the selected time
+              const d = new Date(date);
+              const year = d.getFullYear();
+              const month = String(d.getMonth() + 1).padStart(2, "0");
+              const day = String(d.getDate()).padStart(2, "0");
+              return `${year}-${month}-${day} ${timeIn24HourFormat}:00`;
+            }),
+          },
+        ],
       };
 
-      // Make API call to update the service
-      const response = await api.postDataToken(
-        `${contract}/service/update`,
-        data,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      // Log the data before sending to verify dates are included
+      console.log("Sending data:", data);
 
-      if (response.status === "success") {
-        Swal.fire({
-          icon: "success",
-          title: "Success",
-          text: "Service has been updated successfully!",
-        });
-        setOpenEditModal(false);
-        window.location.reload();
-      } else {
-        throw new Error(response.error?.message || "Failed to update");
-      }
+      const response = await api.postDataToken(`${contract}/update`, data);
+
+      // Show success message
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Service updated successfully!",
+      });
+
+      setOpenEditModal(false);
+      // Refresh your data or perform any other necessary actions
     } catch (error) {
       console.error("Error updating service:", error);
-      // Add user feedback for error
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to update service. Please try again.",
+      });
+    } finally {
+      setIsLoading(false); // Reset loading state when API call completes
     }
   };
 
   const handleDateChange = (name, value) => {
     setSelectedDate(value);
   };
+
+  // Generate hour, minute options
+  const hours = Array.from({ length: 12 }, (_, i) =>
+    (i + 1).toString().padStart(2, "0")
+  );
+  const minutes = ["00", "15", "30", "45"];
 
   return (
     <div className={styles.clientRecord}>
@@ -257,7 +353,7 @@ const ServiceProduct = ({ quote }) => {
                 <TableCell align="center">{row.job_type}</TableCell>
                 <TableCell align="center">{row.rate}</TableCell>
                 <TableCell align="center">
-                  {row.service_cancel_reason || "No Cancel Yet"}
+                  {row.service_cancel_reason || "Active"}
                 </TableCell>
                 <TableCell align="center">
                   {row.service_cancelled_at
@@ -348,6 +444,7 @@ const ServiceProduct = ({ quote }) => {
       >
         <DialogTitle>{selectedRow?.service?.service_title}</DialogTitle>
         <DialogContent>
+          {/* Separate input fields for Duration and Remaining Months */}
           <div className="flex gap-4">
             <InputWithTitle
               title="Jobs Per Month"
@@ -355,10 +452,7 @@ const ServiceProduct = ({ quote }) => {
               disabled={true}
               type="text"
             />
-          </div>
 
-          {/* Separate input fields for Duration and Remaining Months */}
-          <div className="flex gap-4">
             <InputWithTitle
               title="Duration in Months"
               value={quote?.duration_in_months}
@@ -374,42 +468,125 @@ const ServiceProduct = ({ quote }) => {
             />
           </div>
 
-          {/* Job Type at the top */}
-          <Dropdown
-            title="Service Type"
-            options={["Quarterly", "Monthly"]}
-            value={selectedServiceType}
-            onChange={(value) => setSelectedServiceType(value)}
-          />
+          <div className="flex gap-4">
+            {/* Job Type at the top */}
+            <div style={{ width: "600px" }}>
+              <Dropdown
+                title="Service Type"
+                options={["Quarterly", "Monthly"]}
+                value={selectedServiceType}
+                onChange={(value) => setSelectedServiceType(value)}
+              />
+            </div>
 
-          <InputWithTitle
-            title="No. of Services"
-            value={editNoOfServices}
-            onChange={setEditNoOfServices}
-            type="text"
-          />
+            <InputWithTitle
+              title="No. of Services"
+              value={editNoOfServices}
+              onChange={setEditNoOfServices}
+              type="text"
+              disabled={isNoOfServicesDisabled}
+            />
 
-          <InputWithTitle
-            title="Rate"
-            value={editRate}
-            onChange={setEditRate}
-            type="text"
-          />
+            <InputWithTitle
+              title="Rate"
+              value={editRate}
+              onChange={setEditRate}
+              type="text"
+            />
+          </div>
 
-          {/* Date filter below */}
-          <InputWithTitle3
-            title="Date"
-            type="date"
-            value={selectedDate}
-            onChange={handleDateChange}
-          />
+          {/* Enhanced Time selection with AM/PM */}
+          <div className="mt-4">
+            <div
+              className={
+                styles.timeSelectionContainer || "flex items-center gap-2"
+              }
+            >
+              <p className="mr-2 font-medium">Service Time:</p>
+
+              {/* Hour Selector */}
+              <FormControl size="small" style={{ minWidth: 80 }}>
+                <Select
+                  value={selectedHour}
+                  onChange={(e) => setSelectedHour(e.target.value)}
+                >
+                  {hours.map((hour) => (
+                    <MenuItem key={hour} value={hour}>
+                      {hour}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <span className="mx-1">:</span>
+
+              {/* Minute Selector */}
+              <FormControl size="small" style={{ minWidth: 80 }}>
+                <Select
+                  value={selectedMinute}
+                  onChange={(e) => setSelectedMinute(e.target.value)}
+                >
+                  {minutes.map((minute) => (
+                    <MenuItem key={minute} value={minute}>
+                      {minute}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              {/* AM/PM Selector */}
+              <FormControl size="small" style={{ minWidth: 80, marginLeft: 8 }}>
+                <Select
+                  value={selectedAmPm}
+                  onChange={(e) => setSelectedAmPm(e.target.value)}
+                >
+                  <MenuItem value="AM">AM</MenuItem>
+                  <MenuItem value="PM">PM</MenuItem>
+                </Select>
+              </FormControl>
+
+              {/* Display selected time */}
+              <Box ml={2} display="flex" alignItems="center">
+                <span className="text-gray-600">
+                  ({selectedHour}:{selectedMinute} {selectedAmPm})
+                </span>
+              </Box>
+            </div>
+          </div>
+
+          {/* Date filter below - conditionally rendered based on selectedServiceType */}
+          <div className="mt-5">
+            {selectedServiceType ? (
+              <CalendarComponent
+                initialDates={updatedServiceDates || []}
+                onDateChange={(dates) => {
+                  setUpdatedServiceDates(dates);
+                  console.log("Selected dates:", dates);
+                }}
+                serviceType={selectedServiceType}
+                remainingMonths={remainingMonths}
+                isDateSelectable={(date) => {
+                  return date >= new Date();
+                }}
+              />
+            ) : (
+              <div className="p-4 bg-gray-100 text-center rounded">
+                Please select a Service Type first to enable date selection
+              </div>
+            )}
+          </div>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenEditModal(false)} color="primary">
             Cancel
           </Button>
-          <Button onClick={handleEditSave} color="primary">
-            Save
+          <Button
+            onClick={handleEditSave}
+            color="primary"
+            disabled={isLoading || !selectedServiceType}
+            startIcon={isLoading ? <CircularProgress size={20} /> : null}
+          >
+            {isLoading ? "Saving..." : "Save"}
           </Button>
         </DialogActions>
       </Dialog>

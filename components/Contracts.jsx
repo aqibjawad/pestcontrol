@@ -14,12 +14,12 @@ import {
   Button,
   TextField,
   InputAdornment,
-  Collapse, 
-  Box, 
-  IconButton, 
+  Collapse,
+  Box,
+  IconButton,
   Typography,
   KeyboardArrowDownIcon,
-  KeyboardArrowUpIcon 
+  KeyboardArrowUpIcon,
 } from "@mui/material";
 import APICall from "@/networkUtil/APICall";
 import { quotation } from "@/networkUtil/Constants";
@@ -456,8 +456,7 @@ const Contracts = () => {
               </TableCell>
               <TableCell>Total Jobs</TableCell>
               <TableCell>Completed Jobs</TableCell>
-              <TableCell>Quote Services</TableCell>
-              <TableCell>Quote Title</TableCell>
+              <TableCell>No of Services</TableCell>
               <TableCell>Treatment Method Name</TableCell>
               <TableCell>
                 <TableSortLabel
@@ -521,28 +520,16 @@ const Contracts = () => {
                       </Link>
                     </TableCell>
                     <TableCell>{row?.jobs[0]?.total_jobs}</TableCell>
-                    <TableCell>{row?.jobs?.length}</TableCell>
+                    <TableCell>{row?.jobs[0]?.completed_jobs}</TableCell>
                     <TableCell
                       onClick={() => toggleAccordion(row.id)}
                       style={{
                         cursor: "pointer",
                         color: "#2563eb",
-                        display: "flex",
-                        alignItems: "center",
                       }}
                     >
                       <span>{row.quote_services.length}</span>
-                      {/* {row.quote_services.length > 0 && (
-                        <IconButton size="small">
-                          {expandedRows[row.id] ? (
-                            <KeyboardArrowUpIcon />
-                          ) : (
-                            <KeyboardArrowDownIcon />
-                          )}
-                        </IconButton>
-                      )} */}
                     </TableCell>
-                    <TableCell>{row.quote_title}</TableCell>
                     <TableCell>
                       {row?.treatment_methods
                         ?.map((method) => method.name)
@@ -612,20 +599,13 @@ const Contracts = () => {
                           unmountOnExit
                         >
                           <Box sx={{ margin: 2 }}>
-                            <Typography
-                              variant="h6"
-                              gutterBottom
-                              component="div"
-                            >
-                              Quote Services Details
-                            </Typography>
                             <Table size="small" aria-label="quote services">
                               <TableHead>
                                 <TableRow>
                                   <TableCell>Service Name</TableCell>
                                   <TableCell>Job Type</TableCell>
                                   <TableCell>Price</TableCell>
-                                  <TableCell>Service Cancel</TableCell>
+                                  <TableCell>Status</TableCell>
                                 </TableRow>
                               </TableHead>
                               <TableBody>
@@ -633,7 +613,8 @@ const Contracts = () => {
                                   (service, serviceIndex) => (
                                     <TableRow key={serviceIndex}>
                                       <TableCell>
-                                        {service?.service?.service_title || "N/A"}
+                                        {service?.service?.service_title ||
+                                          "N/A"}
                                       </TableCell>
                                       <TableCell>
                                         {service.job_type || "N/A"}
@@ -642,7 +623,9 @@ const Contracts = () => {
                                         {service.rate || "N/A"}
                                       </TableCell>
                                       <TableCell>
-                                        {service.service_cancel_reason || "N/A"}
+                                        {service.service_cancel_reason
+                                          ? `Canceled: ${service.service_cancel_reason}`
+                                          : "Active"}
                                       </TableCell>
                                     </TableRow>
                                   )
