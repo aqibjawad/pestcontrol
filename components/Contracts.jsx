@@ -14,6 +14,12 @@ import {
   Button,
   TextField,
   InputAdornment,
+  Collapse, 
+  Box, 
+  IconButton, 
+  Typography,
+  KeyboardArrowDownIcon,
+  KeyboardArrowUpIcon 
 } from "@mui/material";
 import APICall from "@/networkUtil/APICall";
 import { quotation } from "@/networkUtil/Constants";
@@ -421,6 +427,16 @@ const Contracts = () => {
     }
   };
 
+  const [expandedRows, setExpandedRows] = useState({});
+
+  // Toggle accordion expansion for a specific row
+  const toggleAccordion = (rowId) => {
+    setExpandedRows((prev) => ({
+      ...prev,
+      [rowId]: !prev[rowId],
+    }));
+  };
+
   const listServiceTable = () => {
     return (
       <TableContainer component={Paper} sx={{ maxHeight: "70vh" }}>
@@ -440,7 +456,7 @@ const Contracts = () => {
               </TableCell>
               <TableCell>Total Jobs</TableCell>
               <TableCell>Completed Jobs</TableCell>
-              <TableCell>Billing Method</TableCell>
+              <TableCell>Quote Services</TableCell>
               <TableCell>Quote Title</TableCell>
               <TableCell>Treatment Method Name</TableCell>
               <TableCell>
@@ -496,74 +512,149 @@ const Contracts = () => {
               </TableRow>
             ) : (
               sortedData.map((row, index) => (
-                <TableRow key={row.id || index} hover>
-                  <TableCell>{index + 1}</TableCell>
-                  <TableCell>
-                    <Link href={`/quotePdf?id=${row.id}`}>
-                      {row?.user?.client?.firm_name}
-                    </Link>
-                  </TableCell>
-                  <TableCell>{row?.jobs[0]?.total_jobs}</TableCell>
-                  <TableCell>{row?.jobs?.length}</TableCell>
-                  <TableCell>{row.billing_method}</TableCell>
-                  <TableCell>{row.quote_title}</TableCell>
-                  <TableCell>
-                    {row?.treatment_methods
-                      ?.map((method) => method.name)
-                      .join(", ") || "N/A"}
-                  </TableCell>
-                  <TableCell>
-                    <div>{row.contract_end_date}</div>
-                    <div style={getExpirationStyle(row.daysUntilExpiration)}>
-                      {getExpirationText(row.daysUntilExpiration)}
-                    </div>
-                  </TableCell>
-                  <TableCell>{row.sub_total}</TableCell>
-                  <TableCell>{row.grand_total}</TableCell>
-                  <TableCell>
-                    {!row?.contract_cancel_reason ? (
-                      <div style={{ color: "green", fontWeight: "bold" }}>
-                        Active
+                <React.Fragment key={row.id || index}>
+                  <TableRow hover>
+                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>
+                      <Link href={`/quotePdf?id=${row.id}`}>
+                        {row?.user?.client?.firm_name}
+                      </Link>
+                    </TableCell>
+                    <TableCell>{row?.jobs[0]?.total_jobs}</TableCell>
+                    <TableCell>{row?.jobs?.length}</TableCell>
+                    <TableCell
+                      onClick={() => toggleAccordion(row.id)}
+                      style={{
+                        cursor: "pointer",
+                        color: "#2563eb",
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      <span>{row.quote_services.length}</span>
+                      {/* {row.quote_services.length > 0 && (
+                        <IconButton size="small">
+                          {expandedRows[row.id] ? (
+                            <KeyboardArrowUpIcon />
+                          ) : (
+                            <KeyboardArrowDownIcon />
+                          )}
+                        </IconButton>
+                      )} */}
+                    </TableCell>
+                    <TableCell>{row.quote_title}</TableCell>
+                    <TableCell>
+                      {row?.treatment_methods
+                        ?.map((method) => method.name)
+                        .join(", ") || "N/A"}
+                    </TableCell>
+                    <TableCell>
+                      <div>{row.contract_end_date}</div>
+                      <div style={getExpirationStyle(row.daysUntilExpiration)}>
+                        {getExpirationText(row.daysUntilExpiration)}
                       </div>
-                    ) : (
-                      <div style={{ color: "#dc2626" }}>
-                        Contract is Canceled
-                      </div>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {row?.pdf_url ? (
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        startIcon={<FileDownloadIcon />}
-                        onClick={() =>
-                          handleDownloadPDF(row.pdf_url, row?.user?.name)
-                        }
-                        sx={{
-                          backgroundColor: "#2563eb",
-                          "&:hover": {
-                            backgroundColor: "#1d4ed8",
-                          },
-                          fontWeight: "bold",
-                          fontSize: "12px",
-                          padding: "6px 12px",
-                        }}
+                    </TableCell>
+                    <TableCell>{row.sub_total}</TableCell>
+                    <TableCell>{row.grand_total}</TableCell>
+                    <TableCell>
+                      {!row?.contract_cancel_reason ? (
+                        <div style={{ color: "green", fontWeight: "bold" }}>
+                          Active
+                        </div>
+                      ) : (
+                        <div style={{ color: "#dc2626" }}>
+                          Contract is Canceled
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {row?.pdf_url ? (
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          startIcon={<FileDownloadIcon />}
+                          onClick={() =>
+                            handleDownloadPDF(row.pdf_url, row?.user?.name)
+                          }
+                          sx={{
+                            backgroundColor: "#2563eb",
+                            "&:hover": {
+                              backgroundColor: "#1d4ed8",
+                            },
+                            fontWeight: "bold",
+                            fontSize: "12px",
+                            padding: "6px 12px",
+                          }}
+                        >
+                          Download
+                        </Button>
+                      ) : (
+                        <span style={{ color: "#666" }}>No PDF</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Link href={`/quotePdf?id=${row.id}`}>
+                        <span style={{ color: "#2563eb", cursor: "pointer" }}>
+                          View Details
+                        </span>
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                  {expandedRows[row.id] && row.quote_services.length > 0 && (
+                    <TableRow>
+                      <TableCell
+                        colSpan={12}
+                        style={{ paddingBottom: 0, paddingTop: 0 }}
                       >
-                        Download
-                      </Button>
-                    ) : (
-                      <span style={{ color: "#666" }}>No PDF</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <Link href={`/quotePdf?id=${row.id}`}>
-                      <span style={{ color: "#2563eb", cursor: "pointer" }}>
-                        View Details
-                      </span>
-                    </Link>
-                  </TableCell>
-                </TableRow>
+                        <Collapse
+                          in={expandedRows[row.id]}
+                          timeout="auto"
+                          unmountOnExit
+                        >
+                          <Box sx={{ margin: 2 }}>
+                            <Typography
+                              variant="h6"
+                              gutterBottom
+                              component="div"
+                            >
+                              Quote Services Details
+                            </Typography>
+                            <Table size="small" aria-label="quote services">
+                              <TableHead>
+                                <TableRow>
+                                  <TableCell>Service Name</TableCell>
+                                  <TableCell>Job Type</TableCell>
+                                  <TableCell>Price</TableCell>
+                                  <TableCell>Service Cancel</TableCell>
+                                </TableRow>
+                              </TableHead>
+                              <TableBody>
+                                {row.quote_services.map(
+                                  (service, serviceIndex) => (
+                                    <TableRow key={serviceIndex}>
+                                      <TableCell>
+                                        {service?.service?.service_title || "N/A"}
+                                      </TableCell>
+                                      <TableCell>
+                                        {service.job_type || "N/A"}
+                                      </TableCell>
+                                      <TableCell>
+                                        {service.rate || "N/A"}
+                                      </TableCell>
+                                      <TableCell>
+                                        {service.service_cancel_reason || "N/A"}
+                                      </TableCell>
+                                    </TableRow>
+                                  )
+                                )}
+                              </TableBody>
+                            </Table>
+                          </Box>
+                        </Collapse>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </React.Fragment>
               ))
             )}
           </TableBody>

@@ -256,37 +256,50 @@ const ServiceProduct = ({ quote }) => {
                 <TableCell align="center">{row.no_of_services}</TableCell>
                 <TableCell align="center">{row.job_type}</TableCell>
                 <TableCell align="center">{row.rate}</TableCell>
-                <TableCell align="center">{row.service_cancel_reason || "No Cancel Yet"}</TableCell>
-                <TableCell align="center">{row.service_cancelled_at || "No"}</TableCell>
+                <TableCell align="center">
+                  {row.service_cancel_reason || "No Cancel Yet"}
+                </TableCell>
+                <TableCell align="center">
+                  {row.service_cancelled_at
+                    ? new Date(row.service_cancelled_at).toLocaleDateString(
+                        "en-GB"
+                      )
+                    : "No"}
+                </TableCell>
                 <TableCell align="center">{row.sub_total}</TableCell>
-                <TableCell align="center">
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      color: "#32A92E",
-                      cursor: "pointer",
-                    }}
-                    onClick={() => handleEditClick(row)}
-                  >
-                    <FaPencil />
-                  </div>
-                </TableCell>
-                <TableCell align="center">
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      color: "red",
-                      cursor: "pointer",
-                    }}
-                    onClick={() => handleDeleteClick(row)}
-                  >
-                    <FaTrash />
-                  </div>
-                </TableCell>
+
+                {!row.service_cancel_reason && (
+                  <>
+                    <TableCell align="center">
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          color: "#32A92E",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => handleEditClick(row)}
+                      >
+                        <FaPencil />
+                      </div>
+                    </TableCell>
+                    <TableCell align="center">
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          color: "red",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => handleDeleteClick(row)}
+                      >
+                        <FaTrash />
+                      </div>
+                    </TableCell>
+                  </>
+                )}
               </TableRow>
             ))}
           </TableBody>

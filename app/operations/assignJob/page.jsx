@@ -222,7 +222,7 @@ const Page = () => {
     <div>
       <div className="pageTitle">Assign Job</div>
 
-      <div className="mt-20">
+      <div className="mt-2">
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
@@ -265,7 +265,7 @@ const Page = () => {
         </TableContainer>
       </div>
 
-      <div className="flex justify-center align-center mt-20">
+      <div className="flex justify-center align-center mt-3">
         <div className="pageTitle">Assign Crew Members</div>
       </div>
 
@@ -318,6 +318,15 @@ const Page = () => {
               )}
             </div>
 
+            {/* <MultilineInput
+              placeholder="Job Details"
+              title="Job Details"
+              value={formData.job_instructions}
+              onChange={handleJobInstructionsChange}
+            /> */}
+          </Grid>
+
+          <Grid item lg={4} xs={12} md={4}>
             <MultilineInput
               placeholder="Job Details"
               title="Job Details"
