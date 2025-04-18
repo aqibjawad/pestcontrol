@@ -16,7 +16,6 @@ import {
   Button,
   CircularProgress,
   FormControl,
-  InputLabel,
   Select,
   MenuItem,
   Box,
@@ -29,6 +28,7 @@ import { contract } from "@/networkUtil/Constants";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import Swal from "sweetalert2";
 import Dropdown from "@/components/generic/dropDown";
+import AddService from "./addService"; // Import the AddService component
 
 import CalendarComponent from "./calander";
 
@@ -38,6 +38,7 @@ const ServiceProduct = ({ quote }) => {
 
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [openEditModal, setOpenEditModal] = useState(false);
+  const [openAddModal, setOpenAddModal] = useState(false); // State for Add Service modal
   const [selectedRow, setSelectedRow] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [remainingMonths, setRemainingMonths] = useState(0);
@@ -152,6 +153,15 @@ const ServiceProduct = ({ quote }) => {
     setOpenEditModal(true);
   };
 
+  const handleAddServiceClick = () => {
+    setOpenAddModal(true);
+  };
+
+  const handleServiceAdded = () => {
+    // Reload data or update the UI
+    window.location.reload();
+  };
+
   const handleDeleteConfirm = async () => {
     if (!selectedRow) return;
 
@@ -207,19 +217,19 @@ const ServiceProduct = ({ quote }) => {
   const [isLoading, setIsLoading] = useState(false); // Add loading state
 
   // Convert 12-hour format to 24-hour format for API
-  const convertTo24HourFormat = () => {
-    let hour = parseInt(selectedHour);
+  const convertTo24HourFormat = (hour, minute, ampm) => {
+    let hourNum = parseInt(hour);
 
     // Convert to 24-hour format if PM
-    if (selectedAmPm === "PM" && hour < 12) {
-      hour += 12;
+    if (ampm === "PM" && hourNum < 12) {
+      hourNum += 12;
     }
     // Handle 12 AM case (should be 00)
-    else if (selectedAmPm === "AM" && hour === 12) {
-      hour = 0;
+    else if (ampm === "AM" && hourNum === 12) {
+      hourNum = 0;
     }
 
-    return `${hour.toString().padStart(2, "0")}:${selectedMinute}`;
+    return `${hourNum.toString().padStart(2, "0")}:${minute}`;
   };
 
   const handleEditSave = async () => {
@@ -239,7 +249,11 @@ const ServiceProduct = ({ quote }) => {
       setIsLoading(true); // Set loading state to true before API call
 
       // Convert time to 24-hour format
-      const timeIn24HourFormat = convertTo24HourFormat();
+      const timeIn24HourFormat = convertTo24HourFormat(
+        selectedHour,
+        selectedMinute,
+        selectedAmPm
+      );
 
       // Rest of your code remains the same
       const data = {
@@ -276,6 +290,7 @@ const ServiceProduct = ({ quote }) => {
 
       setOpenEditModal(false);
       // Refresh your data or perform any other necessary actions
+      window.location.reload();
     } catch (error) {
       console.error("Error updating service:", error);
 
@@ -301,7 +316,26 @@ const ServiceProduct = ({ quote }) => {
 
   return (
     <div className={styles.clientRecord}>
-      <div className={styles.clientHead}>Service Product</div>
+      <div
+        className={styles.clientHead}
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <span>Service Product</span>
+        {/* <Button
+          variant="contained"
+          color="primary"
+          startIcon={<FaPlus />}
+          onClick={handleAddServiceClick}
+          style={{ marginRight: "10px" }}
+        >
+          Add Service
+        </Button> */}
+        <div onClick={handleAddServiceClick}>Add Service</div>
+      </div>
 
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
@@ -590,6 +624,16 @@ const ServiceProduct = ({ quote }) => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Add Service Modal */}
+      {openAddModal && (
+        <AddService
+          open={openAddModal}
+          onClose={() => setOpenAddModal(false)}
+          quoteId={quote}
+          onServiceAdded={handleServiceAdded}
+        />
+      )}
     </div>
   );
 };
