@@ -40,6 +40,8 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
     useState(false);
   const [addServiceDates, setAddServiceDates] = useState([]);
   const [isAddingService, setIsAddingService] = useState(false);
+  // Add remaining months state
+  const [remainingMonths, setRemainingMonths] = useState(0);
 
   // Time selection states
   const [selectedHour, setSelectedHour] = useState("02");
@@ -51,6 +53,65 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
     (i + 1).toString().padStart(2, "0")
   );
   const minutes = ["00", "15", "30", "45"];
+
+  // Calculate remaining months when component mounts
+  useEffect(() => {
+    calculateRemainingMonths();
+  }, [quoteId]);
+
+  // Function to calculate remaining months
+  const calculateRemainingMonths = () => {
+    if (
+      !quoteId ||
+      !quoteId.quote_services ||
+      quoteId.quote_services.length === 0
+    ) {
+      // If no quote data available, use the full duration
+      setRemainingMonths(quoteId?.duration_in_months || 0);
+      return;
+    }
+
+    try {
+      // Find the latest service date across all services
+      let latestDate = null;
+
+      quoteId.quote_services.forEach((service) => {
+        if (
+          service.quote_service_dates &&
+          service.quote_service_dates.length > 0
+        ) {
+          service.quote_service_dates.forEach((dateObj) => {
+            const serviceDate = new Date(dateObj.service_date);
+            if (!latestDate || serviceDate > latestDate) {
+              latestDate = serviceDate;
+            }
+          });
+        }
+      });
+
+      if (!latestDate) {
+        // If no dates found, use the full duration
+        setRemainingMonths(quoteId?.duration_in_months || 0);
+        return;
+      }
+
+      const today = new Date();
+
+      // Calculate months difference
+      let months = (latestDate.getFullYear() - today.getFullYear()) * 12;
+      months += latestDate.getMonth() - today.getMonth();
+
+      // Include current month in the count (add 1)
+      months += 1;
+
+      // Ensure we don't go below 0
+      setRemainingMonths(Math.max(0, months));
+    } catch (error) {
+      console.error("Error calculating remaining months:", error);
+      // Fallback to using the full contract duration
+      setRemainingMonths(quoteId?.duration_in_months || 0);
+    }
+  };
 
   // Fetch available services for add modal
   useEffect(() => {
@@ -93,14 +154,16 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
       setSelectedHour("02");
       setSelectedMinute("30");
       setSelectedAmPm("PM");
+      // Recalculate remaining months when opening the modal
+      calculateRemainingMonths();
     }
   }, [open]);
 
   // Handle service type change
   useEffect(() => {
     if (addServiceType === "Quarterly") {
-      // Calculate the number of services for quarterly (duration in months / 3)
-      const quarterlyServices = Math.ceil(quote?.duration_in_months / 3);
+      // Calculate the number of services for quarterly based on remaining months
+      const quarterlyServices = Math.ceil(remainingMonths / 3);
       setAddNoOfServices(quarterlyServices.toString());
       setIsAddNoOfServicesDisabled(true);
     } else if (addServiceType === "Monthly") {
@@ -108,7 +171,7 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
       setAddNoOfServices("");
       setIsAddNoOfServicesDisabled(false);
     }
-  }, [addServiceType, quote?.duration_in_months]);
+  }, [addServiceType, remainingMonths]);
 
   // Convert 12-hour format to 24-hour format for API
   const convertTo24HourFormat = (hour, minute, ampm) => {
@@ -207,8 +270,6 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
         ],
       };
 
-      console.log("Adding service with data:", data);
-
       const response = await api.postDataToken(`${contract}/update`, data);
 
       if (response.status === "success") {
@@ -224,31 +285,21 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
           onServiceAdded();
         }
       } else {
-        throw new Error(response.error?.message || "Unknown error occurred");
+        throw new Error(
+          response.message || "Duplicate service detected. Each service must be unique."
+        );
       }
     } catch (error) {
       console.error("Error adding service:", error);
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Failed to add service. Please try again.",
+        text: error.message || "Unknown error occurred",
       });
     } finally {
       setIsAddingService(false);
     }
   };
-
-  // Group services by service_title
-  const groupedServices = availableServices.reduce((acc, service) => {
-    if (!acc[service.service_title]) {
-      acc[service.service_title] = [];
-    }
-    acc[service.service_title].push(service);
-    return acc;
-  }, {});
-
-  console.log("Grouped services:", groupedServices);
-  console.log("Available services count:", availableServices.length);
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
@@ -257,7 +308,7 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
         <div className="flex gap-4 mb-4">
           <InputWithTitle
             title="Remaining Months"
-            value={quoteId?.duration_in_months}
+            value={`${remainingMonths} months`}
             disabled={true}
             type="text"
           />
@@ -407,7 +458,7 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
                 console.log("Selected dates for new service:", dates);
               }}
               serviceType={addServiceType}
-              remainingMonths={quote?.duration_in_months || 0}
+              remainingMonths={remainingMonths}
               isDateSelectable={(date) => {
                 return date >= new Date();
               }}

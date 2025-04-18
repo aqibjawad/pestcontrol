@@ -325,16 +325,7 @@ const ServiceProduct = ({ quote }) => {
         }}
       >
         <span>Service Product</span>
-        {/* <Button
-          variant="contained"
-          color="primary"
-          startIcon={<FaPlus />}
-          onClick={handleAddServiceClick}
-          style={{ marginRight: "10px" }}
-        >
-          Add Service
-        </Button> */}
-        <div onClick={handleAddServiceClick}>Add Service</div>
+        <div style={{cursor:"pointer"}} onClick={handleAddServiceClick}>Add Service</div>
       </div>
 
       <TableContainer component={Paper}>
