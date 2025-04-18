@@ -14,11 +14,6 @@ import {
   DialogContent,
   DialogTitle,
   Button,
-  Typography,
-  Box,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
 } from "@mui/material";
 import { FaTrash, FaPlus } from "react-icons/fa";
 import { FaPencil } from "react-icons/fa6";
@@ -41,6 +36,8 @@ const ServiceProduct = ({ quote }) => {
   const [remainingMonths, setRemainingMonths] = useState(0);
   const [serviceDates, setServiceDates] = useState([]);
 
+  const [deleteReason, setDeleteReason] = useState();
+
   // Edit values
   const [editNoOfServices, setEditNoOfServices] = useState("");
   const [editJobType, setEditJobType] = useState("");
@@ -53,41 +50,51 @@ const ServiceProduct = ({ quote }) => {
   useEffect(() => {
     if (selectedRow) {
       calculateRemainingMonths();
-      
+
       const today = new Date();
       today.setHours(0, 0, 0, 0); // Reset time to start of day
-      
-      const currentAndFutureDates = selectedRow.quote_service_dates.filter(dateObj => {
-        const serviceDate = new Date(dateObj.service_date);
-        // Include dates from the current month onward
-        return (
-          serviceDate.getMonth() >= today.getMonth() && 
-          serviceDate.getFullYear() >= today.getFullYear()
-        );
-      });
-      
+
+      const currentAndFutureDates = selectedRow.quote_service_dates.filter(
+        (dateObj) => {
+          const serviceDate = new Date(dateObj.service_date);
+          // Include dates from the current month onward
+          return (
+            serviceDate.getMonth() >= today.getMonth() &&
+            serviceDate.getFullYear() >= today.getFullYear()
+          );
+        }
+      );
+
       setServiceDates(currentAndFutureDates);
     }
   }, [selectedRow]);
 
   // Function to calculate remaining months (including current month)
   const calculateRemainingMonths = () => {
-    if (!selectedRow || !selectedRow.quote_service_dates || selectedRow.quote_service_dates.length === 0) {
+    if (
+      !selectedRow ||
+      !selectedRow.quote_service_dates ||
+      selectedRow.quote_service_dates.length === 0
+    ) {
       setRemainingMonths(0);
       return;
     }
 
     // Find the last service date
-    const lastServiceDate = new Date(selectedRow.quote_service_dates[selectedRow.quote_service_dates.length - 1].service_date);
+    const lastServiceDate = new Date(
+      selectedRow.quote_service_dates[
+        selectedRow.quote_service_dates.length - 1
+      ].service_date
+    );
     const today = new Date();
-    
+
     // Calculate months difference
     let months = (lastServiceDate.getFullYear() - today.getFullYear()) * 12;
     months += lastServiceDate.getMonth() - today.getMonth();
-    
+
     // Include current month in the count (add 1)
     months += 1;
-    
+
     setRemainingMonths(Math.max(0, months));
   };
 
@@ -119,19 +126,18 @@ const ServiceProduct = ({ quote }) => {
 
       // Format the data exactly as required by the API
       const data = {
-        quote_id: quote.id, // Make sure this is a number (not string)
-        quote_service_ids: [Number(selectedRow.id)], // Ensure this is an array of numbers
+        quote_id: quote.id, // Make sure this is a number
+        services: [
+          {
+            quote_service_id: Number(selectedRow.id), // Ensure this is a number
+            reason: deleteReason || "No reason provided", // You need to collect this reason from user
+          },
+        ],
       };
-
       // Try sending as raw JSON instead of form data
       const response = await api.postDataToken(
         `${contract}/service/remove`,
-        data,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+        data
       );
 
       if (response.status === "success") {
@@ -221,6 +227,12 @@ const ServiceProduct = ({ quote }) => {
                 Rate
               </TableCell>
               <TableCell align="center" style={{ color: "white" }}>
+                Service Cancel Reason
+              </TableCell>
+              <TableCell align="center" style={{ color: "white" }}>
+                Service Cancel At
+              </TableCell>
+              <TableCell align="center" style={{ color: "white" }}>
                 Sub Total
               </TableCell>
               <TableCell align="center" style={{ color: "white" }}>
@@ -244,6 +256,8 @@ const ServiceProduct = ({ quote }) => {
                 <TableCell align="center">{row.no_of_services}</TableCell>
                 <TableCell align="center">{row.job_type}</TableCell>
                 <TableCell align="center">{row.rate}</TableCell>
+                <TableCell align="center">{row.service_cancel_reason || "No Cancel Yet"}</TableCell>
+                <TableCell align="center">{row.service_cancelled_at || "No"}</TableCell>
                 <TableCell align="center">{row.sub_total}</TableCell>
                 <TableCell align="center">
                   <div
@@ -288,7 +302,11 @@ const ServiceProduct = ({ quote }) => {
       >
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
-          <InputWithTitle title={"Reason"} />
+          <InputWithTitle
+            title={"Reason"}
+            onChange={setDeleteReason}
+            value={deleteReason}
+          />
         </DialogContent>
         <DialogActions>
           <Button
@@ -325,7 +343,7 @@ const ServiceProduct = ({ quote }) => {
               type="text"
             />
           </div>
-          
+
           {/* Separate input fields for Duration and Remaining Months */}
           <div className="flex gap-4">
             <InputWithTitle
@@ -334,7 +352,7 @@ const ServiceProduct = ({ quote }) => {
               disabled={true}
               type="text"
             />
-            
+
             <InputWithTitle
               title="Remaining Months"
               value={`${remainingMonths} months`}
@@ -342,7 +360,7 @@ const ServiceProduct = ({ quote }) => {
               type="text"
             />
           </div>
-          
+
           {/* Job Type at the top */}
           <Dropdown
             title="Service Type"
