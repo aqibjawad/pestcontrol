@@ -158,7 +158,7 @@ const CalendarComponent = ({
 
     setGeneratedDateMap(newGeneratedDateMap);
     setSelectedDates(newDates);
-    onDateChange && onDateChange(newDates);
+    onDateChange && onDateChange(newDates, sourceDates);
   };
 
   // Function to remove a date and its generated sequence
@@ -187,7 +187,7 @@ const CalendarComponent = ({
 
     setGeneratedDateMap(newGeneratedDateMap);
     setSelectedDates(newDates);
-    onDateChange && onDateChange(newDates);
+    onDateChange && onDateChange(newDates, sourceDates);
   };
 
   // Function to clear all selected dates

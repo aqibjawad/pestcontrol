@@ -28,7 +28,7 @@ import { contract } from "@/networkUtil/Constants";
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import Swal from "sweetalert2";
 import Dropdown from "@/components/generic/dropDown";
-import AddService from "./addService"; // Import the AddService component
+import AddService from "./addService";
 
 import CalendarComponent from "./calander";
 
@@ -38,7 +38,7 @@ const ServiceProduct = ({ quote }) => {
 
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [openEditModal, setOpenEditModal] = useState(false);
-  const [openAddModal, setOpenAddModal] = useState(false); // State for Add Service modal
+  const [openAddModal, setOpenAddModal] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [remainingMonths, setRemainingMonths] = useState(0);
@@ -54,11 +54,17 @@ const ServiceProduct = ({ quote }) => {
   const [selectedServiceType, setSelectedServiceType] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
   const [isNoOfServicesDisabled, setIsNoOfServicesDisabled] = useState(false);
+  const [editNoOfJobs, setEditNoOfJobs] = useState("");
 
   // Time selection states
   const [selectedHour, setSelectedHour] = useState("02");
   const [selectedMinute, setSelectedMinute] = useState("30");
   const [selectedAmPm, setSelectedAmPm] = useState("PM");
+
+  // New state for tracking if the selected dates count matches the no of services
+  const [updatedServiceDates, setUpdatedServiceDates] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
 
   // Calculate remaining months and filter service dates when a row is selected
   useEffect(() => {
@@ -90,12 +96,56 @@ const ServiceProduct = ({ quote }) => {
       const quarterlyServices = Math.ceil(remainingMonths / 3);
       setEditNoOfServices(quarterlyServices.toString());
       setIsNoOfServicesDisabled(true);
+
+      // For Quarterly, set No. of Jobs equal to No. of Services
+      setEditNoOfJobs(quarterlyServices.toString());
     } else if (selectedServiceType === "Monthly") {
       // Empty the no. of services field for monthly
       setEditNoOfServices("");
       setIsNoOfServicesDisabled(false);
+      setEditNoOfJobs("");
     }
   }, [selectedServiceType, remainingMonths]);
+
+  // Calculate No. of Jobs when No. of Services changes
+  useEffect(() => {
+    if (editNoOfServices && !isNaN(editNoOfServices)) {
+      if (selectedServiceType === "Quarterly") {
+        // For Quarterly, No. of Jobs equals No. of Services
+        setEditNoOfJobs(editNoOfServices);
+      } else {
+        // For Monthly, calculate as before: No. of Jobs = No. of Services * Remaining Months
+        const noOfJobs = parseInt(editNoOfServices) * remainingMonths;
+        setEditNoOfJobs(noOfJobs.toString());
+      }
+    } else {
+      setEditNoOfJobs("");
+    }
+  }, [editNoOfServices, remainingMonths, selectedServiceType]);
+
+  // New effect to validate the button state based on the selected dates count and service type
+  useEffect(() => {
+    // Don't enable the button if no service type is selected
+    if (!selectedServiceType) {
+      setIsButtonDisabled(true);
+      return;
+    }
+
+    // For Quarterly jobs, we keep the existing validation logic
+    if (selectedServiceType === "Quarterly") {
+      setIsButtonDisabled(false);
+      return;
+    }
+
+    // For Monthly jobs, enable button only when selected dates count equals no of services
+    if (selectedServiceType === "Monthly") {
+      const servicesCount = parseInt(editNoOfServices) || 0;
+      const datesCount = updatedServiceDates.length || 0;
+
+      // Enable the button only if both services count and dates count are > 0 and equal
+      setIsButtonDisabled(!(servicesCount > 0 && servicesCount === datesCount));
+    }
+  }, [selectedServiceType, editNoOfServices, updatedServiceDates]);
 
   // Function to calculate remaining months (including current month)
   const calculateRemainingMonths = () => {
@@ -133,8 +183,8 @@ const ServiceProduct = ({ quote }) => {
 
   const handleEditClick = (row) => {
     setSelectedRow(row);
-    // Pre-fill the fields with current values
-    setEditNoOfServices(row?.no_of_services || "");
+    // Pre-fill the fields with current values, but keep No. of Services empty
+    setEditNoOfServices(""); // Set this to empty string instead of row?.no_of_services
     setEditJobType(row?.job_type || "");
     setEditRate(row?.rate || "");
 
@@ -149,6 +199,15 @@ const ServiceProduct = ({ quote }) => {
     setSelectedHour("02");
     setSelectedMinute("30");
     setSelectedAmPm("PM");
+
+    // Reset edit no of jobs
+    setEditNoOfJobs("");
+
+    // Reset the updated service dates
+    setUpdatedServiceDates([]);
+
+    // Initially disable the button
+    setIsButtonDisabled(true);
 
     setOpenEditModal(true);
   };
@@ -213,9 +272,6 @@ const ServiceProduct = ({ quote }) => {
     }
   }, [selectedRow, serviceDates]);
 
-  const [updatedServiceDates, setUpdatedServiceDates] = useState([]);
-  const [isLoading, setIsLoading] = useState(false); // Add loading state
-
   // Convert 12-hour format to 24-hour format for API
   const convertTo24HourFormat = (hour, minute, ampm) => {
     let hourNum = parseInt(hour);
@@ -245,6 +301,21 @@ const ServiceProduct = ({ quote }) => {
       return;
     }
 
+    // Additional validation for Monthly type
+    if (selectedServiceType === "Monthly") {
+      const servicesCount = parseInt(editNoOfServices) || 0;
+      const datesCount = updatedServiceDates.length;
+
+      if (servicesCount !== datesCount) {
+        Swal.fire({
+          icon: "error",
+          title: "Validation Error",
+          text: `For Monthly services, the number of selected dates (${datesCount}) must match the number of services (${servicesCount}).`,
+        });
+        return;
+      }
+    }
+
     try {
       setIsLoading(true); // Set loading state to true before API call
 
@@ -255,15 +326,23 @@ const ServiceProduct = ({ quote }) => {
         selectedAmPm
       );
 
+      // Determine job type based on selection - MODIFIED HERE
+      // Send "custom" to backend when "Quarterly" is selected
+      const jobTypeForBackend =
+        selectedServiceType === "Quarterly"
+          ? "custom"
+          : selectedServiceType.toLowerCase();
+
       // Rest of your code remains the same
       const data = {
         quote_id: quote.id,
         quote_services: [
           {
             quote_service_id: Number(selectedRow.id),
-            job_type: selectedServiceType.toLowerCase(),
+            job_type: jobTypeForBackend, // Using our modified job type value
             rate: parseFloat(editRate),
-            no_of_jobs: parseInt(editNoOfServices),
+            no_of_services: parseInt(editNoOfServices),
+            no_of_jobs: parseInt(editNoOfJobs), // Add the no_of_jobs field
             dates: updatedServiceDates.map((date) => {
               // Format date as required by the API and include the selected time
               const d = new Date(date);
@@ -275,10 +354,6 @@ const ServiceProduct = ({ quote }) => {
           },
         ],
       };
-
-      // Log the data before sending to verify dates are included
-      console.log("Sending data:", data);
-
       const response = await api.postDataToken(`${contract}/update`, data);
 
       // Show success message
@@ -313,6 +388,7 @@ const ServiceProduct = ({ quote }) => {
     (i + 1).toString().padStart(2, "0")
   );
   const minutes = ["00", "15", "30", "45"];
+  
 
   return (
     <div className={styles.clientRecord}>
@@ -325,7 +401,9 @@ const ServiceProduct = ({ quote }) => {
         }}
       >
         <span>Service Product</span>
-        <div style={{cursor:"pointer"}} onClick={handleAddServiceClick}>Add Service</div>
+        <div style={{ cursor: "pointer" }} onClick={handleAddServiceClick}>
+          Add Service
+        </div>
       </div>
 
       <TableContainer component={Paper}>
@@ -507,9 +585,19 @@ const ServiceProduct = ({ quote }) => {
             <InputWithTitle
               title="No. of Services"
               value={editNoOfServices}
-              onChange={setEditNoOfServices}
+              onChange={(value) => {
+                setEditNoOfServices(value);
+                // No need for calculation here as it's handled in the useEffect
+              }}
               type="text"
               disabled={isNoOfServicesDisabled}
+            />
+
+            <InputWithTitle
+              title="No. of Jobs"
+              value={editNoOfJobs}
+              disabled={true}
+              type="text"
             />
 
             <InputWithTitle
@@ -600,6 +688,25 @@ const ServiceProduct = ({ quote }) => {
               </div>
             )}
           </div>
+
+          {/* Show validation message for Monthly services */}
+          {selectedServiceType === "Monthly" &&
+            editNoOfServices &&
+            updatedServiceDates && (
+              <div className="mt-3 p-2 rounded">
+                <p
+                  className={
+                    parseInt(editNoOfServices) === updatedServiceDates.length
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }
+                >
+                  {parseInt(editNoOfServices) === updatedServiceDates.length
+                    ? "✓ Number of services matches selected dates"
+                    : `⚠️ Number of services (${editNoOfServices}) must match selected dates (${updatedServiceDates.length})`}
+                </p>
+              </div>
+            )}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenEditModal(false)} color="primary">
@@ -608,7 +715,7 @@ const ServiceProduct = ({ quote }) => {
           <Button
             onClick={handleEditSave}
             color="primary"
-            disabled={isLoading || !selectedServiceType}
+            disabled={isLoading || isButtonDisabled}
             startIcon={isLoading ? <CircularProgress size={20} /> : null}
           >
             {isLoading ? "Saving..." : "Save"}

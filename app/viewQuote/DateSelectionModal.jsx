@@ -48,7 +48,8 @@ const DateTimeSelectionModal = ({
   // Get services data
   const services = quoteData?.quote_services || [];
   const serviceCount = services.length;
-  console.log("service count", serviceCount);
+
+  const [totalRequiredDates, setTotalRequiredDates] = useState(0);
 
   // Common state variables
   const [trn, setTrn] = useState("");
@@ -68,6 +69,15 @@ const DateTimeSelectionModal = ({
     if (quoteData?.quote_services?.length > 0) {
       const duration = quoteData.duration_in_months;
       setDurationMonths(duration);
+
+      // Calculate total required dates
+      const totalRequired = quoteData.quote_services.reduce(
+        (total, service) => {
+          return total + service.no_of_services;
+        },
+        0
+      );
+      setTotalRequiredDates(totalRequired);
 
       // Initialize data for each service
       const initialServiceData = quoteData.quote_services.map((service) => {
@@ -681,6 +691,12 @@ const DateTimeSelectionModal = ({
     }
   };
 
+  const calculateTotalSelectedDates = () => {
+    return servicesData.reduce((total, service) => {
+      return total + service.selectedDates.length;
+    }, 0);
+  };
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>Select Dates and Time for Services</DialogTitle>
@@ -852,13 +868,21 @@ const DateTimeSelectionModal = ({
           color="primary"
           // disabled={
           //   loading ||
-          //   servicesData.some((service) =>
-          //     tabIndex === 0
-          //       ? service.isCustomJob
-          //         ? service.selectedDates.length !== 1
-          //         : service.selectedDates.length !== service.noOfServices
-          //       : !service.isValidTotalDates
-          //   )
+          //   servicesData.some((service, index) => {
+          //     // Skip validation if using "Same as above"
+          //     if (service.useSameAsAbove) return false;
+              
+          //     // Get selected dates for this month
+          //     const selectedDatesThisMonth = service.selectedDates.filter(date => {
+          //       const dateObj = new Date(date);
+          //       const currentMonth = new Date().getMonth();
+          //       return dateObj.getMonth() === currentMonth;
+          //     }).length;
+              
+          //     // Check if selected dates for this month are valid
+          //     const maxServicesPerMonth = service.servicesPerMonth || 0;
+          //     return selectedDatesThisMonth > maxServicesPerMonth;
+          //   })
           // }
         >
           {loading ? <CircularProgress size={24} /> : "Save Dates"}
