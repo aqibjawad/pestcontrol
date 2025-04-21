@@ -183,7 +183,7 @@ const ServiceProduct = ({ quote }) => {
 
   const handleServiceAdded = () => {
     // Reload data or update the UI
-    window.location.reload();
+    // window.location.reload();
   };
 
   const handleDeleteConfirm = async () => {
@@ -215,7 +215,7 @@ const ServiceProduct = ({ quote }) => {
           text: "Contract has been deleted successfully!",
         });
         setOpenDeleteModal(false);
-        window.location.reload();
+        // window.location.reload();
       } else {
         throw new Error(response.error?.message || "Unknown error occurred");
       }
@@ -318,7 +318,7 @@ const ServiceProduct = ({ quote }) => {
 
       setOpenEditModal(false);
       // Refresh your data or perform any other necessary actions
-      window.location.reload();
+      // window.location.reload();
     } catch (error) {
       console.error("Error updating service:", error);
 

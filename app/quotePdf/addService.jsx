@@ -42,6 +42,8 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
   const [isAddingService, setIsAddingService] = useState(false);
   // Add remaining months state
   const [remainingMonths, setRemainingMonths] = useState(0);
+  // Add no of jobs state
+  const [noOfJobs, setNoOfJobs] = useState("");
 
   // Time selection states
   const [selectedHour, setSelectedHour] = useState("02");
@@ -154,6 +156,7 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
       setSelectedHour("02");
       setSelectedMinute("30");
       setSelectedAmPm("PM");
+      setNoOfJobs("");
       // Recalculate remaining months when opening the modal
       calculateRemainingMonths();
     }
@@ -172,6 +175,20 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
       setIsAddNoOfServicesDisabled(false);
     }
   }, [addServiceType, remainingMonths]);
+
+  // Calculate No of Jobs whenever No of Services or Remaining Months changes
+  useEffect(() => {
+    if (
+      addNoOfServices &&
+      !isNaN(parseInt(addNoOfServices)) &&
+      remainingMonths
+    ) {
+      const calculatedJobs = parseInt(addNoOfServices) * remainingMonths;
+      setNoOfJobs(calculatedJobs.toString());
+    } else {
+      setNoOfJobs("");
+    }
+  }, [addNoOfServices, remainingMonths]);
 
   // Convert 12-hour format to 24-hour format for API
   const convertTo24HourFormat = (hour, minute, ampm) => {
@@ -250,14 +267,21 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
         selectedAmPm
       );
 
+      // Determine job type based on selection - MODIFIED HERE
+      // Send "custom" to backend when "Quarterly" is selected
+      const jobTypeForBackend =
+        addServiceType === "Quarterly"
+          ? "custom"
+          : addServiceType.toLowerCase();
+
       const data = {
         quote_id: quoteId.id,
         new_services: [
           {
             service_id: parseInt(selectedServiceId),
-            job_type: addServiceType.toLowerCase(),
+            job_type: jobTypeForBackend, // Using our modified job type value
             rate: parseFloat(addRate),
-            no_of_jobs: parseInt(addNoOfServices),
+            no_of_jobs: parseInt(noOfJobs), // Using the calculated noOfJobs value here
             dates: addServiceDates.map((date) => {
               // Format date as required by the API and include the selected time
               const d = new Date(date);
@@ -286,7 +310,8 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
         }
       } else {
         throw new Error(
-          response.message || "Duplicate service detected. Each service must be unique."
+          response.message ||
+            "Duplicate service detected. Each service must be unique."
         );
       }
     } catch (error) {
@@ -390,6 +415,17 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
             value={addRate}
             onChange={setAddRate}
             type="text"
+          />
+        </div>
+
+        {/* No of Jobs Field - New Addition */}
+        <div className="flex gap-4 mb-4">
+          <InputWithTitle
+            title="No. of Jobs"
+            value={noOfJobs}
+            type="text"
+            disabled={true}
+            onChange={() => {}} // Read-only field
           />
         </div>
 
