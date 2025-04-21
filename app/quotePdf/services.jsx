@@ -61,11 +61,6 @@ const ServiceProduct = ({ quote }) => {
   const [selectedMinute, setSelectedMinute] = useState("30");
   const [selectedAmPm, setSelectedAmPm] = useState("PM");
 
-  // New state for tracking if the selected dates count matches the no of services
-  const [updatedServiceDates, setUpdatedServiceDates] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
-
   // Calculate remaining months and filter service dates when a row is selected
   useEffect(() => {
     if (selectedRow) {
@@ -123,30 +118,6 @@ const ServiceProduct = ({ quote }) => {
     }
   }, [editNoOfServices, remainingMonths, selectedServiceType]);
 
-  // New effect to validate the button state based on the selected dates count and service type
-  useEffect(() => {
-    // Don't enable the button if no service type is selected
-    if (!selectedServiceType) {
-      setIsButtonDisabled(true);
-      return;
-    }
-
-    // For Quarterly jobs, we keep the existing validation logic
-    if (selectedServiceType === "Quarterly") {
-      setIsButtonDisabled(false);
-      return;
-    }
-
-    // For Monthly jobs, enable button only when selected dates count equals no of services
-    if (selectedServiceType === "Monthly") {
-      const servicesCount = parseInt(editNoOfServices) || 0;
-      const datesCount = updatedServiceDates.length || 0;
-
-      // Enable the button only if both services count and dates count are > 0 and equal
-      setIsButtonDisabled(!(servicesCount > 0 && servicesCount === datesCount));
-    }
-  }, [selectedServiceType, editNoOfServices, updatedServiceDates]);
-
   // Function to calculate remaining months (including current month)
   const calculateRemainingMonths = () => {
     if (
@@ -202,12 +173,6 @@ const ServiceProduct = ({ quote }) => {
 
     // Reset edit no of jobs
     setEditNoOfJobs("");
-
-    // Reset the updated service dates
-    setUpdatedServiceDates([]);
-
-    // Initially disable the button
-    setIsButtonDisabled(true);
 
     setOpenEditModal(true);
   };
@@ -272,6 +237,9 @@ const ServiceProduct = ({ quote }) => {
     }
   }, [selectedRow, serviceDates]);
 
+  const [updatedServiceDates, setUpdatedServiceDates] = useState([]);
+  const [isLoading, setIsLoading] = useState(false); // Add loading state
+
   // Convert 12-hour format to 24-hour format for API
   const convertTo24HourFormat = (hour, minute, ampm) => {
     let hourNum = parseInt(hour);
@@ -299,21 +267,6 @@ const ServiceProduct = ({ quote }) => {
         text: "Please select at least one service date.",
       });
       return;
-    }
-
-    // Additional validation for Monthly type
-    if (selectedServiceType === "Monthly") {
-      const servicesCount = parseInt(editNoOfServices) || 0;
-      const datesCount = updatedServiceDates.length;
-
-      if (servicesCount !== datesCount) {
-        Swal.fire({
-          icon: "error",
-          title: "Validation Error",
-          text: `For Monthly services, the number of selected dates (${datesCount}) must match the number of services (${servicesCount}).`,
-        });
-        return;
-      }
     }
 
     try {
@@ -388,7 +341,6 @@ const ServiceProduct = ({ quote }) => {
     (i + 1).toString().padStart(2, "0")
   );
   const minutes = ["00", "15", "30", "45"];
-  
 
   return (
     <div className={styles.clientRecord}>
@@ -688,25 +640,6 @@ const ServiceProduct = ({ quote }) => {
               </div>
             )}
           </div>
-
-          {/* Show validation message for Monthly services */}
-          {selectedServiceType === "Monthly" &&
-            editNoOfServices &&
-            updatedServiceDates && (
-              <div className="mt-3 p-2 rounded">
-                <p
-                  className={
-                    parseInt(editNoOfServices) === updatedServiceDates.length
-                      ? "text-green-600"
-                      : "text-red-600"
-                  }
-                >
-                  {parseInt(editNoOfServices) === updatedServiceDates.length
-                    ? "✓ Number of services matches selected dates"
-                    : `⚠️ Number of services (${editNoOfServices}) must match selected dates (${updatedServiceDates.length})`}
-                </p>
-              </div>
-            )}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenEditModal(false)} color="primary">
@@ -715,7 +648,7 @@ const ServiceProduct = ({ quote }) => {
           <Button
             onClick={handleEditSave}
             color="primary"
-            disabled={isLoading || isButtonDisabled}
+            disabled={isLoading || !selectedServiceType}
             startIcon={isLoading ? <CircularProgress size={20} /> : null}
           >
             {isLoading ? "Saving..." : "Save"}
