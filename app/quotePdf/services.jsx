@@ -87,13 +87,13 @@ const ServiceProduct = ({ quote }) => {
   // Handle service type change
   useEffect(() => {
     if (selectedServiceType === "Quarterly") {
-      // Calculate the number of services for quarterly (remaining months / 3)
-      const quarterlyServices = Math.ceil(remainingMonths / 3);
-      setEditNoOfServices(quarterlyServices.toString());
+      // For Quarterly, always set No. of Services to 1
+      setEditNoOfServices("1");
       setIsNoOfServicesDisabled(true);
 
-      // For Quarterly, set No. of Jobs equal to No. of Services
-      setEditNoOfJobs(quarterlyServices.toString());
+      // Calculate No. of Jobs based on remaining months for quarterly (remaining months / 3)
+      const quarterlyJobs = Math.ceil(remainingMonths / 3);
+      setEditNoOfJobs(quarterlyJobs.toString());
     } else if (selectedServiceType === "Monthly") {
       // Empty the no. of services field for monthly
       setEditNoOfServices("");
@@ -102,19 +102,16 @@ const ServiceProduct = ({ quote }) => {
     }
   }, [selectedServiceType, remainingMonths]);
 
-  // Calculate No. of Jobs when No. of Services changes
+  // Calculate No. of Jobs when No. of Services changes (only for Monthly)
   useEffect(() => {
-    if (editNoOfServices && !isNaN(editNoOfServices)) {
-      if (selectedServiceType === "Quarterly") {
-        // For Quarterly, No. of Jobs equals No. of Services
-        setEditNoOfJobs(editNoOfServices);
-      } else {
-        // For Monthly, calculate as before: No. of Jobs = No. of Services * Remaining Months
-        const noOfJobs = parseInt(editNoOfServices) * remainingMonths;
-        setEditNoOfJobs(noOfJobs.toString());
-      }
-    } else {
-      setEditNoOfJobs("");
+    if (
+      selectedServiceType === "Monthly" &&
+      editNoOfServices &&
+      !isNaN(editNoOfServices)
+    ) {
+      // For Monthly, calculate: No. of Jobs = No. of Services * Remaining Months
+      const noOfJobs = parseInt(editNoOfServices) * remainingMonths;
+      setEditNoOfJobs(noOfJobs.toString());
     }
   }, [editNoOfServices, remainingMonths, selectedServiceType]);
 
@@ -238,7 +235,8 @@ const ServiceProduct = ({ quote }) => {
   }, [selectedRow, serviceDates]);
 
   const [updatedServiceDates, setUpdatedServiceDates] = useState([]);
-  const [isLoading, setIsLoading] = useState(false); // Add loading state
+  const [manuallySelectedDates, setManuallySelectedDates] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Convert 12-hour format to 24-hour format for API
   const convertTo24HourFormat = (hour, minute, ampm) => {
@@ -256,6 +254,24 @@ const ServiceProduct = ({ quote }) => {
     return `${hourNum.toString().padStart(2, "0")}:${minute}`;
   };
 
+  // Check if save button should be enabled
+  const isSaveButtonEnabled = () => {
+    // If service type is not set, disable the button
+    if (!selectedServiceType || !editNoOfServices) return false;
+
+    // If loading, disable the button
+    if (isLoading) return false;
+
+    // For Quarterly, we need exactly 1 date selected
+    if (selectedServiceType === "Quarterly") {
+      return manuallySelectedDates.length === 1;
+    }
+
+    // For Monthly, number of manually selected dates must match no. of services
+    const noOfServicesNum = parseInt(editNoOfServices);
+    return manuallySelectedDates.length === noOfServicesNum;
+  };
+
   const handleEditSave = async () => {
     if (!selectedRow) return;
 
@@ -269,8 +285,27 @@ const ServiceProduct = ({ quote }) => {
       return;
     }
 
+    // Check if the number of selected dates matches the No. of Services
+    if (selectedServiceType === "Quarterly") {
+      if (manuallySelectedDates.length !== 1) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Please select exactly 1 date for Quarterly service.",
+        });
+        return;
+      }
+    } else if (manuallySelectedDates.length !== parseInt(editNoOfServices)) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: `Please select exactly ${editNoOfServices} dates to match the number of services.`,
+      });
+      return;
+    }
+
     try {
-      setIsLoading(true); // Set loading state to true before API call
+      setIsLoading(true);
 
       // Convert time to 24-hour format
       const timeIn24HourFormat = convertTo24HourFormat(
@@ -279,23 +314,21 @@ const ServiceProduct = ({ quote }) => {
         selectedAmPm
       );
 
-      // Determine job type based on selection - MODIFIED HERE
-      // Send "custom" to backend when "Quarterly" is selected
+      // Determine job type based on selection
       const jobTypeForBackend =
         selectedServiceType === "Quarterly"
           ? "custom"
           : selectedServiceType.toLowerCase();
 
-      // Rest of your code remains the same
       const data = {
         quote_id: quote.id,
         quote_services: [
           {
             quote_service_id: Number(selectedRow.id),
-            job_type: jobTypeForBackend, // Using our modified job type value
+            job_type: jobTypeForBackend,
             rate: parseFloat(editRate),
             no_of_services: parseInt(editNoOfServices),
-            no_of_jobs: parseInt(editNoOfJobs), // Add the no_of_jobs field
+            no_of_jobs: parseInt(editNoOfJobs),
             dates: updatedServiceDates.map((date) => {
               // Format date as required by the API and include the selected time
               const d = new Date(date);
@@ -328,12 +361,15 @@ const ServiceProduct = ({ quote }) => {
         text: "Failed to update service. Please try again.",
       });
     } finally {
-      setIsLoading(false); // Reset loading state when API call completes
+      setIsLoading(false);
     }
   };
 
-  const handleDateChange = (name, value) => {
-    setSelectedDate(value);
+  const handleDateChange = (allDates, manualDates) => {
+    setUpdatedServiceDates(allDates);
+    setManuallySelectedDates(manualDates);
+    console.log("All dates:", allDates);
+    console.log("Manually selected dates:", manualDates);
   };
 
   // Generate hour, minute options
@@ -538,8 +574,9 @@ const ServiceProduct = ({ quote }) => {
               title="No. of Services"
               value={editNoOfServices}
               onChange={(value) => {
-                setEditNoOfServices(value);
-                // No need for calculation here as it's handled in the useEffect
+                if (selectedServiceType !== "Quarterly") {
+                  setEditNoOfServices(value);
+                }
               }}
               type="text"
               disabled={isNoOfServicesDisabled}
@@ -622,18 +659,45 @@ const ServiceProduct = ({ quote }) => {
           {/* Date filter below - conditionally rendered based on selectedServiceType */}
           <div className="mt-5">
             {selectedServiceType ? (
-              <CalendarComponent
-                initialDates={updatedServiceDates || []}
-                onDateChange={(dates) => {
-                  setUpdatedServiceDates(dates);
-                  console.log("Selected dates:", dates);
-                }}
-                serviceType={selectedServiceType}
-                remainingMonths={remainingMonths}
-                isDateSelectable={(date) => {
-                  return date >= new Date();
-                }}
-              />
+              <div>
+                <CalendarComponent
+                  initialDates={updatedServiceDates || []}
+                  onDateChange={handleDateChange}
+                  serviceType={selectedServiceType}
+                  remainingMonths={remainingMonths}
+                  isDateSelectable={(date) => {
+                    return date >= new Date();
+                  }}
+                  maxSelectable={
+                    selectedServiceType === "Quarterly"
+                      ? 1
+                      : parseInt(editNoOfServices) || Infinity
+                  }
+                />
+                {editNoOfServices && (
+                  <div
+                    className={`p-2 mt-2 text-sm ${
+                      selectedServiceType === "Quarterly"
+                        ? manuallySelectedDates.length === 1
+                          ? "bg-green-100 text-green-800"
+                          : "bg-yellow-100 text-yellow-800"
+                        : manuallySelectedDates.length ===
+                          parseInt(editNoOfServices)
+                        ? "bg-green-100 text-green-800"
+                        : "bg-yellow-100 text-yellow-800"
+                    } rounded`}
+                  >
+                    {selectedServiceType === "Quarterly"
+                      ? manuallySelectedDates.length === 1
+                        ? `✓ You've selected 1 date for your Quarterly service.`
+                        : `Please select exactly 1 date for Quarterly service. Currently selected: ${manuallySelectedDates.length}`
+                      : manuallySelectedDates.length ===
+                        parseInt(editNoOfServices)
+                      ? `✓ You've selected ${manuallySelectedDates.length} dates, which matches your No. of Services.`
+                      : `Please select exactly ${editNoOfServices} dates. Currently selected: ${manuallySelectedDates.length}`}
+                  </div>
+                )}
+              </div>
             ) : (
               <div className="p-4 bg-gray-100 text-center rounded">
                 Please select a Service Type first to enable date selection
@@ -648,7 +712,7 @@ const ServiceProduct = ({ quote }) => {
           <Button
             onClick={handleEditSave}
             color="primary"
-            disabled={isLoading || !selectedServiceType}
+            disabled={!isSaveButtonEnabled()}
             startIcon={isLoading ? <CircularProgress size={20} /> : null}
           >
             {isLoading ? "Saving..." : "Save"}
