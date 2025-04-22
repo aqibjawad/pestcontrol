@@ -42,8 +42,13 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
   const [isAddingService, setIsAddingService] = useState(false);
   // Add remaining months state
   const [remainingMonths, setRemainingMonths] = useState(0);
-  // Add no of jobs state
-  const [noOfJobs, setNoOfJobs] = useState("");
+
+  // NEW: Add state to track manually selected dates count
+  const [manuallySelectedDatesCount, setManuallySelectedDatesCount] =
+    useState(0);
+
+  // NEW: Add state to track calculated number of jobs
+  const [calculatedNoOfJobs, setCalculatedNoOfJobs] = useState(0);
 
   // Time selection states
   const [selectedHour, setSelectedHour] = useState("02");
@@ -153,10 +158,11 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
       setAddNoOfServices("");
       setAddRate("");
       setAddServiceDates([]);
+      setManuallySelectedDatesCount(0); // Reset manually selected dates count
+      setCalculatedNoOfJobs(0); // Reset calculated number of jobs
       setSelectedHour("02");
       setSelectedMinute("30");
       setSelectedAmPm("PM");
-      setNoOfJobs("");
       // Recalculate remaining months when opening the modal
       calculateRemainingMonths();
     }
@@ -165,30 +171,35 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
   // Handle service type change
   useEffect(() => {
     if (addServiceType === "Quarterly") {
-      // Calculate the number of services for quarterly based on remaining months
-      const quarterlyServices = Math.ceil(remainingMonths / 3);
-      setAddNoOfServices(quarterlyServices.toString());
+      // For Quarterly, set No. of Services to 1 instead of calculating based on months
+      setAddNoOfServices("1");
       setIsAddNoOfServicesDisabled(true);
     } else if (addServiceType === "Monthly") {
       // Empty the no. of services field for monthly
       setAddNoOfServices("");
       setIsAddNoOfServicesDisabled(false);
     }
-  }, [addServiceType, remainingMonths]);
+  }, [addServiceType]);
 
-  // Calculate No of Jobs whenever No of Services or Remaining Months changes
+  // NEW: Calculate the number of jobs based on no. of services and remaining months
   useEffect(() => {
-    if (
-      addNoOfServices &&
-      !isNaN(parseInt(addNoOfServices)) &&
-      remainingMonths
-    ) {
-      const calculatedJobs = parseInt(addNoOfServices) * remainingMonths;
-      setNoOfJobs(calculatedJobs.toString());
+    if (addNoOfServices && !isNaN(parseInt(addNoOfServices))) {
+      if (addServiceType === "Quarterly") {
+        // For Quarterly, calculated jobs is the same as the number of services (1)
+        setCalculatedNoOfJobs(parseInt(addNoOfServices));
+        console.log(`Calculated jobs for Quarterly: ${addNoOfServices}`);
+      } else {
+        // For Monthly, calculate jobs by multiplying input by remaining months
+        const calculatedJobs = parseInt(addNoOfServices) * remainingMonths;
+        setCalculatedNoOfJobs(calculatedJobs);
+        console.log(
+          `Calculated jobs: ${calculatedJobs} (${addNoOfServices} × ${remainingMonths})`
+        );
+      }
     } else {
-      setNoOfJobs("");
+      setCalculatedNoOfJobs(0);
     }
-  }, [addNoOfServices, remainingMonths]);
+  }, [addNoOfServices, remainingMonths, addServiceType]);
 
   // Convert 12-hour format to 24-hour format for API
   const convertTo24HourFormat = (hour, minute, ampm) => {
@@ -208,6 +219,30 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
 
   const handleServiceChange = (serviceId) => {
     setSelectedServiceId(serviceId);
+  };
+
+  // Check if Add Service button should be enabled
+  const isAddServiceButtonEnabled = () => {
+    // Validate if required fields are filled
+    const hasRequiredFields = selectedServiceId && addServiceType && addRate;
+
+    // Check if number of services is valid and equal to manually selected dates
+    const hasValidServiceCount =
+      addNoOfServices &&
+      !isNaN(parseInt(addNoOfServices)) &&
+      parseInt(addNoOfServices) > 0;
+
+    // Check if dates match the number of services
+    const datesMatchServiceCount =
+      hasValidServiceCount &&
+      manuallySelectedDatesCount === parseInt(addNoOfServices);
+
+    return (
+      hasRequiredFields &&
+      hasValidServiceCount &&
+      datesMatchServiceCount &&
+      !isAddingService
+    );
   };
 
   const handleAddServiceSave = async () => {
@@ -257,6 +292,16 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
       return;
     }
 
+    // Check if number of manually selected dates matches number of services
+    if (manuallySelectedDatesCount !== parseInt(addNoOfServices)) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: `Please select exactly ${addNoOfServices} dates. You've selected ${manuallySelectedDatesCount}.`,
+      });
+      return;
+    }
+
     try {
       setIsAddingService(true);
 
@@ -267,8 +312,7 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
         selectedAmPm
       );
 
-      // Determine job type based on selection - MODIFIED HERE
-      // Send "custom" to backend when "Quarterly" is selected
+      // Determine job type based on selection
       const jobTypeForBackend =
         addServiceType === "Quarterly"
           ? "custom"
@@ -279,9 +323,10 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
         new_services: [
           {
             service_id: parseInt(selectedServiceId),
-            job_type: jobTypeForBackend, // Using our modified job type value
+            job_type: jobTypeForBackend,
             rate: parseFloat(addRate),
-            no_of_jobs: parseInt(noOfJobs), // Using the calculated noOfJobs value here
+            // NEW: Use calculatedNoOfJobs instead of the raw input value
+            no_of_jobs: calculatedNoOfJobs,
             dates: addServiceDates.map((date) => {
               // Format date as required by the API and include the selected time
               const d = new Date(date);
@@ -294,6 +339,7 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
         ],
       };
 
+      console.log("Sending data to API:", data);
       const response = await api.postDataToken(`${contract}/update`, data);
 
       if (response.status === "success") {
@@ -418,16 +464,20 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
           />
         </div>
 
-        {/* No of Jobs Field - New Addition */}
-        <div className="flex gap-4 mb-4">
-          <InputWithTitle
-            title="No. of Jobs"
-            value={noOfJobs}
-            type="text"
-            disabled={true}
-            onChange={() => {}} // Read-only field
-          />
-        </div>
+        {/* NEW: Display calculated jobs based on input */}
+        {addNoOfServices && !isNaN(parseInt(addNoOfServices)) && (
+          <div className="mb-4 bg-green-50 p-3 rounded text-green-700">
+            <Typography variant="body2">
+              <strong>Total Jobs:</strong> {calculatedNoOfJobs}
+              {addServiceType === "Monthly" && (
+                <>
+                  {" "}
+                  ({addNoOfServices} × {remainingMonths} months)
+                </>
+              )}
+            </Typography>
+          </div>
+        )}
 
         {/* Time selection with AM/PM */}
         <div className="mb-4">
@@ -487,18 +537,63 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
         {/* Date selection */}
         <div className="mt-4">
           {addServiceType ? (
-            <CalendarComponent
-              initialDates={addServiceDates || []}
-              onDateChange={(dates) => {
-                setAddServiceDates(dates);
-                console.log("Selected dates for new service:", dates);
-              }}
-              serviceType={addServiceType}
-              remainingMonths={remainingMonths}
-              isDateSelectable={(date) => {
-                return date >= new Date();
-              }}
-            />
+            <>
+              {addNoOfServices && !isNaN(parseInt(addNoOfServices)) ? (
+                <div className="mb-3 bg-blue-50 p-3 rounded text-blue-700">
+                  {addServiceType === "Quarterly" ? (
+                    <>
+                      Please select exactly 1 date. You've selected{" "}
+                      {manuallySelectedDatesCount} so far.
+                    </>
+                  ) : (
+                    <>
+                      Please select exactly {addNoOfServices} dates. You've
+                      selected {manuallySelectedDatesCount} so far.
+                    </>
+                  )}
+                  {manuallySelectedDatesCount !== parseInt(addNoOfServices) && (
+                    <span className="block text-sm mt-1">
+                      {manuallySelectedDatesCount < parseInt(addNoOfServices)
+                        ? `Need ${
+                            parseInt(addNoOfServices) -
+                            manuallySelectedDatesCount
+                          } more.`
+                        : `Remove ${
+                            manuallySelectedDatesCount -
+                            parseInt(addNoOfServices)
+                          } to proceed.`}
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <div className="mb-3 bg-yellow-50 p-3 rounded text-yellow-700">
+                  Please enter the number of services first.
+                </div>
+              )}
+              <CalendarComponent
+                initialDates={addServiceDates || []}
+                onDateChange={(allDates, manuallySelectedDates) => {
+                  setAddServiceDates(allDates);
+                  setManuallySelectedDatesCount(manuallySelectedDates.length);
+                  console.log("Selected dates for new service:", allDates);
+                  console.log(
+                    "Manually selected dates count:",
+                    manuallySelectedDates.length
+                  );
+                }}
+                serviceType={addServiceType}
+                remainingMonths={remainingMonths}
+                isDateSelectable={(date) => {
+                  return date >= new Date();
+                }}
+                // If number of services is set, limit selections to that number
+                maxSelectable={
+                  addNoOfServices && !isNaN(parseInt(addNoOfServices))
+                    ? parseInt(addNoOfServices)
+                    : Infinity
+                }
+              />
+            </>
           ) : (
             <div className="p-4 bg-gray-100 text-center rounded">
               Please select a Service Type first to enable date selection
@@ -513,7 +608,7 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
         <Button
           onClick={handleAddServiceSave}
           color="primary"
-          disabled={isAddingService || !addServiceType || !selectedServiceId}
+          disabled={!isAddServiceButtonEnabled()}
           startIcon={isAddingService ? <CircularProgress size={20} /> : null}
         >
           {isAddingService ? "Adding..." : "Add Service"}

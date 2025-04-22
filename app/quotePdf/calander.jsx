@@ -10,20 +10,22 @@ const CalendarComponent = ({
   remainingMonths = 0,
   maxSelectable = Infinity,
 }) => {
-  const [selectedDates, setSelectedDates] = useState(initialDates);
+  // Separate the manually selected dates from auto-generated ones
+  const [selectedDates, setSelectedDates] = useState([]);
+  const [generatedDates, setGeneratedDates] = useState([]);
   const [startDate, setStartDate] = useState(new Date());
-  // Track both generated dates and their source dates
+  // Track which source date generated which dates
   const [generatedDateMap, setGeneratedDateMap] = useState({});
-  // Track source dates (manually selected)
-  const [sourceDates, setSourceDates] = useState([]);
 
   useEffect(() => {
-    if (JSON.stringify(selectedDates) !== JSON.stringify(initialDates)) {
+    if (
+      JSON.stringify(selectedDates.concat(generatedDates)) !==
+      JSON.stringify(initialDates)
+    ) {
+      // Initialize with all dates as selected - we'll separate them later if needed
       setSelectedDates(initialDates);
-
-      // Clear generated date map when initialDates changes to avoid stale references
+      setGeneratedDates([]);
       setGeneratedDateMap({});
-      setSourceDates([]);
     }
   }, [initialDates]);
 
@@ -36,18 +38,16 @@ const CalendarComponent = ({
     return `${year}-${month}-${day}`;
   };
 
-  // Check if a date exists in our selected dates array - using exact matching with time stripped out
+  // Check if a date exists in our manually selected dates array
   const isDateSelected = (date) => {
     const formattedDate = formatDate(date);
     return selectedDates.some((d) => formatDate(d) === formattedDate);
   };
 
-  // Check if a date is auto-generated
-  const isGeneratedDate = (date) => {
+  // Check if a date exists in our generated dates array
+  const isDateGenerated = (date) => {
     const formattedDate = formatDate(date);
-    return Object.values(generatedDateMap)
-      .flat()
-      .some((gd) => formatDate(gd) === formattedDate);
+    return generatedDates.some((d) => formatDate(d) === formattedDate);
   };
 
   // Find the source date that generated a specific date
@@ -61,15 +61,6 @@ const CalendarComponent = ({
     return null;
   };
 
-  // Function to get unique dates count (source dates + generated dates)
-  const getUniqueDatesCount = () => {
-    // Create a set of unique formatted dates
-    const uniqueDatesSet = new Set(
-      selectedDates.map((date) => formatDate(date))
-    );
-    return uniqueDatesSet.size;
-  };
-
   const handleDateChange = (date) => {
     if (!date) return;
 
@@ -79,32 +70,30 @@ const CalendarComponent = ({
 
     const formattedDate = formatDate(normalizedDate);
 
-    // Check if adding this date would exceed max selectable
-    const uniqueCount = getUniqueDatesCount();
-    const isMaxedOut = uniqueCount >= maxSelectable;
-
-    // If the date is already selected
+    // If the date is already manually selected, remove it
     if (isDateSelected(normalizedDate)) {
-      // Check if it's a generated date
-      if (isGeneratedDate(normalizedDate)) {
-        // If we click on a generated date, find and remove its source date
-        const sourceDate = findSourceDate(normalizedDate);
-        if (sourceDate) {
-          removeDate(sourceDate);
-        }
-      } else {
-        // If it's a regular selected date, just remove it
-        removeDate(formattedDate);
-      }
-    } else if (!isMaxedOut || maxSelectable === Infinity) {
-      // Add the date if it's not already selected and we haven't hit the max
-      addDate(normalizedDate);
-      // Also update the startDate to show the selected date in the picker
-      setStartDate(normalizedDate);
-    } else {
-      // Optional: Alert user they've reached max selectable dates
-      alert(`You can only select ${maxSelectable} unique dates.`);
+      removeDate(formattedDate);
+      return;
     }
+
+    // If it's a generated date, find and remove its source
+    if (isDateGenerated(normalizedDate)) {
+      const sourceDate = findSourceDate(normalizedDate);
+      if (sourceDate) {
+        removeDate(sourceDate);
+      }
+      return;
+    }
+
+    // Check if adding this date would exceed max selectable
+    if (selectedDates.length >= maxSelectable && maxSelectable !== Infinity) {
+      alert(`You can only select ${maxSelectable} dates.`);
+      return;
+    }
+
+    // Add the date if it's not already selected
+    addDate(normalizedDate);
+    setStartDate(normalizedDate);
   };
 
   // Function to add a date and generate its sequence
@@ -120,82 +109,87 @@ const CalendarComponent = ({
       return;
     }
 
-    // Add to source dates (manually selected)
-    const newSourceDates = [...sourceDates, normalizedDate];
-    setSourceDates(newSourceDates);
-
-    let newDates = [...selectedDates, normalizedDate];
-    let newGeneratedDateMap = { ...generatedDateMap };
+    // Add to manually selected dates
+    const newSelectedDates = [...selectedDates, normalizedDate];
+    setSelectedDates(newSelectedDates);
 
     // Generate dates based on service type
-    let generatedDates = [];
+    let newGeneratedDates = [];
+    let newGeneratedDateMap = { ...generatedDateMap };
 
     if (serviceType === "Monthly" && remainingMonths > 0) {
-      generatedDates = generateDatesForRemainingMonths(
+      newGeneratedDates = generateDatesForRemainingMonths(
         normalizedDate,
         remainingMonths
       );
     } else if (serviceType === "Quarterly" && remainingMonths > 0) {
-      generatedDates = generateQuarterlyDates(normalizedDate, remainingMonths);
+      newGeneratedDates = generateQuarterlyDates(
+        normalizedDate,
+        remainingMonths
+      );
     }
 
     // Filter out any generated dates that would be duplicates
-    generatedDates = generatedDates.filter((gDate) => {
+    newGeneratedDates = newGeneratedDates.filter((gDate) => {
       const formattedGDate = formatDate(gDate);
-      return (
-        !isDateSelected(gDate) &&
-        !Object.values(generatedDateMap)
-          .flat()
-          .some((existingGDate) => formatDate(existingGDate) === formattedGDate)
-      );
+      return !isDateSelected(gDate) && !isDateGenerated(gDate);
     });
 
-    // Add the generated dates to our map and selected dates
-    if (generatedDates.length > 0) {
-      newGeneratedDateMap[formattedDate] = generatedDates;
-      newDates = [...newDates, ...generatedDates];
+    // Add the generated dates to our map and generated dates array
+    if (newGeneratedDates.length > 0) {
+      newGeneratedDateMap[formattedDate] = newGeneratedDates;
+      setGeneratedDateMap(newGeneratedDateMap);
+      setGeneratedDates([...generatedDates, ...newGeneratedDates]);
     }
 
-    setGeneratedDateMap(newGeneratedDateMap);
-    setSelectedDates(newDates);
-    onDateChange && onDateChange(newDates, sourceDates);
+    // Call onDateChange with both selected and generated dates
+    onDateChange &&
+      onDateChange(
+        [...newSelectedDates, ...generatedDates, ...newGeneratedDates],
+        newSelectedDates
+      );
   };
 
   // Function to remove a date and its generated sequence
   const removeDate = (formattedDate) => {
     // Get the generated dates for this source date
-    const generatedDates = generatedDateMap[formattedDate] || [];
+    const dateGeneratedDates = generatedDateMap[formattedDate] || [];
 
-    // Remove the source date and its generated dates
-    const newDates = selectedDates.filter((d) => {
-      const currentFormatted = formatDate(d);
-      return (
-        currentFormatted !== formattedDate &&
-        !generatedDates.some((gd) => formatDate(gd) === currentFormatted)
-      );
-    });
-
-    // Update the source dates
-    const newSourceDates = sourceDates.filter(
+    // Remove the source date
+    const newSelectedDates = selectedDates.filter(
       (d) => formatDate(d) !== formattedDate
     );
-    setSourceDates(newSourceDates);
+
+    // Remove generated dates associated with this source
+    const newGeneratedDates = generatedDates.filter((d) => {
+      const currentFormatted = formatDate(d);
+      return !dateGeneratedDates.some(
+        (gd) => formatDate(gd) === currentFormatted
+      );
+    });
 
     // Update the generated date map
     const newGeneratedDateMap = { ...generatedDateMap };
     delete newGeneratedDateMap[formattedDate];
 
+    setSelectedDates(newSelectedDates);
+    setGeneratedDates(newGeneratedDates);
     setGeneratedDateMap(newGeneratedDateMap);
-    setSelectedDates(newDates);
-    onDateChange && onDateChange(newDates, sourceDates);
+
+    // Call onDateChange with both selected and generated dates
+    onDateChange &&
+      onDateChange(
+        [...newSelectedDates, ...newGeneratedDates],
+        newSelectedDates
+      );
   };
 
   // Function to clear all selected dates
   const handleClearDates = () => {
     setSelectedDates([]);
+    setGeneratedDates([]);
     setGeneratedDateMap({});
-    setSourceDates([]);
-    onDateChange && onDateChange([]);
+    onDateChange && onDateChange([], []);
   };
 
   // Function to generate dates for remaining months
@@ -247,13 +241,14 @@ const CalendarComponent = ({
     return result;
   };
 
+  // Get all dates for highlighting in calendar
   const getHighlightedDates = () => {
-    return selectedDates.map((dateStr) => new Date(dateStr));
+    return [...selectedDates, ...generatedDates].map((date) => new Date(date));
   };
 
   // Get only manually selected dates for display
   const getDisplayDates = () => {
-    return sourceDates
+    return selectedDates
       .sort((a, b) => new Date(a) - new Date(b))
       .map((date) => new Date(date).toLocaleDateString())
       .join(", ");
@@ -269,20 +264,18 @@ const CalendarComponent = ({
 
     const formattedDate = formatDate(normalizedDate);
 
-    // Check if this date is in our selected dates
+    // Check if this date is manually selected
     if (selectedDates.some((d) => formatDate(d) === formattedDate)) {
-      // Check if it's a generated date
-      if (isGeneratedDate(normalizedDate)) {
-        return "generated-date"; // Style for auto-generated dates
-      }
       return "selected-date"; // Style for manually selected dates
+    }
+
+    // Check if this date is auto-generated
+    if (generatedDates.some((d) => formatDate(d) === formattedDate)) {
+      return "generated-date"; // Style for auto-generated dates
     }
 
     return undefined;
   };
-
-  // Get number of source dates only (excluding generated dates)
-  const sourceCount = sourceDates.length;
 
   return (
     <div className="w-full max-w-md mx-auto">
@@ -299,10 +292,10 @@ const CalendarComponent = ({
       <div className="flex justify-between items-center mt-4">
         <p className="text-gray-700">
           {selectedDates.length > 0
-            ? `Selected Dates (${sourceCount}): ${getDisplayDates()}`
+            ? `Selected Dates (${selectedDates.length}): ${getDisplayDates()}`
             : "No dates selected"}
         </p>
-        {selectedDates.length > 0 && (
+        {(selectedDates.length > 0 || generatedDates.length > 0) && (
           <button
             onClick={handleClearDates}
             className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded"
@@ -311,6 +304,13 @@ const CalendarComponent = ({
           </button>
         )}
       </div>
+      {generatedDates.length > 0 && (
+        <p className="text-gray-500 text-sm mt-2">
+          <span className="inline-block w-3 h-3 bg-green-500 mr-1 rounded-sm"></span>
+          {generatedDates.length} additional dates will be auto-generated based
+          on your selection
+        </p>
+      )}
       <style jsx>{`
         .selected-date {
           background-color: #007bff !important;
