@@ -5,7 +5,6 @@ import "react-datepicker/dist/react-datepicker.css";
 const CalendarComponent = ({
   onDateChange,
   initialDates = [],
-  isDateSelectable,
   serviceType,
   remainingMonths = 0,
   maxSelectable = Infinity,
@@ -277,6 +276,9 @@ const CalendarComponent = ({
     return undefined;
   };
 
+  // This function always returns true to allow selection of any date including past dates
+  const allowAllDates = () => true;
+
   return (
     <div className="w-full max-w-md mx-auto">
       <DatePicker
@@ -287,7 +289,7 @@ const CalendarComponent = ({
         dateFormat="yyyy-MM-dd"
         showTimeSelect={false}
         dayClassName={getDayClassName}
-        filterDate={isDateSelectable}
+        filterDate={allowAllDates} // This enables selection of all dates including past dates
       />
       <div className="flex justify-between items-center mt-4">
         <p className="text-gray-700">
