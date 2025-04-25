@@ -52,7 +52,7 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
 
     try {
       const response = await api.postDataWithTokn(
-        `${job}/reschedule-service`,
+        `${job}/reschedule`,
         formData
       );
       if (response.status === "success") {

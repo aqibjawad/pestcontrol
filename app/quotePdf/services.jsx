@@ -23,7 +23,7 @@ import {
 import { FaTrash, FaPlus } from "react-icons/fa";
 import { FaPencil } from "react-icons/fa6";
 import APICall from "@/networkUtil/APICall";
-import { contract } from "@/networkUtil/Constants";
+import { contract, quotation } from "@/networkUtil/Constants";
 
 import InputWithTitle from "@/components/generic/InputWithTitle";
 import Swal from "sweetalert2";
@@ -189,36 +189,73 @@ const ServiceProduct = ({ quote }) => {
     try {
       setIsDeleting(true);
 
-      // Format the data exactly as required by the API
-      const data = {
-        quote_id: quote.id, // Make sure this is a number
-        services: [
-          {
-            quote_service_id: Number(selectedRow.id), // Ensure this is a number
-            reason: deleteReason || "No reason provided", // You need to collect this reason from user
-          },
-        ],
-      };
-      // Try sending as raw JSON instead of form data
-      const response = await api.postDataToken(
-        `${contract}/service/remove`,
-        data
+      // Count active (not canceled) services
+      const activeServices = quote?.quote_services.filter(
+        (service) => !service.service_cancel_reason
       );
 
-      if (response.status === "success") {
-        Swal.fire({
-          icon: "success",
-          title: "Success",
-          text: "Contract has been deleted successfully!",
-        });
-        setOpenDeleteModal(false);
-        // window.location.reload();
+      // Check if this is the last active service
+      const isLastActiveService =
+        activeServices.length === 1 && activeServices[0].id === selectedRow.id;
+
+      if (isLastActiveService) {
+        // This is the last active service, use the contract cancel API
+        const obj = {
+          contract_cancel_reason: deleteReason || "No reason provided",
+        };
+
+        const response = await api.postFormDataWithToken(
+          `${quotation}/move/cancel/${quote.id}`,
+          obj
+        );
+
+        if (response.status === "success") {
+          Swal.fire({
+            icon: "success",
+            title: "Success",
+            text: "Contract has been canceled successfully!",
+          });
+          setOpenDeleteModal(false);
+          // window.location.reload();
+        } else {
+          throw new Error(response.error?.message || "Unknown error occurred");
+        }
       } else {
-        throw new Error(response.error?.message || "Unknown error occurred");
+        // Not the last service, use the regular remove API
+        const data = {
+          quote_id: quote.id,
+          services: [
+            {
+              quote_service_id: Number(selectedRow.id),
+              reason: deleteReason || "No reason provided",
+            },
+          ],
+        };
+
+        const response = await api.postDataToken(
+          `${contract}/service/remove`,
+          data
+        );
+
+        if (response.status === "success") {
+          Swal.fire({
+            icon: "success",
+            title: "Success",
+            text: "Service has been deleted successfully!",
+          });
+          setOpenDeleteModal(false);
+          // window.location.reload();
+        } else {
+          throw new Error(response.error?.message || "Unknown error occurred");
+        }
       }
     } catch (error) {
       console.error("Error deleting service:", error);
-      // Consider adding user feedback here
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to delete service. Please try again.",
+      });
     } finally {
       setIsDeleting(false);
     }

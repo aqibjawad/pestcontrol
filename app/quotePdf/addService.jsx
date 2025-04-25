@@ -49,6 +49,7 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
 
   // NEW: Add state to track calculated number of jobs
   const [calculatedNoOfJobs, setCalculatedNoOfJobs] = useState(0);
+  const [existingServiceIds, setExistingServiceIds] = useState([]);
 
   // Time selection states
   const [selectedHour, setSelectedHour] = useState("02");
@@ -136,7 +137,18 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
         // Direct access to the data property in the response
         if (response && response.data) {
           console.log("Services data:", response.data);
-          setAvailableServices(response.data);
+
+          // Extract existing service IDs from quoteId.quote_services
+          const existingIds =
+            quoteId?.quote_services?.map((service) => service.service_id) || [];
+          setExistingServiceIds(existingIds);
+
+          // Filter out already added services
+          const filteredServices = response.data.filter(
+            (service) => !existingIds.includes(service.id)
+          );
+
+          setAvailableServices(filteredServices);
         } else {
           setServiceError("Failed to load services: No data in response");
           console.error("No data in response:", response);
@@ -158,8 +170,8 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
       setAddNoOfServices("");
       setAddRate("");
       setAddServiceDates([]);
-      setManuallySelectedDatesCount(0); // Reset manually selected dates count
-      setCalculatedNoOfJobs(0); // Reset calculated number of jobs
+      setManuallySelectedDatesCount(0);
+      setCalculatedNoOfJobs(0);
       setSelectedHour("02");
       setSelectedMinute("30");
       setSelectedAmPm("PM");
