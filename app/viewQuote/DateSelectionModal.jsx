@@ -866,24 +866,39 @@ const DateTimeSelectionModal = ({
         <Button
           onClick={handleSubmit}
           color="primary"
-          // disabled={
-          //   loading ||
-          //   servicesData.some((service, index) => {
-          //     // Skip validation if using "Same as above"
-          //     if (service.useSameAsAbove) return false;
-              
-          //     // Get selected dates for this month
-          //     const selectedDatesThisMonth = service.selectedDates.filter(date => {
-          //       const dateObj = new Date(date);
-          //       const currentMonth = new Date().getMonth();
-          //       return dateObj.getMonth() === currentMonth;
-          //     }).length;
-              
-          //     // Check if selected dates for this month are valid
-          //     const maxServicesPerMonth = service.servicesPerMonth || 0;
-          //     return selectedDatesThisMonth > maxServicesPerMonth;
-          //   })
-          // }
+          disabled={
+            loading ||
+            // Check if any service doesn't have enough dates selected
+            servicesData.some((service) => {
+              // Skip validation for services using "Same as above"
+              if (service.useSameAsAbove) return false;
+
+              // For custom jobs (quarterly service)
+              if (service.isCustomJob) {
+                return service.selectedDates.length !== 1;
+              }
+
+              // For date-wise selection (tabIndex === 0)
+              if (tabIndex === 0) {
+                // Check if total generated dates match required number of services
+                return service.generatedDates.length !== service.noOfServices;
+              }
+              // For day-wise selection (tabIndex === 1)
+              else {
+                // Count selected days per week
+                const selectedDaysCount = Object.values(
+                  service.weeklySelection
+                ).reduce((count, weekDays) => {
+                  return count + Object.values(weekDays).filter(Boolean).length;
+                }, 0);
+
+                // Each selected day appears once per month for the duration
+                // So total dates should be selectedDaysCount * durationMonths
+                const totalProjectedDates = selectedDaysCount * durationMonths;
+                return totalProjectedDates !== service.noOfServices;
+              }
+            })
+          }
         >
           {loading ? <CircularProgress size={24} /> : "Save Dates"}
         </Button>

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import styles from "../../styles/job.module.css";
-import { Grid } from "@mui/material";
+import { Grid, Tabs, Tab, Box } from "@mui/material";
 import InputWithTitle from "../../components/generic/InputWithTitle";
 import InputWithTitle3 from "../../components/generic/InputWithTitle3";
 import { job } from "@/networkUtil/Constants";
@@ -20,6 +20,12 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
   const [serviceData, setServiceData] = useState([]);
   const [isLoading, setLoading] = useState(false);
   const [jobStatus, setJobStatus] = useState(jobList?.is_completed || 0);
+  const [activeTab, setActiveTab] = useState(0);
+  const [completeRescheduleData, setCompleteRescheduleData] = useState({
+    job_date: "",
+    job_time: "",
+    reason: "",
+  });
 
   useEffect(() => {
     setJobStatus(jobList?.is_completed || 0);
@@ -36,7 +42,11 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
     }
   }, [jobList]);
 
-  const handleFormSubmit = async (serviceIndex) => {
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue);
+  };
+
+  const handleServiceFormSubmit = async (serviceIndex) => {
     setLoading(true);
 
     const service = serviceData[serviceIndex];
@@ -46,13 +56,14 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
 
     const formData = {
       job_id: jobId,
+      job_service_id: service.service_id,
       job_date: combinedDateTime,
       reason: service.reason,
     };
 
     try {
       const response = await api.postDataWithTokn(
-        `${job}/reschedule`,
+        `${job}/reschedule-service`,
         formData
       );
       if (response.status === "success") {
@@ -82,6 +93,59 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCompleteRescheduleSubmit = async () => {
+    setLoading(true);
+
+    // Combine date and time into the desired format: "YYYY-MM-DD HH:mm:ss"
+    const combinedDateTime = `${completeRescheduleData.job_date} ${completeRescheduleData.job_time}:00`;
+
+    const formData = {
+      job_id: jobId,
+      job_date: combinedDateTime,
+      reason: completeRescheduleData.reason,
+    };
+
+    try {
+      const response = await api.postDataWithTokn(
+        `${job}/reschedule`,
+        formData
+      );
+      if (response.status === "success") {
+        Swal.fire({
+          title: "Success!",
+          text: `${response.message}`,
+          icon: "success",
+          confirmButtonText: "Ok",
+        });
+        router.push("/allJobs");
+      } else {
+        Swal.fire({
+          title: "Error!",
+          text: `${response.error.message}`,
+          icon: "error",
+          confirmButtonText: "Ok",
+        });
+      }
+    } catch (error) {
+      console.error("Error rescheduling job:", error);
+      Swal.fire({
+        title: "Error!",
+        text: "An error occurred. Please try again.",
+        icon: "error",
+        confirmButtonText: "Ok",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCompleteInputChange = (field, value) => {
+    setCompleteRescheduleData({
+      ...completeRescheduleData,
+      [field]: value,
+    });
   };
 
   const handleJobAction = async () => {
@@ -142,7 +206,7 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
     router.push(`/serviceReport?id=${jobId}`);
   };
 
-  const handleInputChange = (serviceIndex, field, value) => {
+  const handleServiceInputChange = (serviceIndex, field, value) => {
     const updatedServiceData = [...serviceData];
     updatedServiceData[serviceIndex] = {
       ...updatedServiceData[serviceIndex],
@@ -158,7 +222,8 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
     };
 
     // Check if captain and captain_id are both null
-    const isCaptainAssigned = jobList && (jobList.captain !== null || jobList.captain_id !== null);
+    const isCaptainAssigned =
+      jobList && (jobList.captain !== null || jobList.captain_id !== null);
 
     if (jobStatus === 0) {
       // Only show Start Job button if captain is assigned
@@ -227,80 +292,163 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
             </Grid>
           </Grid>
 
-          {/* Render a form for each service */}
-          {jobList &&
-            jobList.job_services &&
-            jobList.job_services.map((service, index) => (
-              <div
-                key={service.id}
-                className={styles.formReschedule}
-                style={{
-                  marginBottom: "20px",
-                  padding: "15px",
-                  border: "1px solid #eaeaea",
-                  borderRadius: "5px",
-                }}
-              >
-                <h3 style={{ marginBottom: "15px" }}>
-                  {service.service_name || `Service ${index + 1}`}
-                </h3>
-                <Grid container spacing={2}>
-                  <Grid item lg={4} sm={12} xs={12} md={4}>
-                    <InputWithTitle3
-                      onChange={(name, value) =>
-                        handleInputChange(index, "job_date", value)
-                      }
-                      value={serviceData[index]?.job_date || ""}
-                      title={"Date"}
-                      type={"date"}
-                    />
-                  </Grid>
+          <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
+            <Tabs
+              value={activeTab}
+              onChange={handleTabChange}
+              aria-label="reschedule tabs"
+            >
+              <Tab label="Whole Job" />
+              <Tab label="By Services" />
+            </Tabs>
+          </Box>
 
-                  <Grid item lg={4} sm={12} xs={12} md={4}>
-                    <InputWithTitle3
-                      onChange={(name, value) =>
-                        handleInputChange(index, "job_time", value)
-                      }
-                      value={serviceData[index]?.job_time || ""}
-                      title={"Time"}
-                      type={"time"}
-                    />
-                  </Grid>
-
-                  <Grid item lg={4} sm={12} xs={12} md={4}>
-                    <div className="">
-                      <InputWithTitle
-                        onChange={(value) =>
-                          handleInputChange(index, "reason", value)
-                        }
-                        value={serviceData[index]?.reason || ""}
-                        title={"Reason"}
-                      />
-                    </div>
-                  </Grid>
+          {/* Complete Tab Content */}
+          {activeTab === 0 && (
+            <div
+              className={styles.formReschedule}
+              style={{
+                marginBottom: "20px",
+                padding: "15px",
+                border: "1px solid #eaeaea",
+                borderRadius: "5px",
+              }}
+            >
+              <h3 style={{ marginBottom: "15px" }}>Reschedule Complete Job</h3>
+              <Grid container spacing={2}>
+                <Grid item lg={4} sm={12} xs={12} md={4}>
+                  <InputWithTitle3
+                    onChange={(name, value) =>
+                      handleCompleteInputChange("job_date", value)
+                    }
+                    value={completeRescheduleData.job_date}
+                    title={"Date"}
+                    type={"date"}
+                  />
                 </Grid>
+                <Grid item lg={4} sm={12} xs={12} md={4}>
+                  <InputWithTitle3
+                    onChange={(name, value) =>
+                      handleCompleteInputChange("job_time", value)
+                    }
+                    value={completeRescheduleData.job_time}
+                    title={"Time"}
+                    type={"time"}
+                  />
+                </Grid>
+                <Grid item lg={4} sm={12} xs={12} md={4}>
+                  <div className="">
+                    <InputWithTitle
+                      onChange={(value) =>
+                        handleCompleteInputChange("reason", value)
+                      }
+                      value={completeRescheduleData.reason}
+                      title={"Reason"}
+                    />
+                  </div>
+                </Grid>
+              </Grid>
 
-                <div style={{ marginTop: "15px", textAlign: "right" }}>
-                  <button
-                    onClick={() => handleFormSubmit(index)}
-                    disabled={isLoading}
-                    className={styles.addText}
+              <div style={{ marginTop: "15px", textAlign: "right" }}>
+                <button
+                  onClick={handleCompleteRescheduleSubmit}
+                  disabled={isLoading}
+                  className={styles.addText}
+                  style={{
+                    padding: "8px 15px",
+                    cursor: isLoading ? "not-allowed" : "pointer",
+                    opacity: isLoading ? 0.5 : 1,
+                    display: "inline-block",
+                  }}
+                >
+                  {isLoading ? (
+                    <CircularProgress size={20} color="inherit" />
+                  ) : (
+                    "Submit"
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* By Services Tab Content */}
+          {activeTab === 1 && (
+            <div>
+              {jobList &&
+                jobList.job_services &&
+                jobList.job_services.map((service, index) => (
+                  <div
+                    key={service.id}
+                    className={styles.formReschedule}
                     style={{
-                      padding: "8px 15px",
-                      cursor: isLoading ? "not-allowed" : "pointer",
-                      opacity: isLoading ? 0.5 : 1,
-                      display: "inline-block",
+                      marginBottom: "20px",
+                      padding: "15px",
+                      border: "1px solid #eaeaea",
+                      borderRadius: "5px",
                     }}
                   >
-                    {isLoading ? (
-                      <CircularProgress size={20} color="inherit" />
-                    ) : (
-                      "Reschedule Service"
-                    )}
-                  </button>
-                </div>
-              </div>
-            ))}
+                    <h3 style={{ marginBottom: "15px" }}>
+                      {service.service_name || `Service ${index + 1}`}
+                    </h3>
+                    <Grid container spacing={2}>
+                      <Grid item lg={4} sm={12} xs={12} md={4}>
+                        <InputWithTitle3
+                          onChange={(name, value) =>
+                            handleServiceInputChange(index, "job_date", value)
+                          }
+                          value={serviceData[index]?.job_date || ""}
+                          title={"Date"}
+                          type={"date"}
+                        />
+                      </Grid>
+
+                      <Grid item lg={4} sm={12} xs={12} md={4}>
+                        <InputWithTitle3
+                          onChange={(name, value) =>
+                            handleServiceInputChange(index, "job_time", value)
+                          }
+                          value={serviceData[index]?.job_time || ""}
+                          title={"Time"}
+                          type={"time"}
+                        />
+                      </Grid>
+
+                      <Grid item lg={4} sm={12} xs={12} md={4}>
+                        <div className="">
+                          <InputWithTitle
+                            onChange={(value) =>
+                              handleServiceInputChange(index, "reason", value)
+                            }
+                            value={serviceData[index]?.reason || ""}
+                            title={"Reason"}
+                          />
+                        </div>
+                      </Grid>
+                    </Grid>
+
+                    <div style={{ marginTop: "15px", textAlign: "right" }}>
+                      <button
+                        onClick={() => handleServiceFormSubmit(index)}
+                        disabled={isLoading}
+                        className={styles.addText}
+                        style={{
+                          padding: "8px 15px",
+                          cursor: isLoading ? "not-allowed" : "pointer",
+                          opacity: isLoading ? 0.5 : 1,
+                          display: "inline-block",
+                        }}
+                      >
+                        {isLoading ? (
+                          <CircularProgress size={20} color="inherit" />
+                        ) : (
+                          "Reschedule Service"
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
         </div>
       )}
 

@@ -200,7 +200,7 @@ const PersonalInformation = ({
             </Grid>
           )}
 
-          {(data.role_id === "9" || data.role_id === "8") && (
+          {(data.role_id === "9" || data.role_id === "8" || data.role_id === "2") && (
             <Grid item lg={6} xs={12} md={6}>
               <InputWithTitle2
                 title="Comission %"

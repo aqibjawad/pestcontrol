@@ -90,14 +90,13 @@ const Page = () => {
 
       <ResheduleTreatment jobList={jobList} jobId={id} />
 
-      {jobList?.captain_id === null && (
-        <div className="mt-5">
+      <div className="mt-5 flex flex-row gap-4 justify-center">
+        {jobList?.captain_id === null && (
           <GreenButton onClick={handleAssignJob} title={"Assign job"} />
-        </div>
-      )}
-
-      <div className="mt-5">
-        <GreenButton onClick={handleBack} title={"Back to Calender"} />
+        )}
+        {/* <div className="mt-5 px-4 sm:px-6 md:px-8 lg:w-2/3 xl:w-1/2 mx-auto mb-8">
+          <GreenButton onClick={handleBack} title={"Back to Calender"} />
+        </div> */}
       </div>
     </div>
   );
