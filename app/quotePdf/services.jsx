@@ -46,6 +46,9 @@ const ServiceProduct = ({ quote }) => {
 
   const [deleteReason, setDeleteReason] = useState();
 
+  // Check if contract is canceled
+  const isContractCanceled = quote?.contract_cancel_reason || false;
+
   // Edit values
   const [editNoOfServices, setEditNoOfServices] = useState("");
   const [editJobType, setEditJobType] = useState("");
@@ -388,7 +391,7 @@ const ServiceProduct = ({ quote }) => {
 
       setOpenEditModal(false);
       // Refresh your data or perform any other necessary actions
-      // window.location.reload();
+      window.location.reload();
     } catch (error) {
       console.error("Error updating service:", error);
 
@@ -426,9 +429,12 @@ const ServiceProduct = ({ quote }) => {
         }}
       >
         <span>Service Product</span>
-        <div style={{ cursor: "pointer" }} onClick={handleAddServiceClick}>
-          Add Service
-        </div>
+        {/* Hide Add Service button if contract is canceled */}
+        {!isContractCanceled && (
+          <div style={{ cursor: "pointer" }} onClick={handleAddServiceClick}>
+            Add Service
+          </div>
+        )}
       </div>
 
       <TableContainer component={Paper}>
@@ -459,12 +465,17 @@ const ServiceProduct = ({ quote }) => {
               <TableCell align="center" style={{ color: "white" }}>
                 Sub Total
               </TableCell>
-              <TableCell align="center" style={{ color: "white" }}>
-                Update
-              </TableCell>
-              <TableCell align="center" style={{ color: "white" }}>
-                Delete
-              </TableCell>
+              {/* Only show these columns if contract is not canceled */}
+              {!isContractCanceled && (
+                <>
+                  <TableCell align="center" style={{ color: "white" }}>
+                    Update
+                  </TableCell>
+                  <TableCell align="center" style={{ color: "white" }}>
+                    Delete
+                  </TableCell>
+                </>
+              )}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -492,7 +503,8 @@ const ServiceProduct = ({ quote }) => {
                 </TableCell>
                 <TableCell align="center">{row.sub_total}</TableCell>
 
-                {!row.service_cancel_reason && (
+                {/* Only show Update and Delete buttons if contract is not canceled AND service is not canceled */}
+                {!isContractCanceled && !row.service_cancel_reason && (
                   <>
                     <TableCell align="center">
                       <div
@@ -522,6 +534,14 @@ const ServiceProduct = ({ quote }) => {
                         <FaTrash />
                       </div>
                     </TableCell>
+                  </>
+                )}
+                
+                {/* If contract is canceled but we still need to maintain table structure, add empty cells */}
+                {!isContractCanceled && row.service_cancel_reason && (
+                  <>
+                    <TableCell align="center"></TableCell>
+                    <TableCell align="center"></TableCell>
                   </>
                 )}
               </TableRow>
@@ -617,13 +637,6 @@ const ServiceProduct = ({ quote }) => {
               }}
               type="text"
               disabled={isNoOfServicesDisabled}
-            />
-
-            <InputWithTitle
-              title="No. of Jobs"
-              value={editNoOfJobs}
-              disabled={true}
-              type="text"
             />
 
             <InputWithTitle
@@ -757,8 +770,8 @@ const ServiceProduct = ({ quote }) => {
         </DialogActions>
       </Dialog>
 
-      {/* Add Service Modal */}
-      {openAddModal && (
+      {/* Add Service Modal - Only mount if not canceled */}
+      {openAddModal && !isContractCanceled && (
         <AddService
           open={openAddModal}
           onClose={() => setOpenAddModal(false)}
