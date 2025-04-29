@@ -26,12 +26,19 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
     job_time: "",
     reason: "",
   });
+  const [currentUserId, setCurrentUserId] = useState(null);
 
   // Check if there's only one service or multiple services
   const hasSingleService = jobList?.job_services?.length === 1;
 
   useEffect(() => {
     setJobStatus(jobList?.is_completed || 0);
+
+    // Get userId from localStorage
+    if (typeof window !== "undefined") {
+      const userId = localStorage.getItem("userId");
+      setCurrentUserId(userId ? parseInt(userId) : null);
+    }
 
     // Initialize service data from jobList.job_services
     if (jobList && jobList.job_services && jobList.job_services.length > 0) {
@@ -291,19 +298,25 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
     setServiceData(updatedServiceData);
   };
 
+  // Check if action buttons should be shown
+  const shouldShowActionButtons = () => {
+    // Show buttons only if captain_id is 7 and current user ID is 1
+    return jobList?.captain_id === 7 && currentUserId === 1;
+  };
+
   const renderActionButton = () => {
+    // If the conditions are not met, don't render any button
+    if (!shouldShowActionButtons()) {
+      return null;
+    }
+
     const buttonStyle = {
       cursor: isLoading ? "not-allowed" : "pointer",
       opacity: isLoading ? 0.5 : 1,
     };
 
-    // Check if captain and captain_id are both null
-    const isCaptainAssigned =
-      jobList && (jobList.captain !== null || jobList.captain_id !== null);
-
     if (jobStatus === 0) {
-      // Only show Start Job button if captain is assigned
-      return isCaptainAssigned ? (
+      return (
         <Grid item lg={6} sm={12} xs={12} md={4}>
           <div className={styles.reschBtn}>
             <div
@@ -319,7 +332,7 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
             </div>
           </div>
         </Grid>
-      ) : null;
+      );
     } else if (jobStatus === 2) {
       return (
         <Grid item lg={12} sm={12} xs={12} md={8}>
@@ -566,7 +579,7 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
         </div>
       )}
 
-      {jobStatus === 2 && (
+      {jobStatus === 2 && shouldShowActionButtons() && (
         <div>
           <div className={styles.leftSection}>
             <div className={styles.treatHead}> Complete Your Job </div>
@@ -574,7 +587,7 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
         </div>
       )}
 
-      {jobStatus === 1 && (
+      {jobStatus === 1 && shouldShowActionButtons() && (
         <div>
           <div className={styles.leftSection}>
             <div className={styles.treatHead}> Create Report </div>
