@@ -441,7 +441,7 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
             }}
           >
             <h3 style={{ marginBottom: "15px" }}>
-              {service.service_name || `Service ${index + 1}`}
+              {service?.service?.service_title}
             </h3>
             <Grid container spacing={2}>
               <Grid item lg={4} sm={12} xs={12} md={4}>

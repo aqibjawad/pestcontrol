@@ -333,7 +333,13 @@ const UpcomingJobs = ({
           {row.tag && <div className={styles.clientTag}>Tag: {row.tag}</div>}
         </td>
         <td>{row?.user?.client?.firm_name}</td>
-        <td>{row.job_services[0]?.service?.service_title}</td>
+        <td>
+          {row.job_services
+            ?.map((js) => js.service?.service_title)
+            .filter(Boolean)
+            .join(", ")}
+        </td>
+
         <td>
           <div
             className={styles.statusContainer}

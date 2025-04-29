@@ -461,7 +461,49 @@ const DateTimeSelectionModal = ({
       return;
     }
 
-    // Rest of the function remains the same...
+    // Clear error message if it exists
+    if (service.errorMessage) {
+      setServicesData((prevData) => {
+        const updatedData = [...prevData];
+        updatedData[serviceIndex] = {
+          ...updatedData[serviceIndex],
+          errorMessage: "",
+        };
+        return updatedData;
+      });
+    }
+
+    // Toggle the checkbox state
+    setServicesData((prevData) => {
+      const updatedData = [...prevData];
+      updatedData[serviceIndex] = {
+        ...updatedData[serviceIndex],
+        weeklySelection: {
+          ...updatedData[serviceIndex].weeklySelection,
+          [week]: {
+            ...updatedData[serviceIndex].weeklySelection[week],
+            [day]: !updatedData[serviceIndex].weeklySelection[week][day],
+          },
+        },
+      };
+
+      // Generate new dates based on updated weekly selection
+      const newGeneratedDates = generateWeeklyDates(
+        updatedData[serviceIndex].selectedTime,
+        updatedData[serviceIndex].weeklySelection,
+        serviceIndex
+      );
+
+      // Update generated dates and validation status
+      updatedData[serviceIndex].generatedDates = newGeneratedDates;
+      updatedData[serviceIndex].isValidTotalDates =
+        newGeneratedDates.length === updatedData[serviceIndex].noOfServices;
+
+      // Validate monthly distribution
+      validateMonthlyDates(newGeneratedDates, serviceIndex);
+
+      return updatedData;
+    });
   };
 
   // Handler for "Same as above dates" checkbox
@@ -674,7 +716,7 @@ const DateTimeSelectionModal = ({
           text: "Contract has been created successfully!",
         });
         onClose();
-        window.location.reload();
+        // window.location.reload();
       } else {
         throw new Error(response.error?.message || "Unknown error occurred");
       }
