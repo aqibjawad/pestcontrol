@@ -82,12 +82,11 @@ const getAllQuotes = async () => {
       </div>
     );
   }
-
-  if (!quoteList) return <div>No data available</div>;
-
   return (
     <Layout>
-
+      <div style={{textAlign:"center", marginTop:"-5rem", marginBottom:"2rem", fontWeight:"600"}}>
+        Contract Details
+      </div>
       <div className="">
         {loadingDetails ? (
           <div className="space-y-4">

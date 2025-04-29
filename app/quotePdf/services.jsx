@@ -120,8 +120,20 @@ const ServiceProduct = ({ quote }) => {
 
   // Function to calculate remaining months (including current month)
   const calculateRemainingMonths = () => {
+    if (!selectedRow) {
+      setRemainingMonths(0);
+      return;
+    }
+
+    // FIXED: Use the contract duration directly instead of calculating from service dates
+    // This ensures the remaining months equals the total contract duration
+    if (quote && quote.duration_in_months) {
+      setRemainingMonths(parseInt(quote.duration_in_months));
+      return;
+    }
+
+    // Fallback to the original calculation if quote.duration_in_months is not available
     if (
-      !selectedRow ||
       !selectedRow.quote_service_dates ||
       selectedRow.quote_service_dates.length === 0
     ) {
@@ -219,7 +231,7 @@ const ServiceProduct = ({ quote }) => {
             text: "Contract has been canceled successfully!",
           });
           setOpenDeleteModal(false);
-          // window.location.reload();
+          window.location.reload();
         } else {
           throw new Error(response.error?.message || "Unknown error occurred");
         }
@@ -247,7 +259,7 @@ const ServiceProduct = ({ quote }) => {
             text: "Service has been deleted successfully!",
           });
           setOpenDeleteModal(false);
-          // window.location.reload();
+          window.location.reload();
         } else {
           throw new Error(response.error?.message || "Unknown error occurred");
         }
@@ -489,7 +501,9 @@ const ServiceProduct = ({ quote }) => {
                   {row.service.service_title}
                 </TableCell>
                 <TableCell align="center">{row.no_of_services}</TableCell>
-                <TableCell align="center">{row.job_type}</TableCell>
+                <TableCell align="center">
+                  {row.job_type === "custom" ? "Quarterly" : row.job_type}
+                </TableCell>
                 <TableCell align="center">{row.rate}</TableCell>
                 <TableCell align="center">
                   {row.service_cancel_reason || "Active"}
@@ -536,7 +550,7 @@ const ServiceProduct = ({ quote }) => {
                     </TableCell>
                   </>
                 )}
-                
+
                 {/* If contract is canceled but we still need to maintain table structure, add empty cells */}
                 {!isContractCanceled && row.service_cancel_reason && (
                   <>
@@ -594,12 +608,14 @@ const ServiceProduct = ({ quote }) => {
         <DialogContent>
           {/* Separate input fields for Duration and Remaining Months */}
           <div className="flex gap-4">
-            <InputWithTitle
-              title="Jobs Per Month"
-              value={editDurationInMonths}
-              disabled={true}
-              type="text"
-            />
+            {selectedRow?.job_type === "monthly" && (
+              <InputWithTitle
+                title="Jobs Per Month"
+                value={editDurationInMonths}
+                disabled={true}
+                type="text"
+              />
+            )}
 
             <InputWithTitle
               title="Duration in Months"

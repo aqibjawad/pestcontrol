@@ -74,46 +74,14 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
       !quoteId.quote_services ||
       quoteId.quote_services.length === 0
     ) {
-      // If no quote data available, use the full duration
       setRemainingMonths(quoteId?.duration_in_months || 0);
       return;
     }
 
     try {
-      // Find the latest service date across all services
-      let latestDate = null;
-
-      quoteId.quote_services.forEach((service) => {
-        if (
-          service.quote_service_dates &&
-          service.quote_service_dates.length > 0
-        ) {
-          service.quote_service_dates.forEach((dateObj) => {
-            const serviceDate = new Date(dateObj.service_date);
-            if (!latestDate || serviceDate > latestDate) {
-              latestDate = serviceDate;
-            }
-          });
-        }
-      });
-
-      if (!latestDate) {
-        // If no dates found, use the full duration
-        setRemainingMonths(quoteId?.duration_in_months || 0);
-        return;
-      }
-
-      const today = new Date();
-
-      // Calculate months difference
-      let months = (latestDate.getFullYear() - today.getFullYear()) * 12;
-      months += latestDate.getMonth() - today.getMonth();
-
-      // Include current month in the count (add 1)
-      months += 1;
-
-      // Ensure we don't go below 0
-      setRemainingMonths(Math.max(0, months));
+      // For new contracts, simply use the duration_in_months
+      // Instead of calculating the difference from today
+      setRemainingMonths(quoteId?.duration_in_months || 0);
     } catch (error) {
       console.error("Error calculating remaining months:", error);
       // Fallback to using the full contract duration
@@ -351,7 +319,6 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
         ],
       };
 
-      console.log("Sending data to API:", data);
       const response = await api.postDataToken(`${contract}/update`, data);
 
       if (response.status === "success") {
@@ -361,10 +328,11 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
           text: "Service added successfully!",
         });
         onClose();
-
+        window.location.reload();
         // Call the callback function to inform parent component
         if (typeof onServiceAdded === "function") {
           onServiceAdded();
+          window.location.reload();
         }
       } else {
         throw new Error(
