@@ -23,7 +23,7 @@ import {
 } from "@mui/material";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
-import SearchInput from "../../../../components/generic/SearchInput";
+import SearchInput from "../../components/generic/SearchInput";
 
 const MyCalendar = () => {
   const api = new APICall();
@@ -52,9 +52,9 @@ const MyCalendar = () => {
     const today = new Date();
     const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
     const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-    
-    setViewStartDate(firstDay.toISOString().split('T')[0]);
-    setViewEndDate(lastDay.toISOString().split('T')[0]);
+
+    setViewStartDate(firstDay.toISOString().split("T")[0]);
+    setViewEndDate(lastDay.toISOString().split("T")[0]);
   }, []);
 
   useEffect(() => {
@@ -109,9 +109,9 @@ const MyCalendar = () => {
       const response = await api.getDataWithToken(
         `${job}/all?start_date=${viewStartDate}&end_date=${viewEndDate}`
       );
-      
+
       console.log("API Response:", response);
-      
+
       if (response.data && Array.isArray(response.data)) {
         setQuoteList(response.data);
         console.log("Job data loaded:", response.data.length, "items");
@@ -141,7 +141,7 @@ const MyCalendar = () => {
   const getStatusColor = (status) => {
     // Convert to number if string
     const statusNum = Number(status);
-    
+
     switch (statusNum) {
       case 0:
         return "#4CAF50"; // Not Completed
@@ -157,7 +157,7 @@ const MyCalendar = () => {
   const getStatusText = (status) => {
     // Convert to number if string
     const statusNum = Number(status);
-    
+
     switch (statusNum) {
       case 0:
         return "Not Completed";
@@ -172,70 +172,74 @@ const MyCalendar = () => {
 
   const formatDate = (dateString) => {
     if (!dateString) return null;
-    
+
     // Handle if dateString already has time component
-    if (dateString.includes('T') || dateString.includes(' ')) {
+    if (dateString.includes("T") || dateString.includes(" ")) {
       return dateString;
     }
-    
+
     // Otherwise, add default time
     return `${dateString}T00:00:00`;
   };
 
-  const events = filteredQuoteList?.map((job) => {
-    try {
-      const latestReschedule =
-        job.reschedule_dates && job.reschedule_dates.length > 0
-          ? job.reschedule_dates[job.reschedule_dates.length - 1]
-          : null;
-      
-      // Get the job date, either from reschedule or original
-      let jobDate = latestReschedule?.job_date || job.job_date;
-      
-      // Default time if none is provided
-      let defaultTime = "09:00:00";
-      
-      // Split date and time if needed
-      if (jobDate && jobDate.includes(" ")) {
-        const [date, time] = jobDate.split(" ");
-        jobDate = date;
-        defaultTime = time || defaultTime;
-      } else if (job.job_start_time) {
-        defaultTime = job.job_start_time;
-      }
-      
-      // Calculate end time (1 hour after start if not provided)
-      const endTime = job.job_end_time || (() => {
-        const [hours, minutes] = defaultTime.split(":");
-        return `${String(Number(hours) + 1).padStart(2, "0")}:${minutes}:00`;
-      })();
-      
-      // Format dates for FullCalendar
-      const startDate = formatDate(jobDate)?.split('T')[0];
-      
-      if (!startDate) {
-        console.warn("Missing job date for job:", job.id);
+  // Update the events mapping function in the MyCalendar component
+
+  const events = filteredQuoteList
+    ?.map((job) => {
+      try {
+        // Use the main job date instead of reschedule date
+        let jobDate = job.job_date;
+
+        // Default time if none is provided
+        let defaultTime = "09:00:00";
+
+        // Split date and time if needed
+        if (jobDate && jobDate.includes(" ")) {
+          const [date, time] = jobDate.split(" ");
+          jobDate = date;
+          defaultTime = time || defaultTime;
+        } else if (job.job_start_time) {
+          defaultTime = job.job_start_time;
+        }
+
+        // Calculate end time (1 hour after start if not provided)
+        const endTime =
+          job.job_end_time ||
+          (() => {
+            const [hours, minutes] = defaultTime.split(":");
+            return `${String(Number(hours) + 1).padStart(
+              2,
+              "0"
+            )}:${minutes}:00`;
+          })();
+
+        // Format dates for FullCalendar
+        const startDate = formatDate(jobDate)?.split("T")[0];
+
+        if (!startDate) {
+          console.warn("Missing job date for job:", job.id);
+          return null;
+        }
+
+        return {
+          id: job.id,
+          title: job.user?.client?.firm_name || "No Client Name",
+          start: `${startDate}T${defaultTime}`,
+          end: `${startDate}T${endTime}`,
+          backgroundColor: getStatusColor(job.is_completed),
+          borderColor: getStatusColor(job.is_completed),
+          extendedProps: {
+            jobData: job,
+            originalTime: defaultTime,
+          },
+          editable: true,
+        };
+      } catch (error) {
+        console.error("Error creating event for job:", job.id, error);
         return null;
       }
-      
-      return {
-        id: job.id,
-        title: job.user?.client?.firm_name || "No Client Name",
-        start: `${startDate}T${defaultTime}`,
-        end: `${startDate}T${endTime}`,
-        backgroundColor: getStatusColor(job.is_completed),
-        borderColor: getStatusColor(job.is_completed),
-        extendedProps: {
-          jobData: job,
-          originalTime: defaultTime,
-        },
-        editable: true,
-      };
-    } catch (error) {
-      console.error("Error creating event for job:", job.id, error);
-      return null;
-    }
-  }).filter(event => event !== null); // Remove any null events
+    })
+    .filter((event) => event !== null); // Remove any null events
 
   const handleEventDrop = async (info) => {
     const droppedEvent = info.event;
@@ -322,7 +326,7 @@ const MyCalendar = () => {
   const handleDatesSet = (dateInfo) => {
     const startDate = dateInfo.start.toISOString().split("T")[0];
     const endDate = dateInfo.end.toISOString().split("T")[0];
-    
+
     // Only update if dates have changed
     if (startDate !== viewStartDate || endDate !== viewEndDate) {
       setViewStartDate(startDate);
@@ -370,6 +374,11 @@ const MyCalendar = () => {
 
   return (
     <div className="p-4">
+      <div
+        style={{ fontWeight: "700", fontSize: "20px", marginBottom: "3rem" }}
+      >
+        Job Calender
+      </div>
       <div className="flex gap-4 mb-4">
         <FormControl sx={{ flex: 1 }}>
           <InputLabel id="area-select-label">Select Area</InputLabel>
@@ -405,8 +414,10 @@ const MyCalendar = () => {
       )} */}
 
       {!fetchingData && filteredQuoteList.length === 0 && (
-        <Box sx={{ textAlign: 'center', py: 4 }}>
-          <Typography variant="h6">No jobs found for this date range</Typography>
+        <Box sx={{ textAlign: "center", py: 4 }}>
+          <Typography variant="h6">
+            No jobs found for this date range
+          </Typography>
           <Typography variant="body2" sx={{ mt: 1 }}>
             Try adjusting your filters or changing the date range
           </Typography>
@@ -468,17 +479,15 @@ const MyCalendar = () => {
                   label="Area"
                   value={selectedEvent.client_address?.area}
                 />
-                <JobDetailItem
-                  label="Tag"
-                  value={selectedEvent.tag}
-                />
+                <JobDetailItem label="Tag" value={selectedEvent.tag} />
                 <JobDetailItem
                   label="Status"
                   value={
                     <Box
                       sx={{
                         bgcolor: getStatusColor(selectedEvent.is_completed),
-                        color: selectedEvent.is_completed === 1 ? "white" : "black",
+                        color:
+                          selectedEvent.is_completed === 1 ? "white" : "black",
                         py: 0.5,
                         px: 2,
                         borderRadius: 10,

@@ -83,8 +83,17 @@ export default function SideMenu({ children }) {
     { name: "Home", url: "superadmin/dashboard", icon: "/home.png" },
     { name: "Jobs", url: "allJobs", icon: "/jobs.png" },
     { name: "Contracts", url: "contracts", icon: "/contracts.png" },
-    { name: "Contract Summary", url: "contractSummary", icon: "/contracts.png" },
+    {
+      name: "Contract Summary",
+      url: "contractSummary",
+      icon: "/contracts.png",
+    },
     { name: "Quotes", url: "viewQuote", icon: "/quotes.png" },
+    {
+      name: "Scheduler",
+      url: "schedular",
+      icon: "/quotes.png",
+    },
     { name: "Stock Use Report", url: "stockUseReport", icon: "/quotes.png" },
     { name: "Clients", url: "clients", icon: "/clients.png" },
     { name: "Invoices", url: "invoice", icon: "/operations.png" },

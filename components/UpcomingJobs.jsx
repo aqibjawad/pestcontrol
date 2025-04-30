@@ -368,7 +368,7 @@ const UpcomingJobs = ({
               <div
                 style={{ color: "red", fontSize: "12px", textAlign: "center" }}
               >
-                <div style={{ textAlign: "center" }}>Reschedule</div>
+                {/* <div style={{ textAlign: "center" }}>Reschedule</div> */}
                 <br />
                 {formatDateTime(
                   row.reschedule_dates[row.reschedule_dates.length - 1].job_date
@@ -376,7 +376,7 @@ const UpcomingJobs = ({
               </div>
             ) : (
               <div style={{ fontSize: "12px", textAlign: "center" }}>
-                Regular
+                
                 <br />
                 {row.reschedule_dates?.[0]?.job_date &&
                   formatDateTime(row.reschedule_dates[0].job_date)}

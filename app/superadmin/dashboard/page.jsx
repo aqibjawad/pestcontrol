@@ -54,7 +54,6 @@ const Page = () => {
   const [tabNames, setTabNames] = useState([
     "Work management",
     "Finance Management",
-    "Schedule",
     "Reports",
   ]);
 
@@ -305,10 +304,10 @@ const Page = () => {
             {selectedIndex === 1 && <Finance />}
           </div>
 
-          <div className={selectedIndex === 2 ? `block` : "hidden"}>
-            {/* <Schedule isVisible={selectedIndex === 2} /> */}
+          {/* <div className={selectedIndex === 2 ? `block` : "hidden"}>
+            {/* <Schedule isVisible={selectedIndex === 2} />
             {selectedIndex === 2 && <Schedule />}
-          </div>
+          </div> */}
 
           <div className={selectedIndex === 3 ? `block` : "hidden"}>
             {selectedIndex === 3 && <Reports />}

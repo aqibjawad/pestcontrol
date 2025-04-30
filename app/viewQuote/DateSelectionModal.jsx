@@ -20,6 +20,7 @@ import CalendarComponent from "./calender.component";
 import Swal from "sweetalert2";
 import APICall from "@/networkUtil/APICall";
 import { quotation } from "@/networkUtil/Constants";
+import CustomTimePicker from "./customTimePicker";
 import {
   addMonths,
   format,
@@ -716,7 +717,7 @@ const DateTimeSelectionModal = ({
           text: "Contract has been created successfully!",
         });
         onClose();
-        // window.location.reload();
+        window.location.reload();
       } else {
         throw new Error(response.error?.message || "Unknown error occurred");
       }
@@ -826,20 +827,15 @@ const DateTimeSelectionModal = ({
                   />
                 )}
 
-              <TextField
-                type="time"
-                label="Select Time"
-                value={service.selectedTime}
-                onChange={(e) => handleTimeChange(e, index)}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                inputProps={{
-                  step: 300,
-                }}
-                disabled={service.useSameAsAbove}
-                className="mb-4"
-              />
+              <div className="mb-4">
+                <div className="text-sm text-gray-700 mb-1">Select Time</div>
+                <CustomTimePicker
+                  initialTime={`${service.selectedTime} PM`}
+                  onChange={handleTimeChange}
+                  serviceIndex={index}
+                  disabled={service.useSameAsAbove}
+                />
+              </div>
 
               <Typography variant="body2" className="mb-2">
                 {service.isCustomJob
