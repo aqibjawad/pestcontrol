@@ -1,19 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { ChevronDown } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { ChevronDown } from "lucide-react";
 
-const CustomTimePicker = ({ initialTime = '02:30 PM', onChange, serviceIndex }) => {
+const CustomTimePicker = ({
+  initialTime = "02:30 PM",
+  onChange,
+  serviceIndex,
+}) => {
   // Parse initial time
   const parseTime = (timeString) => {
     const match = timeString.match(/(\d+):(\d+)\s?(AM|PM)?/i);
     if (match) {
       let [_, hours, minutes, period] = match;
+
+      // Round minutes to nearest 15
+      let mins = parseInt(minutes, 10);
+      mins = Math.round(mins / 15) * 15;
+      if (mins === 60) {
+        mins = 0;
+      }
+
       return {
         hours: parseInt(hours, 10),
-        minutes: parseInt(minutes, 10),
-        period: period ? period.toUpperCase() : 'PM'
+        minutes: mins,
+        period: period ? period.toUpperCase() : "PM",
       };
     }
-    return { hours: 2, minutes: 30, period: 'PM' };
+    return { hours: 2, minutes: 30, period: "PM" };
   };
 
   const { hours, minutes, period } = parseTime(initialTime);
@@ -22,7 +34,7 @@ const CustomTimePicker = ({ initialTime = '02:30 PM', onChange, serviceIndex }) 
   const [selectedHours, setSelectedHours] = useState(hours);
   const [selectedMinutes, setSelectedMinutes] = useState(minutes);
   const [selectedPeriod, setSelectedPeriod] = useState(period);
-  
+
   // State for dropdown visibility
   const [hoursOpen, setHoursOpen] = useState(false);
   const [minutesOpen, setMinutesOpen] = useState(false);
@@ -31,25 +43,27 @@ const CustomTimePicker = ({ initialTime = '02:30 PM', onChange, serviceIndex }) 
   // Generate hours options (1-12)
   const hoursOptions = Array.from({ length: 12 }, (_, i) => ({
     value: i + 1,
-    label: (i + 1).toString().padStart(2, '0')
+    label: (i + 1).toString().padStart(2, "0"),
   }));
 
-  // Generate minutes options (00-59)
-  const minutesOptions = Array.from({ length: 60 }, (_, i) => ({
-    value: i,
-    label: i.toString().padStart(2, '0')
-  }));
+  // Generate minutes options (00, 15, 30, 45)
+  const minutesOptions = [
+    { value: 0, label: "00" },
+    { value: 15, label: "15" },
+    { value: 30, label: "30" },
+    { value: 45, label: "45" },
+  ];
 
   // AM/PM options
   const periodOptions = [
-    { value: 'AM', label: 'AM' },
-    { value: 'PM', label: 'PM' }
+    { value: "AM", label: "AM" },
+    { value: "PM", label: "PM" },
   ];
 
   // Format the time for display and callback
   const formatTime = () => {
-    const formattedHours = selectedHours.toString().padStart(2, '0');
-    const formattedMinutes = selectedMinutes.toString().padStart(2, '0');
+    const formattedHours = selectedHours.toString().padStart(2, "0");
+    const formattedMinutes = selectedMinutes.toString().padStart(2, "0");
     return `${formattedHours}:${formattedMinutes}`; // Format as HH:MM for compatibility with original code
   };
 
@@ -59,8 +73,8 @@ const CustomTimePicker = ({ initialTime = '02:30 PM', onChange, serviceIndex }) 
       // Create a synthetic event object to match the expected signature
       const syntheticEvent = {
         target: {
-          value: formatTime()
-        }
+          value: formatTime(),
+        },
       };
       onChange(syntheticEvent, serviceIndex);
     }
@@ -73,10 +87,10 @@ const CustomTimePicker = ({ initialTime = '02:30 PM', onChange, serviceIndex }) 
       setMinutesOpen(false);
       setPeriodOpen(false);
     };
-    
-    document.addEventListener('click', handleClickOutside);
+
+    document.addEventListener("click", handleClickOutside);
     return () => {
-      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener("click", handleClickOutside);
     };
   }, []);
 
@@ -85,7 +99,7 @@ const CustomTimePicker = ({ initialTime = '02:30 PM', onChange, serviceIndex }) 
     return (
       <div className="relative" style={{ width }}>
         {/* Dropdown button */}
-        <button 
+        <button
           type="button"
           onClick={(e) => {
             e.stopPropagation();
@@ -93,7 +107,11 @@ const CustomTimePicker = ({ initialTime = '02:30 PM', onChange, serviceIndex }) 
           }}
           className="flex items-center justify-between w-full px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-gray-700"
         >
-          <span>{typeof value === 'number' ? value.toString().padStart(2, '0') : value}</span>
+          <span>
+            {typeof value === "number"
+              ? value.toString().padStart(2, "0")
+              : value}
+          </span>
           <ChevronDown size={16} />
         </button>
 
@@ -109,7 +127,7 @@ const CustomTimePicker = ({ initialTime = '02:30 PM', onChange, serviceIndex }) 
                   setOpen(false);
                 }}
                 className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
-                  option.value === value ? 'bg-blue-50 text-blue-600' : ''
+                  option.value === value ? "bg-blue-50 text-blue-600" : ""
                 }`}
               >
                 {option.label}
@@ -132,10 +150,10 @@ const CustomTimePicker = ({ initialTime = '02:30 PM', onChange, serviceIndex }) 
         setOpen={setHoursOpen}
         width="60px"
       />
-      
+
       {/* Separator */}
       <span className="text-gray-500 text-xl">:</span>
-      
+
       {/* Minutes dropdown */}
       <Dropdown
         options={minutesOptions}
@@ -145,7 +163,7 @@ const CustomTimePicker = ({ initialTime = '02:30 PM', onChange, serviceIndex }) 
         setOpen={setMinutesOpen}
         width="60px"
       />
-      
+
       {/* AM/PM dropdown */}
       <Dropdown
         options={periodOptions}
@@ -155,10 +173,11 @@ const CustomTimePicker = ({ initialTime = '02:30 PM', onChange, serviceIndex }) 
         setOpen={setPeriodOpen}
         width="70px"
       />
-      
+
       {/* Display formatted time */}
       <div className="text-gray-500 ml-2">
-        ({selectedHours.toString().padStart(2, '0')}:{selectedMinutes.toString().padStart(2, '0')} {selectedPeriod})
+        ({selectedHours.toString().padStart(2, "0")}:
+        {selectedMinutes.toString().padStart(2, "0")} {selectedPeriod})
       </div>
     </div>
   );
