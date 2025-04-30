@@ -12,7 +12,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Swal from "sweetalert2";
 
 const RescheduleTreatment = ({ jobId, jobList }) => {
-  console.log(jobList, "job list");
+  console.log(jobList?.captain_id, "captain id in job list");
 
   const api = new APICall();
   const router = useRouter();
@@ -28,17 +28,14 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
   });
   const [currentUserId, setCurrentUserId] = useState(null);
 
+  console.log("current user Id", currentUserId);
+  
+
   // Check if there's only one service or multiple services
   const hasSingleService = jobList?.job_services?.length === 1;
 
   useEffect(() => {
     setJobStatus(jobList?.is_completed || 0);
-
-    // Get userId from localStorage
-    if (typeof window !== "undefined") {
-      const userId = localStorage.getItem("userId");
-      setCurrentUserId(userId ? parseInt(userId) : null);
-    }
 
     // Initialize service data from jobList.job_services
     if (jobList && jobList.job_services && jobList.job_services.length > 0) {
@@ -49,6 +46,17 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
         reason: "",
       }));
       setServiceData(initialServiceData);
+    }
+
+    // Get userId from localStorage
+    try {
+      const userDataString = localStorage.getItem("user");
+      if (userDataString) {
+        const userData = JSON.parse(userDataString);
+        setCurrentUserId(userData.userId);
+      }
+    } catch (error) {
+      console.error("Error retrieving user data from localStorage:", error);
     }
   }, [jobList]);
 
@@ -298,25 +306,21 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
     setServiceData(updatedServiceData);
   };
 
-  // Check if action buttons should be shown
-  const shouldShowActionButtons = () => {
-    // Show buttons only if captain_id is 7 and current user ID is 1
-    return jobList?.captain_id === 7 && currentUserId === 1;
-  };
-
   const renderActionButton = () => {
-    // If the conditions are not met, don't render any button
-    if (!shouldShowActionButtons()) {
-      return null;
-    }
-
     const buttonStyle = {
       cursor: isLoading ? "not-allowed" : "pointer",
       opacity: isLoading ? 0.5 : 1,
     };
 
+    // Check if current user is assigned as captain for this job
+    const isCurrentUserCaptain =
+      currentUserId !== null &&
+      jobList?.captain_id !== null &&
+      parseInt(currentUserId) === parseInt(jobList?.captain_id);
+
     if (jobStatus === 0) {
-      return (
+      // Only show Start Job button if current user is the assigned captain
+      return isCurrentUserCaptain ? (
         <Grid item lg={6} sm={12} xs={12} md={4}>
           <div className={styles.reschBtn}>
             <div
@@ -332,7 +336,7 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
             </div>
           </div>
         </Grid>
-      );
+      ) : null;
     } else if (jobStatus === 2) {
       return (
         <Grid item lg={12} sm={12} xs={12} md={8}>
@@ -579,7 +583,7 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
         </div>
       )}
 
-      {jobStatus === 2 && shouldShowActionButtons() && (
+      {jobStatus === 2 && (
         <div>
           <div className={styles.leftSection}>
             <div className={styles.treatHead}> Complete Your Job </div>
@@ -587,7 +591,7 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
         </div>
       )}
 
-      {jobStatus === 1 && shouldShowActionButtons() && (
+      {jobStatus === 1 && (
         <div>
           <div className={styles.leftSection}>
             <div className={styles.treatHead}> Create Report </div>
