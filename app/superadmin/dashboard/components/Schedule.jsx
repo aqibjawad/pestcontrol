@@ -46,6 +46,16 @@ const MyCalendar = () => {
     }
   }, [viewStartDate, viewEndDate]);
 
+  // Set initial dates for first load
+  useEffect(() => {
+    const today = new Date();
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+    const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    
+    setViewStartDate(firstDay.toISOString().split('T')[0]);
+    setViewEndDate(lastDay.toISOString().split('T')[0]);
+  }, []);
+
   useEffect(() => {
     if (quoteList?.length > 0) {
       const uniqueAreas = [
@@ -94,10 +104,24 @@ const MyCalendar = () => {
   const getAllQuotes = async () => {
     setFetchingData(true);
     try {
+      console.log(`Fetching data from ${viewStartDate} to ${viewEndDate}`);
       const response = await api.getDataWithToken(
         `${job}/all?start_date=${viewStartDate}&end_date=${viewEndDate}`
       );
-      setQuoteList(response.data);
+      
+      console.log("API Response:", response);
+      
+      if (response.data && Array.isArray(response.data)) {
+        setQuoteList(response.data);
+        console.log("Job data loaded:", response.data.length, "items");
+      } else if (response.data) {
+        // Handle if data is not in expected format
+        console.warn("Unexpected data format:", response.data);
+        setQuoteList([]);
+      } else {
+        console.warn("No data received from API");
+        setQuoteList([]);
+      }
     } catch (error) {
       console.error("Error fetching jobs:", error);
       Swal.fire({
@@ -106,70 +130,111 @@ const MyCalendar = () => {
         icon: "error",
         confirmButtonText: "Ok",
       });
+      setQuoteList([]);
     } finally {
       setFetchingData(false);
     }
   };
 
+  // Fixed status functions to match the correct values
   const getStatusColor = (status) => {
-    switch (status) {
+    // Convert to number if string
+    const statusNum = Number(status);
+    
+    switch (statusNum) {
       case 0:
         return "#FF4444"; // Not Completed
-      case 2:
-        return "#FFD700"; // In Progress
       case 1:
         return "#4CAF50"; // Completed
+      case 2:
+        return "#FFD700"; // In Progress
       default:
-        return "#FF4444";
+        return "#FF4444"; // Default red
     }
   };
 
   const getStatusText = (status) => {
-    switch (status) {
+    // Convert to number if string
+    const statusNum = Number(status);
+    
+    switch (statusNum) {
       case 0:
         return "Not Completed";
       case 1:
-        return "In Progress";
-      case 2:
         return "Completed";
+      case 2:
+        return "In Progress";
       default:
         return "Unknown";
     }
   };
 
-  const events = filteredQuoteList?.map((job) => {
-    const latestReschedule =
-      job.reschedule_dates?.[job.reschedule_dates.length - 1];
-    let defaultTime;
-
-    if (latestReschedule?.job_date) {
-      const [date, time] = latestReschedule.job_date.split(" ");
-      defaultTime = time || "09:00:00";
-    } else {
-      defaultTime = job.job_start_time || "09:00:00";
+  const formatDate = (dateString) => {
+    if (!dateString) return null;
+    
+    // Handle if dateString already has time component
+    if (dateString.includes('T') || dateString.includes(' ')) {
+      return dateString;
     }
+    
+    // Otherwise, add default time
+    return `${dateString}T00:00:00`;
+  };
 
-    const endTime =
-      job.job_end_time ||
-      (() => {
+  const events = filteredQuoteList?.map((job) => {
+    try {
+      const latestReschedule =
+        job.reschedule_dates && job.reschedule_dates.length > 0
+          ? job.reschedule_dates[job.reschedule_dates.length - 1]
+          : null;
+      
+      // Get the job date, either from reschedule or original
+      let jobDate = latestReschedule?.job_date || job.job_date;
+      
+      // Default time if none is provided
+      let defaultTime = "09:00:00";
+      
+      // Split date and time if needed
+      if (jobDate && jobDate.includes(" ")) {
+        const [date, time] = jobDate.split(" ");
+        jobDate = date;
+        defaultTime = time || defaultTime;
+      } else if (job.job_start_time) {
+        defaultTime = job.job_start_time;
+      }
+      
+      // Calculate end time (1 hour after start if not provided)
+      const endTime = job.job_end_time || (() => {
         const [hours, minutes] = defaultTime.split(":");
         return `${String(Number(hours) + 1).padStart(2, "0")}:${minutes}:00`;
       })();
-
-    return {
-      id: job.id,
-      title: job.user?.client?.firm_name || "No Client Name", // Changed to show firm name
-      start: `${job.job_date}T${defaultTime}`,
-      end: `${job.job_date}T${endTime}`,
-      backgroundColor: getStatusColor(job.is_completed),
-      borderColor: getStatusColor(job.is_completed),
-      extendedProps: {
-        jobData: job,
-        originalTime: defaultTime,
-      },
-      editable: true,
-    };
-  });
+      
+      // Format dates for FullCalendar
+      const startDate = formatDate(jobDate)?.split('T')[0];
+      
+      if (!startDate) {
+        console.warn("Missing job date for job:", job.id);
+        return null;
+      }
+      
+      return {
+        id: job.id,
+        title: job.user?.client?.firm_name || "No Client Name",
+        start: `${startDate}T${defaultTime}`,
+        end: `${startDate}T${endTime}`,
+        backgroundColor: getStatusColor(job.is_completed),
+        borderColor: getStatusColor(job.is_completed),
+        extendedProps: {
+          jobData: job,
+          originalTime: defaultTime,
+        },
+        editable: true,
+      };
+    } catch (error) {
+      console.error("Error creating event for job:", job.id, error);
+      return null;
+    }
+  }).filter(event => event !== null); // Remove any null events
 
   const handleEventDrop = async (info) => {
     const droppedEvent = info.event;
@@ -240,12 +305,15 @@ const MyCalendar = () => {
         </div>
         <div className="text-xs text-gray-500">
           {format(
-            new Date(
-              `${jobData.job_date}T${eventInfo.event.extendedProps.originalTime}`
-            ),
+            new Date(eventInfo.event.start),
             "h:mm a"
           )}
         </div>
+        {jobData.job_title && (
+          <div className="text-xs font-semibold mt-1">
+            {jobData.job_title}
+          </div>
+        )}
       </div>
     );
   };
@@ -253,8 +321,12 @@ const MyCalendar = () => {
   const handleDatesSet = (dateInfo) => {
     const startDate = dateInfo.start.toISOString().split("T")[0];
     const endDate = dateInfo.end.toISOString().split("T")[0];
-    setViewStartDate(startDate);
-    setViewEndDate(endDate);
+    
+    // Only update if dates have changed
+    if (startDate !== viewStartDate || endDate !== viewEndDate) {
+      setViewStartDate(startDate);
+      setViewEndDate(endDate);
+    }
   };
 
   const handleRedirect = (jobId) => {
@@ -325,6 +397,21 @@ const MyCalendar = () => {
         </Box>
       </div>
 
+      {/* {fetchingData && (
+        <Box sx={{ textAlign: 'center', py: 2 }}>
+          <Typography>Loading calendar events...</Typography>
+        </Box>
+      )} */}
+
+      {!fetchingData && filteredQuoteList.length === 0 && (
+        <Box sx={{ textAlign: 'center', py: 4 }}>
+          <Typography variant="h6">No jobs found for this date range</Typography>
+          <Typography variant="body2" sx={{ mt: 1 }}>
+            Try adjusting your filters or changing the date range
+          </Typography>
+        </Box>
+      )}
+
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
         initialView="dayGridMonth"
@@ -369,6 +456,10 @@ const MyCalendar = () => {
                   value={selectedEvent.user?.client?.mobile_number}
                 />
                 <JobDetailItem
+                  label="Job Title"
+                  value={selectedEvent.job_title}
+                />
+                <JobDetailItem
                   label="Address"
                   value={selectedEvent.client_address?.address}
                 />
@@ -386,8 +477,7 @@ const MyCalendar = () => {
                     <Box
                       sx={{
                         bgcolor: getStatusColor(selectedEvent.is_completed),
-                        color:
-                          selectedEvent.is_completed === 1 ? "black" : "white",
+                        color: selectedEvent.is_completed === 1 ? "white" : "black",
                         py: 0.5,
                         px: 2,
                         borderRadius: 10,
@@ -405,6 +495,10 @@ const MyCalendar = () => {
                       ? `${selectedEvent.grand_total}`
                       : "N/A"
                   }
+                />
+                <JobDetailItem
+                  label="Job Date"
+                  value={selectedEvent.job_date}
                 />
               </Grid>
 

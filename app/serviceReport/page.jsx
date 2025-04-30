@@ -8,6 +8,7 @@ import UseChemicals from "./useeChemical";
 import Extra from "./extra";
 import Remarks from "./remarks";
 import Feedback from "./feedback";
+import ServiceJobs from "./serviceJobs";
 import APICall from "@/networkUtil/APICall";
 import Swal from "sweetalert2";
 import { job, getAllEmpoyesUrl } from "../../networkUtil/Constants";
@@ -42,15 +43,10 @@ const Page = () => {
   const [loadingDetails, setLoadingDetails] = useState(true);
   const [currentUserId, setCurrentUserId] = useState(null);
   const [isCaptain, setIsCaptain] = useState(false);
-  
-  // The captain ID that we need to match
-  const CAPTAIN_ID = 9;
 
-  // Debug log to track currentUserId changes
+  const CAPTAIN_ID = serviceReportList?.captain_id;
+
   useEffect(() => {
-    console.log("Current User ID updated:", currentUserId);
-    
-    // Check if current user is the captain (ID = 9)
     if (currentUserId === CAPTAIN_ID) {
       setIsCaptain(true);
       console.log("User is a captain!");
@@ -129,7 +125,6 @@ const Page = () => {
     }
   };
 
-  // Only call getEmployeeStock when currentUserId changes AND is not null
   useEffect(() => {
     if (currentUserId) {
       getEmployeeStock(currentUserId);
@@ -199,11 +194,12 @@ const Page = () => {
         serviceReportList={serviceReportList}
       />
       <TypeVisit formData={formData} setFormData={setFormData} />
+      <ServiceJobs formData={formData} setFormData={setFormData} />
       <Area formData={formData} setFormData={setFormData} />
-      <UseChemicals 
-        formData={formData} 
-        setFormData={setFormData} 
-        employeeList={isCaptain ? employeeList : null} 
+      <UseChemicals
+        formData={formData}
+        setFormData={setFormData}
+        employeeList={isCaptain ? employeeList : null}
       />
       <Extra formData={formData} setFormData={setFormData} />
       <Remarks formData={formData} setFormData={setFormData} />

@@ -120,6 +120,7 @@ const UpcomingJobs = ({
   currentFilter,
   startDate,
   endDate,
+  currentUserId,
 }) => {
   const api = new APICall();
   const pathname = usePathname();
@@ -284,6 +285,7 @@ const UpcomingJobs = ({
     }
   };
 
+  // Modified code to hide "Create Service Report" when currentUserId is 1
   const renderJobRows = () => {
     let sortedJobs = [...filteredJobs];
 
@@ -335,9 +337,15 @@ const UpcomingJobs = ({
         <td>{row?.user?.client?.firm_name}</td>
         <td>
           {row.job_services
-            ?.map((js) => js.service?.service_title)
+            ?.map(
+              (js, index) =>
+                js.service?.service_title &&
+                `${index + 1}: ${js.service.service_title}`
+            )
             .filter(Boolean)
-            .join(", ")}
+            .map((item, idx) => (
+              <div key={idx}>{item}</div>
+            ))}
         </td>
 
         <td>
@@ -430,7 +438,7 @@ const UpcomingJobs = ({
           <div
             style={{ color: "#32A92E", textAlign: "center", fontSize: "12px" }}
           >
-            {row.is_completed === 1 ? (
+            {row.is_completed === 1 && currentUserId !== 1 ? (
               row.report === null ? (
                 <Link href={`/serviceReport?id=${row.id}`}>
                   Create Service Report
