@@ -26,10 +26,7 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
     job_time: "",
     reason: "",
   });
-  const [currentUserId, setCurrentUserId] = useState(null);
-
-  console.log("current user Id", currentUserId);
-  
+  const [currentUserId, setCurrentUserId] = useState(null);  
 
   // Check if there's only one service or multiple services
   const hasSingleService = jobList?.job_services?.length === 1;

@@ -12,6 +12,7 @@ const AddChemicals = ({
   openUseChemicals,
   handleCloseUseChemicals,
   onAddChemical,
+  employeeStock
 }) => {
   const api = new APICall();
 
@@ -22,8 +23,8 @@ const AddChemicals = ({
     qty: "",
     remaining_qty: "",
   });
-  const [products, setProducts] = useState([]);
-  const [brands, setBrandList] = useState([]);
+  const [availableStocks, setAvailableStocks] = useState([]);
+  const [stockOptions, setStockOptions] = useState([]);
 
   const handleInputChange = (field, value) => {
     setChemicalData((prev) => ({
@@ -46,28 +47,35 @@ const AddChemicals = ({
   };
 
   useEffect(() => {
-    getProducts();
-  }, []);
-
-  const getProducts = async () => {
-    try {
-      const response = await api.getDataWithToken(product);
-      setProducts(response.data);
-      const brandNames = response.data.map((item) => item.product_name);
-      setBrandList(brandNames);
-    } catch (error) {
-      console.error("Error fetching products:", error);
+    // Process employee stock data when it's available
+    if (employeeStock?.stocks && employeeStock.stocks.length > 0) {
+      const stocks = employeeStock.stocks.filter(item => 
+        parseFloat(item.remaining_qty) > 0
+      );
+      
+      setAvailableStocks(stocks);
+      
+      // Create dropdown options from the stock items
+      const options = stocks.map(item => 
+        item.product?.product_name || "Unknown Product"
+      );
+      
+      setStockOptions(options);
     }
-  };
+  }, [employeeStock]);
 
   const handleProductChange = (name, index) => {
-    const selectedProduct = products[index];
-    setChemicalData((prev) => ({
-      ...prev,
-      product_id: selectedProduct.id,
-      name: selectedProduct.product_name,
-      remaining_qty: selectedProduct.stocks[0]?.remaining_qty || "N/A",
-    }));
+    if (index >= 0 && index < availableStocks.length) {
+      const selectedStock = availableStocks[index];
+      const productInfo = selectedStock.product;
+      
+      setChemicalData((prev) => ({
+        ...prev,
+        product_id: selectedStock.product_id,
+        name: productInfo?.product_name || "Unknown Product",
+        remaining_qty: selectedStock.remaining_qty || "0.00",
+      }));
+    }
   };
 
   return (
@@ -90,7 +98,7 @@ const AddChemicals = ({
           outline: "none",
         }}
       >
-        <div className={styles.serviceHead}>Chemicals and material</div>
+        <div className={styles.serviceHead}>Chemicals and Materials</div>
         <div className={styles.serviceDescrp}>
           Thank you for choosing us to meet your needs. We look forward to
           serving you with excellence
@@ -98,8 +106,8 @@ const AddChemicals = ({
         <div className="mt-5">
           <Dropdown
             title="Chemicals And Materials"
-            options={brands}
-            value={chemicalData.product_id}
+            options={stockOptions}
+            value={chemicalData.name}
             onChange={handleProductChange}
           />
         </div>
@@ -114,9 +122,9 @@ const AddChemicals = ({
         </div>
         <div className="mt-5">
           <InputWithTitle
-            title={`Quantity (Available: ${chemicalData.remaining_qty})`}
+            title={`Quantity (Available: ${chemicalData.remaining_qty || "0.00"})`}
             type="text"
-            placeholder="qty"
+            placeholder="Enter quantity"
             value={chemicalData.qty}
             onChange={(value) => handleInputChange("qty", value)}
           />
@@ -125,7 +133,14 @@ const AddChemicals = ({
           <GreenButton
             title="Submit"
             onClick={handleSubmit}
-            disabled={!chemicalData.qty || chemicalData.qty <= 0 || !chemicalData.dose || chemicalData.dose <= 0} // Disable button if qty or dose <= 0
+            disabled={
+              !chemicalData.qty || 
+              parseFloat(chemicalData.qty) <= 0 || 
+              !chemicalData.dose || 
+              parseFloat(chemicalData.dose) <= 0 ||
+              !chemicalData.product_id ||
+              parseFloat(chemicalData.qty) > parseFloat(chemicalData.remaining_qty)
+            } 
           />
         </div>
       </Box>

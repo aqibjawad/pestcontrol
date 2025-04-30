@@ -10,7 +10,7 @@ import Remarks from "./remarks";
 import Feedback from "./feedback";
 import APICall from "@/networkUtil/APICall";
 import Swal from "sweetalert2";
-import { job } from "../../networkUtil/Constants";
+import { job, getAllEmpoyesUrl } from "../../networkUtil/Constants";
 import { useRouter } from "next/navigation";
 import GreenButton from "@/components/generic/GreenButton";
 import { CircularProgress } from "@mui/material";
@@ -37,7 +37,28 @@ const Page = () => {
   const [loading, setLoading] = useState(false);
   const [fetchingData, setFetchingData] = useState(false);
   const [serviceReportList, setQuoteList] = useState(null);
+
+  const [employeeList, setEmployeeList] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState(null);
+  const [isCaptain, setIsCaptain] = useState(false);
+  
+  // The captain ID that we need to match
+  const CAPTAIN_ID = 9;
+
+  // Debug log to track currentUserId changes
+  useEffect(() => {
+    console.log("Current User ID updated:", currentUserId);
+    
+    // Check if current user is the captain (ID = 9)
+    if (currentUserId === CAPTAIN_ID) {
+      setIsCaptain(true);
+      console.log("User is a captain!");
+    } else {
+      setIsCaptain(false);
+      console.log("User is not a captain");
+    }
+  }, [currentUserId]);
 
   const [formData, setFormData] = useState({
     used_products: "",
@@ -49,9 +70,21 @@ const Page = () => {
     job_id: null,
   });
 
-  const [id, setId] = useState("");  
+  const [id, setId] = useState("");
 
   useEffect(() => {
+    // Get user ID from local storage
+    const userDataString = localStorage.getItem("user");
+    if (userDataString) {
+      try {
+        const userData = JSON.parse(userDataString);
+        setCurrentUserId(Number(userData.userId)); // Convert to number to ensure proper comparison
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+      }
+    }
+
+    // Get job ID from URL
     const currentUrl = window.location.href;
     const urlId = getIdFromUrl(currentUrl);
     setId(urlId);
@@ -59,43 +92,75 @@ const Page = () => {
   }, []);
 
   useEffect(() => {
-    if (id !== undefined && id !== null) {
+    if (id !== undefined && id !== null && id !== "") {
       getAllJobs(id);
     }
   }, [id]);
 
-  const getAllJobs = async () => {
+  const getAllJobs = async (jobId) => {
     setFetchingData(true);
     try {
-      const response = await api.getDataWithToken(`${job}/${id}`);
+      const response = await api.getDataWithToken(`${job}/${jobId}`);
       setQuoteList(response.data);
     } catch (error) {
-      console.error("Error fetching quotes:", error);
+      console.error("Error fetching jobs:", error);
     } finally {
       setFetchingData(false);
       setLoadingDetails(false);
     }
   };
 
+  const getEmployeeStock = async (userId) => {
+    if (!userId) {
+      console.log("Cannot fetch employee stock: userId is not available");
+      return;
+    }
+
+    setFetchingData(true);
+    try {
+      const url = `${getAllEmpoyesUrl}/${userId}`;
+      const response = await api.getDataWithToken(url);
+      setEmployeeList(response.data);
+    } catch (error) {
+      console.error("Error fetching employee data:", error);
+    } finally {
+      setFetchingData(false);
+      setLoadingDetails(false);
+    }
+  };
+
+  // Only call getEmployeeStock when currentUserId changes AND is not null
+  useEffect(() => {
+    if (currentUserId) {
+      getEmployeeStock(currentUserId);
+    }
+  }, [currentUserId]);
+
   const handleSubmit = async () => {
     setLoading(true);
     try {
       // First API call to create service report
       const serviceReportEndpoint = `${job}/service_report/create`;
-      const serviceReportResponse = await api.postDataWithTokn(serviceReportEndpoint, formData);
-      
+      const serviceReportResponse = await api.postDataWithTokn(
+        serviceReportEndpoint,
+        formData
+      );
+
       if (serviceReportResponse.status === "success") {
         const serviceReportId = serviceReportResponse.data.id;
-        
+
         // Second API call with service report ID in the body
         const feedbackEndpoint = `${job}/service_report/feedback/create`;
         const feedbackData = {
-          for_office_use: formData.for_office_use ,
-          job_service_report_id: serviceReportId
+          for_office_use: formData.for_office_use,
+          job_service_report_id: serviceReportId,
         };
-        
-        const feedbackResponse = await api.postDataWithTokn(feedbackEndpoint, feedbackData);
-        
+
+        const feedbackResponse = await api.postDataWithTokn(
+          feedbackEndpoint,
+          feedbackData
+        );
+
         if (feedbackResponse.status === "success") {
           Swal.fire({
             icon: "success",
@@ -104,10 +169,15 @@ const Page = () => {
           });
           router.push(`/serviceReportPdf?id=${serviceReportId}`);
         } else {
-          throw new Error(feedbackResponse.error.message || "Failed to submit feedback");
+          throw new Error(
+            feedbackResponse.error?.message || "Failed to submit feedback"
+          );
         }
       } else {
-        throw new Error(serviceReportResponse.error.message || "Failed to create service report");
+        throw new Error(
+          serviceReportResponse.error?.message ||
+            "Failed to create service report"
+        );
       }
     } catch (error) {
       Swal.fire({
@@ -130,7 +200,11 @@ const Page = () => {
       />
       <TypeVisit formData={formData} setFormData={setFormData} />
       <Area formData={formData} setFormData={setFormData} />
-      <UseChemicals formData={formData} setFormData={setFormData} />
+      <UseChemicals 
+        formData={formData} 
+        setFormData={setFormData} 
+        employeeList={isCaptain ? employeeList : null} 
+      />
       <Extra formData={formData} setFormData={setFormData} />
       <Remarks formData={formData} setFormData={setFormData} />
       <Feedback formData={formData} setFormData={setFormData} />
@@ -138,7 +212,9 @@ const Page = () => {
       <div className="mt-10">
         <GreenButton
           onClick={handleSubmit}
-          title={loading ? <CircularProgress size={20} color="inherit" /> : "Submit"}
+          title={
+            loading ? <CircularProgress size={20} color="inherit" /> : "Submit"
+          }
           disabled={loading}
         />
       </div>

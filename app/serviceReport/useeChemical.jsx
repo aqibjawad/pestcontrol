@@ -5,7 +5,7 @@ import styles from "../../styles/serviceReport.module.css";
 import AddChemicals from "../../components/addChemicals";
 import { FaTrash } from "react-icons/fa";
 
-const UseChemicals = ({ formData, setFormData }) => {
+const UseChemicals = ({ formData, setFormData, employeeList }) => {  
   const [openUseChemicals, setOpenUseChemicals] = useState(false);
   const [used_products, setChemicals] = useState([]);
 
@@ -113,6 +113,7 @@ const UseChemicals = ({ formData, setFormData }) => {
         openUseChemicals={openUseChemicals}
         handleCloseUseChemicals={handleCloseUseChemicals}
         onAddChemical={handleAddChemical}
+        employeeStock={employeeList}
       />
     </div>
   );
