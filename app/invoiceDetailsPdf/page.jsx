@@ -229,6 +229,18 @@ const Page = () => {
     borderRadius: "4px",
   };
 
+  // Calculate the billing method code
+  const getBillingMethodCode = () => {
+    if (!invoiceList?.invoiceable?.billing_method) return "unknown";
+    
+    const billingMethod = invoiceList.invoiceable.billing_method;
+    
+    if (billingMethod === "monthly") return "1";
+    if (billingMethod === "quarterly") return "2";
+    if (billingMethod === "service") return "3";
+    return "unknown";
+  };
+
   if (loadingDetails) {
     return (
       <Layout>
@@ -264,13 +276,10 @@ const Page = () => {
               Bill To
             </Typography>
             <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-              {invoiceList?.user?.client?.firm_name}
+              {invoiceList?.user?.client?.firm_name || "N/A"}
             </Typography>
-            {/* <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-              {invoiceList?.user?.email}
-            </Typography> */}
             <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-              TRN: {invoiceList?.invoiceable?.trn}
+              TRN: {invoiceList?.invoiceable?.trn || "N/A"}
             </Typography>
           </div>
 
@@ -282,7 +291,7 @@ const Page = () => {
               Manager
             </Typography>
             <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-              {invoiceList?.user?.client?.mobile_number}
+              {invoiceList?.user?.client?.mobile_number || "N/A"}
             </Typography>
           </div>
         </Grid>
@@ -309,7 +318,7 @@ const Page = () => {
                 <div>Tax Invoice</div>
               </Grid>
               <Grid item xs={6}>
-                <div>{invoiceList?.service_invoice_id}</div>
+                <div>{invoiceList?.service_invoice_id || "N/A"}</div>
               </Grid>
             </Grid>
           </div>
@@ -353,31 +362,24 @@ const Page = () => {
               <TableBody>
                 <TableRow>
                   <TableCell align="right">
-                    {invoiceList?.issued_date}
+                    {invoiceList?.issued_date || "N/A"}
                   </TableCell>
                   <TableCell align="right">
-                    {getNextMonthDate(invoiceList?.issued_date)}
+                    {getNextMonthDate(invoiceList?.issued_date) || "N/A"}
                   </TableCell>
-                  <TableCell align="right">{invoiceList?.total_amt}</TableCell>
+                  <TableCell align="right">{invoiceList?.total_amt || "N/A"}</TableCell>
                 </TableRow>
               </TableBody>
             </Table>
           </TableContainer>
 
           <div style={{ textAlign: "right" }} className={styles.totalAmount}>
-            APCS{invoiceList?.user?.client?.referencable_id}PT
-            {invoiceList?.invoiceable?.billing_method === "monthly"
-              ? 1
-              : invoiceList?.invoiceable?.billing_method === "monthly"
-              ? 2
-              : invoiceList?.invoiceable?.billing_method === "service"
-              ? 3
-              : "unknown"}
+            APCS{invoiceList?.user?.client?.referencable_id || "N/A"}PT
+            {getBillingMethodCode()}
           </div>
 
           <div style={{ textAlign: "right" }} className={styles.totalAmount}>
-            Invoice Id:
-            {invoiceList?.job || "No Invoice"}
+            Invoice Id: {invoiceList?.job_id || "No Invoice"}
           </div>
         </Grid>
       </Grid>
@@ -420,38 +422,77 @@ const Page = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                <TableRow>
-                  <TableCell
-                    sx={{
-                      color: "black",
-                      padding: "4px 16px",
-                      lineHeight: "1rem",
-                    }}
-                  >
-                    {" "}
-                    General Pest Control{" "}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      color: "black",
-                      padding: "4px 16px",
-                      lineHeight: "1rem",
-                    }}
-                    align="right"
-                  >
-                    {invoiceList?.invoiceable?.vat_per}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      color: "black",
-                      padding: "4px 16px",
-                      lineHeight: "1rem",
-                    }}
-                    align="right"
-                  >
-                    {invoiceList?.total_amt}
-                  </TableCell>
-                </TableRow>
+                {invoiceList && invoiceList.details && invoiceList.details.length > 0 ? (
+                  invoiceList.details.map((item, index) => (
+                    <TableRow key={index}>
+                      <TableCell
+                        sx={{
+                          color: "black",
+                          padding: "4px 16px",
+                          lineHeight: "1rem",
+                        }}
+                      >
+                        {item.itemable?.service_title || "General Pest Control"}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          color: "black",
+                          padding: "4px 16px",
+                          lineHeight: "1rem",
+                        }}
+                        align="right"
+                      >
+                        {typeof invoiceList?.invoiceable?.vat_per === 'number' || typeof invoiceList?.invoiceable?.vat_per === 'string' 
+                          ? invoiceList.invoiceable.vat_per 
+                          : "0.00"}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          color: "black",
+                          padding: "4px 16px",
+                          lineHeight: "1rem",
+                        }}
+                        align="right"
+                      >
+                        {item.sub_total || "0.00"}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      sx={{
+                        color: "black",
+                        padding: "4px 16px",
+                        lineHeight: "1rem",
+                      }}
+                    >
+                      General Pest Control
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        color: "black",
+                        padding: "4px 16px",
+                        lineHeight: "1rem",
+                      }}
+                      align="right"
+                    >
+                      {typeof invoiceList?.invoiceable?.vat_per === 'number' || typeof invoiceList?.invoiceable?.vat_per === 'string' 
+                        ? invoiceList.invoiceable.vat_per 
+                        : "N/A"}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        color: "black",
+                        padding: "4px 16px",
+                        lineHeight: "1rem",
+                      }}
+                      align="right"
+                    >
+                      {invoiceList?.total_amt || "N/A"}
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </TableContainer>
@@ -463,8 +504,9 @@ const Page = () => {
           <div>
             <div className={styles.totalAmount}>
               (
-              {invoiceList?.total_amt &&
-                formatAmountDisplay(invoiceList.total_amt)}
+              {invoiceList?.total_amt
+                ? formatAmountDisplay(invoiceList.total_amt)
+                : "N/A"}
               )
             </div>
 
@@ -612,7 +654,7 @@ const Page = () => {
       <Grid className="" container spacing={2}>
         <Grid item xs={6}>
           <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-            {invoiceList?.user?.client?.firm_name}
+            {invoiceList?.user?.client?.firm_name || "N/A"}
           </Typography>
         </Grid>
 
@@ -633,7 +675,7 @@ const Page = () => {
           <Typography variant="body2">Date :</Typography>
 
           <Typography className="" variant="body2">
-            {invoiceList?.user?.name}
+            {invoiceList?.user?.name || "N/A"}
           </Typography>
           <Typography variant="body1" sx={{ fontWeight: "bold" }}>
             Manager

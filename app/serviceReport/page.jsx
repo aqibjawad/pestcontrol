@@ -44,21 +44,8 @@ const Page = () => {
   const [currentUserId, setCurrentUserId] = useState(null);
   const [isCaptain, setIsCaptain] = useState(false);
 
-  const CAPTAIN_ID = serviceReportList?.captain_id;
-
-  useEffect(() => {
-    // Add detailed logging for ID comparison
-    console.log("Current User ID:", currentUserId, "Type:", typeof currentUserId);
-    console.log("Captain ID:", CAPTAIN_ID, "Type:", typeof CAPTAIN_ID);
-    
-    if (currentUserId === CAPTAIN_ID) {
-      setIsCaptain(true);
-      console.log("User IS a captain! IDs match:", currentUserId, "===", CAPTAIN_ID);
-    } else {
-      setIsCaptain(false);
-      console.log("User is NOT a captain. IDs don't match:", currentUserId, "!==", CAPTAIN_ID);
-    }
-  }, [currentUserId, CAPTAIN_ID]); // Added CAPTAIN_ID to dependencies
+  // Ensure we get the captain ID as a number for proper comparison
+  const CAPTAIN_ID = serviceReportList?.captain_id ? Number(serviceReportList.captain_id) : null;
 
   const [formData, setFormData] = useState({
     used_products: "",
@@ -68,10 +55,12 @@ const Page = () => {
     tm_ids: "",
     type_of_visit: "",
     job_id: null,
+    for_office_use: "", // Added missing field for office feedback
   });
 
   const [id, setId] = useState("");
 
+  // Load user ID from localStorage
   useEffect(() => {
     // Get user ID from local storage
     const userDataString = localStorage.getItem("user");
@@ -91,25 +80,55 @@ const Page = () => {
     // Get job ID from URL
     const currentUrl = window.location.href;
     const urlId = getIdFromUrl(currentUrl);
-    setId(urlId);
-    setFormData((prev) => ({ ...prev, job_id: urlId }));
+    if (urlId) {
+      setId(urlId);
+      setFormData((prev) => ({ ...prev, job_id: urlId }));
+    } else {
+      console.error("No job ID found in URL");
+    }
   }, []);
 
+  // Load job data once we have the ID
   useEffect(() => {
-    if (id !== undefined && id !== null && id !== "") {
+    if (id) {
       getAllJobs(id);
     }
   }, [id]);
+
+  // Check if user is captain whenever relevant data changes
+  useEffect(() => {
+    if (currentUserId !== null && CAPTAIN_ID !== null) {
+      const isUserCaptain = currentUserId === CAPTAIN_ID;
+      setIsCaptain(isUserCaptain);
+    }
+  }, [currentUserId, CAPTAIN_ID]);
+
+  // Load employee data for the current user
+  useEffect(() => {
+    if (currentUserId) {
+      getEmployeeStock(currentUserId);
+    }
+  }, [currentUserId]);
 
   const getAllJobs = async (jobId) => {
     setFetchingData(true);
     try {
       const response = await api.getDataWithToken(`${job}/${jobId}`);
-      setQuoteList(response.data);
-      console.log("Service report data loaded:", response.data);
-      console.log("Captain ID from service report:", response.data.captain_id, "Type:", typeof response.data.captain_id);
+      if (response && response.data) {
+        setQuoteList(response.data);
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to load job details. Please try again.",
+        });
+      }
     } catch (error) {
-      console.error("Error fetching jobs:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to load job details. Please try again.",
+      });
     } finally {
       setFetchingData(false);
       setLoadingDetails(false);
@@ -117,56 +136,67 @@ const Page = () => {
   };
 
   const getEmployeeStock = async (userId) => {
-    if (!userId) {
-      console.log("Cannot fetch employee stock: userId is not available");
-      return;
-    }
-
     setFetchingData(true);
     try {
       const url = `${getAllEmpoyesUrl}/${userId}`;
       const response = await api.getDataWithToken(url);
-      setEmployeeList(response.data);
+      if (response && response.data) {
+        setEmployeeList(response.data);
+      } else {
+        console.error("Invalid response format when loading employee data:", response);
+      }
     } catch (error) {
       console.error("Error fetching employee data:", error);
     } finally {
       setFetchingData(false);
-      setLoadingDetails(false);
     }
   };
 
-  useEffect(() => {
-    if (currentUserId) {
-      getEmployeeStock(currentUserId);
+  const validateFormData = () => {
+    // Required fields check - adjust as needed based on your form requirements
+    const requiredFields = ["job_id", "type_of_visit"];
+    const missingFields = requiredFields.filter(field => !formData[field]);
+    
+    if (missingFields.length > 0) {
+      Swal.fire({
+        icon: "error",
+        title: "Missing Information",
+        text: `Please fill in all required fields: ${missingFields.join(", ")}`,
+      });
+      return false;
     }
-  }, [currentUserId]);
+    
+    return true;
+  };
 
   const handleSubmit = async () => {
+    // Validate form data before submission
+    if (!validateFormData()) {
+      return;
+    }
+    
     setLoading(true);
-    try {
+    try {      
       // First API call to create service report
       const serviceReportEndpoint = `${job}/service_report/create`;
       const serviceReportResponse = await api.postDataWithTokn(
         serviceReportEndpoint,
         formData
       );
-
-      if (serviceReportResponse.status === "success") {
+      if (serviceReportResponse && serviceReportResponse.status === "success") {
         const serviceReportId = serviceReportResponse.data.id;
 
         // Second API call with service report ID in the body
         const feedbackEndpoint = `${job}/service_report/feedback/create`;
         const feedbackData = {
-          for_office_use: formData.for_office_use,
+          for_office_use: formData.for_office_use || "", // Ensure this is never undefined
           job_service_report_id: serviceReportId,
         };
-
         const feedbackResponse = await api.postDataWithTokn(
           feedbackEndpoint,
           feedbackData
         );
-
-        if (feedbackResponse.status === "success") {
+        if (feedbackResponse && feedbackResponse.status === "success") {
           Swal.fire({
             icon: "success",
             title: "Success",
@@ -175,12 +205,12 @@ const Page = () => {
           router.push(`/serviceReportPdf?id=${serviceReportId}`);
         } else {
           throw new Error(
-            feedbackResponse.error?.message || "Failed to submit feedback"
+            feedbackResponse?.error?.message || "Failed to submit feedback"
           );
         }
       } else {
         throw new Error(
-          serviceReportResponse.error?.message ||
+          serviceReportResponse?.error?.message ||
             "Failed to create service report"
         );
       }
@@ -188,7 +218,7 @@ const Page = () => {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: error.message || "An error occurred.",
+        text: error.message || "An error occurred while submitting the report.",
       });
       console.error("Error submitting data:", error);
     } finally {
@@ -198,26 +228,23 @@ const Page = () => {
 
   return (
     <div>
-      {/* Debug display for captain status */}
-      <div className="bg-gray-100 p-2 mb-4 text-sm">
-        <p>Debug Info:</p>
-        <p>User ID: {currentUserId || 'Not loaded'}</p>
-        <p>Captain ID: {CAPTAIN_ID || 'Not loaded'}</p>
-        <p>Is Captain: {isCaptain ? 'Yes' : 'No'}</p>
-      </div>
-
       <ClientDetails
         formData={formData}
         setFormData={setFormData}
         serviceReportList={serviceReportList}
       />
       <TypeVisit formData={formData} setFormData={setFormData} />
-      <ServiceJobs serviceReportList={serviceReportList} formData={formData} setFormData={setFormData} />
+      <ServiceJobs 
+        serviceReportList={serviceReportList} 
+        formData={formData} 
+        setFormData={setFormData} 
+      />
       <Area formData={formData} setFormData={setFormData} />
       <UseChemicals
         formData={formData}
         setFormData={setFormData}
-        employeeList={isCaptain ? employeeList : null}
+        employeeList={employeeList}
+        isCaptain={isCaptain}
       />
       <Extra formData={formData} setFormData={setFormData} />
       <Remarks formData={formData} setFormData={setFormData} />
@@ -229,7 +256,7 @@ const Page = () => {
           title={
             loading ? <CircularProgress size={20} color="inherit" /> : "Submit"
           }
-          disabled={loading}
+          disabled={loading || fetchingData}
         />
       </div>
     </div>
