@@ -328,11 +328,11 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
           text: "Service added successfully!",
         });
         onClose();
-        window.location.reload();
+        // window.location.reload();
         // Call the callback function to inform parent component
         if (typeof onServiceAdded === "function") {
           onServiceAdded();
-          window.location.reload();
+          // window.location.reload();
         }
       } else {
         throw new Error(

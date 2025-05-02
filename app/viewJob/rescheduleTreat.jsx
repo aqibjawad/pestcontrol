@@ -10,7 +10,6 @@ import APICall from "@/networkUtil/APICall";
 import { useRouter } from "next/navigation";
 import CircularProgress from "@mui/material/CircularProgress";
 import Swal from "sweetalert2";
-import CustomTimePicker from "../viewQuote/customTimePicker";
 
 const RescheduleTreatment = ({ jobId, jobList }) => {
   console.log(jobList?.captain_id, "captain id in job list");
@@ -237,16 +236,6 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
     });
   };
 
-  // Handle time change for complete job reschedule
-  const handleCompleteTimeChange = (event, serviceIndex) => {
-    handleCompleteInputChange("job_time", event.target.value);
-  };
-
-  // Handle time change for individual services
-  const handleServiceTimeChange = (event, serviceIndex) => {
-    handleServiceInputChange(serviceIndex, "job_time", event.target.value);
-  };
-
   const handleJobAction = async () => {
     setLoading(true);
     try {
@@ -407,15 +396,14 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
           />
         </Grid>
         <Grid item lg={4} sm={12} xs={12} md={4}>
-          <div className="form-group">
-            <label className="form-label">Time</label>
-            <div className="form-control">
-              <CustomTimePicker
-                initialTime={completeRescheduleData.job_time || "02:30 PM"}
-                onChange={handleCompleteTimeChange}
-              />
-            </div>
-          </div>
+          <InputWithTitle3
+            onChange={(name, value) =>
+              handleCompleteInputChange("job_time", value)
+            }
+            value={completeRescheduleData.job_time}
+            title={"Time"}
+            type={"time"}
+          />
         </Grid>
         <Grid item lg={4} sm={12} xs={12} md={4}>
           <div className="">
@@ -482,16 +470,14 @@ const RescheduleTreatment = ({ jobId, jobList }) => {
               </Grid>
 
               <Grid item lg={4} sm={12} xs={12} md={4}>
-                <div className="form-group">
-                  <label className="form-label">Time</label>
-                  <div className="form-control">
-                    <CustomTimePicker
-                      initialTime={serviceData[index]?.job_time || "02:30 PM"}
-                      onChange={(e) => handleServiceTimeChange(e, index)}
-                      serviceIndex={index}
-                    />
-                  </div>
-                </div>
+                <InputWithTitle3
+                  onChange={(name, value) =>
+                    handleServiceInputChange(index, "job_time", value)
+                  }
+                  value={serviceData[index]?.job_time || ""}
+                  title={"Time"}
+                  type={"time"}
+                />
               </Grid>
 
               <Grid item lg={4} sm={12} xs={12} md={4}>

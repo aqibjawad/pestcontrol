@@ -303,22 +303,22 @@ const MyCalendar = () => {
           margin: "2px",
           cursor: "pointer",
           borderLeft: `4px solid ${eventInfo.event.backgroundColor}`,
+          position: "relative", // Add relative positioning
+          maxWidth: "95%", // Slightly less than container width
+          boxSizing: "border-box", // Include padding in width calculation
         }}
       >
-        <div className="text-xs text-gray-600">
+        <div 
+          className="text-xs text-gray-600" 
+          style={{
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            display: "block"
+          }}
+        >
           {jobData?.user?.client?.firm_name || "No Client Name"}
         </div>
-        {/* <div className="text-xs text-gray-500">
-          {format(
-            new Date(eventInfo.event.start),
-            "h:mm a"
-          )}
-        </div> */}
-        {/* {jobData.job_title && (
-          <div className="text-xs font-semibold mt-1">
-            {jobData.job_title}
-          </div>
-        )} */}
       </div>
     );
   };
