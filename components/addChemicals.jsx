@@ -12,7 +12,7 @@ const AddChemicals = ({
   openUseChemicals,
   handleCloseUseChemicals,
   onAddChemical,
-  employeeStock
+  employeeStock,
 }) => {
   const api = new APICall();
 
@@ -34,6 +34,20 @@ const AddChemicals = ({
   };
 
   const handleSubmit = () => {
+    // Validation check
+    const isValid =
+      chemicalData.product_id &&
+      chemicalData.name &&
+      parseFloat(chemicalData.dose) > 0 &&
+      parseFloat(chemicalData.qty) > 0 &&
+      parseFloat(chemicalData.qty) <= parseFloat(chemicalData.remaining_qty);
+
+    if (!isValid) {
+      alert("Please fill all fields correctly before submitting.");
+      return; // Prevent modal from closing
+    }
+
+    // If valid, submit and reset
     onAddChemical(chemicalData);
     setChemicalData({
       product_id: "",
@@ -49,17 +63,17 @@ const AddChemicals = ({
   useEffect(() => {
     // Process employee stock data when it's available
     if (employeeStock?.stocks && employeeStock.stocks.length > 0) {
-      const stocks = employeeStock.stocks.filter(item => 
-        parseFloat(item.remaining_qty) > 0
+      const stocks = employeeStock.stocks.filter(
+        (item) => parseFloat(item.remaining_qty) > 0
       );
-      
+
       setAvailableStocks(stocks);
-      
+
       // Create dropdown options from the stock items
-      const options = stocks.map(item => 
-        item.product?.product_name || "Unknown Product"
+      const options = stocks.map(
+        (item) => item.product?.product_name || "Unknown Product"
       );
-      
+
       setStockOptions(options);
     }
   }, [employeeStock]);
@@ -68,7 +82,7 @@ const AddChemicals = ({
     if (index >= 0 && index < availableStocks.length) {
       const selectedStock = availableStocks[index];
       const productInfo = selectedStock.product;
-      
+
       setChemicalData((prev) => ({
         ...prev,
         product_id: selectedStock.product_id,
@@ -122,7 +136,9 @@ const AddChemicals = ({
         </div>
         <div className="mt-5">
           <InputWithTitle
-            title={`Quantity (Available: ${chemicalData.remaining_qty || "0.00"})`}
+            title={`Quantity (Available: ${
+              chemicalData.remaining_qty || "0.00"
+            })`}
             type="text"
             placeholder="Enter quantity"
             value={chemicalData.qty}
@@ -134,13 +150,14 @@ const AddChemicals = ({
             title="Submit"
             onClick={handleSubmit}
             disabled={
-              !chemicalData.qty || 
-              parseFloat(chemicalData.qty) <= 0 || 
-              !chemicalData.dose || 
+              !chemicalData.qty ||
+              parseFloat(chemicalData.qty) <= 0 ||
+              !chemicalData.dose ||
               parseFloat(chemicalData.dose) <= 0 ||
               !chemicalData.product_id ||
-              parseFloat(chemicalData.qty) > parseFloat(chemicalData.remaining_qty)
-            } 
+              parseFloat(chemicalData.qty) >
+                parseFloat(chemicalData.remaining_qty)
+            }
           />
         </div>
       </Box>

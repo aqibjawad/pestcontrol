@@ -47,14 +47,18 @@ const Page = () => {
   const CAPTAIN_ID = serviceReportList?.captain_id;
 
   useEffect(() => {
+    // Add detailed logging for ID comparison
+    console.log("Current User ID:", currentUserId, "Type:", typeof currentUserId);
+    console.log("Captain ID:", CAPTAIN_ID, "Type:", typeof CAPTAIN_ID);
+    
     if (currentUserId === CAPTAIN_ID) {
       setIsCaptain(true);
-      console.log("User is a captain!");
+      console.log("User IS a captain! IDs match:", currentUserId, "===", CAPTAIN_ID);
     } else {
       setIsCaptain(false);
-      console.log("User is not a captain");
+      console.log("User is NOT a captain. IDs don't match:", currentUserId, "!==", CAPTAIN_ID);
     }
-  }, [currentUserId]);
+  }, [currentUserId, CAPTAIN_ID]); // Added CAPTAIN_ID to dependencies
 
   const [formData, setFormData] = useState({
     used_products: "",
@@ -74,10 +78,14 @@ const Page = () => {
     if (userDataString) {
       try {
         const userData = JSON.parse(userDataString);
-        setCurrentUserId(Number(userData.userId)); // Convert to number to ensure proper comparison
+        const userId = Number(userData.userId); // Convert to number to ensure proper comparison
+        setCurrentUserId(userId);
+        console.log("User ID retrieved from localStorage:", userId, "Type:", typeof userId);
       } catch (error) {
         console.error("Error parsing user data:", error);
       }
+    } else {
+      console.log("No user data found in localStorage");
     }
 
     // Get job ID from URL
@@ -98,6 +106,8 @@ const Page = () => {
     try {
       const response = await api.getDataWithToken(`${job}/${jobId}`);
       setQuoteList(response.data);
+      console.log("Service report data loaded:", response.data);
+      console.log("Captain ID from service report:", response.data.captain_id, "Type:", typeof response.data.captain_id);
     } catch (error) {
       console.error("Error fetching jobs:", error);
     } finally {
@@ -188,13 +198,21 @@ const Page = () => {
 
   return (
     <div>
+      {/* Debug display for captain status */}
+      <div className="bg-gray-100 p-2 mb-4 text-sm">
+        <p>Debug Info:</p>
+        <p>User ID: {currentUserId || 'Not loaded'}</p>
+        <p>Captain ID: {CAPTAIN_ID || 'Not loaded'}</p>
+        <p>Is Captain: {isCaptain ? 'Yes' : 'No'}</p>
+      </div>
+
       <ClientDetails
         formData={formData}
         setFormData={setFormData}
         serviceReportList={serviceReportList}
       />
       <TypeVisit formData={formData} setFormData={setFormData} />
-      <ServiceJobs formData={formData} setFormData={setFormData} />
+      <ServiceJobs serviceReportList={serviceReportList} formData={formData} setFormData={setFormData} />
       <Area formData={formData} setFormData={setFormData} />
       <UseChemicals
         formData={formData}

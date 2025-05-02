@@ -36,11 +36,25 @@ const AddExtraChemicals = ({
   };
 
   const handleSubmit = () => {
+    const { product_id, dose, qty, price } = extraChemicalData;
+
+    const isValid =
+      product_id &&
+      parseFloat(dose) > 0 &&
+      parseFloat(qty) > 0 &&
+      parseFloat(price) > 0;
+
+    if (!isValid) {
+      alert("Please fill all fields correctly before submitting.");
+      return; // Prevent modal from closing
+    }
+
     onAddExtraChemical(extraChemicalData);
     setExtraChemicalData({
+      product_id: "",
       name: "",
       dose: "",
-      quantity: "",
+      qty: "",
       price: "",
     });
     handleCloseChemicals();
