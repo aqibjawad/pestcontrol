@@ -522,12 +522,12 @@ const AddService = ({ quote, open, onClose, onServiceAdded, quoteId }) => {
                 <div className="mb-3 bg-blue-50 p-3 rounded text-blue-700">
                   {addServiceType === "Quarterly" ? (
                     <>
-                      Please select exactly 1 date. You've selected{" "}
+                      Please select exactly 1 date. You have selected{" "}
                       {manuallySelectedDatesCount} so far.
                     </>
                   ) : (
                     <>
-                      Please select exactly {addNoOfServices} dates. You've
+                      Please select exactly {addNoOfServices} dates. You have
                       selected {manuallySelectedDatesCount} so far.
                     </>
                   )}
