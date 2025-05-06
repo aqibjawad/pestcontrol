@@ -35,7 +35,7 @@ const LayoutComponent = ({ children, branchId }) => {
       }}
     >
       {/* Background watermark */}
-      <div
+      {/* <div
         style={{
           position: "absolute",
           top: 0,
@@ -52,7 +52,7 @@ const LayoutComponent = ({ children, branchId }) => {
           marginLeft: "5rem",
           marginRight: "5rem",
         }}
-      />
+      /> */}
 
       <div style={{ height: "100%", position: "relative", zIndex: 1 }}>
         <div

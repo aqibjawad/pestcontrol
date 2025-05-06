@@ -18,8 +18,6 @@ import {
   Box,
   IconButton,
   Typography,
-  KeyboardArrowDownIcon,
-  KeyboardArrowUpIcon,
 } from "@mui/material";
 import APICall from "@/networkUtil/APICall";
 import { quotation } from "@/networkUtil/Constants";
@@ -74,13 +72,23 @@ const Contracts = () => {
     // Apply all filters: search and status filters
     let filtered = quoteList;
 
-    // Apply search filter
+    // Apply search filter - now checking both firm name AND reference
     if (searchTerm.trim() !== "") {
-      filtered = filtered.filter((quote) =>
-        quote?.user?.client?.firm_name
+      const searchLower = searchTerm.toLowerCase();
+      filtered = filtered.filter((quote) => {
+        // Check firm name
+        const firmNameMatch = quote?.user?.client?.firm_name
           ?.toLowerCase()
-          .includes(searchTerm.toLowerCase())
-      );
+          ?.includes(searchLower);
+
+        // Check reference name
+        const referenceMatch = quote?.user?.client?.referencable?.name
+          ?.toLowerCase()
+          ?.includes(searchLower);
+
+        // Return true if either field matches
+        return firmNameMatch || referenceMatch;
+      });
     }
 
     // Apply status filters if any is selected
@@ -347,6 +355,7 @@ const Contracts = () => {
       const tableData = sortedData.map((row, index) => [
         index + 1,
         row?.user?.name || "",
+        row?.user?.client?.referencable?.name || "N/A",
         row?.jobs[0]?.total_jobs || 0,
         row?.jobs?.length || 0,
         row.billing_method || "",
@@ -364,6 +373,7 @@ const Contracts = () => {
       const headers = [
         "Sr No",
         "Customer",
+        "Reference",
         "Total Jobs",
         "Completed Jobs",
         "Billing Method",
@@ -454,6 +464,7 @@ const Contracts = () => {
                   Customer
                 </TableSortLabel>
               </TableCell>
+              <TableCell>Reference</TableCell>
               <TableCell>Total Jobs</TableCell>
               <TableCell>Completed Jobs</TableCell>
               <TableCell>No of Services</TableCell>
@@ -518,6 +529,9 @@ const Contracts = () => {
                       <Link href={`/quotePdf?id=${row.id}`}>
                         {row?.user?.client?.firm_name}
                       </Link>
+                    </TableCell>
+                    <TableCell>
+                      {row?.user?.client?.referencable?.name}
                     </TableCell>
                     <TableCell>{row?.jobs[0]?.total_jobs}</TableCell>
                     <TableCell>{row?.jobs[0]?.completed_jobs}</TableCell>
@@ -664,10 +678,10 @@ const Contracts = () => {
             gap: "12px",
           }}
         >
-          {/* Search Bar */}
+          {/* Search Bar - Updated placeholder to indicate both search fields */}
           <TextField
             variant="outlined"
-            placeholder="Search by firm name..."
+            placeholder="Search by firm name or reference..."
             value={searchTerm}
             onChange={handleSearchChange}
             InputProps={{
