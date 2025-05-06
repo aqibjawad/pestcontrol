@@ -140,24 +140,6 @@ const AllJobs = ({ isVisible }) => {
   return (
     <div>
       {/* Debug information */}
-      {/* {process.env.NODE_ENV === "development" && (
-        <div
-          style={{
-            padding: "10px",
-            background: "#f0f0f0",
-            margin: "10px 0",
-            fontSize: "12px",
-          }}
-        >
-          <div>Total jobs: {jobsList.length}</div>
-          <div>Filtered jobs: {filteredList.length}</div>
-          <div>
-            Date range: {startDate} to {endDate}
-          </div>
-          <div>Active filters: {filterTypes.join(", ") || "None"}</div>
-        </div>
-      )} */}
-
       <UpcomingJobs
         isVisible={isVisible}
         jobsList={filteredList.length > 0 ? filteredList : jobsList}

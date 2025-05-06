@@ -449,7 +449,7 @@ const UpcomingJobs = ({
                 </Link>
               )
             ) : (
-              <Link href={`/viewJob?id=${row.id}`}>View Details</Link>
+              <Link href={`/serviceReportPdf?id=${row.id}`}>View Details</Link>
             )}
           </div>
         </td>
