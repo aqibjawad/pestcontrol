@@ -11,6 +11,10 @@ import {
   Paper,
   Skeleton,
   TableSortLabel,
+  Menu,
+  MenuItem,
+  IconButton,
+  Divider,
 } from "@mui/material";
 import APICall from "@/networkUtil/APICall";
 import { quotation } from "@/networkUtil/Constants";
@@ -23,6 +27,15 @@ import withAuth from "@/utils/withAuth";
 import DateSelectionModal from "./DateSelectionModal";
 import ContractCancelModal from "./cancelquoete";
 import Swal from "sweetalert2";
+
+// Import icons
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import EmailIcon from "@mui/icons-material/Email";
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import CancelIcon from "@mui/icons-material/Cancel";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import EditIcon from "@mui/icons-material/Edit";
+import DownloadIcon from "@mui/icons-material/Download";
 
 const Quotation = () => {
   const router = useRouter();
@@ -37,17 +50,25 @@ const Quotation = () => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [filterValue, setFilterValue] = useState("");
+  const [anchorEl, setAnchorEl] = useState({}); // For menu management
 
-  // New state variables for modal
+  // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDates, setSelectedDates] = useState([]);
   const [selectedJobType, setSelectedJobType] = useState("");
   const [currentQuoteId, setCurrentQuoteId] = useState(null);
-
   const [selectedQuoteData, setSelectedQuoteData] = useState(null);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [savedDates, setSavedDates] = useState([]);
 
-  const services = selectedQuoteData?.quote_services || [];
-  const serviceCount = services.length;
+  // Menu handlers
+  const handleMenuOpen = (event, id) => {
+    setAnchorEl({ ...anchorEl, [id]: event.currentTarget });
+  };
+
+  const handleMenuClose = (id) => {
+    setAnchorEl({ ...anchorEl, [id]: null });
+  };
 
   const handleDateChange = (start, end) => {
     setStartDate(start);
@@ -65,7 +86,7 @@ const Quotation = () => {
     const hasDuplicateServices = checkForDuplicateServices(selectedQuote);
 
     if (hasDuplicateServices) {
-      // Show warning using Swal (already imported in your code)
+      // Show warning using Swal
       Swal.fire({
         title: "Warning!",
         text: "Quote contains same service more than one time, please set appropriate quantities.",
@@ -172,14 +193,38 @@ const Quotation = () => {
     setQuoteList(sortedQuotes);
   };
 
-  const [savedDates, setSavedDates] = useState([]);
-
-  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
-
-  const handleCncel = (id) => {
+  const handleCancel = (id) => {
     const selectedQuote = quoteList.find((quote) => quote.id === id);
     setSelectedQuoteData(selectedQuote);
     setIsCancelModalOpen(true);
+  };
+
+  // Email sending handler
+  const handleSendEmail = async (id) => {
+    try {
+      const selectedQuote = quoteList.find((quote) => quote.id === id);
+      // Call the API to send email
+      const response = await api.getDataWithToken(
+        `${quotation}/pdf/email/send/${id}`
+      );
+
+      Swal.fire({
+        title: "Email Sent!",
+        text: `Quote details sent to ${
+          selectedQuote?.user?.client?.firm_name || "client"
+        }`,
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+    } catch (error) {
+      console.error("Error sending email:", error);
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to send email. Please try again.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    }
   };
 
   const sortLabelStyles = {
@@ -284,7 +329,6 @@ const Quotation = () => {
                   Grand Total
                 </TableSortLabel>
               </TableCell>
-              <TableCell className="contractHeader">Download PDF</TableCell>
               <TableCell className="contractHeader">Actions</TableCell>
               <TableCell className="contractHeader">Edit</TableCell>
             </TableRow>
@@ -292,7 +336,7 @@ const Quotation = () => {
           <TableBody>
             {fetchingData ? (
               <TableRow>
-                <TableCell colSpan={10} style={{ textAlign: "center" }}>
+                <TableCell colSpan={11} style={{ textAlign: "center" }}>
                   {[...Array(5)].map((_, index) => (
                     <Skeleton
                       key={index}
@@ -343,72 +387,125 @@ const Quotation = () => {
                   <TableCell className="contractTable">
                     {row?.grand_total || 0}
                   </TableCell>
-                  <TableCell
-                    className="contractTable"
-                    style={{ color: "blue" }}
-                  >
-                    {row?.pdf_url ? (
-                      <a
-                        href={row.pdf_url}
-                        download
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Download PDF
-                      </a>
-                    ) : (
-                      "No PDF"
-                    )}
-                  </TableCell>
 
+                  {/* Actions Menu Column */}
                   <TableCell className="contractTable">
-                    <div className="flex space-x-2">
-                      <Link href={`/quotePdf?id=${row?.id}`}>
-                        <span className="text-blue-600 hover:text-blue-800">
+                    <div className="flex items-center justify-center">
+                      <IconButton
+                        aria-label="more actions"
+                        aria-controls={`actions-menu-${row.id}`}
+                        aria-haspopup="true"
+                        onClick={(e) => handleMenuOpen(e, row.id)}
+                      >
+                        <MoreVertIcon />
+                      </IconButton>
+                      <Menu
+                        id={`actions-menu-${row.id}`}
+                        anchorEl={anchorEl[row.id]}
+                        keepMounted
+                        open={Boolean(anchorEl[row.id])}
+                        onClose={() => handleMenuClose(row.id)}
+                      >
+                        {/* View Details option */}
+                        <MenuItem
+                          onClick={() => {
+                            handleMenuClose(row.id);
+                            router.push(`/quotePdf?id=${row?.id}`);
+                          }}
+                        >
+                          <VisibilityIcon fontSize="small" className="mr-2" />
                           View Details
-                        </span>
-                      </Link>
+                        </MenuItem>
 
-                      {row?.contract_cancel_reason === null &&
-                        row?.is_contracted === 0 && (
+                        {/* Download PDF option */}
+                        {row?.pdf_url && (
+                          <MenuItem
+                            onClick={() => {
+                              handleMenuClose(row.id);
+                              window.open(row.pdf_url, "_blank");
+                            }}
+                          >
+                            <DownloadIcon fontSize="small" className="mr-2" />
+                            Download PDF
+                          </MenuItem>
+                        )}
+
+                        {row?.contract_cancel_reason === null && (
                           <>
-                            <button
-                              onClick={() => handleApprove(row.id)}
-                              disabled={isApproving[row.id]}
-                              className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50"
-                            >
-                              {isApproving[row.id] ? "Approving..." : "Approve"}
-                            </button>
+                            {/* Send Email option - only for pending status */}
+                            {row?.is_contracted === 0 && (
+                              <MenuItem
+                                onClick={() => {
+                                  handleMenuClose(row.id);
+                                  handleSendEmail(row.id);
+                                }}
+                              >
+                                <EmailIcon fontSize="small" className="mr-2" />
+                                Send Email
+                              </MenuItem>
+                            )}
 
-                            <button
-                              onClick={() => handleCncel(row.id)}
-                              disabled={isApproving[row.id]}
-                              className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50"
-                            >
-                              {isApproving[row.id] ? "Cancelling..." : "Cancel"}
-                            </button>
+                            {/* Only show Approve and Cancel for pending quotes */}
+                            {row?.is_contracted === 0 && (
+                              <>
+                                <Divider />
+                                <MenuItem
+                                  onClick={() => {
+                                    handleMenuClose(row.id);
+                                    handleApprove(row.id);
+                                  }}
+                                  disabled={isApproving[row.id]}
+                                >
+                                  <ThumbUpIcon
+                                    fontSize="small"
+                                    className="mr-2"
+                                  />
+                                  {isApproving[row.id]
+                                    ? "Approving..."
+                                    : "Approve"}
+                                </MenuItem>
+
+                                <MenuItem
+                                  onClick={() => {
+                                    handleMenuClose(row.id);
+                                    handleCancel(row.id);
+                                  }}
+                                  disabled={isApproving[row.id]}
+                                >
+                                  <CancelIcon
+                                    fontSize="small"
+                                    className="mr-2"
+                                  />
+                                  {isApproving[row.id]
+                                    ? "Cancelling..."
+                                    : "Cancel"}
+                                </MenuItem>
+                              </>
+                            )}
                           </>
                         )}
+                      </Menu>
                     </div>
                   </TableCell>
 
+                  {/* Edit Column */}
                   <TableCell className="contractTable">
                     {row?.contract_cancel_reason ? (
                       <div className="text-red-600">Contract Cancel</div>
                     ) : row?.is_contracted === 0 ? (
-                      <Link href={`/quoteEdit?id=${row?.id}`}>Edit</Link>
+                      <Link href={`/quoteEdit?id=${row?.id}`}>
+                        <IconButton color="primary">
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                      </Link>
                     ) : (
-                      <span className="text-gray-400 cursor-not-allowed">
-                        Edit
-                      </span>
+                      <IconButton
+                        disabled
+                        className="text-gray-400 cursor-not-allowed"
+                      >
+                        <EditIcon fontSize="small" />
+                      </IconButton>
                     )}
-                    {/* {row?.is_contracted === 0 ? (
-                      <Link href={`/quotation?id=${row?.id}`}>Edit</Link>
-                    ) : (
-                      <span className="text-gray-400 cursor-not-allowed">
-                        Edit
-                      </span>
-                    )} */}
                   </TableCell>
                 </TableRow>
               ))

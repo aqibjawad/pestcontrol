@@ -86,14 +86,6 @@ const CustomerDetails = ({ quote }) => {
                   </TableCell>
                   <TableCell> {quote?.duration_in_months} </TableCell>
                 </TableRow>
-
-                <TableRow sx={{ border: "none" }}>
-                  <TableCell>
-                    <strong> TRN: </strong>
-                  </TableCell>
-                  <TableCell> {quote?.trn} </TableCell>
-                </TableRow>
-
                 <TableRow sx={{ border: "none" }}>
                   <TableCell>
                     <strong> Firm: </strong>
