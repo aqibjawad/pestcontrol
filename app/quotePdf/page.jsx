@@ -14,7 +14,7 @@ import ContractSummary from "./contract";
 import Terms from "./terms";
 import Treatment from "./methods";
 
-import Layout from "../../components/layout"
+import Layout from "../../components/layout";
 
 const getIdFromUrl = (url) => {
   const parts = url.split("?");
@@ -53,23 +53,26 @@ const Page = () => {
     }
   }, [id]);
 
-const getAllQuotes = async () => {
-  setFetchingData(true);
-  try {
-    const response = await api.getDataWithToken(`${quotation}/${id}`);
-    setQuoteList(response.data);
+  const getAllQuotes = async () => {
+    setFetchingData(true);
+    try {
+      const response = await api.getDataWithToken(`${quotation}/${id}`);
+      setQuoteList(response.data);
 
-    // Check if the quote is contracted or if it's already approved
-    if (response.data.type === "contracted" || response.data.is_contracted === 1) {
-      setIsApproved(true);
+      // Check if the quote is contracted or if it's already approved
+      if (
+        response.data.type === "contracted" ||
+        response.data.is_contracted === 1
+      ) {
+        setIsApproved(true);
+      }
+    } catch (error) {
+      console.error("Error fetching quotes:", error);
+    } finally {
+      setFetchingData(false);
+      setLoadingDetails(false);
     }
-  } catch (error) {
-    console.error("Error fetching quotes:", error);
-  } finally {
-    setFetchingData(false);
-    setLoadingDetails(false);
-  }
-};
+  };
 
   if (fetchingData) {
     return (
@@ -83,8 +86,15 @@ const getAllQuotes = async () => {
     );
   }
   return (
-    <Layout>
-      <div style={{textAlign:"center", marginTop:"-5rem", marginBottom:"2rem", fontWeight:"600"}}>
+    <div className="mt-5">
+      <div
+        style={{
+          textAlign: "center",
+          marginTop: "-5rem",
+          marginBottom: "2rem",
+          fontWeight: "600",
+        }}
+      >
         Contract Details
       </div>
       <div className="">
@@ -107,7 +117,7 @@ const getAllQuotes = async () => {
           </>
         )}
       </div>
-    </Layout>
+    </div>
   );
 };
 
