@@ -16,6 +16,11 @@ import {
   InputAdornment,
   Collapse,
   Box,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Chip,
 } from "@mui/material";
 import APICall from "@/networkUtil/APICall";
 import { job } from "@/networkUtil/Constants";
@@ -36,20 +41,19 @@ const Page = () => {
   const [orderBy, setOrderBy] = useState("daysUntilExpiration");
 
   const [fetchingData, setFetchingData] = useState(false);
-  const [quoteList, setQuoteList] = useState([]);
-  const [filteredQuoteList, setFilteredQuoteList] = useState([]);
+  const [jobList, setJobList] = useState([]);
+  const [filteredJobList, setFilteredJobList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
-  // Add status filters state
+  // Status filter state
   const [statusFilters, setStatusFilters] = useState({
-    active: false,
+    completed: false,
     pending: false,
     inProcess: false,
-    expired: false,
-    canceled: false,
+    rescheduled: false,
   });
 
   const handleDateChange = (start, end) => {
@@ -58,39 +62,67 @@ const Page = () => {
   };
 
   // Handle status filter changes
-  const handleFilterChange = (filterOptions) => {
-    setStatusFilters(filterOptions);
+  const handleFilterChange = (filterName, value) => {
+    setStatusFilters((prev) => ({
+      ...prev,
+      [filterName]: value !== undefined ? value : !prev[filterName],
+    }));
+  };
+
+  // Handle dropdown change for status filter
+  const handleStatusFilterChange = (event) => {
+    const value = event.target.value;
+    if (value === "all") {
+      setStatusFilters({
+        completed: false,
+        pending: false,
+        inProcess: false,
+        rescheduled: false,
+      });
+    } else {
+      setStatusFilters({
+        completed: value === "completed",
+        pending: value === "pending",
+        inProcess: value === "inProcess",
+        rescheduled: value === "rescheduled",
+      });
+    }
   };
 
   useEffect(() => {
-    getAllQuotes();
+    getAllJobs();
   }, [startDate, endDate]);
 
   useEffect(() => {
     // Apply all filters: search and status filters
-    if (!Array.isArray(quoteList)) {
-      setFilteredQuoteList([]);
+    if (!Array.isArray(jobList)) {
+      setFilteredJobList([]);
       return;
     }
 
-    let filtered = [...quoteList];
+    let filtered = [...jobList];
 
-    // Apply search filter - now checking both firm name AND reference
+    // Apply search filter
     if (searchTerm.trim() !== "") {
       const searchLower = searchTerm.toLowerCase();
-      filtered = filtered.filter((quote) => {
+      filtered = filtered.filter((job) => {
         // Check firm name
-        const firmNameMatch = quote?.user?.client?.firm_name
+        const firmNameMatch = job?.user?.client?.firm_name
           ?.toLowerCase()
           ?.includes(searchLower);
 
         // Check reference name
-        const referenceMatch = quote?.user?.client?.referencable?.name
+        const referenceMatch = job?.user?.client?.referencable?.name
           ?.toLowerCase()
           ?.includes(searchLower);
 
-        // Return true if either field matches
-        return firmNameMatch || referenceMatch;
+        // Check job title
+        const jobTitleMatch = job?.job_title
+          ?.toLowerCase()
+          ?.includes(searchLower);
+
+        // Return true if any field matches
+        return firmNameMatch || referenceMatch || jobTitleMatch;
       });
     }
 
@@ -98,37 +130,28 @@ const Page = () => {
     const hasActiveFilters = Object.values(statusFilters).some((val) => val);
 
     if (hasActiveFilters) {
-      filtered = filtered.filter((quote) => {
-        // Check active status
-        if (statusFilters.active && !quote.contract_cancel_reason) {
-          return true;
-        }
-
-        // Check pending status
-        if (statusFilters.pending && quote.is_contracted === 0) {
-          return true;
-        }
-
-        // Check in process status
-        if (statusFilters.inProcess && quote.is_contracted === 2) {
-          return true;
-        }
-
-        // Check expired status
+      filtered = filtered.filter((job) => {
+        // Check completed status (is_completed = 1)
         if (
-          statusFilters.expired &&
-          quote.contract_cancel_reason === "expired" &&
-          quote.contract_cancelled_at
+          statusFilters.completed &&
+          job.is_completed === 1 &&
+          job.is_modified !== 1
         ) {
           return true;
         }
 
-        // Check canceled status
-        if (
-          statusFilters.canceled &&
-          quote.contract_cancel_reason &&
-          quote.contract_cancel_reason !== "expired"
-        ) {
+        // Check pending status (is_completed = 0)
+        if (statusFilters.pending && job.is_completed === 0) {
+          return true;
+        }
+
+        // Check in process status (is_completed = 2)
+        if (statusFilters.inProcess && job.is_completed === 2) {
+          return true;
+        }
+
+        // Check rescheduled status (is_modified = 1)
+        if (statusFilters.rescheduled && job.is_modified === 1) {
           return true;
         }
 
@@ -136,10 +159,10 @@ const Page = () => {
       });
     }
 
-    setFilteredQuoteList(filtered);
-  }, [searchTerm, quoteList, statusFilters]);
+    setFilteredJobList(filtered);
+  }, [searchTerm, jobList, statusFilters]);
 
-  const getAllQuotes = async () => {
+  const getAllJobs = async () => {
     setFetchingData(true);
     const queryParams = [];
 
@@ -153,51 +176,45 @@ const Page = () => {
     }
 
     try {
-      const [contactsResponse] = await Promise.all([
+      const [jobsResponse] = await Promise.all([
         api.getDataWithToken(`${job}/all?${queryParams.join("&")}`),
       ]);
 
       // Ensure we're setting an array even if the API returns something else
-      const responseArray = Array.isArray(contactsResponse)
-        ? contactsResponse
+      const responseArray = Array.isArray(jobsResponse?.data)
+        ? jobsResponse.data
         : [];
 
-      setQuoteList(responseArray);
-      setFilteredQuoteList(responseArray); // Initialize filtered list with all data
+      setJobList(responseArray);
+      setFilteredJobList(responseArray); // Initialize filtered list with all data
     } catch (error) {
-      console.error("Error fetching quotes and contacts:", error);
-      setQuoteList([]);
-      setFilteredQuoteList([]);
+      console.error("Error fetching jobs:", error);
+      setJobList([]);
+      setFilteredJobList([]);
     } finally {
       setFetchingData(false);
     }
   };
 
   // Calculate counts for different statuses based on filtered list
-  const safeFilteredList = Array.isArray(filteredQuoteList)
-    ? filteredQuoteList
+  const safeFilteredList = Array.isArray(filteredJobList)
+    ? filteredJobList
     : [];
 
-  const activeCount = safeFilteredList.filter(
-    (quote) => !quote.contract_cancel_reason
+  const completedCount = safeFilteredList.filter(
+    (job) => job.is_completed === 1 && job.is_modified !== 1
   ).length;
 
   const pendingCount = safeFilteredList.filter(
-    (quote) => quote.is_contracted === 0
+    (job) => job.is_completed === 0
   ).length;
 
   const inProcessCount = safeFilteredList.filter(
-    (quote) => quote.is_contracted === 2
+    (job) => job.is_completed === 2
   ).length;
 
-  const expiredCount = safeFilteredList.filter(
-    (quote) =>
-      quote.contract_cancel_reason === "expired" && quote.contract_cancelled_at
-  ).length;
-
-  const canceledCount = safeFilteredList.filter(
-    (quote) =>
-      quote.contract_cancel_reason && quote.contract_cancel_reason !== "expired"
+  const rescheduledCount = safeFilteredList.filter(
+    (job) => job.is_modified === 1
   ).length;
 
   const totalCount = safeFilteredList.length;
@@ -219,22 +236,13 @@ const Page = () => {
       let aValue, bValue;
 
       if (orderBy === "status") {
-        // Sort by contract cancel status
-        aValue = a?.contract_cancel_reason ? "Canceled" : "Active";
-        bValue = b?.contract_cancel_reason ? "Canceled" : "Active";
-      } else if (orderBy === "daysUntilExpiration") {
-        // Sort by days until expiration
-        aValue =
-          a.daysUntilExpiration === null ? Infinity : a.daysUntilExpiration;
-        bValue =
-          b.daysUntilExpiration === null ? Infinity : b.daysUntilExpiration;
-
-        // Numeric comparison for days
-        if (order === "asc") {
-          return aValue - bValue;
-        } else {
-          return bValue - aValue;
-        }
+        // Sort by job status
+        aValue = getJobStatus(a);
+        bValue = getJobStatus(b);
+      } else if (orderBy === "job_date") {
+        // Sort by job date
+        aValue = a.job_date || "";
+        bValue = b.job_date || "";
       } else {
         aValue =
           orderBy === "id"
@@ -250,16 +258,29 @@ const Page = () => {
             : b[orderBy];
       }
 
-      if (orderBy !== "daysUntilExpiration") {
-        if (order === "desc") {
-          [aValue, bValue] = [bValue, aValue];
-        }
-        return (aValue || "")
-          .toString()
-          .localeCompare((bValue || "").toString());
+      if (order === "desc") {
+        [aValue, bValue] = [bValue, aValue];
       }
-      return 0;
+      return (aValue || "").toString().localeCompare((bValue || "").toString());
     });
+  };
+
+  // Get job status text
+  const getJobStatus = (job) => {
+    if (job.is_modified === 1) return "Rescheduled";
+    if (job.is_completed === 1) return "Completed";
+    if (job.is_completed === 2) return "In Process";
+    if (job.is_completed === 0) return "Pending";
+    return "Unknown";
+  };
+
+  // Get job status style
+  const getJobStatusStyle = (job) => {
+    if (job.is_modified === 1) return { color: "#9333ea", fontWeight: "bold" }; // Purple for rescheduled
+    if (job.is_completed === 1) return { color: "#16a34a", fontWeight: "bold" }; // Green for completed
+    if (job.is_completed === 2) return { color: "#2563eb", fontWeight: "bold" }; // Blue for in process
+    if (job.is_completed === 0) return { color: "#f59e0b", fontWeight: "bold" }; // Amber for pending
+    return {};
   };
 
   const sortedData = sortData(safeFilteredList);
@@ -272,31 +293,13 @@ const Page = () => {
     },
   };
 
-  // Function to render expiration warning style
-  const getExpirationStyle = (days) => {
-    if (days === null) return {};
-    if (days < -60) return { color: "#dc2626", fontWeight: "bold" }; // More than 2 months overdue
-    if (days < 0) return { color: "#f59e0b", fontWeight: "bold" }; // Expired but less than 2 months
-    if (days <= 30) return { color: "#f59e0b", fontWeight: "bold" }; // Expires within a month
-    return {};
-  };
-
-  // Function to render expiration text
-  const getExpirationText = (days) => {
-    if (days === null) return "No expiration date";
-    if (days < 0) return `Expired ${Math.abs(days)} days ago`;
-    if (days === 0) return "Expires today";
-    if (days === 1) return "Expires tomorrow";
-    return `Expires in ${days} days`;
-  };
-
   const handleDownloadPDF = (pdfUrl, customerName) => {
     if (!pdfUrl) return;
 
     // Create an anchor element and set properties for download
     const link = document.createElement("a");
     link.href = pdfUrl;
-    link.download = `Contract_${customerName || "document"}.pdf`;
+    link.download = `Job_${customerName || "document"}.pdf`;
     link.target = "_blank";
     link.rel = "noopener noreferrer";
     document.body.appendChild(link);
@@ -317,7 +320,7 @@ const Page = () => {
 
       // Add title
       doc.setFontSize(18);
-      doc.text("Contracts Report", 14, 22);
+      doc.text("Jobs Report", 14, 22);
 
       // Add date
       doc.setFontSize(12);
@@ -335,11 +338,10 @@ const Page = () => {
 
       // Add status filter information
       const activeFilters = [];
-      if (statusFilters.active) activeFilters.push("Active");
+      if (statusFilters.completed) activeFilters.push("Completed");
       if (statusFilters.pending) activeFilters.push("Pending");
       if (statusFilters.inProcess) activeFilters.push("In Process");
-      if (statusFilters.expired) activeFilters.push("Expired");
-      if (statusFilters.canceled) activeFilters.push("Canceled");
+      if (statusFilters.rescheduled) activeFilters.push("Rescheduled");
 
       if (activeFilters.length > 0) {
         doc.text(`Status Filters: ${activeFilters.join(", ")}`, 14, 54);
@@ -356,19 +358,17 @@ const Page = () => {
       // Prepare table data
       const tableData = sortedData.map((row, index) => [
         index + 1,
-        row?.user?.name || "",
+        row?.user?.client?.firm_name || "N/A",
         row?.user?.client?.referencable?.name || "N/A",
-        row?.jobs[0]?.total_jobs || 0,
-        row?.jobs?.length || 0,
-        row.billing_method || "",
-        row.quote_title || "",
-        row?.treatment_methods?.map((method) => method.name).join(", ") ||
-          "N/A",
-        row.contract_end_date || "",
-        getExpirationText(row.daysUntilExpiration),
-        row.sub_total || "",
-        row.grand_total || "",
-        !row?.contract_cancel_reason ? "Active" : "Canceled",
+        row.job_title || "N/A",
+        row.job_date || "N/A",
+        row?.job_services
+          ?.map((service) => service.service?.service_title)
+          .join(", ") || "N/A",
+        row.priority || "N/A",
+        row.sub_total || "0.00",
+        row.grand_total || "0.00",
+        getJobStatus(row),
       ]);
 
       // Set column headers
@@ -376,13 +376,10 @@ const Page = () => {
         "Sr No",
         "Customer",
         "Reference",
-        "Total Jobs",
-        "Completed Jobs",
-        "Billing Method",
-        "Quote Title",
-        "Treatment Methods",
-        "Contract End Date",
-        "Expiration Status",
+        "Job Title",
+        "Job Date",
+        "Services",
+        "Priority",
         "Sub Total",
         "Grand Total",
         "Status",
@@ -395,7 +392,7 @@ const Page = () => {
       doc.autoTable({
         head: [headers],
         body: tableData,
-        startY: 62, // Adjusted starting position for status filters
+        startY: 62, // Adjusted starting position
         styles: { fontSize: 8, cellPadding: 2 },
         headStyles: { fillColor: [50, 169, 46], textColor: 255 },
         alternateRowStyles: { fillColor: [245, 245, 245] },
@@ -411,28 +408,31 @@ const Page = () => {
 
       // Create bottom summary box
       doc.setFillColor(240, 240, 240);
-      doc.rect(14, finalY, pageWidth - 28, 80, "F"); // Made taller to accommodate the main summary too
+      doc.rect(14, finalY, pageWidth - 28, 80, "F");
 
       // Add bottom summary title
       doc.setFontSize(14);
       doc.setTextColor(50, 50, 50);
-      doc.text("Contracts Summary", 20, finalY + 10);
+      doc.text("Jobs Summary", 20, finalY + 10);
 
       // Add main summary content
       doc.setFontSize(10);
-      doc.text(`Active: ${activeCount}`, 20, finalY + 25);
+      doc.text(`Completed: ${completedCount}`, 20, finalY + 25);
       doc.text(`Pending: ${pendingCount}`, 20, finalY + 35);
       doc.text(`In Process: ${inProcessCount}`, 20, finalY + 45);
-      doc.text(`Expired: ${expiredCount}`, pageWidth / 2 - 30, finalY + 25);
-      doc.text(`Canceled: ${canceledCount}`, pageWidth / 2 - 30, finalY + 35);
-      doc.text(`Total: ${totalCount}`, pageWidth / 2 - 30, finalY + 45);
+      doc.text(
+        `Rescheduled: ${rescheduledCount}`,
+        pageWidth / 2 - 30,
+        finalY + 25
+      );
+      doc.text(`Total: ${totalCount}`, pageWidth / 2 - 30, finalY + 35);
 
       // Add a footer note
       doc.setFontSize(8);
       doc.setTextColor(100, 100, 100);
 
       // Save the PDF
-      doc.save(`Contracts_Report_${format(new Date(), "yyyy-MM-dd")}.pdf`);
+      doc.save(`Jobs_Report_${format(new Date(), "yyyy-MM-dd")}.pdf`);
     } catch (error) {
       console.error("Error generating PDF:", error);
       alert("Error generating PDF. Please try again.");
@@ -467,20 +467,19 @@ const Page = () => {
                 </TableSortLabel>
               </TableCell>
               <TableCell>Reference</TableCell>
-              <TableCell>Total Jobs</TableCell>
-              <TableCell>Completed Jobs</TableCell>
-              <TableCell>No of Services</TableCell>
-              <TableCell>Treatment Method Name</TableCell>
+              <TableCell>Job Title</TableCell>
               <TableCell>
                 <TableSortLabel
-                  active={orderBy === "daysUntilExpiration"}
-                  direction={orderBy === "daysUntilExpiration" ? order : "asc"}
-                  onClick={() => handleRequestSort("daysUntilExpiration")}
+                  active={orderBy === "job_date"}
+                  direction={orderBy === "job_date" ? order : "asc"}
+                  onClick={() => handleRequestSort("job_date")}
                   sx={sortLabelStyles}
                 >
-                  Expire At
+                  Job Date
                 </TableSortLabel>
               </TableCell>
+              <TableCell>Services</TableCell>
+              <TableCell>Priority</TableCell>
               <TableCell>Sub Total</TableCell>
               <TableCell>Grand Total</TableCell>
               <TableCell>
@@ -518,7 +517,7 @@ const Page = () => {
                   <div
                     style={{ padding: "20px", fontSize: "16px", color: "#666" }}
                   >
-                    No contracts found matching your search criteria
+                    No jobs found matching your search criteria
                   </div>
                 </TableCell>
               </TableRow>
@@ -529,7 +528,7 @@ const Page = () => {
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>
                       {row?.user?.client?.firm_name ? (
-                        <Link href={`/quotePdf?id=${row.id}`}>
+                        <Link href={`/jobDetails?id=${row.id}`}>
                           {row.user.client.firm_name}
                         </Link>
                       ) : (
@@ -539,8 +538,8 @@ const Page = () => {
                     <TableCell>
                       {row?.user?.client?.referencable?.name || "N/A"}
                     </TableCell>
-                    <TableCell>{row?.jobs?.[0]?.total_jobs || 0}</TableCell>
-                    <TableCell>{row?.jobs?.[0]?.completed_jobs || 0}</TableCell>
+                    <TableCell>{row?.job_title || "N/A"}</TableCell>
+                    <TableCell>{row?.job_date || "N/A"}</TableCell>
                     <TableCell
                       onClick={() => toggleAccordion(row.id)}
                       style={{
@@ -548,40 +547,33 @@ const Page = () => {
                         color: "#2563eb",
                       }}
                     >
-                      <span>{row?.quote_services?.length || 0}</span>
+                      <span>{row?.job_services?.length || 0}</span>
                     </TableCell>
                     <TableCell>
-                      {row?.treatment_methods
-                        ?.map((method) => method.name)
-                        .join(", ") || "N/A"}
+                      <Chip
+                        label={row?.priority || "Normal"}
+                        color={row?.priority === "high" ? "error" : "primary"}
+                        size="small"
+                      />
                     </TableCell>
+                    <TableCell>{row?.sub_total || "0.00"}</TableCell>
+                    <TableCell>{row?.grand_total || "0.00"}</TableCell>
                     <TableCell>
-                      <div>{row?.contract_end_date || "N/A"}</div>
-                      <div style={getExpirationStyle(row.daysUntilExpiration)}>
-                        {getExpirationText(row.daysUntilExpiration)}
+                      <div style={getJobStatusStyle(row)}>
+                        {getJobStatus(row)}
                       </div>
                     </TableCell>
-                    <TableCell>{row?.sub_total || "N/A"}</TableCell>
-                    <TableCell>{row?.grand_total || "N/A"}</TableCell>
                     <TableCell>
-                      {!row?.contract_cancel_reason ? (
-                        <div style={{ color: "green", fontWeight: "bold" }}>
-                          Active
-                        </div>
-                      ) : (
-                        <div style={{ color: "#dc2626" }}>
-                          Contract is Canceled
-                        </div>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {row?.pdf_url ? (
+                      {row?.report?.pdf_url ? (
                         <Button
                           variant="contained"
                           color="primary"
                           startIcon={<FileDownloadIcon />}
                           onClick={() =>
-                            handleDownloadPDF(row.pdf_url, row?.user?.name)
+                            handleDownloadPDF(
+                              row.report.pdf_url,
+                              row?.user?.name
+                            )
                           }
                           sx={{
                             backgroundColor: "#2563eb",
@@ -600,7 +592,7 @@ const Page = () => {
                       )}
                     </TableCell>
                     <TableCell>
-                      <Link href={`/quotePdf?id=${row.id}`}>
+                      <Link href={`/jobDetails?id=${row.id}`}>
                         <span style={{ color: "#2563eb", cursor: "pointer" }}>
                           View Details
                         </span>
@@ -608,8 +600,8 @@ const Page = () => {
                     </TableCell>
                   </TableRow>
                   {expandedRows[row.id] &&
-                    row.quote_services &&
-                    row.quote_services.length > 0 && (
+                    row.job_services &&
+                    row.job_services.length > 0 && (
                       <TableRow>
                         <TableCell
                           colSpan={12}
@@ -621,17 +613,16 @@ const Page = () => {
                             unmountOnExit
                           >
                             <Box sx={{ margin: 2 }}>
-                              <Table size="small" aria-label="quote services">
+                              <Table size="small" aria-label="job services">
                                 <TableHead>
                                   <TableRow>
                                     <TableCell>Service Name</TableCell>
-                                    <TableCell>Job Type</TableCell>
-                                    <TableCell>Price</TableCell>
+                                    <TableCell>Rate</TableCell>
                                     <TableCell>Status</TableCell>
                                   </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                  {row.quote_services.map(
+                                  {row.job_services.map(
                                     (service, serviceIndex) => (
                                       <TableRow key={serviceIndex}>
                                         <TableCell>
@@ -639,15 +630,21 @@ const Page = () => {
                                             "N/A"}
                                         </TableCell>
                                         <TableCell>
-                                          {service.job_type || "N/A"}
-                                        </TableCell>
-                                        <TableCell>
                                           {service.rate || "N/A"}
                                         </TableCell>
                                         <TableCell>
-                                          {service.service_cancel_reason
-                                            ? `Canceled: ${service.service_cancel_reason}`
-                                            : "Active"}
+                                          <Chip
+                                            label={service.status || "N/A"}
+                                            color={
+                                              service.status === "completed"
+                                                ? "success"
+                                                : service.status ===
+                                                  "in_progress"
+                                                ? "info"
+                                                : "default"
+                                            }
+                                            size="small"
+                                          />
                                         </TableCell>
                                       </TableRow>
                                     )
@@ -686,10 +683,10 @@ const Page = () => {
             gap: "12px",
           }}
         >
-          {/* Search Bar - Updated placeholder to indicate both search fields */}
+          {/* Search Bar */}
           <TextField
             variant="outlined"
-            placeholder="Search by firm name or reference..."
+            placeholder="Search by firm name, reference or job title..."
             value={searchTerm}
             onChange={handleSearchChange}
             InputProps={{
@@ -706,6 +703,35 @@ const Page = () => {
               },
             }}
           />
+
+          {/* Status Filter Dropdown */}
+          <FormControl sx={{ minWidth: 180 }}>
+            <InputLabel id="status-filter-label">Status Filter</InputLabel>
+            <Select
+              labelId="status-filter-label"
+              id="status-filter"
+              value={
+                Object.values(statusFilters).every((v) => !v)
+                  ? "all"
+                  : statusFilters.completed
+                  ? "completed"
+                  : statusFilters.pending
+                  ? "pending"
+                  : statusFilters.inProcess
+                  ? "inProcess"
+                  : "rescheduled"
+              }
+              onChange={handleStatusFilterChange}
+              label="Status Filter"
+              sx={{ height: "44px", backgroundColor: "#fff" }}
+            >
+              <MenuItem value="all">All Jobs</MenuItem>
+              <MenuItem value="completed">Completed</MenuItem>
+              <MenuItem value="pending">Pending</MenuItem>
+              <MenuItem value="inProcess">In Process</MenuItem>
+              <MenuItem value="rescheduled">Rescheduled</MenuItem>
+            </Select>
+          </FormControl>
 
           <div style={{ display: "flex", gap: "12px" }}>
             <Button
@@ -741,10 +767,7 @@ const Page = () => {
                 borderRadius: "10px",
               }}
             >
-              <DateFilters
-                onDateChange={handleDateChange}
-                onFilterChange={handleFilterChange}
-              />
+              <DateFilters onDateChange={handleDateChange} />
             </div>
           </div>
         </div>
@@ -760,9 +783,9 @@ const Page = () => {
             }}
           >
             <span style={{ fontWeight: "600" }}>Active filters:</span>
-            {statusFilters.active && (
+            {statusFilters.completed && (
               <span className="px-2 py-1 bg-green-100 text-green-800 rounded-md text-sm">
-                Active
+                Completed
               </span>
             )}
             {statusFilters.pending && (
@@ -775,14 +798,9 @@ const Page = () => {
                 In Process
               </span>
             )}
-            {statusFilters.expired && (
-              <span className="px-2 py-1 bg-red-100 text-red-800 rounded-md text-sm">
-                Expired
-              </span>
-            )}
-            {statusFilters.canceled && (
-              <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-md text-sm">
-                Canceled
+            {statusFilters.rescheduled && (
+              <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded-md text-sm">
+                Rescheduled
               </span>
             )}
           </div>
@@ -793,19 +811,33 @@ const Page = () => {
         <div className="col-span-12">{listServiceTable()}</div>
       </div>
 
-      {/* Quote Summary Section */}
+      {/* Job Summary Section */}
       <div className="bg-white rounded-lg shadow-md p-4 mt-4">
         <h2 className="text-xl font-semibold mb-4">Summary</h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
           <div className="p-3 bg-green-50 rounded border border-green-200">
             <p className="text-sm text-gray-600">Completed</p>
-            <p className="text-2xl font-bold text-green-600">{activeCount}</p>
+            <p className="text-2xl font-bold text-green-600">
+              {completedCount}
+            </p>
           </div>
 
           <div className="p-3 bg-yellow-50 rounded border border-yellow-200">
-            <p className="text-sm text-gray-600">Reschedule</p>
+            <p className="text-sm text-gray-600">Pending</p>
             <p className="text-2xl font-bold text-yellow-600">{pendingCount}</p>
+          </div>
+
+          <div className="p-3 bg-blue-50 rounded border border-blue-200">
+            <p className="text-sm text-gray-600">In Process</p>
+            <p className="text-2xl font-bold text-blue-600">{inProcessCount}</p>
+          </div>
+
+          <div className="p-3 bg-purple-50 rounded border border-purple-200">
+            <p className="text-sm text-gray-600">Rescheduled</p>
+            <p className="text-2xl font-bold text-purple-600">
+              {rescheduledCount}
+            </p>
           </div>
         </div>
       </div>
