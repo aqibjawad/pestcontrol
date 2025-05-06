@@ -88,6 +88,11 @@ export default function SideMenu({ children }) {
       url: "contractSummary",
       icon: "/contracts.png",
     },
+    {
+      name: "Jobs Summary",
+      url: "jobsSummary",
+      icon: "/contracts.png",
+    },
     { name: "Quotes", url: "viewQuote", icon: "/quotes.png" },
     {
       name: "Scheduler",

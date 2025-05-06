@@ -25,26 +25,39 @@ const AddChemicals = ({
   });
   const [availableStocks, setAvailableStocks] = useState([]);
   const [stockOptions, setStockOptions] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleInputChange = (field, value) => {
     setChemicalData((prev) => ({
       ...prev,
       [field]: value,
     }));
+    
+    // Clear error message when user changes input
+    setErrorMessage("");
   };
 
   const handleSubmit = () => {
-    // Validation check
-    const isValid =
-      chemicalData.product_id &&
-      chemicalData.name &&
-      parseFloat(chemicalData.dose) > 0 &&
-      parseFloat(chemicalData.qty) > 0 &&
-      parseFloat(chemicalData.qty) <= parseFloat(chemicalData.remaining_qty);
-
-    if (!isValid) {
-      alert("Please fill all fields correctly before submitting.");
-      return; // Prevent modal from closing
+    // Check if quantity exceeds available quantity
+    if (parseFloat(chemicalData.qty) > parseFloat(chemicalData.remaining_qty)) {
+      setErrorMessage("Quantity exceeds available stock. Please enter a valid quantity.");
+      return;
+    }
+    
+    // Other validation checks
+    if (!chemicalData.product_id || !chemicalData.name) {
+      setErrorMessage("Please select a product.");
+      return;
+    }
+    
+    if (!chemicalData.dose || parseFloat(chemicalData.dose) <= 0) {
+      setErrorMessage("Please enter a valid dose.");
+      return;
+    }
+    
+    if (!chemicalData.qty || parseFloat(chemicalData.qty) <= 0) {
+      setErrorMessage("Please enter a valid quantity.");
+      return;
     }
 
     // If valid, submit and reset
@@ -57,6 +70,7 @@ const AddChemicals = ({
       remaining_qty: "",
       price: 0,
     });
+    setErrorMessage("");
     handleCloseUseChemicals();
   };
 
@@ -89,6 +103,9 @@ const AddChemicals = ({
         name: productInfo?.product_name || "Unknown Product",
         remaining_qty: selectedStock.remaining_qty || "0.00",
       }));
+      
+      // Clear error message when product changes
+      setErrorMessage("");
     }
   };
 
@@ -117,6 +134,35 @@ const AddChemicals = ({
           Thank you for choosing us to meet your needs. We look forward to
           serving you with excellence
         </div>
+        
+        {errorMessage && (
+          <div style={{ 
+            color: "white", 
+            backgroundColor: "#5a2c1b", 
+            padding: "15px", 
+            borderRadius: "5px",
+            marginTop: "15px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center"
+          }}>
+            <div>{errorMessage}</div>
+            <button 
+              onClick={() => setErrorMessage("")}
+              style={{
+                backgroundColor: "#e9be77",
+                color: "#5a2c1b",
+                border: "none",
+                borderRadius: "5px",
+                padding: "8px 16px",
+                cursor: "pointer"
+              }}
+            >
+              OK
+            </button>
+          </div>
+        )}
+        
         <div className="mt-5">
           <Dropdown
             title="Chemicals And Materials"
