@@ -163,8 +163,7 @@ const ServiceAgreement = ({ setFormData, formData }) => {
       newServices[index] = {
         ...newServices[index],
         ...updatedJob,
-        subTotal:
-          updatedJob.no_of_jobs * updatedJob.rate,
+        subTotal: updatedJob.no_of_jobs * updatedJob.rate,
         detail: [
           {
             job_type: updatedJob.jobType,
@@ -247,7 +246,11 @@ const ServiceAgreement = ({ setFormData, formData }) => {
         </Grid> */}
       </Grid>
 
-      <Scope selectedServices={selectedServices} />
+      <Scope
+        selectedServices={selectedServices}
+        formData={formData}
+        setFormData={setFormData}
+      />
     </div>
   );
 };

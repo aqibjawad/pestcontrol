@@ -1,117 +1,94 @@
-import React, { useState } from "react";
-import { Grid, Typography, Button, Box } from "@mui/material";
-import styles from "../../../styles/quotes.module.css";
+import { useState, useEffect } from "react";
 
-const Scope = ({ selectedServices }) => {
-  const [isScopeVisible, setIsScopeVisible] = useState(true); // Set initial state to true
+export default function Scope({
+  selectedServices = [],
+  setFormData,
+  formData = {},
+}) {
+  // Initialize state based on formData, but only on mount
+  const [isScopeVisible, setIsScopeVisible] = useState(
+    formData?.is_enable_scope_of_work === undefined
+      ? true
+      : formData.is_enable_scope_of_work === 1
+  );
 
-  const handleEnable = () => {
-    setIsScopeVisible(true);
-  };
-
-  const handleDisable = () => {
-    setIsScopeVisible(false);
+  // Handle toggling of scope visibility
+  const handleToggleScope = (isVisible) => {
+    setIsScopeVisible(isVisible);
+    // Update formData directly when toggled
+    if (setFormData) {
+      setFormData((prevData) => ({
+        ...prevData,
+        is_enable_scope_of_work: isVisible ? 1 : 0,
+      }));
+    }
   };
 
   return (
-    <Box mt={4}>
-      <Grid container justifyContent="space-between" alignItems="center">
-        <Grid item>
-          <Typography variant="h6" className={styles.scopeHead}>
-            Scope of Work
-          </Typography>
-        </Grid>
+    <div className="mt-16">
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-xl font-bold">Scope of Work</h2>
+        </div>
 
-        <Grid item>
-          <Grid container spacing={2}>
-            <Grid item>
-              <Button
-                variant="contained"
-                onClick={handleDisable}
-                style={{
-                  backgroundColor: isScopeVisible ? "white" : "green",
-                  color: isScopeVisible ? "black" : "white",
-                }}
-                className={styles.disableButton}
-              >
-                Disable
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button
-                variant="contained"
-                onClick={handleEnable}
-                style={{
-                  backgroundColor: isScopeVisible ? "green" : "white",
-                  color: isScopeVisible ? "white" : "black",
-                }}
-                className={styles.enableButton}
-              >
-                Enable
-              </Button>
-            </Grid>
-          </Grid>
-        </Grid>
-      </Grid>
+        <div className="flex space-x-2">
+          <button
+            onClick={() => handleToggleScope(false)}
+            className={`px-4 py-2 rounded font-medium ${
+              !isScopeVisible
+                ? "bg-green-600 text-white"
+                : "bg-white text-black border border-gray-300"
+            }`}
+          >
+            Disable
+          </button>
+
+          <button
+            onClick={() => handleToggleScope(true)}
+            className={`px-4 py-2 rounded font-medium ${
+              isScopeVisible
+                ? "bg-green-600 text-white"
+                : "bg-white text-black border border-gray-300"
+            }`}
+          >
+            Enable
+          </button>
+        </div>
+      </div>
 
       {isScopeVisible && (
-        <Box sx={{ flexGrow: 1 }}>
-          <Grid className="mt-3" container spacing={3}>
+        <div className="mt-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {selectedServices.length === 0 ? (
-              <Grid item xs={12}>
-                <Typography color="textSecondary">
-                  No services selected
-                </Typography>
-              </Grid>
+              <div className="col-span-2">
+                <p className="text-gray-500">No services selected</p>
+              </div>
             ) : (
               selectedServices.map((service, index) => (
-                <Grid
-                  item
-                  xs={12}
-                  md={6}
-                  lg={6}
+                <div
                   key={`${service.pest_name}-${index}`}
+                  className="border border-gray-200 rounded-lg p-4 h-full"
                 >
-                  <Box
-                    p={2}
-                    border={1}
-                    borderRadius={2}
-                    borderColor="divider"
-                    height="100%"
-                  >
-                    <Typography variant="h6" fontWeight="bold" gutterBottom>
-                      {service.pest_name}
-                    </Typography>
+                  <h3 className="text-lg font-bold mb-2">
+                    {service.pest_name}
+                  </h3>
 
-                    <Typography variant="subtitle1" fontWeight="bold" mt={2}>
-                      Service Title:
-                    </Typography>
-                    <Typography>{service.service_title}</Typography>
+                  <p className="font-medium mt-4">Service Title:</p>
+                  <p>{service.service_title}</p>
 
-                    <Typography variant="subtitle1" fontWeight="bold" mt={2}>
-                      Terms and Conditions:
-                    </Typography>
-                    <Box
-                      sx={{
-                        pl: 2, // Add padding if needed
-                        "& ul": { paddingLeft: "20px" }, // Ensure list indenting
-                        "& ol": { paddingLeft: "20px" }, // For ordered lists
-                        "& li": { marginBottom: "8px" }, // Add spacing between list items
-                        "& a": { color: "blue", textDecoration: "underline" }, // Styling links
-                      }}
-                      dangerouslySetInnerHTML={{
-                        __html: service.term_and_conditions,
-                      }}
-                    />
-                  </Box>
-                </Grid>
+                  <p className="font-medium mt-4">Terms and Conditions:</p>
+                  <div
+                    className="pl-2 prose"
+                    dangerouslySetInnerHTML={{
+                      __html: service.term_and_conditions,
+                    }}
+                  />
+                </div>
               ))
             )}
-          </Grid>
-        </Box>
+          </div>
+        </div>
       )}
-    </Box>
+    </div>
   );
-};
-
-export default Scope;
+}
