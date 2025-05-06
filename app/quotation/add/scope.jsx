@@ -1,24 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Grid, Typography, Button, Box } from "@mui/material";
 import styles from "../../../styles/quotes.module.css";
 
-const Scope = ({ selectedServices, setFormData, formData }) => {
-  // Get initial state from formData if available, default to true
-  const [isScopeVisible, setIsScopeVisible] = useState(
-    formData?.is_enable_scope_of_work === undefined
-      ? true
-      : formData.is_enable_scope_of_work === 1
-  );
-
-  // Update formData when isScopeVisible changes
-  useEffect(() => {
-    if (setFormData) {
-      setFormData((prevData) => ({
-        ...prevData,
-        is_enable_scope_of_work: isScopeVisible ? 1 : 0,
-      }));
-    }
-  }, [isScopeVisible, setFormData]);
+const Scope = ({ selectedServices }) => {
+  const [isScopeVisible, setIsScopeVisible] = useState(true); // Set initial state to true
 
   const handleEnable = () => {
     setIsScopeVisible(true);

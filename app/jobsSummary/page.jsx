@@ -18,7 +18,7 @@ import {
   Box,
 } from "@mui/material";
 import APICall from "@/networkUtil/APICall";
-import { quotation } from "@/networkUtil/Constants";
+import { job } from "@/networkUtil/Constants";
 import Link from "next/link";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
@@ -68,7 +68,12 @@ const Page = () => {
 
   useEffect(() => {
     // Apply all filters: search and status filters
-    let filtered = quoteList;
+    if (!Array.isArray(quoteList)) {
+      setFilteredQuoteList([]);
+      return;
+    }
+
+    let filtered = [...quoteList];
 
     // Apply search filter - now checking both firm name AND reference
     if (searchTerm.trim() !== "") {
@@ -149,54 +154,53 @@ const Page = () => {
 
     try {
       const [contactsResponse] = await Promise.all([
-        api.getDataWithToken(
-          `${quotation}/contracted?${queryParams.join("&")}`
-        ),
+        api.getDataWithToken(`${job}/all?${queryParams.join("&")}`),
       ]);
 
-      // Process the data to calculate days until expiration
-      const today = new Date();
-      const mergedData = contactsResponse.data.map((contract) => {
-        let daysUntilExpiration = null;
-        if (contract.contract_end_date) {
-          const expirationDate = parseISO(contract.contract_end_date);
-          daysUntilExpiration = differenceInDays(expirationDate, today);
-        }
-        return {
-          ...contract,
-          daysUntilExpiration,
-        };
-      });
+      // Ensure we're setting an array even if the API returns something else
+      const responseArray = Array.isArray(contactsResponse)
+        ? contactsResponse
+        : [];
 
-      setQuoteList(mergedData);
-      setFilteredQuoteList(mergedData); // Initialize filtered list with all data
+      setQuoteList(responseArray);
+      setFilteredQuoteList(responseArray); // Initialize filtered list with all data
     } catch (error) {
       console.error("Error fetching quotes and contacts:", error);
+      setQuoteList([]);
+      setFilteredQuoteList([]);
     } finally {
       setFetchingData(false);
     }
   };
 
   // Calculate counts for different statuses based on filtered list
-  const activeCount = filteredQuoteList.filter(
+  const safeFilteredList = Array.isArray(filteredQuoteList)
+    ? filteredQuoteList
+    : [];
+
+  const activeCount = safeFilteredList.filter(
     (quote) => !quote.contract_cancel_reason
   ).length;
-  const pendingCount = filteredQuoteList.filter(
+
+  const pendingCount = safeFilteredList.filter(
     (quote) => quote.is_contracted === 0
   ).length;
-  const inProcessCount = filteredQuoteList.filter(
+
+  const inProcessCount = safeFilteredList.filter(
     (quote) => quote.is_contracted === 2
   ).length;
-  const expiredCount = filteredQuoteList.filter(
+
+  const expiredCount = safeFilteredList.filter(
     (quote) =>
       quote.contract_cancel_reason === "expired" && quote.contract_cancelled_at
   ).length;
-  const canceledCount = filteredQuoteList.filter(
+
+  const canceledCount = safeFilteredList.filter(
     (quote) =>
       quote.contract_cancel_reason && quote.contract_cancel_reason !== "expired"
   ).length;
 
-  const totalCount = filteredQuoteList.length;
+  const totalCount = safeFilteredList.length;
 
   const handleRequestSort = (property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -209,7 +213,7 @@ const Page = () => {
   };
 
   const sortData = (data) => {
-    if (!orderBy) return data;
+    if (!orderBy || !Array.isArray(data)) return data;
 
     return [...data].sort((a, b) => {
       let aValue, bValue;
@@ -258,7 +262,7 @@ const Page = () => {
     });
   };
 
-  const sortedData = sortData(filteredQuoteList);
+  const sortedData = sortData(safeFilteredList);
 
   const sortLabelStyles = {
     "& .MuiTableSortLabel-icon": {
@@ -302,7 +306,7 @@ const Page = () => {
 
   // Function to download the entire table data as PDF
   const downloadTableAsPDF = () => {
-    if (!sortedData || sortedData.length === 0) {
+    if (!Array.isArray(sortedData) || sortedData.length === 0) {
       alert("No data available to download");
       return;
     }
@@ -508,7 +512,7 @@ const Page = () => {
                   ))}
                 </TableCell>
               </TableRow>
-            ) : sortedData.length === 0 ? (
+            ) : !Array.isArray(sortedData) || sortedData.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={12} align="center">
                   <div
@@ -524,15 +528,19 @@ const Page = () => {
                   <TableRow hover>
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>
-                      <Link href={`/quotePdf?id=${row.id}`}>
-                        {row?.user?.client?.firm_name}
-                      </Link>
+                      {row?.user?.client?.firm_name ? (
+                        <Link href={`/quotePdf?id=${row.id}`}>
+                          {row.user.client.firm_name}
+                        </Link>
+                      ) : (
+                        "N/A"
+                      )}
                     </TableCell>
                     <TableCell>
-                      {row?.user?.client?.referencable?.name}
+                      {row?.user?.client?.referencable?.name || "N/A"}
                     </TableCell>
-                    <TableCell>{row?.jobs[0]?.total_jobs}</TableCell>
-                    <TableCell>{row?.jobs[0]?.completed_jobs}</TableCell>
+                    <TableCell>{row?.jobs?.[0]?.total_jobs || 0}</TableCell>
+                    <TableCell>{row?.jobs?.[0]?.completed_jobs || 0}</TableCell>
                     <TableCell
                       onClick={() => toggleAccordion(row.id)}
                       style={{
@@ -540,7 +548,7 @@ const Page = () => {
                         color: "#2563eb",
                       }}
                     >
-                      <span>{row.quote_services.length}</span>
+                      <span>{row?.quote_services?.length || 0}</span>
                     </TableCell>
                     <TableCell>
                       {row?.treatment_methods
@@ -548,13 +556,13 @@ const Page = () => {
                         .join(", ") || "N/A"}
                     </TableCell>
                     <TableCell>
-                      <div>{row.contract_end_date}</div>
+                      <div>{row?.contract_end_date || "N/A"}</div>
                       <div style={getExpirationStyle(row.daysUntilExpiration)}>
                         {getExpirationText(row.daysUntilExpiration)}
                       </div>
                     </TableCell>
-                    <TableCell>{row.sub_total}</TableCell>
-                    <TableCell>{row.grand_total}</TableCell>
+                    <TableCell>{row?.sub_total || "N/A"}</TableCell>
+                    <TableCell>{row?.grand_total || "N/A"}</TableCell>
                     <TableCell>
                       {!row?.contract_cancel_reason ? (
                         <div style={{ color: "green", fontWeight: "bold" }}>
@@ -599,56 +607,58 @@ const Page = () => {
                       </Link>
                     </TableCell>
                   </TableRow>
-                  {expandedRows[row.id] && row.quote_services.length > 0 && (
-                    <TableRow>
-                      <TableCell
-                        colSpan={12}
-                        style={{ paddingBottom: 0, paddingTop: 0 }}
-                      >
-                        <Collapse
-                          in={expandedRows[row.id]}
-                          timeout="auto"
-                          unmountOnExit
+                  {expandedRows[row.id] &&
+                    row.quote_services &&
+                    row.quote_services.length > 0 && (
+                      <TableRow>
+                        <TableCell
+                          colSpan={12}
+                          style={{ paddingBottom: 0, paddingTop: 0 }}
                         >
-                          <Box sx={{ margin: 2 }}>
-                            <Table size="small" aria-label="quote services">
-                              <TableHead>
-                                <TableRow>
-                                  <TableCell>Service Name</TableCell>
-                                  <TableCell>Job Type</TableCell>
-                                  <TableCell>Price</TableCell>
-                                  <TableCell>Status</TableCell>
-                                </TableRow>
-                              </TableHead>
-                              <TableBody>
-                                {row.quote_services.map(
-                                  (service, serviceIndex) => (
-                                    <TableRow key={serviceIndex}>
-                                      <TableCell>
-                                        {service?.service?.service_title ||
-                                          "N/A"}
-                                      </TableCell>
-                                      <TableCell>
-                                        {service.job_type || "N/A"}
-                                      </TableCell>
-                                      <TableCell>
-                                        {service.rate || "N/A"}
-                                      </TableCell>
-                                      <TableCell>
-                                        {service.service_cancel_reason
-                                          ? `Canceled: ${service.service_cancel_reason}`
-                                          : "Active"}
-                                      </TableCell>
-                                    </TableRow>
-                                  )
-                                )}
-                              </TableBody>
-                            </Table>
-                          </Box>
-                        </Collapse>
-                      </TableCell>
-                    </TableRow>
-                  )}
+                          <Collapse
+                            in={expandedRows[row.id]}
+                            timeout="auto"
+                            unmountOnExit
+                          >
+                            <Box sx={{ margin: 2 }}>
+                              <Table size="small" aria-label="quote services">
+                                <TableHead>
+                                  <TableRow>
+                                    <TableCell>Service Name</TableCell>
+                                    <TableCell>Job Type</TableCell>
+                                    <TableCell>Price</TableCell>
+                                    <TableCell>Status</TableCell>
+                                  </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                  {row.quote_services.map(
+                                    (service, serviceIndex) => (
+                                      <TableRow key={serviceIndex}>
+                                        <TableCell>
+                                          {service?.service?.service_title ||
+                                            "N/A"}
+                                        </TableCell>
+                                        <TableCell>
+                                          {service.job_type || "N/A"}
+                                        </TableCell>
+                                        <TableCell>
+                                          {service.rate || "N/A"}
+                                        </TableCell>
+                                        <TableCell>
+                                          {service.service_cancel_reason
+                                            ? `Canceled: ${service.service_cancel_reason}`
+                                            : "Active"}
+                                        </TableCell>
+                                      </TableRow>
+                                    )
+                                  )}
+                                </TableBody>
+                              </Table>
+                            </Box>
+                          </Collapse>
+                        </TableCell>
+                      </TableRow>
+                    )}
                 </React.Fragment>
               ))
             )}
@@ -792,7 +802,7 @@ const Page = () => {
             <p className="text-sm text-gray-600">Completed</p>
             <p className="text-2xl font-bold text-green-600">{activeCount}</p>
           </div>
-          
+
           <div className="p-3 bg-yellow-50 rounded border border-yellow-200">
             <p className="text-sm text-gray-600">Reschedule</p>
             <p className="text-2xl font-bold text-yellow-600">{pendingCount}</p>

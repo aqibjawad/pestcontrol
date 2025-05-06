@@ -114,6 +114,7 @@ const UseChemicals = ({ formData, setFormData, employeeList }) => {
         handleCloseUseChemicals={handleCloseUseChemicals}
         onAddChemical={handleAddChemical}
         employeeStock={employeeList}
+        employeeList={employeeList}
       />
     </div>
   );
