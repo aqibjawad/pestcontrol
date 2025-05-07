@@ -24,7 +24,16 @@ const ServiceAgreement = ({ setFormData, formData }) => {
       }));
       setAllServices(servicesWithChecked);
 
-      if (formData.quote_services && Array.isArray(formData.quote_services)) {
+      // Check if we have service_agreement_ids in formData
+      if (formData.service_agreement_ids && Array.isArray(formData.service_agreement_ids)) {
+        const updatedServices = servicesWithChecked.map((service) => ({
+          ...service,
+          isChecked: formData.service_agreement_ids.includes(service.id)
+        }));
+        setAllServices(updatedServices);
+      }
+      // Also check quote_services as backup method
+      else if (formData.quote_services && Array.isArray(formData.quote_services)) {
         const updatedServices = servicesWithChecked.map((service) => ({
           ...service,
           isChecked: formData.quote_services.some(
@@ -103,6 +112,18 @@ const ServiceAgreement = ({ setFormData, formData }) => {
           : service
       )
     );
+    
+    // Update service_agreement_ids in formData when checkbox changes
+    setFormData((prev) => {
+      const updatedServiceIds = allServices
+        .filter(service => service.id === serviceId ? !service.isChecked : service.isChecked)
+        .map(service => service.id);
+        
+      return {
+        ...prev,
+        service_agreement_ids: updatedServiceIds
+      };
+    });
   };
 
   const addJobList = () => {
@@ -154,6 +175,18 @@ const ServiceAgreement = ({ setFormData, formData }) => {
               : service.isChecked,
         }))
       );
+      
+      // Also update service_agreement_ids when removing a service
+      setFormData((prev) => {
+        const updatedServiceIds = prev.service_agreement_ids?.filter(
+          id => id !== removedService.service_id
+        ) || [];
+        
+        return {
+          ...prev,
+          service_agreement_ids: updatedServiceIds
+        };
+      });
     }
   };
 

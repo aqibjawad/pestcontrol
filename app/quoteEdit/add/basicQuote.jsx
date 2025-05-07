@@ -216,11 +216,11 @@ const BasicQuote = ({ setFormData, formData }) => {
                 </>
               ) : (
                 <InputWithTitle
-                  title={"Selected Client"}
+                  title={"Firm Name"}
                   type={"text"}
-                  placeholder={"Selected Client"}
-                  value={formData?.user?.name}
-                  defaultValue={formData?.user?.name}
+                  placeholder={"Firm Name"}
+                  value={formData?.user?.client?.firm_name}
+                  defaultValue={formData?.user?.client?.firm_name}
                   disable
                   onChange={(value) => {}}
                 />
@@ -299,7 +299,7 @@ const BasicQuote = ({ setFormData, formData }) => {
         <Grid item lg={6} xs={12} md={6} mt={2}>
           <InputWithTitle
             title={"Duration in Month"}
-            type={"number"}
+            type={"text"}
             placeholder={"Duration in Month"}
             value={formData.duration_in_months}
             onChange={handleDurationChange}

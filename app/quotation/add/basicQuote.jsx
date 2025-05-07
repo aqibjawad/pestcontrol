@@ -342,7 +342,7 @@ const BasicQuote = ({ setFormData, formData }) => {
         <Grid item lg={6} xs={12} md={6} mt={2}>
           <InputWithTitle
             title={"Duration in Month"}
-            type={"number"}
+            type={"text"}
             placeholder={"Duration in Month"}
             value={formData.duration_in_months}
             onChange={handleDurationChange}

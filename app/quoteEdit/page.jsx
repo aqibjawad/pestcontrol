@@ -156,7 +156,7 @@ const Page = () => {
 
   return (
     <div>
-      <div className="quote-main-head pageTitle">Create Quote</div>
+      <div className="quote-main-head pageTitle">Update Quote</div>
 
       <BasicQuote setFormData={safeSetFormData} formData={formData} />
       <ServiceAgreement
