@@ -247,7 +247,7 @@ const ServiceAgreement = ({ setFormData, formData }) => {
         </Grid>
       </Grid>
 
-      <Scope selectedServices={selectedServices} />
+      <Scope selectedServices={selectedServices} setFormData={setFormData} formData={formData} />
     </div>
   );
 };
