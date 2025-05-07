@@ -95,7 +95,23 @@ const ServiceAgreement = ({ setFormData, formData }) => {
     getAllServices();
   }, []);
 
+  // This useEffect handles the initial setup of service_agreement_ids
+  useEffect(() => {
+    // Only run this effect once when component mounts
+    if (!formData.service_agreement_ids) {
+      const selectedServiceIds = allServices
+        .filter(service => service.isChecked)
+        .map(service => service.id);
+      
+      setFormData(prev => ({
+        ...prev,
+        service_agreement_ids: selectedServiceIds
+      }));
+    }
+  }, []);
+
   const handleCheckboxChange = (serviceId) => {
+    // Update allServices state
     setAllServices((prevServices) =>
       prevServices.map((service) =>
         service.id === serviceId
@@ -103,6 +119,25 @@ const ServiceAgreement = ({ setFormData, formData }) => {
           : service
       )
     );
+    
+    // Update service_agreement_ids directly when checkbox changes
+    // This avoids the infinite loop by not depending on allServices state
+    setFormData(prev => {
+      const updatedIds = [...(prev.service_agreement_ids || [])];
+      const index = updatedIds.indexOf(serviceId);
+      
+      // Add or remove the ID
+      if (index === -1) {
+        updatedIds.push(serviceId);
+      } else {
+        updatedIds.splice(index, 1);
+      }
+      
+      return {
+        ...prev,
+        service_agreement_ids: updatedIds
+      };
+    });
   };
 
   const addJobList = () => {
