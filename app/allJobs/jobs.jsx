@@ -17,6 +17,8 @@ const AllJobs = ({ isVisible }) => {
   const [currentUserId, setCurrentUserId] = useState(null);
   // Changed from single filter to array of filters for consistency
   const [filterTypes, setFilterTypes] = useState([]);
+  // Add state for sort direction
+  const [sortDirection, setSortDirection] = useState("asc"); // Default to ascending
 
   useEffect(() => {
     // Get user ID from local storage
@@ -56,9 +58,9 @@ const AllJobs = ({ isVisible }) => {
 
           return jobDate >= startDateTime && jobDate <= endDateTime;
         });
-        setFilteredList(filtered);
+        setFilteredList(sortJobsByDate(filtered, sortDirection));
       } else {
-        setFilteredList(jobsList);
+        setFilteredList(sortJobsByDate(jobsList, sortDirection));
       }
       return;
     }
@@ -80,9 +82,34 @@ const AllJobs = ({ isVisible }) => {
       });
     }
 
+    // Sort the filtered results
+    filtered = sortJobsByDate(filtered, sortDirection);
+
     // Don't apply additional filters at parent level
     // Let child component (UpcomingJobs) handle status/assignment filters
     setFilteredList(filtered);
+  };
+
+  // Helper function to sort jobs by date
+  const sortJobsByDate = (jobs, direction) => {
+    return [...jobs].sort((a, b) => {
+      const dateA = new Date(a.job_date || a.date);
+      const dateB = new Date(b.job_date || b.date);
+      return direction === "asc" ? dateA - dateB : dateB - dateA;
+    });
+  };
+
+  // Function to toggle sort direction
+  const toggleSortDirection = () => {
+    const newDirection = sortDirection === "asc" ? "desc" : "asc";
+    setSortDirection(newDirection);
+    
+    // Re-apply sorting to current filtered list
+    if (filteredList.length > 0) {
+      setFilteredList(sortJobsByDate(filteredList, newDirection));
+    } else {
+      setFilteredList(sortJobsByDate(jobsList, newDirection));
+    }
   };
 
   useEffect(() => {
@@ -97,7 +124,7 @@ const AllJobs = ({ isVisible }) => {
       // Re-apply filters when jobsList changes
       handleFilter(filterTypes.join(","));
     }
-  }, [jobsList]);
+  }, [jobsList, sortDirection]); // Added sortDirection dependency
 
   const getAllQuotes = async (start = startDate, end = endDate) => {
     setFetchingData(true);
@@ -122,13 +149,8 @@ const AllJobs = ({ isVisible }) => {
         return;
       }
 
-      // Sort jobsList by date in descending order
-      const sortedData = response.data.sort(
-        (a, b) =>
-          new Date(b.job_date || b.date) - new Date(a.job_date || a.date)
-      );
-
-      setJobsList(sortedData);
+      // Store unsorted data - sorting will be applied in handleFilter
+      setJobsList(response.data);
     } catch (error) {
       console.error("Error fetching quotes:", error);
       setJobsList([]);
@@ -139,10 +161,19 @@ const AllJobs = ({ isVisible }) => {
 
   return (
     <div>
-      {/* Debug information */}
+      {/* Add sort direction control */}
+      <div className="flex justify-end mb-2">
+        <button 
+          onClick={toggleSortDirection}
+          className="px-3 py-1 bg-blue-500 text-white rounded-md text-sm"
+        >
+          Sort: {sortDirection === "asc" ? "Oldest First" : "Newest First"}
+        </button>
+      </div>
+      
       <UpcomingJobs
         isVisible={isVisible}
-        jobsList={filteredList.length > 0 ? filteredList : jobsList}
+        jobsList={filteredList.length > 0 ? filteredList : sortJobsByDate(jobsList, sortDirection)}
         handleDateChange={handleDateChange}
         handleFilter={handleFilter}
         currentFilter={filterTypes.join(",")}
@@ -150,6 +181,8 @@ const AllJobs = ({ isVisible }) => {
         startDate={startDate}
         endDate={endDate}
         currentUserId={currentUserId}
+        sortDirection={sortDirection}
+        toggleSortDirection={toggleSortDirection}
       />
     </div>
   );

@@ -177,7 +177,7 @@ const Page = () => {
 
     try {
       const [jobsResponse] = await Promise.all([
-        api.getDataWithToken(`${job}/all?${queryParams.join("&")}`),
+        api.getDataWithToken(`${job}/overall?${queryParams.join("&")}`),
       ]);
 
       // Ensure we're setting an array even if the API returns something else
@@ -478,7 +478,6 @@ const Page = () => {
                   Job Date
                 </TableSortLabel>
               </TableCell>
-              <TableCell>Services</TableCell>
               <TableCell>Priority</TableCell>
               <TableCell>Sub Total</TableCell>
               <TableCell>Grand Total</TableCell>
@@ -492,7 +491,6 @@ const Page = () => {
                   Status
                 </TableSortLabel>
               </TableCell>
-              <TableCell>PDF</TableCell>
               <TableCell>View Details</TableCell>
             </TableRow>
           </TableHead>
@@ -528,7 +526,7 @@ const Page = () => {
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>
                       {row?.user?.client?.firm_name ? (
-                        <Link href={`/jobDetails?id=${row.id}`}>
+                        <Link href={`/quotePdf?id=${row.id}`}>
                           {row.user.client.firm_name}
                         </Link>
                       ) : (
@@ -540,15 +538,6 @@ const Page = () => {
                     </TableCell>
                     <TableCell>{row?.job_title || "N/A"}</TableCell>
                     <TableCell>{row?.job_date || "N/A"}</TableCell>
-                    <TableCell
-                      onClick={() => toggleAccordion(row.id)}
-                      style={{
-                        cursor: "pointer",
-                        color: "#2563eb",
-                      }}
-                    >
-                      <span>{row?.job_services?.length || 0}</span>
-                    </TableCell>
                     <TableCell>
                       <Chip
                         label={row?.priority || "Normal"}
@@ -564,35 +553,7 @@ const Page = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      {row?.report?.pdf_url ? (
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          startIcon={<FileDownloadIcon />}
-                          onClick={() =>
-                            handleDownloadPDF(
-                              row.report.pdf_url,
-                              row?.user?.name
-                            )
-                          }
-                          sx={{
-                            backgroundColor: "#2563eb",
-                            "&:hover": {
-                              backgroundColor: "#1d4ed8",
-                            },
-                            fontWeight: "bold",
-                            fontSize: "12px",
-                            padding: "6px 12px",
-                          }}
-                        >
-                          Download
-                        </Button>
-                      ) : (
-                        <span style={{ color: "#666" }}>No PDF</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Link href={`/jobDetails?id=${row.id}`}>
+                      <Link href={`/viewJob?id=${row.id}`}>
                         <span style={{ color: "#2563eb", cursor: "pointer" }}>
                           View Details
                         </span>
