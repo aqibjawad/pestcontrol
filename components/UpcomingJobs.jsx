@@ -120,7 +120,6 @@ const UpcomingJobs = ({
   currentFilter,
   startDate,
   endDate,
-  currentUserId,
 }) => {
   const api = new APICall();
   const pathname = usePathname();
@@ -285,7 +284,6 @@ const UpcomingJobs = ({
     }
   };
 
-  // Modified code to hide "Create Service Report" when currentUserId is 1
   const renderJobRows = () => {
     let sortedJobs = [...filteredJobs];
 
@@ -335,19 +333,7 @@ const UpcomingJobs = ({
           {row.tag && <div className={styles.clientTag}>Tag: {row.tag}</div>}
         </td>
         <td>{row?.user?.client?.firm_name}</td>
-        <td>
-          {row.job_services
-            ?.map(
-              (js, index) =>
-                js.service?.service_title &&
-                `${index + 1}: ${js.service.service_title}`
-            )
-            .filter(Boolean)
-            .map((item, idx) => (
-              <div key={idx}>{item}</div>
-            ))}
-        </td>
-
+        <td>{row.job_services[0]?.service?.service_title}</td>
         <td>
           <div
             className={styles.statusContainer}
@@ -368,7 +354,7 @@ const UpcomingJobs = ({
               <div
                 style={{ color: "red", fontSize: "12px", textAlign: "center" }}
               >
-                {/* <div style={{ textAlign: "center" }}>Reschedule</div> */}
+                <div style={{ textAlign: "center" }}>Reschedule</div>
                 <br />
                 {formatDateTime(
                   row.reschedule_dates[row.reschedule_dates.length - 1].job_date
@@ -376,6 +362,7 @@ const UpcomingJobs = ({
               </div>
             ) : (
               <div style={{ fontSize: "12px", textAlign: "center" }}>
+                Regular
                 <br />
                 {row.reschedule_dates?.[0]?.job_date &&
                   formatDateTime(row.reschedule_dates[0].job_date)}
@@ -437,31 +424,34 @@ const UpcomingJobs = ({
           <div
             style={{ color: "#32A92E", textAlign: "center", fontSize: "12px" }}
           >
-            {row.is_completed === 1 && currentUserId !== 1 ? (
+            {row.is_completed === 1 ? (
               row.report === null ? (
                 <Link href={`/serviceReport?id=${row.id}`}>
                   Create Service Report
                 </Link>
               ) : (
-                <div>
+                <>
                   <Link href={`/serviceReportPdf?id=${row?.report?.id}`}>
                     View Report
                   </Link>
-                </div>
+                  <div>
+                    <Link href={`/serviceReportEdit?id=${row?.report?.id}`}>
+                      Edit Report
+                    </Link>
+                  </div>
+                </>
               )
             ) : (
-              <div>
+              <>
                 <div>
-                  <Link href={`/serviceReportPdf?id=${row.id}`}>
-                    View Details
-                  </Link>
+                  <Link href={`/viewJob?id=${row.id}`}>View Details</Link>
                 </div>
                 <div>
                   <Link href={`/serviceReportEdit?id=${row?.report?.id}`}>
                     Edit Report
                   </Link>
                 </div>
-              </div>
+              </>
             )}
           </div>
         </td>

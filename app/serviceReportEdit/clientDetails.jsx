@@ -1,7 +1,11 @@
 import React from "react";
 import styles from "../../styles/serviceReport.module.css"
 
-const ClientDetails = ({serviceReportList}) => {
+const ClientDetails = ({serviceReportList, serviceReport}) => {
+
+  console.log(serviceReport);
+  
+
   return (
     <div className="flex justify-between" style={{ padding: "34px" }}>
 

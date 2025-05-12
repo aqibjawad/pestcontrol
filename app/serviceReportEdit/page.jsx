@@ -39,13 +39,18 @@ const Page = () => {
   const [fetchingData, setFetchingData] = useState(false);
   const [serviceReportList, setQuoteList] = useState(null);
 
+  // New state to store service report data
+  const [serviceReport, setServiceReport] = useState(null);
+
   const [employeeList, setEmployeeList] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(true);
   const [currentUserId, setCurrentUserId] = useState(null);
   const [isCaptain, setIsCaptain] = useState(false);
 
   // Ensure we get the captain ID as a number for proper comparison
-  const CAPTAIN_ID = serviceReportList?.captain_id ? Number(serviceReportList.captain_id) : null;
+  const CAPTAIN_ID = serviceReportList?.captain_id
+    ? Number(serviceReportList.captain_id)
+    : null;
 
   const [formData, setFormData] = useState({
     used_products: "",
@@ -69,7 +74,12 @@ const Page = () => {
         const userData = JSON.parse(userDataString);
         const userId = Number(userData.userId); // Convert to number to ensure proper comparison
         setCurrentUserId(userId);
-        console.log("User ID retrieved from localStorage:", userId, "Type:", typeof userId);
+        console.log(
+          "User ID retrieved from localStorage:",
+          userId,
+          "Type:",
+          typeof userId
+        );
       } catch (error) {
         console.error("Error parsing user data:", error);
       }
@@ -92,10 +102,10 @@ const Page = () => {
   useEffect(() => {
     if (id) {
       getAllJobs(id);
+      getServices(id);
     }
   }, [id]);
 
-  // Check if user is captain whenever relevant data changes
   useEffect(() => {
     if (currentUserId !== null && CAPTAIN_ID !== null) {
       const isUserCaptain = currentUserId === CAPTAIN_ID;
@@ -103,7 +113,6 @@ const Page = () => {
     }
   }, [currentUserId, CAPTAIN_ID]);
 
-  // Load employee data for the current user
   useEffect(() => {
     if (currentUserId) {
       getEmployeeStock(currentUserId);
@@ -135,6 +144,42 @@ const Page = () => {
     }
   };
 
+  const getServices = async (jobId) => {
+    setFetchingData(true);
+    try {
+      const response = await api.getDataWithToken(
+        `${job}/service_report/${jobId}`
+      );
+      // Set the service report data
+      setServiceReport(response.data);
+
+      // If there's existing service report data, populate form data
+      if (response.data) {
+        setFormData((prevFormData) => ({
+          ...prevFormData,
+          // Populate with existing service report data
+          recommendations_and_remarks:
+            response.data.recommendations_and_remarks || "",
+          type_of_visit: response.data.type_of_visit || "",
+          pest_found_ids: response.data.pest_found_ids || "",
+          tm_ids: response.data.tm_ids || "",
+          used_products: response.data.used_products || "",
+          for_office_use: response.data.for_office_use || "",
+        }));
+      }
+    } catch (error) {
+      console.error("Error fetching service report:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to load service report details.",
+      });
+    } finally {
+      setFetchingData(false);
+      setLoadingDetails(false);
+    }
+  };
+
   const getEmployeeStock = async (userId) => {
     setFetchingData(true);
     try {
@@ -143,7 +188,10 @@ const Page = () => {
       if (response && response.data) {
         setEmployeeList(response.data);
       } else {
-        console.error("Invalid response format when loading employee data:", response);
+        console.error(
+          "Invalid response format when loading employee data:",
+          response
+        );
       }
     } catch (error) {
       console.error("Error fetching employee data:", error);
@@ -155,8 +203,8 @@ const Page = () => {
   const validateFormData = () => {
     // Required fields check - adjust as needed based on your form requirements
     const requiredFields = ["job_id", "type_of_visit"];
-    const missingFields = requiredFields.filter(field => !formData[field]);
-    
+    const missingFields = requiredFields.filter((field) => !formData[field]);
+
     if (missingFields.length > 0) {
       Swal.fire({
         icon: "error",
@@ -165,7 +213,7 @@ const Page = () => {
       });
       return false;
     }
-    
+
     return true;
   };
 
@@ -174,9 +222,9 @@ const Page = () => {
     if (!validateFormData()) {
       return;
     }
-    
+
     setLoading(true);
-    try {      
+    try {
       // First API call to create service report
       const serviceReportEndpoint = `${job}/service_report/create`;
       const serviceReportResponse = await api.postDataWithTokn(
@@ -226,29 +274,61 @@ const Page = () => {
     }
   };
 
+  // If data is still loading, show a loading indicator
+  if (fetchingData || loadingDetails) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        <CircularProgress />
+      </div>
+    );
+  }
+
   return (
     <div>
       <ClientDetails
         formData={formData}
         setFormData={setFormData}
         serviceReportList={serviceReportList}
+        serviceReport={serviceReport} // Pass service report data
       />
-      <TypeVisit formData={formData} setFormData={setFormData} />
-      <ServiceJobs 
-        serviceReportList={serviceReportList} 
-        formData={formData} 
-        setFormData={setFormData} 
+      <TypeVisit
+        formData={formData}
+        setFormData={setFormData}
+        serviceReport={serviceReport} // Pass service report data
       />
-      <Area formData={formData} setFormData={setFormData} />
+      <ServiceJobs
+        serviceReportList={serviceReportList}
+        formData={formData}
+        setFormData={setFormData}
+        serviceReport={serviceReport} // Pass service report data
+      />
+      <Area
+        formData={formData}
+        setFormData={setFormData}
+        serviceReport={serviceReport} // Pass service report data
+      />
       <UseChemicals
         formData={formData}
         setFormData={setFormData}
         employeeList={employeeList}
         isCaptain={isCaptain}
+        serviceReport={serviceReport} // Pass service report data
       />
-      <Extra formData={formData} setFormData={setFormData} />
-      <Remarks formData={formData} setFormData={setFormData} />
-      <Feedback formData={formData} setFormData={setFormData} />
+      <Extra
+        formData={formData}
+        setFormData={setFormData}
+        serviceReport={serviceReport} // Pass service report data
+      />
+      <Remarks
+        formData={formData}
+        setFormData={setFormData}
+        serviceReport={serviceReport} // Pass service report data
+      />
+      <Feedback
+        formData={formData}
+        setFormData={setFormData}
+        serviceReport={serviceReport} // Pass service report data
+      />
 
       <div className="mt-10">
         <GreenButton
