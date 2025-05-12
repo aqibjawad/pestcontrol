@@ -31,7 +31,7 @@ const DateFilters = ({ onOptionChange, onDateChange }) => {
         start = format(startOfDay(today), "yyyy-MM-dd");
         end = format(endOfDay(today), "yyyy-MM-dd");
         break;
-      case "This Month":
+      case "Current Month":
         start = format(startOfMonth(today), "yyyy-MM-dd");
         end = format(endOfMonth(today), "yyyy-MM-dd");
         break;
@@ -153,9 +153,9 @@ const DateFilters = ({ onOptionChange, onDateChange }) => {
             <div
               className={styles.dateItem}
               style={{ border: "none" }}
-              onClick={() => handleOptionClick("This Month")}
+              onClick={() => handleOptionClick("Current Month")}
             >
-              This Month
+              Current Month
             </div>
             <div
               className={styles.dateItem}

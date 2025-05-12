@@ -184,7 +184,7 @@ const Page = () => {
           </div>
           <div>
             <InputWithTitle
-              title={"Opening Stock"}
+              title={"Stock in Hand"}
               type={"text"}
               placeholder={"Please enter opening stock number"}
               value={opening_stock_qty}
@@ -193,7 +193,7 @@ const Page = () => {
           </div>
           <div>
             <InputWithTitle
-              title={"Opening Price"}
+              title={"Average Cost"}
               type={"text"}
               placeholder={"Please enter opening stock number"}
               value={opening_stock_price}
@@ -283,9 +283,9 @@ const Page = () => {
         <div className="mt-5 flex gap-4">
           <div className="flex-grow">
             <InputWithTitle
-              title={"Per Item Quantity"}
+              title={"Qty/Unit"}
               type={"text"}
-              placeholder={"Per Item Quantity"}
+              placeholder={"Qty/Unit"}
               onChange={setPerItemQuantity}
               value={per_item_qty}
             />

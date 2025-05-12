@@ -376,7 +376,6 @@ const UpcomingJobs = ({
               </div>
             ) : (
               <div style={{ fontSize: "12px", textAlign: "center" }}>
-                
                 <br />
                 {row.reschedule_dates?.[0]?.job_date &&
                   formatDateTime(row.reschedule_dates[0].job_date)}
@@ -444,12 +443,25 @@ const UpcomingJobs = ({
                   Create Service Report
                 </Link>
               ) : (
-                <Link href={`/serviceReportPdf?id=${row?.report?.id}`}>
-                  View Report
-                </Link>
+                <div>
+                  <Link href={`/serviceReportPdf?id=${row?.report?.id}`}>
+                    View Report
+                  </Link>
+                </div>
               )
             ) : (
-              <Link href={`/viewJob?id=${row.id}`}>View Details</Link>
+              <div>
+                <div>
+                  <Link href={`/serviceReportPdf?id=${row.id}`}>
+                    View Details
+                  </Link>
+                </div>
+                <div>
+                  <Link href={`/serviceReportEdit?id=${row?.report?.id}`}>
+                    Edit Report
+                  </Link>
+                </div>
+              </div>
             )}
           </div>
         </td>

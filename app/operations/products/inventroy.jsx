@@ -459,7 +459,7 @@ const Inventory = () => {
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
             }`}
           >
-            Stock Assign
+            Stock Assigned
           </button>
           <button
             onClick={() => setActiveTab("history")}
@@ -469,7 +469,7 @@ const Inventory = () => {
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
             }`}
           >
-            Stock Buy
+            Stock Purchased
           </button>
           <div className="flex items-center bg-green-600 text-white font-semibold text-base h-11 px-4 py-3 rounded-lg">
             <DateFilters2 onDateChange={handleDateChange} />

@@ -15,10 +15,10 @@ import {
 
 const DateFilters2 = ({ onDateChange }) => {
   const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedOption, setSelectedOption] = useState("This Month");
+  const [selectedOption, setSelectedOption] = useState("Current Month");
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const [title, setTitle] = useState("This Month");
+  const [title, setTitle] = useState("Current Month");
   const [customRange, setCustomRange] = useState(false);
 
   const handleOptionClick = (option) => {
@@ -26,7 +26,7 @@ const DateFilters2 = ({ onDateChange }) => {
     let start, end;
 
     switch (option) {
-      case "This Month":
+      case "Current Month":
         start = startOfMonth(today);
         end = endOfMonth(today);
         setCustomRange(false);
@@ -71,7 +71,7 @@ const DateFilters2 = ({ onDateChange }) => {
   };
 
   useEffect(() => {
-    handleOptionClick("This Month");
+    handleOptionClick("Current Month");
   }, []);
 
   const handleClick = (event) => setAnchorEl(event.currentTarget);
@@ -107,7 +107,7 @@ const DateFilters2 = ({ onDateChange }) => {
         anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
       >
         <div className={styles.popoverContent}>
-          {["This Month", "Last Month", "Custom Range"].map(
+          {["Current Month", "Last Month", "Custom Range"].map(
             (option) => (
               <div
                 key={option}

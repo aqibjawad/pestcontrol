@@ -309,8 +309,8 @@ const Page = () => {
             {selectedIndex === 2 && <Schedule />}
           </div> */}
 
-          <div className={selectedIndex === 3 ? `block` : "hidden"}>
-            {selectedIndex === 3 && <Reports />}
+          <div className={selectedIndex === 2 ? `block` : "hidden"}>
+            {selectedIndex === 2 && <Reports />}
           </div>
         </div>
 
