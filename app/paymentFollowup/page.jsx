@@ -16,15 +16,40 @@ export default function Page() {
   const [endDate, setEndDate] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [salesmanFilter, setSalesmanFilter] = useState("all");
+  const [salesmenList, setSalesmenList] = useState([]);
 
   useEffect(() => {
     getFollowupData();
   }, [startDate, endDate]);
 
-  // Apply filters whenever followups, statusFilter, or searchTerm changes
+  // Apply filters whenever followups, statusFilter, salesmanFilter, or searchTerm changes
   useEffect(() => {
     applyFilters();
-  }, [followups, statusFilter, searchTerm]);
+  }, [followups, statusFilter, salesmanFilter, searchTerm]);
+
+  // Extract unique salesmen from followups data
+  useEffect(() => {
+    if (followups.length > 0) {
+      // Extract unique salesmen from all followup details
+      const allSalesmen = new Set();
+
+      followups.forEach((item) => {
+        if (
+          item.client_follow_detail_ups &&
+          item.client_follow_detail_ups.length > 0
+        ) {
+          item.client_follow_detail_ups.forEach((detail) => {
+            if (detail.employee_user && detail.employee_user.name) {
+              allSalesmen.add(detail.employee_user.name);
+            }
+          });
+        }
+      });
+
+      setSalesmenList(Array.from(allSalesmen).sort());
+    }
+  }, [followups]);
 
   const getFollowupData = async () => {
     setLoading(true);
@@ -58,6 +83,7 @@ export default function Page() {
 
   const applyFilters = () => {
     let filtered = [...followups];
+    let detailsFiltered = [];
 
     // Apply status filter
     if (statusFilter !== "all") {
@@ -66,6 +92,33 @@ export default function Page() {
         isCompleted ? item.completed_at : !item.completed_at
       );
     }
+
+    // First filter the followups by status
+    filtered = filtered
+      .map((item) => {
+        // Clone the item to avoid modifying the original data
+        const clonedItem = { ...item };
+
+        // If salesmanFilter is applied and there are detail ups, filter them
+        if (salesmanFilter !== "all" && clonedItem.client_follow_detail_ups) {
+          clonedItem.client_follow_detail_ups =
+            clonedItem.client_follow_detail_ups.filter(
+              (detail) =>
+                detail.employee_user &&
+                detail.employee_user.name === salesmanFilter
+            );
+        }
+
+        return clonedItem;
+      })
+      .filter(
+        (item) =>
+          // Keep only items that have at least one detail after salesman filtering
+          !salesmanFilter ||
+          salesmanFilter === "all" ||
+          (item.client_follow_detail_ups &&
+            item.client_follow_detail_ups.length > 0)
+      );
 
     // Apply search filter (case-insensitive)
     if (searchTerm.trim() !== "") {
@@ -89,6 +142,10 @@ export default function Page() {
 
   const handleStatusChange = (e) => {
     setStatusFilter(e.target.value);
+  };
+
+  const handleSalesmanChange = (e) => {
+    setSalesmanFilter(e.target.value);
   };
 
   const handleSearchChange = (e) => {
@@ -153,9 +210,7 @@ export default function Page() {
   return (
     <div className="p-4">
       <div className="flex items-center justify-between mb-4">
-        <h1
-          style={{ fontSize: "20px", fontWeight: "600"}}
-        >
+        <h1 style={{ fontSize: "20px", fontWeight: "600" }}>
           Sales Follow-up Tracking
         </h1>
         <div className="bg-green-500 text-white font-semibold text-base h-11 w-auto px-4 rounded-lg flex justify-center items-center">
@@ -176,9 +231,29 @@ export default function Page() {
             onChange={handleStatusChange}
             className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
           >
-            <option value="all">All Status</option>
+            <option value="all">Status</option>
             <option value="pending">Pending</option>
             <option value="completed">Completed</option>
+          </select>
+        </div>
+
+        {/* Sales Man Filter Dropdown */}
+        <div className="flex items-center">
+          <label htmlFor="salesmanFilter" className="mr-2 font-medium">
+            Sales Man:
+          </label>
+          <select
+            id="salesmanFilter"
+            value={salesmanFilter}
+            onChange={handleSalesmanChange}
+            className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+          >
+            <option value="all">Sales Men</option>
+            {salesmenList.map((salesman, index) => (
+              <option key={`salesman-${index}`} value={salesman}>
+                {salesman}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -250,6 +325,14 @@ export default function Page() {
                           {item.client_user
                             ? item.client_user.client?.firm_name
                             : "N/A"}
+                          <div style={{fontSize:"14px", fontWeight:"400", color:"#667085"}}>
+                            {item.client_user ? item.client_user.email : "N/A"}
+                          </div>
+                          <div style={{fontSize:"14px", fontWeight:"400", color:"#667085"}}>
+                            {item.client_user
+                              ? item.client_user.client?.phone_number
+                              : "N/A"}
+                          </div>
                         </td>
                         <td className="py-2 px-4 border-b border-r">
                           {item.client_user
