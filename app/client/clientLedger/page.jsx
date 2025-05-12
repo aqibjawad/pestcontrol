@@ -49,10 +49,14 @@ const Page = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [number, setNumber] = useState("");
+  const [referenceName, setReferenceName] = useState("");
 
   const [tableData, setTableData] = useState([]);
   const [rowData, setRowData] = useState([]);
+  const [contractsData, setContractsData] = useState([]);
+
   const [loading, setLoading] = useState(true);
+  const [contractsLoading, setContractsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalData, setModalData] = useState(null);
@@ -79,16 +83,48 @@ const Page = () => {
 
   const fetchData = async (id) => {
     setLoading(true);
+    setContractsLoading(true);
     try {
       const response = await api.getDataWithToken(
         `${clients}/ledger/get/${id}`
       );
-      const data = response.data;
-      setRowData(data);
+
+      // Check if response.data is an array
+      if (Array.isArray(response.data)) {
+        setRowData(response.data);
+
+        // Set reference name if available in the first item
+        if (
+          response.data.length > 0 &&
+          response.data[0].personable?.client?.referencable?.name
+        ) {
+          setReferenceName(
+            response.data[0].personable.client.referencable.name
+          );
+        }
+
+        // Set company name if available
+        if (
+          response.data.length > 0 &&
+          response.data[0].personable?.client?.firm_name
+        ) {
+          setCompanyName(response.data[0].personable.client.firm_name);
+        }
+      } else {
+        setRowData([]);
+      }
+
+      // Set the contracts data separately if it exists
+      if (response.contracts && Array.isArray(response.contracts)) {
+        setContractsData(response.contracts);
+      } else {
+        setContractsData([]);
+      }
     } catch (error) {
       setError(error.message);
     } finally {
       setLoading(false);
+      setContractsLoading(false);
     }
   };
 
@@ -103,7 +139,6 @@ const Page = () => {
   };
 
   // PDF Generation function
-  // Updated generatePDFFile function
   const generatePDFFile = () => {
     // Check if row data exists
     if (!rowData || rowData.length === 0) {
@@ -220,24 +255,12 @@ const Page = () => {
         return;
       }
 
-      // const formData = new FormData();
-      // formData.append("file", file);
-      // formData.append("upload_preset", "pestcontrol"); // Your preset name
-
       const data = {
         user_id: "83",
         subject: "Client Ledger",
         file: file,
         html: "<h1>Client PDF</h1>",
       };
-
-      // const response = await fetch(
-      //   "https://api.cloudinary.com/v1_1/df59vjsv5/auto/upload",
-      //   {
-      //     method: "POST",
-      //     body: formData,
-      //   }
-      // );
 
       const response = await api.postFormDataWithToken(`${sendEmail}`, data);
 
@@ -259,6 +282,15 @@ const Page = () => {
   // Handle PDF generation and upload
   const handleGeneratePDF = () => {
     uploadToCloudinary();
+  };
+
+  // Format date from ISO string
+  const formatDate = (dateString) => {
+    try {
+      return format(new Date(dateString), "yyyy-MM-dd");
+    } catch (error) {
+      return "N/A";
+    }
   };
 
   return (
@@ -293,8 +325,133 @@ const Page = () => {
           </div>
         </div>
       </div>
+      <div className={styles.leftSection1}>
+        {referenceName && (
+          <div>
+            <strong>Reference:</strong> {referenceName}
+          </div>
+        )}
+      </div>
       <div className={styles.leftSection1}>{phoneNumber}</div>
 
+      {/* Contracts Table */}
+      <h2 className="text-xl font-bold my-4">Contract Summary</h2>
+      <TableContainer className="mt-5" component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Sr No</TableCell>
+              <TableCell>Start Date</TableCell>
+              <TableCell>End Date</TableCell>
+              <TableCell>Total Amount</TableCell>
+              <TableCell>Paid Amount</TableCell>
+              <TableCell>Canceled Amount</TableCell>
+              <TableCell>Current Amount</TableCell>
+              <TableCell>Status</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {contractsLoading ? (
+              Array.from(new Array(3)).map((_, index) => (
+                <TableRow key={index}>
+                  <TableCell>
+                    <Skeleton variant="wave" width={50} />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton variant="wave" width={100} />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton variant="wave" width={100} />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton variant="wave" width={80} />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton variant="wave" width={80} />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton variant="wave" width={80} />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton variant="wave" width={80} />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton variant="wave" width={80} />
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : contractsData && contractsData.length > 0 ? (
+              contractsData.map((contract, index) => {
+                // Calculate the total paid amount from invoices
+                const totalPaidAmount =
+                  contract.invoices && contract.invoices.length > 0
+                    ? contract.invoices.reduce(
+                        (sum, invoice) =>
+                          sum + parseFloat(invoice.total_paid_amt || 0),
+                        0
+                      )
+                    : 0;
+
+                // Calculate the canceled amount
+                const canceledAmount =
+                  contract.quote_services &&
+                  Array.isArray(contract.quote_services)
+                    ? contract.quote_services
+                        .filter((service) => service.service_cancelled_at)
+                        .reduce(
+                          (sum, service) =>
+                            sum + parseFloat(service.sub_total || 0),
+                          0
+                        )
+                    : 0;
+
+                // Calculate the current amount (total - canceled amount)
+                const currentAmount =
+                  parseFloat(contract.grand_total) - canceledAmount;
+
+                // Calculate if contract is active, expired, or cancelled
+                const today = new Date();
+                const endDate = new Date(contract.contract_end_date);
+                let status = "Active";
+
+                if (contract.contract_cancelled_at) {
+                  status = "Cancelled";
+                } else if (endDate < today) {
+                  status = "Expired";
+                }
+
+                return (
+                  <TableRow key={index}>
+                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>
+                      {formatDate(contract.contract_start_date)}
+                    </TableCell>
+                    <TableCell>
+                      {formatDate(contract.contract_end_date)}
+                    </TableCell>
+                    <TableCell>
+                      {parseFloat(contract.grand_total).toFixed(2)}
+                    </TableCell>
+                    <TableCell>{totalPaidAmount.toFixed(2)}</TableCell>
+                    <TableCell>{canceledAmount.toFixed(2)}</TableCell>
+                    <TableCell>{currentAmount.toFixed(2)}</TableCell>
+                    <TableCell>{status}</TableCell>
+                  </TableRow>
+                );
+              })
+            ) : (
+              <TableRow>
+                <TableCell colSpan={8} align="center">
+                  No contracts found for this client
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      {/* Ledger Table */}
+      <h2 className="text-xl font-bold my-4">Ledger</h2>
       <TableContainer component={Paper} ref={tableRef}>
         <Table>
           <TableHead>
@@ -308,46 +465,54 @@ const Page = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {loading
-              ? Array.from(new Array(5)).map((_, index) => (
-                  <TableRow key={index}>
-                    <TableCell>
-                      <Skeleton variant="wave" width={100} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="wave" width={200} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="wave" width={100} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="wave" width={100} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="wave" width={100} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="wave" width={100} />
-                    </TableCell>
-                  </TableRow>
-                ))
-              : rowData.map((row, index) => (
-                  <TableRow key={index}>
-                    <TableCell>
-                      {format(new Date(row.updated_at), "yyyy-MM-dd")}
-                    </TableCell>
-                    <TableCell>{row.description}</TableCell>
-                    <TableCell>{row.cr_amt}</TableCell>
-                    <TableCell>{row.dr_amt}</TableCell>
-                    <TableCell>{row.cash_balance}</TableCell>
-                    <TableCell>
-                      <Link href={`/paymentInvoice/?id=${row.id}&userId=${id}`}>
-                        View Invoice
-                      </Link>
-                    </TableCell>
-                  </TableRow>
-                ))}
-            {!loading && (
+            {loading ? (
+              Array.from(new Array(5)).map((_, index) => (
+                <TableRow key={index}>
+                  <TableCell>
+                    <Skeleton variant="wave" width={100} />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton variant="wave" width={200} />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton variant="wave" width={100} />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton variant="wave" width={100} />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton variant="wave" width={100} />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton variant="wave" width={100} />
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : rowData.length > 0 && Array.isArray(rowData) ? (
+              rowData.map((row, index) => (
+                <TableRow key={index}>
+                  <TableCell>
+                    {format(new Date(row.updated_at), "yyyy-MM-dd")}
+                  </TableCell>
+                  <TableCell>{row.description}</TableCell>
+                  <TableCell>{row.cr_amt}</TableCell>
+                  <TableCell>{row.dr_amt}</TableCell>
+                  <TableCell>{row.cash_balance}</TableCell>
+                  <TableCell>
+                    <Link href={`/paymentInvoice/?id=${row.id}&userId=${id}`}>
+                      View Invoice
+                    </Link>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={6} align="center">
+                  No ledger data available
+                </TableCell>
+              </TableRow>
+            )}
+            {!loading && Array.isArray(rowData) && rowData.length > 0 && (
               <TableRow>
                 <TableCell colSpan={2} align="right">
                   <strong>Total:</strong>

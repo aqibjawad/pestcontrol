@@ -109,6 +109,11 @@ export default function SideMenu({ children }) {
       icon: <MdOutlineQueryStats />,
     },
     {
+      name: "Payment FollowUp Visits",
+      url: "paymentFollowup",
+      icon: <MdOutlineQueryStats />,
+    },
+    {
       name: "Recoveries",
       url: "recovery/details/",
       icon: <MdOutlineQueryStats />,

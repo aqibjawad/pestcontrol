@@ -16,8 +16,6 @@ import {
   InputAdornment,
   Collapse,
   Box,
-  IconButton,
-  Typography,
 } from "@mui/material";
 import APICall from "@/networkUtil/APICall";
 import { quotation } from "@/networkUtil/Constants";
@@ -30,6 +28,7 @@ import "jspdf-autotable";
 
 import DateFilters from "./generic/DateFilters";
 import { format, differenceInDays, parseISO } from "date-fns";
+import Swal from "sweetalert2";
 
 const Contracts = () => {
   const api = new APICall();
@@ -447,6 +446,33 @@ const Contracts = () => {
     }));
   };
 
+  const handleSendEmail = async (id) => {
+    try {
+      const selectedQuote = quoteList.find((quote) => quote.id === id);
+      // Call the API to send email
+      const response = await api.getDataWithToken(
+        `${quotation}/pdf/email/send/${id}`
+      );
+
+      Swal.fire({
+        title: "Email Sent!",
+        text: `Quote details sent to ${
+          selectedQuote?.user?.client?.firm_name || "client"
+        }`,
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+    } catch (error) {
+      console.error("Error sending email:", error);
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to send email. Please try again.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    }
+  };
+
   const listServiceTable = () => {
     return (
       <TableContainer component={Paper} sx={{ maxHeight: "70vh" }}>
@@ -493,6 +519,7 @@ const Contracts = () => {
               </TableCell>
               <TableCell>PDF</TableCell>
               <TableCell>View Details</TableCell>
+              <TableCell>Send Email</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -599,6 +626,13 @@ const Contracts = () => {
                           View Details
                         </span>
                       </Link>
+                    </TableCell>
+                    <TableCell
+                      onClick={() => {
+                        handleSendEmail(row.id);
+                      }}
+                    >
+                      Send Email
                     </TableCell>
                   </TableRow>
                   {expandedRows[row.id] && row.quote_services.length > 0 && (
