@@ -1,13 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import SearchInput from "@/components/generic/SearchInput";
-import tableStyles from "../../../../styles/upcomingJobsStyles.module.css";
-import APICall from "@/networkUtil/APICall";
-import { job } from "@/networkUtil/Constants";
-
 import ServiceReport from "@/app/allServiceReports/serviceReport";
 import ProductReport from "../../../allServiceReports/serviceProduct";
+import ServiceProductReport from "../../../allServiceReports/products";
 
 const serviceReport = () => {
   return (
@@ -43,6 +39,16 @@ const productReport = () => {
   );
 };
 
+
+const ServiceReports = () => {
+  return (
+    <div style={{ padding: "30px" }}>
+      <ServiceProductReport />
+    </div>
+  );
+};
+
+
 const Reports = () => {
   return (
     <div>
@@ -52,6 +58,10 @@ const Reports = () => {
 
       <div className="grid grid-cols-12 gap-4">
         <div className="col-span-12">{productReport()}</div>
+      </div>
+
+      <div className="grid grid-cols-12 gap-4">
+        <div className="col-span-12">{ServiceReports()}</div>
       </div>
     </div>
   );

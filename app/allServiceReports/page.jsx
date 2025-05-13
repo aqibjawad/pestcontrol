@@ -6,10 +6,15 @@ import ServiceReport from "./serviceReport";
 
 import withAuth from "@/utils/withAuth";
 
-const Page=()=>{
-  return(
-    <ServiceReport />
-  )
-}
+// import ServiceProductReport from "./products";
+
+const Page = () => {
+  return (
+    <div>
+      <ServiceReport />
+      {/* <ServiceProductReport /> */}
+    </div>
+  );
+};
 
 export default withAuth(Page);

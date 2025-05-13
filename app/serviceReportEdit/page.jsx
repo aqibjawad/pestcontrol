@@ -314,11 +314,11 @@ const Page = () => {
         isCaptain={isCaptain}
         serviceReport={serviceReport} // Pass service report data
       />
-      <Extra
+      {/* <Extra
         formData={formData}
         setFormData={setFormData}
         serviceReport={serviceReport} // Pass service report data
-      />
+      /> */}
       <Remarks
         formData={formData}
         setFormData={setFormData}

@@ -1,21 +1,55 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Box } from "@mui/material";
 import styles from "../styles/serviceReport.module.css";
 import InputWithTitle from "./generic/InputWithTitle";
 import GreenButton from "../components/generic/GreenButton";
 import Dropdown from "./generic/dropDown";
 
-const AddService = ({ open, handleClose, onAddService, pestList = [] }) => {
+const AddService = ({ 
+  open, 
+  handleClose, 
+  onAddService, 
+  pestList = [], 
+  initialData = null // New prop for editing existing area
+}) => {
   const [serviceData, setServiceData] = useState({
+    id: null, // Add ID to handle editing
     inspected_areas: "",
     pest_found: "",
-    pest_id: null, // Store the pest ID here
+    pest_id: null,
     infestation_level: "",
     manifested_areas: "",
     report_and_follow_up_detail: "",
   });
-  // Add error state for validation feedback
+  
   const [validationError, setValidationError] = useState("");
+
+  // Reset or populate form when initialData changes
+  useEffect(() => {
+    if (initialData) {
+      // Populate form with existing data when editing
+      setServiceData({
+        id: initialData.id || null,
+        inspected_areas: initialData.inspected_areas || "",
+        pest_found: initialData.pest_found || "",
+        pest_id: initialData.pest_id || null,
+        infestation_level: initialData.infestation_level || "",
+        manifested_areas: initialData.manifested_areas || "",
+        report_and_follow_up_detail: initialData.report_and_follow_up_detail || "",
+      });
+    } else {
+      // Reset form when not editing
+      setServiceData({
+        id: null,
+        inspected_areas: "",
+        pest_found: "",
+        pest_id: null,
+        infestation_level: "",
+        manifested_areas: "",
+        report_and_follow_up_detail: "",
+      });
+    }
+  }, [initialData, open]);
 
   const pestOptions = pestList.map((pest) => pest.pest_name);
 
@@ -24,7 +58,7 @@ const AddService = ({ open, handleClose, onAddService, pestList = [] }) => {
       ...prev,
       [field]: value,
     }));
-    // Clear validation error when the infestation level is selected
+    
     if (field === "infestation_level" && value) {
       setValidationError("");
     }
@@ -37,15 +71,20 @@ const AddService = ({ open, handleClose, onAddService, pestList = [] }) => {
       return;
     }
 
-    // If validation passes, submit the form
+    // Submit the service data (either adding or editing)
     onAddService(serviceData);
+    
+    // Reset form
     setServiceData({
+      id: null,
       inspected_areas: "",
       pest_found: "",
+      pest_id: null,
       infestation_level: "",
       manifested_areas: "",
       report_and_follow_up_detail: "",
     });
+    
     setValidationError("");
     handleClose();
   };
@@ -81,11 +120,12 @@ const AddService = ({ open, handleClose, onAddService, pestList = [] }) => {
             outline: "none",
           }}
         >
-          <div className={styles.serviceHead}>Services</div>
+          <div className={styles.serviceHead}>
+            {initialData ? "Edit Service Area" : "Add Service Area"}
+          </div>
 
           <div className={styles.serviceDescrp}>
-            Thank you for choosing us to meet your needs. We look forward to
-            serving you with excellence
+            Thank you for choosing us to meet your needs. We look forward to serving you with excellence
           </div>
 
           <div className="mt-5">
@@ -97,7 +137,6 @@ const AddService = ({ open, handleClose, onAddService, pestList = [] }) => {
           </div>
 
           <div className="mt-5">
-            {/* Changed from InputWithTitle to Dropdown for pest selection */}
             <Dropdown
               title={"Pest Found"}
               value={serviceData.pest_found}
@@ -111,9 +150,7 @@ const AddService = ({ open, handleClose, onAddService, pestList = [] }) => {
               title={"Infestation Level"}
               value={serviceData.infestation_level}
               options={["High", "Medium", "Low"]}
-              onChange={(value) =>
-                handleInputChange("infestation_level", value)
-              }
+              onChange={(value) => handleInputChange("infestation_level", value)}
               required={true}
             />
             {validationError && (
@@ -135,14 +172,15 @@ const AddService = ({ open, handleClose, onAddService, pestList = [] }) => {
             <InputWithTitle
               title={"Report and Follow up Detail"}
               value={serviceData.report_and_follow_up_detail}
-              onChange={(value) =>
-                handleInputChange("report_and_follow_up_detail", value)
-              }
+              onChange={(value) => handleInputChange("report_and_follow_up_detail", value)}
             />
           </div>
 
           <div className="mt-5">
-            <GreenButton title={"Submit"} onClick={handleSubmit} />
+            <GreenButton 
+              title={initialData ? "Update" : "Submit"} 
+              onClick={handleSubmit} 
+            />
           </div>
         </Box>
       </Modal>

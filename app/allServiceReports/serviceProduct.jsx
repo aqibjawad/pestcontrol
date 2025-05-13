@@ -95,7 +95,7 @@ const ProductReport = () => {
     if (type === "pdf") {
       const doc = new jsPDF();
 
-      const logoPath = "/logo.jpeg";
+      const logoPath = "/Logo Sharjah Ajman UAE.png";
       const logoWidth = 35;
       const logoHeight = 20;
 
@@ -641,7 +641,6 @@ const ProductReport = () => {
               <TableCell>Captain Name</TableCell>
               <TableCell>Firm Name</TableCell>
               <TableCell>Consumed Quantity</TableCell>
-              <TableCell>Consumed Units</TableCell>
               {selectedFirm === "all" && (
                 <>
                   <TableCell>Average Price</TableCell>
@@ -659,7 +658,6 @@ const ProductReport = () => {
                   <TableCell>{row?.captain_name || "Unknown"}</TableCell>
                   <TableCell>{row?.firm_name || "Unknown"}</TableCell>
                   <TableCell>{row.total_qty || 0}</TableCell>
-                  <TableCell>{row.consumed_units.toFixed(2) || 0}</TableCell>
                   {selectedFirm === "all" && (
                     <>
                       <TableCell>{row?.avg_price || 0}</TableCell>
@@ -833,18 +831,6 @@ const ProductReport = () => {
             <Grid item xs={12} sm={6}>
               <Typography>
                 <strong>Firm Name:</strong> {selectedFirmClientDetails.firmName}
-              </Typography>
-              <Typography>
-                <strong>Address:</strong> {selectedFirmClientDetails.address}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Typography>
-                <strong>Contact Number:</strong>{" "}
-                {selectedFirmClientDetails.contactNumber}
-              </Typography>
-              <Typography>
-                <strong>Email:</strong> {selectedFirmClientDetails.email}
               </Typography>
             </Grid>
           </Grid>

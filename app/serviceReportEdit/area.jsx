@@ -6,10 +6,9 @@ import AddService from "../../components/addService";
 import APICall from "@/networkUtil/APICall";
 import { treatmentMethod, services } from "@/networkUtil/Constants";
 import Grid from "@mui/material/Grid";
+import { FaTrash, FaEdit } from "react-icons/fa";
 
-import { FaTrash } from "react-icons/fa";
-
-const Area = ({ formData, setFormData }) => {
+const Area = ({ formData, setFormData, serviceReport }) => {
   const api = new APICall();
 
   const [open, setOpen] = useState(false);
@@ -19,58 +18,134 @@ const Area = ({ formData, setFormData }) => {
   const [selectedPests, setSelectedPests] = useState([]);
   const [selectedMethods, setSelectedMethods] = useState([]);
 
+  // New state for editing
+  const [editingArea, setEditingArea] = useState(null);
+
+  // Initialization useEffect
   useEffect(() => {
+    const initializeAddresses = () => {
+      let initialAddresses = [];
+
+      // First, check if there are existing addresses in formData
+      if (formData && formData.addresses && Array.isArray(formData.addresses)) {
+        initialAddresses = formData.addresses.map((addr) => ({
+          ...addr,
+          id: addr.id || Date.now(),
+        }));
+      }
+
+      // Then, merge with addresses from serviceReport if they exist
+      if (
+        serviceReport &&
+        serviceReport.areas &&
+        Array.isArray(serviceReport.areas)
+      ) {
+        const serviceReportAreas = serviceReport.areas.map((area) => ({
+          id: area.id || Date.now(),
+          inspected_areas: area.inspected_areas || "Unknown",
+          pest_found: area.pest_found || "Unknown",
+          pest_id: area.pest_id || null,
+          infestation_level: area.infestation_level || "Not Specified",
+          manifested_areas: area.manifested_areas || "Not Defined",
+          report_and_follow_up_detail:
+            area.report_and_follow_up_detail || "No Details",
+        }));
+
+        // Merge without duplicates
+        initialAddresses = [
+          ...initialAddresses,
+          ...serviceReportAreas.filter(
+            (serviceArea) =>
+              !initialAddresses.some((addr) => addr.id === serviceArea.id)
+          ),
+        ];
+      }
+
+      // Remove any potential duplicates
+      const uniqueAddresses = initialAddresses.filter(
+        (area, index, self) => index === self.findIndex((t) => t.id === area.id)
+      );
+
+      return uniqueAddresses;
+    };
+
+    const initializedAddresses = initializeAddresses();
+    setServiceAreas(initializedAddresses);
+
+    if (formData) {
+      setSelectedPests(formData.pest_found_ids || []);
+      setSelectedMethods(formData.tm_ids || []);
+    }
+
     getAllMethods();
     getAllPests();
-  }, []);
-
-  // Initialize from formData if it exists
-  useEffect(() => {
-    if (formData.addresses) {
-      setServiceAreas(formData.addresses);
-    }
-    if (formData.pest_found_ids) {
-      setSelectedPests(formData.pest_found_ids);
-    }
-    if (formData.tm_ids) {
-      setSelectedMethods(formData.tm_ids);
-    }
-  }, []);
+  }, [serviceReport, formData]);
 
   const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setOpen(false);
+    setEditingArea(null); // Reset editing area when closing
+  };
 
   const getAllMethods = async () => {
     try {
       const response = await api.getDataWithToken(`${treatmentMethod}`);
-      setMethodList(response.data);
+      setMethodList(response.data || []);
     } catch (error) {
-      console.error("Error fetching quotes:", error);
+      console.error("Error fetching treatment methods:", error);
+      setMethodList([]);
     }
   };
 
   const getAllPests = async () => {
     try {
       const response = await api.getDataWithToken(`${services}`);
-      setServicesList(response.data);
+      setServicesList(response.data || []);
     } catch (error) {
-      console.error("Error fetching quotes:", error);
+      console.error("Error fetching services/pests:", error);
+      setServicesList([]);
     }
   };
 
-  // In Area.jsx
   const handleAddService = (newService) => {
-    const updatedAddresses = [...addresses, { ...newService, id: Date.now() }];
-    setServiceAreas(updatedAddresses);
-
-    // If there's a valid pest ID, add it to selectedPests if not already there
-    if (newService.pest_id && !selectedPests.includes(newService.pest_id)) {
-      const updatedPests = [...selectedPests, newService.pest_id];
-      setSelectedPests(updatedPests);
-      updateFormData(updatedAddresses, updatedPests, selectedMethods);
-    } else {
+    // Check if we're editing an existing area or adding a new one
+    if (editingArea) {
+      // Update existing area
+      const updatedAddresses = addresses.map((area) =>
+        area.id === editingArea.id ? { ...newService } : area
+      );
+      setServiceAreas(updatedAddresses);
       updateFormData(updatedAddresses, selectedPests, selectedMethods);
+    } else {
+      // Add new area
+      const updatedAddresses = [
+        ...addresses,
+        {
+          ...newService,
+          id: Date.now(),
+        },
+      ];
+
+      setServiceAreas(updatedAddresses);
+
+      // Update selected pests if a new pest is added
+      const updatedPests =
+        newService.pest_id && !selectedPests.includes(newService.pest_id)
+          ? [...selectedPests, newService.pest_id]
+          : selectedPests;
+
+      setSelectedPests(updatedPests);
+
+      updateFormData(updatedAddresses, updatedPests, selectedMethods);
     }
+
+    // Reset editing state
+    setEditingArea(null);
+  };
+
+  const handleEditArea = (area) => {
+    setEditingArea(area);
+    setOpen(true);
   };
 
   const handleDeleteArea = (areaId) => {
@@ -83,6 +158,7 @@ const Area = ({ formData, setFormData }) => {
     const updatedPests = selectedPests.includes(pestId)
       ? selectedPests.filter((id) => id !== pestId)
       : [...selectedPests, pestId];
+
     setSelectedPests(updatedPests);
     updateFormData(addresses, updatedPests, selectedMethods);
   };
@@ -91,6 +167,7 @@ const Area = ({ formData, setFormData }) => {
     const updatedMethods = selectedMethods.includes(methodId)
       ? selectedMethods.filter((id) => id !== methodId)
       : [...selectedMethods, methodId];
+
     setSelectedMethods(updatedMethods);
     updateFormData(addresses, selectedPests, updatedMethods);
   };
@@ -131,21 +208,39 @@ const Area = ({ formData, setFormData }) => {
             </tr>
           </thead>
           <tbody>
-            {addresses.map((area, index) => (
-              <tr key={area.id}>
-                <td>{index + 1}</td>
-                <td>{area.pest_found}</td>
-                <td>{area.infestation_level}</td>
-                <td>{area.manifested_areas}</td>
-                <td>{area.report_and_follow_up_detail}</td>
-                <td>
-                  <FaTrash
-                    onClick={() => handleDeleteArea(area.id)}
-                    style={{ color: "red", cursor: "pointer" }}
-                  />
+            {addresses.length > 0 ? (
+              addresses.map((area, index) => (
+                <tr key={area.id || index}>
+                  <td>{index + 1}</td>
+                  <td>{area.pest_found || "N/A"}</td>
+                  <td>{area.inspected_areas || "N/A"}</td>
+                  <td>{area.manifested_areas || "N/A"}</td>
+                  <td>{area.report_and_follow_up_detail || "N/A"}</td>
+                  <td>
+                    <div className="flex items-center space-x-2">
+                      <FaEdit
+                        onClick={() => handleEditArea(area)}
+                        style={{
+                          color: "blue",
+                          cursor: "pointer",
+                          marginRight: "10px",
+                        }}
+                      />
+                      <FaTrash
+                        onClick={() => handleDeleteArea(area.id)}
+                        style={{ color: "red", cursor: "pointer" }}
+                      />
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="6" className="text-center">
+                  No areas added yet
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
@@ -205,7 +300,9 @@ const Area = ({ formData, setFormData }) => {
         open={open}
         handleClose={handleClose}
         onAddService={handleAddService}
-        pestList={servicesList} // Pass the pest list to the AddService component
+        serviceReport={serviceReport}
+        pestList={servicesList}
+        initialData={editingArea} // Pass the editing area data
       />
     </div>
   );
