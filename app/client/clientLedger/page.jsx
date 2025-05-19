@@ -293,6 +293,18 @@ const Page = () => {
     }
   };
 
+  // Function to determine which link to show based on row description
+  const getInvoiceLink = (row) => {
+    // Check if the description contains "Job Completed"
+    if (row.description && row.description.includes("Job Completed")) {
+      // Regular invoice link - same as original
+      return `/invoiceDetailsPdf/?id=${row?.personable?.id}`;
+    } else {
+      // Receipt PDF link - for service_invoice_amt_history
+      return row.service_invoice_amt_history?.receipt_pdf || `/paymentInvoice/?id=${row.id}&userId=${id}`;
+    }
+  };
+
   return (
     <div>
       <div className={styles.container}>
@@ -461,7 +473,7 @@ const Page = () => {
               <TableCell>Credit</TableCell>
               <TableCell>Debit</TableCell>
               <TableCell>Balance</TableCell>
-              <TableCell>View Invoice</TableCell>
+              <TableCell>View Details</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -499,8 +511,11 @@ const Page = () => {
                   <TableCell>{row.dr_amt}</TableCell>
                   <TableCell>{row.cash_balance}</TableCell>
                   <TableCell>
-                    <Link href={`/paymentInvoice/?id=${row.id}&userId=${id}`}>
-                      View Invoice
+                    {/* Conditional link based on description */}
+                    <Link href={getInvoiceLink(row)}>
+                      {row.description && row.description.includes("Job Completed") 
+                        ? "View Invoice" 
+                        : "View Receipt"}
                     </Link>
                   </TableCell>
                 </TableRow>

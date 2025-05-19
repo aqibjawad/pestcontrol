@@ -3,9 +3,17 @@
 import React from "react";
 import styles from "../../styles/serviceReport.module.css";
 
+const visitTypes = [
+  "Regular Treatment (Contract)",
+  "Inspection Visit (Contract)",
+  "Complain Visit (Contract)",
+  "One-Off Treatment",
+  "Complain Visit (One-Off)",
+];
+
 const TypeVisit = ({ formData, setFormData }) => {
   const handleVisitTypeChange = (event) => {
-    const { value, checked } = event.target;
+    const { value } = event.target;
 
     setFormData((prevData) => ({
       ...prevData,
@@ -19,57 +27,18 @@ const TypeVisit = ({ formData, setFormData }) => {
         Type Of Visit
       </div>
       <div className={styles.checkboxesContainer}>
-        <label className={styles.checkboxLabel}>
-          <input
-            type="checkbox"
-            name="visitType"
-            value="Regular Treatment (Contract)"
-            checked={formData.type_of_visit === "Regular Treatment (Contract)"}
-            onChange={handleVisitTypeChange}
-          />
-          Regular Treatment (Contract)
-        </label>
-        <label className={styles.checkboxLabel}>
-          <input
-            type="checkbox"
-            name="visitType"
-            value="Inspection Visit (Contract)"
-            checked={formData.type_of_visit === "Inspection Visit (Contract)"}
-            onChange={handleVisitTypeChange}
-          />
-          Inspection Visit (Contract)
-        </label>
-        <label className={styles.checkboxLabel}>
-          <input
-            type="checkbox"
-            name="visitType"
-            value="Complain Visit (Contract)"
-            checked={formData.type_of_visit === "Complain Visit (Contract)"}
-            onChange={handleVisitTypeChange}
-          />
-          Complain Visit (Contract)
-        </label>
-        <label className={styles.checkboxLabel}>
-          <input
-            type="checkbox"
-            name="visitType"
-            value="One-Off Treatment"
-            checked={formData.type_of_visit === "One-Off Treatment"}
-            onChange={handleVisitTypeChange}
-          />
-          One-Off Treatment
-        </label>
-
-        <label className={styles.checkboxLabel}>
-          <input
-            type="checkbox"
-            name="visitType"
-            value="Complain Visit (One-Off)"
-            checked={formData.type_of_visit === "Complain Visit (One-Off)"}
-            onChange={handleVisitTypeChange}
-          />
-          Complain Visit (One-Off)
-        </label>
+        {visitTypes.map((type) => (
+          <label key={type} className={styles.checkboxLabel}>
+            <input
+              type="checkbox"
+              name="visitType"
+              value={type}
+              checked={formData.type_of_visit === type}
+              onChange={handleVisitTypeChange}
+            />
+            {type}
+          </label>
+        ))}
       </div>
     </div>
   );

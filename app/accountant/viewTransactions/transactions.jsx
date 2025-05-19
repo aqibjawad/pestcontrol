@@ -229,7 +229,7 @@ const Transactions = () => {
         </div>
 
         {/* Table */}
-        <TableContainer style={{height:"300px"}} component={Paper}>
+        <TableContainer style={{ height: "300px" }} component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
@@ -237,8 +237,8 @@ const Transactions = () => {
                 <TableCell>Date</TableCell>
                 <TableCell>Client Name</TableCell>
                 <TableCell>Amount</TableCell>
-                <TableCell>Recieved By</TableCell>
-                <TableCell>View Details</TableCell>
+                <TableCell>Received By</TableCell>
+                <TableCell>View Receipt</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -276,19 +276,19 @@ const Transactions = () => {
                         {latestEntry.referenceable?.name || "N/A"}
                       </TableCell>
                       <TableCell>
-                        <Link
-                          href={`/client/clientLedger/?id=${
-                            quote.id
-                          }&name=${encodeURIComponent(
-                            quote.name
-                          )}&phone_number=${encodeURIComponent(
-                            quote?.client?.phone_number
-                          )}`}
-                        >
-                          <span className="text-blue-600 hover:text-blue-800">
-                            View Details
-                          </span>
-                        </Link>
+                        {latestEntry.service_invoice_amt_history?.receipt_pdf ? (
+                          <a 
+                            target="_blank" 
+                            href={latestEntry.service_invoice_amt_history.receipt_pdf}
+                            rel="noopener noreferrer"
+                          >
+                            <span className="text-blue-600 hover:text-blue-800">
+                              View Receipt
+                            </span>
+                          </a>
+                        ) : (
+                          <span className="text-gray-400">No Receipt</span>
+                        )}
                       </TableCell>
                     </TableRow>
                   );

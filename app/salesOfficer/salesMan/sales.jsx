@@ -131,6 +131,7 @@ const Sales = () => {
         "Remaining Target",
         "Income Target",
         "Cash Sales",
+        "Comission %",
         "MTD Sales",
       ];
 
@@ -286,10 +287,8 @@ const Sales = () => {
                 Reamaining Target{" "}
               </TableCell>
               <TableCell style={{ color: "white" }}> Income Target </TableCell>
-              <TableCell style={{ color: "white" }}>
-                {" "}
-                Cash Sales{" "}
-              </TableCell>
+              <TableCell style={{ color: "white" }}> Cash Sales </TableCell>
+              <TableCell style={{ color: "white" }}>Comission %</TableCell>
               <TableCell style={{ color: "white" }}> MTD Sales</TableCell>
               <TableCell style={{ color: "white" }}>View Visits</TableCell>
               <TableCell style={{ color: "white" }}>View Jobs</TableCell>
@@ -327,6 +326,17 @@ const Sales = () => {
                       {row?.employee_commissions[0]?.target}
                     </TableCell>
                     <TableCell>{row?.employee_commissions[0]?.sale}</TableCell>
+                    <TableCell
+                      style={{
+                        color:
+                          row?.employee_commissions[0]?.sale >
+                          row?.employee_commissions[0]?.target
+                            ? "green"
+                            : "grey",
+                      }}
+                    >
+                      {row?.employee?.commission_per * row?.employee_commissions[0]?.sale} 
+                    </TableCell>
                     <TableCell>{row?.completed_jobs_total}</TableCell>
                     <TableCell>
                       <Link
