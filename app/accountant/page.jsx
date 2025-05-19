@@ -298,7 +298,7 @@ const Page = () => {
               
               {/* Or if the Agreement component doesn't accept data prop, render agreements here */}
               {!agreementsList || agreementsList.length === 0 ? (
-                <Typography>No renewable agreements found</Typography>
+                ""
               ) : (
                 agreementsList.map((agreement) => (
                   <Card

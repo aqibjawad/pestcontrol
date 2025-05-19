@@ -99,7 +99,9 @@ const Page = () => {
       "Paid By",
       "Paid To",
       "Date",
-      "Cash Amount",
+      "Debit",
+      "Credit",
+      "Balance",
     ];
 
     // Define table body
@@ -109,6 +111,8 @@ const Page = () => {
       row.personable?.name || "N/A",
       row.referenceable?.name || "Other Cash Expenses",
       format(new Date(row.updated_at), "yyyy-MM-dd"),
+      row.entry_type === "dr" ? row.cash_amt : "",
+      row.entry_type === "cr" ? row.cash_amt : "",
       row.cash_balance,
     ]);
 
@@ -128,9 +132,17 @@ const Page = () => {
     doc.save("cash-ledger-report.pdf");
   };
 
-  const totalCashAmount = useMemo(() => {
+  const totalDebitAmount = useMemo(() => {
     return rowData
-      ?.reduce((total, row) => total + parseFloat(row.cash_amt || 0), 0)
+      ?.filter((row) => row.entry_type === "dr")
+      .reduce((total, row) => total + parseFloat(row.cash_amt || 0), 0)
+      ?.toFixed(2);
+  }, [rowData]);
+
+  const totalCreditAmount = useMemo(() => {
+    return rowData
+      ?.filter((row) => row.entry_type === "cr")
+      .reduce((total, row) => total + parseFloat(row.cash_amt || 0), 0)
       ?.toFixed(2);
   }, [rowData]);
 
@@ -154,11 +166,12 @@ const Page = () => {
           <TableHead>
             <TableRow>
               <TableCell>Sr No</TableCell>
+              <TableCell>Date</TableCell>
               <TableCell>Description</TableCell>
               <TableCell>Paid By</TableCell>
               <TableCell>Paid To</TableCell>
-              <TableCell>Date</TableCell>
-              <TableCell>Cash Amount</TableCell>
+              <TableCell>Debit</TableCell>
+              <TableCell>Credit</TableCell>
               <TableCell>Balance</TableCell>
             </TableRow>
           </TableHead>
@@ -166,7 +179,7 @@ const Page = () => {
             {loading
               ? Array.from(new Array(5)).map((_, index) => (
                   <TableRow key={index}>
-                    {Array(6)
+                    {Array(7)
                       .fill()
                       .map((_, i) => (
                         <TableCell key={i}>
@@ -178,26 +191,35 @@ const Page = () => {
               : rowData?.map((row, index) => (
                   <TableRow key={index}>
                     <TableCell>{index + 1}</TableCell>
+                    <TableCell>
+                      {format(new Date(row.updated_at), "yyyy-MM-dd")}
+                    </TableCell>
                     <TableCell>{row.description}</TableCell>
-                    <TableCell>{row.personable.name}</TableCell>
+                    <TableCell>{row.personable?.name}</TableCell>
                     <TableCell>
                       {row?.referenceable?.name || "Other Cash Expenses"}
                     </TableCell>
                     <TableCell>
-                      {format(new Date(row.updated_at), "yyyy-MM-dd")}
+                      {row.entry_type === "dr" ? row.cash_amt : ""}
                     </TableCell>
-                    <TableCell>{row.cash_amt}</TableCell>
+                    <TableCell>
+                      {row.entry_type === "cr" ? row.cash_amt : ""}
+                    </TableCell>
                     <TableCell>{row.cash_balance}</TableCell>
                   </TableRow>
                 ))}
             {!loading && (
               <TableRow>
                 <TableCell colSpan={5} align="right">
-                  <strong>Total Cash:</strong>
+                  <strong>Total:</strong>
                 </TableCell>
                 <TableCell>
-                  <strong>{totalCashAmount}</strong>
+                  <strong>{totalDebitAmount}</strong>
                 </TableCell>
+                <TableCell>
+                  <strong>{totalCreditAmount}</strong>
+                </TableCell>
+                <TableCell />
               </TableRow>
             )}
           </TableBody>
