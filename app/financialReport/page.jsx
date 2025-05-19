@@ -264,7 +264,7 @@ const FinancialDashboard = () => {
   };
 
   const detailData = [
-    { category: "Cash", amount: cashList?.total_cash},
+    { category: "Cash", amount: cashList?.total_cash, path: "/cashLedger" },
     { category: "POS", amount: posList?.total_pos },
     { category: "Bank", amount: bankList?.total_cheque_transfer },
     {
@@ -281,7 +281,7 @@ const FinancialDashboard = () => {
   };
 
   const overAllData = [
-    { category: "Cash", amount: allAdminFinance?.cash_balance, path: "/cashLedger"  },
+    { category: "Cash", amount: allAdminFinance?.cash_balance, path: "/cashLedger?name=overall" },
     { category: "POS", amount: allAdminFinance?.pos_collection },
     { category: "Bank", amount: allAdminFinance?.bank_balance },
   ];
@@ -303,8 +303,7 @@ const FinancialDashboard = () => {
   const ExpenseItem = ({ category, amount, path, onClick }) => (
     <div
       onClick={() => (path ? onClick(path) : null)}
-      className="flex justify-between py-2 border-b border-gray-100"
-      style={{ cursor: "pointer" }}
+      className={`flex justify-between py-2 border-b border-gray-100 ${path ? "cursor-pointer hover:bg-gray-50" : ""}`}
     >
       <span className="text-gray-700">{category}</span>
       <span className="font-medium">
@@ -396,6 +395,8 @@ const FinancialDashboard = () => {
                   key={index}
                   category={item.category}
                   amount={item.amount}
+                  path={item.path}
+                  onClick={handleClick}
                 />
               ))}
               <div className="overflow-x-auto">

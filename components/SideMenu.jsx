@@ -201,11 +201,11 @@ export default function SideMenu({ children }) {
           url: "stockUseReport",
           icon: "/quotes.png",
         },
-        // {
-        //   name: "Invoices",
-        //   url: "stockUseReport",
-        //   icon: "/quotes.png",
-        // },
+        {
+          name: "Agreements",
+          url: "agreement",
+          icon: "/hr.png",
+        },
         {
           name: "Sales Report",
           url: "accountant/salesReport",

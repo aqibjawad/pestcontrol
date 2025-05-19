@@ -130,8 +130,8 @@ const Page = () => {
 
   const totalCashAmount = useMemo(() => {
     return rowData
-      .reduce((total, row) => total + parseFloat(row.cash_amt || 0), 0)
-      .toFixed(2);
+      ?.reduce((total, row) => total + parseFloat(row.cash_amt || 0), 0)
+      ?.toFixed(2);
   }, [rowData]);
 
   return (
@@ -175,7 +175,7 @@ const Page = () => {
                       ))}
                   </TableRow>
                 ))
-              : rowData.map((row, index) => (
+              : rowData?.map((row, index) => (
                   <TableRow key={index}>
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>{row.description}</TableCell>

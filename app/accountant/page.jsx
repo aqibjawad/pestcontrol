@@ -34,6 +34,7 @@ const Page = () => {
   const [selectedIndexTabs, setSelectedIndexTabs] = useState(0);
 
   const [advanceList, setAdvanceList] = useState([]);
+  const [payableList, setPayableList] = useState([]);
   const [agreementsList, setAgreementsList] = useState([]); // Added state for agreements
   const [loadingDetails, setLoadingDetails] = useState(true);
   const [fetchingData, setFetchingData] = useState(false);
@@ -85,6 +86,35 @@ const Page = () => {
     }
   };
 
+    const getAllPayableCheques = async () => {
+    setFetchingData(true);
+    setLoadingDetails(true);
+
+    const queryParams = [];
+    if (startDate && endDate) {
+      queryParams.push(`start_date=${startDate}`);
+      queryParams.push(`end_date=${endDate}`);
+    } else {
+      const currentDate = new Date();
+      const startDate = startOfMonth(currentDate);
+      const endDate = endOfMonth(currentDate);
+      queryParams.push(`start_date=${format(startDate, "yyyy-MM-dd")}`);
+      queryParams.push(`end_date=${format(endDate, "yyyy-MM-dd")}`);
+    }
+
+    try {
+      const response = await api.getDataWithToken(
+        `${Cheques}/pay/pending?${queryParams.join("&")}`
+      );
+      setPayableList(response.data);
+    } catch (error) {
+      console.error("Error fetching quotes:", error);
+    } finally {
+      setFetchingData(false);
+      setLoadingDetails(false);
+    }
+  };
+
   // New function to get renewable agreements
   const getRenewableAgreements = async () => {
     setFetchingData(true);
@@ -101,6 +131,7 @@ const Page = () => {
 
   useEffect(() => {
     getAllCheques();
+    getAllPayableCheques();
     getRenewableAgreements(); // Fetch agreements when component mounts
   }, [startDate, endDate]);
 
@@ -138,7 +169,7 @@ const Page = () => {
           aria-label="Main tabs"
         >
           <Tab label="Advance Recieveable" />
-          <Tab label="Advance Payments" />
+          <Tab label="Payable Cheques" />
           <Tab label="Renewable Agreements" />
         </Tabs>
 
@@ -256,7 +287,7 @@ const Page = () => {
 
           {selectedIndexTabs === 1 && (
             <Box sx={{ p: 2 }}>
-              <PaymentsTotal />
+              <PaymentsTotal payableList={payableList} />
             </Box>
           )}
 
