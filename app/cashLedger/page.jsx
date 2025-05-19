@@ -130,7 +130,7 @@ const Page = () => {
 
   const totalCashAmount = useMemo(() => {
     return rowData
-      .reduce((total, row) => total + parseFloat(row.cash_balance || 0), 0)
+      .reduce((total, row) => total + parseFloat(row.cash_amt || 0), 0)
       .toFixed(2);
   }, [rowData]);
 
@@ -159,6 +159,7 @@ const Page = () => {
               <TableCell>Paid To</TableCell>
               <TableCell>Date</TableCell>
               <TableCell>Cash Amount</TableCell>
+              <TableCell>Balance</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -185,6 +186,7 @@ const Page = () => {
                     <TableCell>
                       {format(new Date(row.updated_at), "yyyy-MM-dd")}
                     </TableCell>
+                    <TableCell>{row.cash_amt}</TableCell>
                     <TableCell>{row.cash_balance}</TableCell>
                   </TableRow>
                 ))}

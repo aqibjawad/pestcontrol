@@ -29,8 +29,6 @@ const FinancialDashboard = () => {
 
   const [allAdminFinance, setAllAdminFinance] = useState([]);
 
-  console.log("all admin finance", allAdminFinance);
-
   const [allVehicleExpense, setAllVehicleExpense] = useState(0);
   const [expenseList, setExpenseList] = useState(0);
 
@@ -266,7 +264,7 @@ const FinancialDashboard = () => {
   };
 
   const detailData = [
-    { category: "Cash", amount: cashList?.total_cash, path: "/cashLedger" },
+    { category: "Cash", amount: cashList?.total_cash},
     { category: "POS", amount: posList?.total_pos },
     { category: "Bank", amount: bankList?.total_cheque_transfer },
     {
@@ -283,7 +281,7 @@ const FinancialDashboard = () => {
   };
 
   const overAllData = [
-    { category: "Cash", amount: allAdminFinance?.cash_balance },
+    { category: "Cash", amount: allAdminFinance?.cash_balance, path: "/cashLedger"  },
     { category: "POS", amount: allAdminFinance?.pos_collection },
     { category: "Bank", amount: allAdminFinance?.bank_balance },
   ];

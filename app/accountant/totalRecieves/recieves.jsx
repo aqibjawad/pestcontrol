@@ -155,7 +155,10 @@ const ListServiceTable = ({ startDate, endDate, tableRef }) => {
                 Description
               </th>
               <th className="py-3 px-4 border-b border-gray-200 text-left font-semibold text-sm">
-                Reference
+                Recieved From
+              </th>
+              <th className="py-3 px-4 border-b border-gray-200 text-left font-semibold text-sm">
+                Recieved By
               </th>
               <th className="py-3 px-4 border-b border-gray-200 text-left font-semibold text-sm">
                 Type
@@ -203,6 +206,9 @@ const ListServiceTable = ({ startDate, endDate, tableRef }) => {
                     </td>
                     <td className="py-3 px-4 text-sm">
                       {transaction?.referenceable?.name || "Other Transactions"}
+                    </td>
+                    <td className="py-3 px-4 text-sm">
+                      {transaction?.personable?.name || "Other Transactions"}
                     </td>
                     <td className="py-3 px-4 text-sm">
                       <span

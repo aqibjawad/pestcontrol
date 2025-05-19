@@ -470,6 +470,7 @@ const Page = () => {
             <TableRow>
               <TableCell>Date</TableCell>
               <TableCell>Description</TableCell>
+              <TableCell>Reference By</TableCell>
               <TableCell>Credit</TableCell>
               <TableCell>Debit</TableCell>
               <TableCell>Balance</TableCell>
@@ -507,6 +508,7 @@ const Page = () => {
                     {format(new Date(row.updated_at), "yyyy-MM-dd")}
                   </TableCell>
                   <TableCell>{row.description}</TableCell>
+                  <TableCell>{row.personable?.client?.referencable?.name}</TableCell>
                   <TableCell>{row.cr_amt}</TableCell>
                   <TableCell>{row.dr_amt}</TableCell>
                   <TableCell>{row.cash_balance}</TableCell>

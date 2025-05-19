@@ -20,7 +20,7 @@ import {
   Grid,
 } from "@mui/material";
 
-import { Cheques } from "@/networkUtil/Constants";
+import { Cheques, Agreements } from "@/networkUtil/Constants"; // Added Agreements import
 import APICall from "@/networkUtil/APICall";
 
 import PaymentsTotal from "./totalPayments";
@@ -34,6 +34,7 @@ const Page = () => {
   const [selectedIndexTabs, setSelectedIndexTabs] = useState(0);
 
   const [advanceList, setAdvanceList] = useState([]);
+  const [agreementsList, setAgreementsList] = useState([]); // Added state for agreements
   const [loadingDetails, setLoadingDetails] = useState(true);
   const [fetchingData, setFetchingData] = useState(false);
 
@@ -77,15 +78,30 @@ const Page = () => {
 
       setAdvanceList(sortedCheques);
     } catch (error) {
-      console.error("Error fetching quotes:", error);
+      console.error("Error fetching cheques:", error);
     } finally {
       setFetchingData(false);
       setLoadingDetails(false);
     }
   };
 
+  // New function to get renewable agreements
+  const getRenewableAgreements = async () => {
+    setFetchingData(true);
+    
+    try {
+      const response = await api.getDataWithToken(`${Agreements}/renewable`);
+      setAgreementsList(response.data || []);
+    } catch (error) {
+      console.error("Error fetching renewable agreements:", error);
+    } finally {
+      setFetchingData(false);
+    }
+  };
+
   useEffect(() => {
     getAllCheques();
+    getRenewableAgreements(); // Fetch agreements when component mounts
   }, [startDate, endDate]);
 
   const handleDateChange = (start, end) => {
@@ -246,7 +262,87 @@ const Page = () => {
 
           {selectedIndexTabs === 2 && (
             <Box sx={{ p: 2 }}>
-              <Agreement />
+              {/* Either pass the data to the Agreement component */}
+              <Agreement data={agreementsList} />
+              
+              {/* Or if the Agreement component doesn't accept data prop, render agreements here */}
+              {!agreementsList || agreementsList.length === 0 ? (
+                <Typography>No renewable agreements found</Typography>
+              ) : (
+                agreementsList.map((agreement) => (
+                  <Card
+                    key={agreement.id}
+                    sx={{
+                      boxShadow: 1,
+                      "&:hover": { boxShadow: 3 },
+                      transition: "box-shadow 0.3s",
+                      marginTop: "1rem",
+                    }}
+                  >
+                    <CardContent sx={{ p: 1 }}>
+                      <Box
+                        sx={{
+                          p: 2,
+                          borderRadius: 1,
+                          backgroundColor: "#E3F2FD", // Light blue for agreements
+                          color: "black",
+                        }}
+                      >
+                        <Grid container spacing={2} alignItems="center">
+                          <Grid item xs={6}>
+                            <Typography
+                              variant="body1"
+                              sx={{ fontWeight: "medium" }}
+                            >
+                              Agreement ID
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              sx={{ fontWeight: "medium" }}
+                            >
+                              {agreement.id || agreement.agreement_id}
+                            </Typography>
+                          </Grid>
+
+                          <Grid item xs={6}>
+                            <Typography
+                              variant="body1"
+                              sx={{ fontWeight: "medium" }}
+                            >
+                              Renewal Date
+                            </Typography>
+                            <Typography variant="body2">
+                              {agreement.renewal_date || agreement.expiry_date}
+                            </Typography>
+                          </Grid>
+                        </Grid>
+
+                        <Grid
+                          className="mt-2"
+                          container
+                          spacing={2}
+                          alignItems="center"
+                        >
+                          <Grid item xs={12}>
+                            <Typography
+                              variant="body1"
+                              sx={{ fontWeight: "medium" }}
+                            >
+                              Client Name
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              sx={{ fontWeight: "medium" }}
+                            >
+                              {agreement?.client?.name || agreement?.user?.name || "N/A"}
+                            </Typography>
+                          </Grid>
+                        </Grid>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
             </Box>
           )}
         </Box>
