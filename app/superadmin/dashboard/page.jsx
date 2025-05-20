@@ -247,7 +247,6 @@ const Page = () => {
       icon: <CheckCircleOutlineIcon sx={{ fontSize: 16, color: "#15803D" }} />,
     };
   };
-
   const getExpiryStatus = (expiryDate) => {
     const today = new Date();
     const expiry = new Date(expiryDate);
@@ -282,10 +281,9 @@ const Page = () => {
       };
     }
   };
-
   return (
-    <div className="w-full">
-      {tabs()}
+    <div>
+      <div className="w-full">{tabs()}</div>
 
       <div className="grid grid-cols-12 gap-4 mt-10">
         <div className="col-span-12 md:col-span-9">
@@ -299,15 +297,9 @@ const Page = () => {
               </>
             )}
           </div>
-
           <div className={selectedIndex === 1 ? `block` : "hidden"}>
             {selectedIndex === 1 && <Finance />}
           </div>
-
-          {/* <div className={selectedIndex === 2 ? `block` : "hidden"}>
-            {/* <Schedule isVisible={selectedIndex === 2} />
-            {selectedIndex === 2 && <Schedule />}
-          </div> */}
 
           <div className={selectedIndex === 2 ? `block` : "hidden"}>
             {selectedIndex === 2 && <Reports />}
@@ -323,26 +315,26 @@ const Page = () => {
         >
           <style>
             {`
-                .scroll-container::-webkit-scrollbar {
-                  width: 8px;
-                }
-
-                .scroll-container::-webkit-scrollbar-track {
-                  background-color: #f1f1f1;
-                  border-radius: 10px;
-                }
-
-                .scroll-container::-webkit-scrollbar-thumb {
-                  background-color: #888;
-                  border-radius: 10px;
-                  border: 2px solid transparent;
-                  background-clip: content-box;
-                }
-
-                .scroll-container::-webkit-scrollbar-thumb:hover {
-                  background-color: #555;
-                }
-              `}
+                        .scroll-container::-webkit-scrollbar {
+                          width: 8px;
+                        }
+        
+                        .scroll-container::-webkit-scrollbar-track {
+                          background-color: #f1f1f1;
+                          border-radius: 10px;
+                        }
+        
+                        .scroll-container::-webkit-scrollbar-thumb {
+                          background-color: #888;
+                          border-radius: 10px;
+                          border: 2px solid transparent;
+                          background-clip: content-box;
+                        }
+        
+                        .scroll-container::-webkit-scrollbar-thumb:hover {
+                          background-color: #555;
+                        }
+                      `}
           </style>
 
           <Tabs
@@ -634,10 +626,10 @@ const Page = () => {
 
             {selectedIndexTabs === 3 && <RescheduleJobs />}
           </Box>
-        </div>
+        </div>   
       </div>
     </div>
   );
 };
 
-export default withAuth(Page);
+export default Page;
