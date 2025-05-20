@@ -162,14 +162,14 @@ const AllJobs = ({ isVisible }) => {
   return (
     <div>
       {/* Add sort direction control */}
-      <div className="flex justify-end mb-2">
+      {/* <div className="flex justify-end mb-2">
         <button 
           onClick={toggleSortDirection}
           className="px-3 py-1 bg-blue-500 text-white rounded-md text-sm"
         >
           Sort: {sortDirection === "asc" ? "Oldest First" : "Newest First"}
         </button>
-      </div>
+      </div> */}
       
       <UpcomingJobs
         isVisible={isVisible}

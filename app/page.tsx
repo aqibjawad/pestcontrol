@@ -48,7 +48,7 @@ export default function Login() {
   const redirectBasedOnRole = (roleId: number) => {
     switch (roleId) {
       case 1:
-        router.replace("/superadmin/dashboard");
+        router.replace("/superadmin/home");
         break;
       case 2:
         router.replace("/hr/hr");

@@ -80,7 +80,9 @@ export default function SideMenu({ children }) {
   const [roleId, setRoleId] = useState(null);
 
   const allPermissions = [
-    { name: "Home", url: "superadmin/dashboard", icon: "/home.png" },
+    { name: "Home", url: "superadmin/home", icon: "/home.png" },
+    { name: "Finance", url: "finance", icon: "/home.png" },
+    { name: "Reports", url: "reports", icon: "/home.png" },
     { name: "Jobs", url: "allJobs", icon: "/jobs.png" },
     { name: "Contracts", url: "contracts", icon: "/contracts.png" },
     {
