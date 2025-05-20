@@ -6,9 +6,9 @@ import styles from "../../styles/serviceReport.module.css";
 const visitTypes = [
   "Regular Treatment (Contract)",
   "Inspection Visit (Contract)",
-  "Complain Visit (Contract)",
+  "Complaint Visit (Contract)",
   "One-Off Treatment",
-  "Complain Visit (One-Off)",
+  "Complaint Visit (One-Off)",
 ];
 
 const TypeVisit = ({ formData, setFormData }) => {

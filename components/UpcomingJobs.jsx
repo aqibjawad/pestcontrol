@@ -333,7 +333,13 @@ const UpcomingJobs = ({
           {row.tag && <div className={styles.clientTag}>Tag: {row.tag}</div>}
         </td>
         <td>{row?.user?.client?.firm_name}</td>
-        <td>{row.job_services[0]?.service?.service_title}</td>
+        <td>
+          {row.job_services?.map((item, index) => (
+            <div key={index}>
+              {index + 1}: {item?.service?.service_title}
+            </div>
+          ))}
+        </td>
         <td>
           <div
             className={styles.statusContainer}
@@ -431,9 +437,7 @@ const UpcomingJobs = ({
                 </Link>
               ) : (
                 <>
-                  <Link href={`/serviceReportPdf?id=${row?.report?.id}`}>
-                    View Report
-                  </Link>
+                  <Link href={`${row?.service_report_pdf}`}>View Report</Link>
                   <div>
                     <Link href={`/serviceReportEdit?id=${row?.report?.id}`}>
                       Edit Report
@@ -444,7 +448,7 @@ const UpcomingJobs = ({
             ) : (
               <>
                 <div>
-                  <Link href={`/viewJob?id=${row.id}`}>View Details</Link>
+                  <Link target="_blank" href={`/viewJob?id=${row.id}`}>View Details</Link>
                 </div>
                 <div>
                   <Link href={`/serviceReportEdit?id=${row?.report?.id}`}>
