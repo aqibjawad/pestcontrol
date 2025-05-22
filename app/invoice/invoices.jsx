@@ -502,22 +502,14 @@ const ListServiceTable = ({
                     </th>
                   </tr>
                 </thead>
-              </table>
-            </div>
-
-            <div
-              style={{ overflowY: "auto", maxHeight: "500px" }}
-              className="overflow-x-auto"
-            >
-              <table
-                className="min-w-full bg-white"
-                style={{ tableLayout: "fixed" }}
-              >
-                <tbody>
+                <tbody
+                  className="overflow-y-auto"
+                  style={{ maxHeight: "500px" }}
+                >
                   {loadingDetails
                     ? Array.from({ length: 5 }).map((_, index) => (
                         <tr key={index} className="border-b border-gray-200">
-                          {Array.from({ length: 14 }).map((_, colIndex) => (
+                          {Array.from({ length: 15 }).map((_, colIndex) => (
                             <td key={colIndex} className="py-2 px-4">
                               <Skeleton
                                 variant="rectangular"
@@ -528,7 +520,7 @@ const ListServiceTable = ({
                           ))}
                         </tr>
                       ))
-                    : invoiceList?.map((row, index) => (
+                    : invoiceList.map((row, index) => (
                         <tr key={index} className="border-b border-gray-200">
                           <td style={{ width: "5%" }} className="py-5 px-4">
                             {index + 1}
@@ -565,7 +557,7 @@ const ListServiceTable = ({
                             <div
                               className={
                                 row.status.toLowerCase() === "paid"
-                                  ? "text-green-600"  
+                                  ? "text-green-600"
                                   : "text-red-600"
                               }
                             >
@@ -573,7 +565,6 @@ const ListServiceTable = ({
                                 ? "Received"
                                 : "Pending"}
                             </div>
-
                             <div>
                               {row.is_taken_cheque === 1 ? "Cheque Taken" : ""}
                             </div>
@@ -593,29 +584,30 @@ const ListServiceTable = ({
                             </Link>
                           </td>
                           <td style={{ width: "8%" }} className="py-2 px-4">
-                            <button
-                              onClick={() => handleAssignClick(row.id)}
-                              className={`text-blue-600 hover:text-blue-800 ${
-                                row.status.toLowerCase() === "paid"
-                                  ? "opacity-50 cursor-not-allowed"
-                                  : ""
-                              }`}
-                              disabled={row.status.toLowerCase() === "paid"}
-                            >
-                              Assign
-                            </button>
-
-                            <button
-                              onClick={() => handleClickPay(row)}
-                              className={`text-blue-600 hover:text-blue-800 ${
-                                row.status.toLowerCase() === "paid"
-                                  ? "opacity-50 cursor-not-allowed"
-                                  : ""
-                              }`}
-                              disabled={row.status.toLowerCase() === "paid"}
-                            >
-                              Pay
-                            </button>
+                            <div className="flex flex-col space-y-2">
+                              <button
+                                onClick={() => handleAssignClick(row.id)}
+                                className={`text-blue-600 hover:text-blue-800 ${
+                                  row.status.toLowerCase() === "paid"
+                                    ? "opacity-50 cursor-not-allowed"
+                                    : ""
+                                }`}
+                                disabled={row.status.toLowerCase() === "paid"}
+                              >
+                                Assign
+                              </button>
+                              <button
+                                onClick={() => handleClickPay(row)}
+                                className={`text-blue-600 hover:text-blue-800 ${
+                                  row.status.toLowerCase() === "paid"
+                                    ? "opacity-50 cursor-not-allowed"
+                                    : ""
+                                }`}
+                                disabled={row.status.toLowerCase() === "paid"}
+                              >
+                                Pay
+                              </button>
+                            </div>
                           </td>
                           <td style={{ width: "8%" }} className="py-2 px-4">
                             <Link href={`/invoiceDetailsPdf?id=${row.id}`}>

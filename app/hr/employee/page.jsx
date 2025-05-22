@@ -41,7 +41,7 @@ const Page = () => {
     allowance: "",
     other: "",
     total_salary: "",
-    commission_per: "",
+    commission_per: 0,
     labour_card_expiry: "abc",
     country: "",
     branch_id: "",

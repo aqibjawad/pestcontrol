@@ -35,6 +35,7 @@ const PersonalInformation = ({
     { label: "Operations", value: 4 },
     { label: "Accountant", value: 6 },
     { label: "Recovey Officer", value: 7 },
+    { label: "Quality Inspector", value: 10 },
   ];
 
   const handleFileSelect = (file) => {
@@ -79,6 +80,7 @@ const PersonalInformation = ({
     "Technician helper",
     "Recovery Officer",
     "operation supervisor",
+    "Quality Inspector",
   ];
 
   // Transform branches data for dropdown if needed
@@ -200,19 +202,19 @@ const PersonalInformation = ({
             </Grid>
           )}
 
-          {/* {(data.role_id === "9" || data.role_id === "8" || data.role_id === "2") && (
-
-          )} */}
-
-          <Grid item lg={6} xs={12} md={6}>
-            <InputWithTitle2
-              title="Comission %"
-              type="text"
-              placeholder="Comission"
-              value={data.commission_per}
-              onChange={(name, value) => onChange("commission_per", value)}
-            />
-          </Grid>
+          {(data.role_id === "9" ||
+            data.role_id === "8" ||
+            data.role_id === "2") && (
+            <Grid item lg={6} xs={12} md={6}>
+              <InputWithTitle2
+                title="Comission %"
+                type="text"
+                placeholder="Comission"
+                value={data.commission_per}
+                onChange={(name, value) => onChange("commission_per", value)}
+              />
+            </Grid>
+          )}
 
           <Grid item lg={6} xs={12} md={6}>
             <Dropdown
