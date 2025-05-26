@@ -13,18 +13,25 @@ import Toolbar from "@mui/material/Toolbar";
 import styles from "../styles/sideMenu.module.css";
 import { useRouter } from "next/navigation";
 import User from "../networkUtil/user";
-import { IoIosStats } from "react-icons/io";
 import {
-  MdOutlineProductionQuantityLimits,
-  MdInventory,
-  MdOutlineInventory,
+  MdHome,
+  MdWork,
+  MdAssessment,
+  MdPerson,
+  MdSettings,
   MdOutlineQueryStats,
-  MdOutlinePayments,
 } from "react-icons/md";
-import { AiFillProduct } from "react-icons/ai";
-import { IoIosPerson } from "react-icons/io";
-import { IoPersonCircle } from "react-icons/io5";
-import { FaAlipay } from "react-icons/fa";
+import {
+  FaFileInvoiceDollar,
+  FaUsers,
+  FaRegCalendarCheck,
+  FaFileAlt,
+} from "react-icons/fa";
+import { IoIosStats } from "react-icons/io";
+import { BsBriefcase, BsCardChecklist } from "react-icons/bs";
+import { RiTeamLine, RiMoneyDollarCircleLine } from "react-icons/ri";
+import { AiOutlineSchedule } from "react-icons/ai";
+import { HiOutlineDocumentReport } from "react-icons/hi";
 
 const drawerWidth = 240;
 
@@ -80,30 +87,26 @@ export default function SideMenu({ children }) {
   const [roleId, setRoleId] = useState(null);
 
   const allPermissions = [
-    { name: "Home", url: "superadmin/home", icon: "/home.png" },
-    { name: "Finance", url: "finance", icon: "/home.png" },
-    { name: "Reports", url: "reports", icon: "/home.png" },
-    { name: "Jobs", url: "allJobs", icon: "/jobs.png" },
-    { name: "Contracts", url: "contracts", icon: "/contracts.png" },
+    { name: "Home", url: "superadmin/home", icon: <MdHome /> },
+    { name: "Finance", url: "finance", icon: <RiMoneyDollarCircleLine /> },
+    { name: "Reports", url: "reports", icon: <HiOutlineDocumentReport /> },
+    { name: "Jobs", url: "allJobs", icon: <MdWork /> },
+    { name: "Contracts", url: "contracts", icon: <BsBriefcase /> },
     {
       name: "Contract Summary",
       url: "contractSummary",
-      icon: "/contracts.png",
+      icon: <BsCardChecklist />,
     },
+    { name: "Jobs Summary", url: "jobsSummary", icon: <BsCardChecklist /> },
+    { name: "Quotes", url: "viewQuote", icon: <FaFileAlt /> },
+    { name: "Scheduler", url: "schedular", icon: <AiOutlineSchedule /> },
     {
-      name: "Jobs Summary",
-      url: "jobsSummary",
-      icon: "/contracts.png",
+      name: "Stock Use Report",
+      url: "stockUseReport",
+      icon: <HiOutlineDocumentReport />,
     },
-    { name: "Quotes", url: "viewQuote", icon: "/quotes.png" },
-    {
-      name: "Scheduler",
-      url: "schedular",
-      icon: "/quotes.png",
-    },
-    { name: "Stock Use Report", url: "stockUseReport", icon: "/quotes.png" },
-    { name: "Clients", url: "clients", icon: "/clients.png" },
-    { name: "Invoices", url: "invoice", icon: "/operations.png" },
+    { name: "Clients", url: "clients", icon: <FaUsers /> },
+    { name: "Invoices", url: "invoice", icon: <FaFileInvoiceDollar /> },
     { name: "Outstandings", url: "badTransac", icon: <MdOutlineQueryStats /> },
     {
       name: "Inpection Report",
@@ -130,15 +133,20 @@ export default function SideMenu({ children }) {
       url: "recovery/promises/",
       icon: <MdOutlineQueryStats />,
     },
-    { name: "HR", url: "hr/hr", icon: "/hr.png" },
-    { name: "Sales Officer", url: "salesOfficer/dashboard", icon: "/hr.png" },
-    { name: "Employee Ledger", url: "hr/employeeLedger", icon: "/hr.png" },
+    { name: "HR", url: "hr/hr", icon: <RiTeamLine /> },
+    { name: "Users", url: "users", icon: <MdPerson /> },
     {
-      name: "Financial Report",
-      url: "financialReport/",
-      icon: <IoIosStats />,
+      name: "Sales Officer",
+      url: "salesOfficer/dashboard",
+      icon: <MdPerson />,
     },
-    { name: "Settings", url: "setting", icon: "/setting-2.png" },
+    {
+      name: "Employee Ledger",
+      url: "hr/employeeLedger",
+      icon: <MdAssessment />,
+    },
+    { name: "Financial Report", url: "financialReport/", icon: <IoIosStats /> },
+    { name: "Settings", url: "setting", icon: <MdSettings /> },
   ];
 
   const [permissions, setPermissions] = useState([]);

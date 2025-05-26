@@ -298,7 +298,7 @@ const Page = () => {
     // Check if the description contains "Job Completed"
     if (row.description && row.description.includes("Job Completed")) {
       // Regular invoice link - same as original
-      return `/invoiceDetailsPdf/?id=${row?.personable?.id}`;
+      return `/invoiceDetailsPdf/?id=${row?.job_service_report?.job?.service_invoice?.id}`;
     } else {
       // Receipt PDF link - for service_invoice_amt_history
       return row.service_invoice_amt_history?.receipt_pdf || `/paymentInvoice/?id=${row.id}&userId=${id}`;

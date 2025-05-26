@@ -380,7 +380,7 @@ const UpcomingJobs = ({
           <div style={{ color: "red", fontSize: "12px", textAlign: "center" }}>
             {row.captain_id === null ? (
               <Link href={`/operations/assignJob?id=${row.id}`}>
-                Assign Job
+                Caption
               </Link>
             ) : (
               <span>{row?.captain?.name}</span>
