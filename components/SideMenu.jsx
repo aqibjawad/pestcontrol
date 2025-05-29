@@ -20,6 +20,10 @@ import {
   MdPerson,
   MdSettings,
   MdOutlineQueryStats,
+  MdOutlineInventory,
+  MdOutlineProductionQuantityLimits,
+  MdInventory,
+  MdOutlinePayments,
 } from "react-icons/md";
 import {
   FaFileInvoiceDollar,
@@ -27,10 +31,10 @@ import {
   FaRegCalendarCheck,
   FaFileAlt,
 } from "react-icons/fa";
-import { IoIosStats } from "react-icons/io";
+import { IoIosStats, IoPersonCircle, IoIosPerson } from "react-icons/io";
 import { BsBriefcase, BsCardChecklist } from "react-icons/bs";
 import { RiTeamLine, RiMoneyDollarCircleLine } from "react-icons/ri";
-import { AiOutlineSchedule } from "react-icons/ai";
+import { AiOutlineSchedule, AiFillProduct } from "react-icons/ai";
 import { HiOutlineDocumentReport } from "react-icons/hi";
 
 const drawerWidth = 240;
@@ -134,7 +138,6 @@ export default function SideMenu({ children }) {
       icon: <MdOutlineQueryStats />,
     },
     { name: "HR", url: "hr/hr", icon: <RiTeamLine /> },
-    { name: "Users", url: "users", icon: <MdPerson /> },
     {
       name: "Sales Officer",
       url: "salesOfficer/dashboard",

@@ -26,7 +26,13 @@ import {
   Skeleton,
   Grid,
   Button,
+  Card,
+  CardContent,
+  Typography,
+  IconButton,
 } from "@mui/material";
+
+import { Add as AddIcon, Delete as DeleteIcon } from "@mui/icons-material";
 
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 
@@ -44,6 +50,161 @@ const getIdFromUrl = (url) => {
   return null;
 };
 
+// Individual Crew Assignment Component
+const CrewAssignmentSection = ({ 
+  index, 
+  crewData, 
+  salesManagers, 
+  managerNames, 
+  loadingManagers, 
+  onCrewChange, 
+  onRemove, 
+  canRemove,
+  usedManagerIds 
+}) => {
+  const handleCaptainChange = (value) => {
+    if (!value) {
+      onCrewChange(index, {
+        ...crewData,
+        captain_id: null,
+        captain_name: "",
+        team_member_ids: crewData.team_member_ids
+      });
+      return;
+    }
+
+    const selectedCaptain = salesManagers.find(
+      (manager) => manager.name === value
+    );
+
+    if (selectedCaptain) {
+      onCrewChange(index, {
+        ...crewData,
+        captain_id: selectedCaptain.id,
+        captain_name: value,
+        team_member_ids: crewData.team_member_ids.filter(
+          (id) => id !== selectedCaptain.id
+        )
+      });
+    }
+  };
+
+  // Filter out managers that are already used in other crew assignments
+  const getAvailableCaptainOptions = () => {
+    return managerNames.filter(name => {
+      const manager = salesManagers.find(m => m.name === name);
+      if (!manager) return false;
+      
+      // Include current captain or managers not used elsewhere
+      return manager.id === crewData.captain_id || !usedManagerIds.includes(manager.id);
+    });
+  };
+
+  const getAvailableTeamMembers = () => {
+    return salesManagers.filter(manager => {
+      // Exclude current captain and managers used in other assignments
+      return manager.id !== crewData.captain_id && 
+             (crewData.team_member_ids.includes(manager.id) || !usedManagerIds.includes(manager.id));
+    });
+  };
+
+  const handleTeamMemberChange = (managerId) => {
+    if (managerId === crewData.captain_id) return;
+
+    const updatedTeamMembers = crewData.team_member_ids.includes(managerId)
+      ? crewData.team_member_ids.filter((id) => id !== managerId)
+      : [...crewData.team_member_ids, managerId];
+
+    onCrewChange(index, {
+      ...crewData,
+      team_member_ids: updatedTeamMembers
+    });
+  };
+
+  const handleJobInstructionsChange = (value) => {
+    onCrewChange(index, {
+      ...crewData,
+      job_instructions: value
+    });
+  };
+
+  return (
+    <Card className="mb-4" variant="outlined">
+      <CardContent>
+        <div className="flex justify-between items-center mb-4">
+          <Typography variant="h6" component="h3">
+            Crew Assignment {index + 1}
+          </Typography>
+          {canRemove && (
+            <IconButton 
+              onClick={() => onRemove(index)}
+              color="error"
+              size="small"
+            >
+              <DeleteIcon />
+            </IconButton>
+          )}
+        </div>
+
+        <Grid container spacing={3}>
+          <Grid item lg={8} xs={12} md={8}>
+            <div className="mt-5">
+              {loadingManagers ? (
+                <Skeleton variant="rect" width="100%" height={56} />
+              ) : (
+                <Dropdown2
+                  onChange={handleCaptainChange}
+                  title="Select Captain"
+                  value={crewData.captain_name}
+                  options={getAvailableCaptainOptions().map((name) => ({
+                    value: name,
+                    label: name,
+                  }))}
+                />
+              )}
+            </div>
+
+            <div className="mt-5">
+              {loadingManagers ? (
+                <CircularProgress />
+              ) : (
+                <Grid container spacing={2}>
+                  {getAvailableTeamMembers().map((manager) => (
+                    <Grid item key={manager.id} xs={6} sm={4} md={3}>
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={crewData.team_member_ids.includes(
+                              manager.id
+                            )}
+                            onChange={() =>
+                              handleTeamMemberChange(manager.id)
+                            }
+                          />
+                        }
+                        label={manager.name}
+                      />
+                    </Grid>
+                  ))}
+                </Grid>
+              )}
+            </div>
+          </Grid>
+
+          <Grid item lg={4} xs={12} md={4}>
+            <MultilineInput
+              placeholder="Job Details"
+              title="Job Details"
+              value={crewData.job_instructions}
+              onChange={handleJobInstructionsChange}
+            />
+          </Grid>
+        </Grid>
+      </CardContent>
+    </Card>
+  );
+};
+
 const Page = () => {
   const router = useRouter();
   const api = new APICall();
@@ -57,8 +218,16 @@ const Page = () => {
   const [loadingManagers, setLoadingManagers] = useState(true);
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [jobStatus, setJobStatus] = useState("not_started");
-  const [selectedCaptainId, setSelectedCaptainId] = useState(null);
-  const [selectedCaptainName, setSelectedCaptainName] = useState("");
+
+  // Multiple crew assignments state
+  const [crewAssignments, setCrewAssignments] = useState([
+    {
+      captain_id: null,
+      captain_name: "",
+      team_member_ids: [],
+      job_instructions: ""
+    }
+  ]);
 
   useEffect(() => {
     const currentUrl = window.location.href;
@@ -68,10 +237,6 @@ const Page = () => {
 
   useEffect(() => {
     if (id !== undefined && id !== null) {
-      setFormData((prev) => ({
-        ...prev,
-        job_id: id,
-      }));
       getAllJobs();
     }
   }, [id]);
@@ -115,50 +280,38 @@ const Page = () => {
     }
   };
 
-  const handleCaptainChange = (value) => {
-    if (!value) {
-      setSelectedCaptainId(null);
-      setSelectedCaptainName(""); // Clear the captain name
-      return;
-    }
-
-    const selectedCaptain = salesManagers.find(
-      (manager) => manager.name === value
-    );
-
-    if (selectedCaptain) {
-      setSelectedCaptainId(selectedCaptain.id);
-      setSelectedCaptainName(value); // Set the captain name
-      setFormData((prev) => ({
-        ...prev,
-        captain_id: selectedCaptain.id,
-        team_member_ids: prev.team_member_ids.filter(
-          (id) => id !== selectedCaptain.id
-        ),
-      }));
-    }
-  };
-
-  const handleTeamMemberChange = (managerId) => {
-    if (managerId === selectedCaptainId) return;
-
-    setFormData((prev) => {
-      const updatedTeamMembers = prev.team_member_ids.includes(managerId)
-        ? prev.team_member_ids.filter((id) => id !== managerId)
-        : [...prev.team_member_ids, managerId];
-
-      return {
-        ...prev,
-        team_member_ids: updatedTeamMembers,
-      };
+  // Get all manager IDs that are currently used across all crew assignments
+  const getUsedManagerIds = () => {
+    const allUsedIds = [];
+    crewAssignments.forEach(crew => {
+      if (crew.captain_id) allUsedIds.push(crew.captain_id);
+      allUsedIds.push(...crew.team_member_ids);
     });
+    return allUsedIds;
   };
 
-  const handleJobInstructionsChange = (value) => {
-    setFormData((prev) => ({
+  const handleCrewChange = (index, updatedCrew) => {
+    setCrewAssignments(prev => 
+      prev.map((crew, i) => i === index ? updatedCrew : crew)
+    );
+  };
+
+  const addNewCrewAssignment = () => {
+    setCrewAssignments(prev => [
       ...prev,
-      job_instructions: value,
-    }));
+      {
+        captain_id: null,
+        captain_name: "",
+        team_member_ids: [],
+        job_instructions: ""
+      }
+    ]);
+  };
+
+  const removeCrewAssignment = (index) => {
+    if (crewAssignments.length > 1) {
+      setCrewAssignments(prev => prev.filter((_, i) => i !== index));
+    }
   };
 
   const formatDate = (dateString) => {
@@ -167,23 +320,34 @@ const Page = () => {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
-  const [formData, setFormData] = useState({
-    job_id: id,
-    captain_id: "",
-    team_member_ids: [],
-    job_instructions: "",
-  });
-
   const handleSubmit = async () => {
+    // Validate that at least one crew has a captain assigned
+    const validCrews = crewAssignments.filter(crew => crew.captain_id);
+    
+    if (validCrews.length === 0) {
+      Swal.fire({
+        icon: "warning",
+        title: "Validation Error",
+        text: "Please assign at least one captain to proceed.",
+      });
+      return;
+    }
+
     setLoadingSubmit(true);
     try {
+      const formData = {
+        job_id: id,
+        crew_assignments: crewAssignments.filter(crew => crew.captain_id) // Only send crews with captains
+      };
+
       const endpoint = `${job}/sales_manager/assign`;
       const response = await api.postFormDataWithToken(endpoint, formData);
+      
       if (response.status === "success") {
         Swal.fire({
           icon: "success",
           title: "Success",
-          text: "Data has been added successfully!",
+          text: "Crew assignments have been added successfully!",
         });
         router.back();
       } else {
@@ -270,77 +434,45 @@ const Page = () => {
       </div>
 
       <div className="mt-5">
-        <Grid container spacing={3}>
-          <Grid item lg={8} xs={12} md={4}>
-            <div className="mt-5">
-              {loadingManagers ? (
-                <Skeleton variant="rect" width="100%" height={56} />
-              ) : (
-                <Dropdown2
-                  onChange={handleCaptainChange}
-                  title="Select Captain"
-                  value={selectedCaptainName} // Add this prop
-                  options={managerNames.map((name) => ({
-                    value: name,
-                    label: name,
-                  }))}
-                />
-              )}
-            </div>
+        {crewAssignments.map((crew, index) => (
+          <CrewAssignmentSection
+            key={index}
+            index={index}
+            crewData={crew}
+            salesManagers={salesManagers}
+            managerNames={managerNames}
+            loadingManagers={loadingManagers}
+            onCrewChange={handleCrewChange}
+            onRemove={removeCrewAssignment}
+            canRemove={crewAssignments.length > 1}
+            usedManagerIds={getUsedManagerIds()}
+          />
+        ))}
 
-            <div className="mt-5">
-              {loadingManagers ? (
-                <CircularProgress />
-              ) : (
-                <Grid container spacing={2}>
-                  {salesManagers.map(
-                    (manager) =>
-                      // Only render checkbox if manager is not the selected captain
-                      manager.id !== selectedCaptainId && (
-                        <Grid item key={manager.id} xs={6} sm={4} md={3}>
-                          <FormControlLabel
-                            control={
-                              <Checkbox
-                                checked={formData.team_member_ids.includes(
-                                  manager.id
-                                )}
-                                onChange={() =>
-                                  handleTeamMemberChange(manager.id)
-                                }
-                              />
-                            }
-                            label={manager.name}
-                          />
-                        </Grid>
-                      )
-                  )}
-                </Grid>
-              )}
-            </div>
-
-            {/* <MultilineInput
-              placeholder="Job Details"
-              title="Job Details"
-              value={formData.job_instructions}
-              onChange={handleJobInstructionsChange}
-            /> */}
-          </Grid>
-
-          <Grid item lg={4} xs={12} md={4}>
-            <MultilineInput
-              placeholder="Job Details"
-              title="Job Details"
-              value={formData.job_instructions}
-              onChange={handleJobInstructionsChange}
-            />
-          </Grid>
-        </Grid>
+        <div className="mt-4 mb-6">
+          <Button
+            variant="outlined"
+            startIcon={<AddIcon />}
+            onClick={addNewCrewAssignment}
+            className="w-full"
+            style={{ 
+              borderColor: '#4CAF50', 
+              color: '#4CAF50',
+              '&:hover': {
+                borderColor: '#45a049',
+                backgroundColor: '#f1f8e9'
+              }
+            }}
+          >
+            Add Another Crew Assignment
+          </Button>
+        </div>
       </div>
 
       <div className="mt-10">
         <GreenButton
           onClick={handleSubmit}
-          title={loadingSubmit ? "Submitting..." : "Submit"}
+          title={loadingSubmit ? "Submitting..." : "Submit All Assignments"}
         />
         {loadingSubmit && (
           <CircularProgress size={24} style={{ marginLeft: 10 }} />
