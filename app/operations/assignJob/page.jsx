@@ -193,8 +193,8 @@ const CrewAssignmentSection = ({
 
           <Grid item lg={4} xs={12} md={4}>
             <MultilineInput
-              placeholder="Job Details"
-              title="Job Details"
+              placeholder="Caption Instructions"
+              title="Caption Instructions"
               value={crewData.job_instructions}
               onChange={handleJobInstructionsChange}
             />
@@ -472,7 +472,7 @@ const Page = () => {
       <div className="mt-10">
         <GreenButton
           onClick={handleSubmit}
-          title={loadingSubmit ? "Submitting..." : "Submit All Assignments"}
+          title={loadingSubmit ? "Submitting..." : "Assign Jobs"}
         />
         {loadingSubmit && (
           <CircularProgress size={24} style={{ marginLeft: 10 }} />
